@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoresearch"
+version = "0.1.0"
+description = "Autonomous FX return prediction with multi-backbone ablation and Claude-powered optimization"
+requires-python = ">=3.10"
+license = "MIT"
+
+dependencies = [
+    "torch>=2.5.0",
+    "transformers>=4.55",
+    "safetensors",
+    "accelerate",
+    "yfinance",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "scipy",
+]
+
+[project.optional-dependencies]
+optimizer = ["anthropic"]
+sweep = ["optuna"]
+gbm = ["xgboost", "lightgbm", "catboost"]
+all = [
+    "anthropic",
+    "optuna",
+    "xgboost",
+    "lightgbm",
+    "catboost",
+]
+dev = [
+    "pytest",
+    "anthropic",
+    "optuna",
+    "xgboost",
+    "lightgbm",
+    "catboost",
+]
+
+[project.scripts]
+autoresearch-baseline = "autoresearch.baseline:main"
+autoresearch-ablation = "autoresearch.run_ablation:main"
+autoresearch-sweep = "autoresearch.run_sweep:main"
+autoresearch-optimizer = "autoresearch.run_optimizer:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["autoresearch*"]
+
+[tool.pytest.ini_options]
+testpaths = ["autoresearch/tests"]

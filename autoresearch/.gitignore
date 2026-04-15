@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/cache/
+*.egg-info/
+dist/
+build/
+.env
+venv/
+.venv/
+.optimizer_backups/
+checkpoint_*.json
+baseline_checkpoint.json
+optimizer_state.json
+sweep_results/
+*.parquet

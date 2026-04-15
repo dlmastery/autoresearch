@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AutoResearch Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
+  h1 { color: #58a6ff; margin-bottom: 4px; font-size: 1.6em; }
+  .subtitle { color: #8b949e; margin-bottom: 20px; font-size: 0.9em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
+  .card .label { color: #8b949e; font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .value { font-size: 1.8em; font-weight: 700; margin-top: 4px; }
+  .positive { color: #3fb950; }
+  .negative { color: #f85149; }
+  .neutral { color: #58a6ff; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.85em; }
+  th { background: #161b22; color: #8b949e; text-align: left; padding: 8px 10px; border-bottom: 2px solid #30363d; font-weight: 600; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; }
+  td { padding: 7px 10px; border-bottom: 1px solid #21262d; }
+  tr:hover { background: #1c2128; }
+  tr.keep { border-left: 3px solid #3fb950; }
+  tr.discard { border-left: 3px solid #f85149; }
+  tr.crash { border-left: 3px solid #d29922; }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover { background: #1f2937; }
+  tr.selected { background: #1a2332 !important; border-left: 3px solid #58a6ff !important; }
+  tr.best-row { background: #0d2818 !important; border-left: 4px solid #00d26a !important; }
+  tr.best-row td { font-weight: 600; }
+  .winner-box { background: #0d2818; border: 2px solid #3fb950; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+  .winner-box .label { color: #3fb950; font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .winner-box .main { font-size: 1.1em; color: #c9d1d9; margin-bottom: 8px; }
+  .winner-box .metrics { font-family: monospace; font-size: 0.85em; color: #8b949e; white-space: pre; }
+  .section-title { color: #58a6ff; font-size: 1.1em; margin: 20px 0 10px 0; font-weight: 600; }
+  .timestamp { color: #484f58; font-size: 0.75em; }
+  .status-bar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .status-dot.running { background: #3fb950; animation: pulse 1.5s infinite; }
+  .status-dot.idle { background: #484f58; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .config-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.82em; white-space: pre; margin-bottom: 16px; }
+  #error { color: #f85149; padding: 10px; display: none; }
+  .detail-panel { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 20px; display: none; }
+  .detail-panel.visible { display: block; }
+  .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .detail-header h3 { color: #58a6ff; font-size: 1em; }
+  .close-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+  .close-btn:hover { background: #30363d; color: #c9d1d9; }
+  .detail-config { font-family: monospace; font-size: 0.8em; color: #8b949e; margin-bottom: 12px; }
+  .window-table td { font-size: 0.8em; }
+  .mini-bar { display: inline-block; height: 14px; border-radius: 2px; vertical-align: middle; margin-left: 4px; }
+</style>
+</head>
+<body>
+<h1>AutoResearch Dashboard</h1>
+<div class="subtitle">LFM2.5-350M Karpathy-style sweep &mdash; <span id="last-update">loading...</span>
+  &nbsp;|&nbsp; <a href="autoresearch_report.md" style="color:#58a6ff">Full Report</a>
+  &nbsp;|&nbsp; <a href="experiment_summary.md" style="color:#58a6ff">Summary</a>
+</div>
+<div class="status-bar">
+  <div class="status-dot" id="status-dot"></div>
+  <span id="status-text">Connecting...</span>
+</div>
+<div id="error"></div>
+
+<div class="grid" id="summary-cards"></div>
+
+<div class="section-title" id="running-title" style="display:none">Currently Running</div>
+<div class="config-box" id="running-config" style="display:none;border-color:#3fb950"></div>
+
+<div class="section-title">Best Config</div>
+<div class="config-box" id="best-config">Loading...</div>
+
+<div id="winner-section" style="display:none">
+  <div class="section-title">Winner</div>
+  <div class="winner-box">
+    <div class="label">BEST COMPOSITE SCORE</div>
+    <div class="main" id="winner-title"></div>
+    <div class="metrics" id="winner-metrics"></div>
+  </div>
+</div>
+
+<div class="section-title">Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for per-window breakdown, click header to sort)</span></div>
+<table id="exp-table">
+  <thead>
+    <tr>
+      <th data-sort="experiment_num" style="cursor:pointer">#</th>
+      <th data-sort="status" style="cursor:pointer">Status</th>
+      <th data-sort="description" style="cursor:pointer">Description</th>
+      <th data-sort="composite" style="cursor:pointer">Composite</th>
+      <th data-sort="sharpe" style="cursor:pointer">Test Sharpe</th>
+      <th data-sort="val_sharpe" style="cursor:pointer">Val Sharpe</th>
+      <th data-sort="train_sharpe" style="cursor:pointer">Train Sharpe</th>
+      <th data-sort="ic" style="cursor:pointer">IC</th>
+      <th data-sort="hit" style="cursor:pointer">Hit%</th>
+      <th data-sort="psr" style="cursor:pointer">PSR</th>
+      <th data-sort="equity" style="cursor:pointer">$Equity</th>
+      <th data-sort="confidence_mean" style="cursor:pointer">Conf</th>
+      <th data-sort="aleatoric_mean" style="cursor:pointer">Ale</th>
+      <th>T+/V+</th>
+      <th data-sort="elapsed_sec" style="cursor:pointer">Time</th>
+      <th data-sort="timestamp" style="cursor:pointer">When</th>
+    </tr>
+  </thead>
+  <tbody id="exp-body"></tbody>
+</table>
+
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <h3 id="detail-title">Per-Window Breakdown</h3>
+    <button class="close-btn" onclick="closeDetail()">Close</button>
+  </div>
+  <div class="detail-config" id="detail-config"></div>
+  <div style="margin-bottom:10px">
+    <button class="close-btn" id="tab-test" onclick="switchTab('test')" style="background:#1a2332;color:#58a6ff">Test</button>
+    <button class="close-btn" id="tab-val" onclick="switchTab('val')">Validation</button>
+    <button class="close-btn" id="tab-train" onclick="switchTab('train')">Train</button>
+    <span style="color:#484f58;font-size:0.75em;margin-left:8px" id="tab-summary"></span>
+  </div>
+  <table class="window-table">
+    <thead>
+      <tr><th>Fold</th><th>Regime</th><th>Sharpe</th><th>Visual</th><th>Sortino</th><th>Return%</th><th>Equity</th><th>MaxDD%</th><th>WinRate%</th><th>PF</th><th>IC</th><th>Hit%</th><th>Conf</th><th>Aleatoric</th><th>Epistemic</th><th>n</th></tr>
+    </thead>
+    <tbody id="window-body"></tbody>
+  </table>
+</div>
+
+<div class="section-title">Best Run Per-Window Breakdown</div>
+<div style="margin-bottom:10px">
+  <button class="close-btn" id="best-tab-test" onclick="switchBestTab('test')" style="background:#1a2332;color:#58a6ff">Test</button>
+  <button class="close-btn" id="best-tab-val" onclick="switchBestTab('val')">Validation</button>
+  <button class="close-btn" id="best-tab-train" onclick="switchBestTab('train')">Train</button>
+  <span style="color:#484f58;font-size:0.75em;margin-left:8px" id="best-tab-summary"></span>
+</div>
+<table class="window-table" id="best-window-table">
+  <thead>
+    <tr><th>Fold</th><th>Regime</th><th>Sharpe</th><th>Visual</th><th>Sortino</th><th>Return%</th><th>Equity</th><th>MaxDD%</th><th>WinRate%</th><th>PF</th><th>IC</th><th>Hit%</th><th>Conf</th><th>Aleatoric</th><th>Epistemic</th><th>n</th></tr>
+  </thead>
+  <tbody id="best-window-body"></tbody>
+</table>
+
+<div class="section-title">Fold Reference (Super-Fold Structure)</div>
+<table style="font-size:0.82em;margin-bottom:24px">
+  <thead>
+    <tr><th>Fold</th><th>Regime</th><th>Train</th><th>Val Window</th><th>Test Window</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>fold_1</td><td>Pre-crisis + GFC onset</td><td rowspan="7" style="vertical-align:middle;text-align:center;background:#161b22;color:#58a6ff;font-weight:600">2005-01 to 2023-12<br><br>3,113 rows<br>(holes punched<br>+ 10d buffer)</td><td>2007-04 to 2007-09 (130)</td><td>2008-01 to 2008-06 (130)</td></tr>
+    <tr><td>fold_2</td><td>Post-crash recovery</td><td>2009-04 to 2009-09 (131)</td><td>2010-01 to 2010-06 (129)</td></tr>
+    <tr><td>fold_3</td><td>Eurozone debt plateau</td><td>2012-04 to 2012-09 (130)</td><td>2013-01 to 2013-06 (129)</td></tr>
+    <tr><td>fold_4</td><td>Strong USD downturn</td><td>2014-07 to 2014-12 (132)</td><td>2015-04 to 2015-12 (197)</td></tr>
+    <tr><td>fold_5</td><td>Low-vol plateau</td><td>2018-04 to 2018-09 (130)</td><td>2019-01 to 2019-09 (195)</td></tr>
+    <tr><td>fold_6</td><td>EUR crisis downturn</td><td>2021-04 to 2021-09 (131)</td><td>2022-01 to 2022-09 (195)</td></tr>
+    <tr><td>fold_7</td><td>Recent mixed/upturn</td><td>2024-04 to 2024-09 (131)</td><td>2025-01 to 2025-09 (195)</td></tr>
+    <tr style="background:#161b22;font-weight:600"><td colspan="2">TOTAL (Super-Fold)</td><td style="text-align:center">3,113 train</td><td>915 val</td><td>1,170 test</td></tr>
+    <tr style="background:#0d1117"><td colspan="5" style="color:#3fb950;font-size:0.85em;padding:8px">Zero overlap: train-val=0 | train-test=0 | val-test=0 | Label buffer=10 calendar days before each window</td></tr>
+  </tbody>
+</table>
+
+<script>
+const LOG_PATH = 'experiment_log.jsonl';
+const BEST_PATH = 'best_config.json';
+const REFRESH_MS = 300000; // 5 minutes
+
+let allEntries = [];
+let selectedIdx = -1;
+let activeTab = 'test';
+
+function fmt(v, d=4) { return v != null ? Number(v).toFixed(d) : '--'; }
+function fmtSign(v, d=4) { if (v == null) return '--'; let s = Number(v).toFixed(d); return v >= 0 ? '+' + s : s; }
+function cls(v) { return v > 0 ? 'positive' : v < 0 ? 'negative' : 'neutral'; }
+
+function sharpeBar(v) {
+  if (v == null) return '';
+  const maxW = 80;
+  const clamped = Math.max(-3, Math.min(3, v));
+  const w = Math.abs(clamped) / 3 * maxW;
+  return `<span class="mini-bar" style="width:${w}px;background:${sharpeColor(v)};border-radius:3px"></span>`;
+}
+
+function renderWindows(windows, tbodyId, aggMetrics) {
+  const tbody = document.getElementById(tbodyId);
+  if (!windows || !windows.length) { tbody.innerHTML = '<tr><td colspan="16" style="color:#484f58">No data</td></tr>'; return; }
+  const confColor = v => v == null ? '' : v >= 0.9 ? 'color:#3fb950' : v >= 0.8 ? 'color:#58a6ff' : v >= 0.7 ? 'color:#d29922' : 'color:#f85149';
+  const rows = windows.filter(w => !w.skipped).map(w =>
+    `<tr>
+      <td>${w.fold}</td>
+      <td>${(w.regime || '').substring(0, 30)}</td>
+      <td style="color:${sharpeColor(w.sharpe)}">${fmtSign(w.sharpe)}</td>
+      <td>${sharpeBar(w.sharpe)}</td>
+      <td class="${cls(w.sortino)}">${w.sortino != null ? fmtSign(w.sortino) : '--'}</td>
+      <td class="${cls(w.return_pct)}">${w.return_pct != null ? fmtSign(w.return_pct, 2) + '%' : '--'}</td>
+      <td>${w.equity != null ? '$' + fmt(w.equity, 0) : '--'}</td>
+      <td>${w.max_dd != null ? fmt(w.max_dd, 2) + '%' : '--'}</td>
+      <td>${w.win_rate != null ? fmt(w.win_rate, 1) + '%' : '--'}</td>
+      <td>${w.profit_factor != null ? fmt(w.profit_factor, 3) : '--'}</td>
+      <td>${fmtSign(w.ic, 3)}</td>
+      <td>${fmt(w.hit, 1)}</td>
+      <td style="${confColor(w.confidence_mean)}">${w.confidence_mean != null ? fmt(w.confidence_mean, 3) : '--'}</td>
+      <td>${w.aleatoric_mean != null ? w.aleatoric_mean.toExponential(1) : '--'}</td>
+      <td>${w.epistemic_mean != null ? w.epistemic_mean.toExponential(1) : '--'}</td>
+      <td>${w.n || 0}</td>
+    </tr>`
+  );
+  // Super-fold aggregate row
+  if (aggMetrics) {
+    const pos = windows.filter(w => !w.skipped && w.sharpe > 0).length;
+    const total = windows.filter(w => !w.skipped).length;
+    const totalN = windows.filter(w => !w.skipped).reduce((s,w) => s + (w.n||0), 0);
+    rows.push(`<tr style="background:#161b22;font-weight:600;border-top:2px solid #58a6ff">
+      <td colspan="2" style="color:#58a6ff">SUPER-FOLD (${pos}/${total} positive)</td>
+      <td style="color:${sharpeColor(aggMetrics.sharpe)}">${fmtSign(aggMetrics.sharpe)}</td>
+      <td>${sharpeBar(aggMetrics.sharpe)}</td>
+      <td class="${cls(aggMetrics.sortino)}">${aggMetrics.sortino != null ? fmtSign(aggMetrics.sortino) : '--'}</td>
+      <td class="${cls(aggMetrics.return_pct)}">${aggMetrics.return_pct != null ? fmtSign(aggMetrics.return_pct, 2) + '%' : '--'}</td>
+      <td>${aggMetrics.equity != null ? '$' + fmt(aggMetrics.equity, 0) : '--'}</td>
+      <td>${aggMetrics.max_dd != null ? fmt(aggMetrics.max_dd, 2) + '%' : '--'}</td>
+      <td>${aggMetrics.win_rate != null ? fmt(aggMetrics.win_rate, 1) + '%' : '--'}</td>
+      <td>${aggMetrics.profit_factor != null ? fmt(aggMetrics.profit_factor, 3) : '--'}</td>
+      <td>${fmtSign(aggMetrics.ic, 3)}</td>
+      <td>${fmt(aggMetrics.hit, 1)}</td>
+      <td colspan="3"></td>
+      <td>${totalN}</td>
+    </tr>`);
+  }
+  tbody.innerHTML = rows.join('');
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  ['test','val','train'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (el) { el.style.background = tab === t ? '#1a2332' : '#21262d'; el.style.color = tab === t ? '#58a6ff' : '#8b949e'; }
+  });
+  if (selectedIdx >= 0) updateDetailWindows();
+}
+
+// Industry-standard Sharpe color scale:
+//   >= 3.0  brilliant green (exceptional)
+//   >= 2.0  strong green (excellent)
+//   >= 1.0  green (good)
+//   >= 0.5  light green (acceptable)
+//   >= 0.0  pale green (marginal)
+//   >= -0.5 pale red (weak)
+//   >= -1.0 red (poor)
+//   < -1.0  dark red (terrible)
+function sharpeColor(v) {
+  if (v == null) return '#8b949e';
+  if (v >= 3.0) return '#00d26a';
+  if (v >= 2.0) return '#3fb950';
+  if (v >= 1.0) return '#56d364';
+  if (v >= 0.5) return '#7ee787';
+  if (v >= 0.0) return '#aff5b4';
+  if (v >= -0.5) return '#ffc1ba';
+  if (v >= -1.0) return '#ff7b72';
+  return '#f85149';
+}
+
+function updateDetailWindows() {
+  const e = allEntries[selectedIdx];
+  if (!e) return;
+  let windows, label, pfx;
+  if (activeTab === 'train') {
+    windows = e.train_per_window || [];
+    label = 'TRAIN (Overfitting Check)';
+    pfx = 'train_';
+  } else if (activeTab === 'val') {
+    windows = e.val_per_window || [];
+    label = 'VALIDATION (Super-Fold)';
+    pfx = 'val_';
+  } else {
+    windows = e.per_window || [];
+    label = 'TEST (Super-Fold)';
+    pfx = '';
+  }
+  const s = e[pfx+'sharpe'] != null ? e[pfx+'sharpe'] : (e['sharpe'] || 0);
+  const ic = e[pfx+'ic'] != null ? e[pfx+'ic'] : 0;
+  const hit = e[pfx+'hit'] != null ? e[pfx+'hit'] : null;
+  const eq = pfx === '' ? e.equity : null;
+  const agg = {
+    sharpe: s, ic: ic, hit: hit, equity: eq,
+    sortino: e[pfx+'sortino'] || null,
+    return_pct: e[pfx+'return_pct'] || null,
+    max_dd: e[pfx+'max_dd'] || null,
+    win_rate: e[pfx+'win_rate'] || null,
+    profit_factor: e[pfx+'profit_factor'] || null,
+  };
+  renderWindows(windows, 'window-body', agg);
+  const psr = activeTab === 'test' ? fmt(e.psr) : '--';
+  const eqStr = eq != null ? '$' + fmt(eq, 0) : '--';
+  document.getElementById('tab-summary').innerHTML =
+    `<strong style="color:#c9d1d9">${label}:</strong> ` +
+    `Sharpe=<span style="color:${sharpeColor(s)}">${fmtSign(s)}</span>  ` +
+    `IC=${fmtSign(ic,3)}  Hit=${hit != null ? fmt(hit,1)+'%' : '--'}  PSR=${psr}  ${eqStr}`;
+}
+
+function showDetail(idx) {
+  const e = allEntries[idx];
+  if (!e) return;
+  selectedIdx = idx;
+  const panel = document.getElementById('detail-panel');
+  panel.className = 'detail-panel visible';
+  document.getElementById('detail-title').textContent = `Exp ${e.experiment_num}: ${e.description}`;
+  const c = e.config || {};
+  document.getElementById('detail-config').textContent =
+    `lr=${c.lr}  bs=${c.batch_size}  seq=${c.seq_len}  wd=${c.weight_decay}  pat=${c.patience}  ep=${c.epochs}  |  Status: ${e.status}  |  ValLoss: ${e.val_loss}`;
+  updateDetailWindows();
+  document.querySelectorAll('#exp-body tr').forEach((r,i) => r.classList.toggle('selected', i === idx));
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').className = 'detail-panel';
+  selectedIdx = -1;
+  document.querySelectorAll('#exp-body tr').forEach(r => r.classList.remove('selected'));
+}
+
+let bestActiveTab = 'test';
+
+function switchBestTab(tab) {
+  bestActiveTab = tab;
+  ['test','val','train'].forEach(t => {
+    const el = document.getElementById('best-tab-' + t);
+    if (el) { el.style.background = tab === t ? '#1a2332' : '#21262d'; el.style.color = tab === t ? '#58a6ff' : '#8b949e'; }
+  });
+  updateBestWindows();
+}
+
+function updateBestWindows() {
+  const b = window._bestData;
+  if (!b) return;
+  let windows, pfx;
+  if (bestActiveTab === 'train') { windows = b.train_per_window || []; pfx = 'train_'; }
+  else if (bestActiveTab === 'val') { windows = b.val_per_window || []; pfx = 'val_'; }
+  else { windows = b.per_window || []; pfx = ''; }
+  const agg = {
+    sharpe: b[pfx+'sharpe'] || 0, ic: b[pfx+'ic'] || 0, hit: b[pfx+'hit'] || 0,
+    equity: pfx === '' ? b.equity : null,
+    sortino: b[pfx+'sortino'] || null, return_pct: b[pfx+'return_pct'] || null,
+    max_dd: b[pfx+'max_dd'] || null, win_rate: b[pfx+'win_rate'] || null,
+    profit_factor: b[pfx+'profit_factor'] || null,
+  };
+  renderWindows(windows, 'best-window-body', agg);
+  const labels = { test: 'TEST', val: 'VALIDATION', train: 'TRAIN' };
+  document.getElementById('best-tab-summary').innerHTML =
+    `<strong style="color:#c9d1d9">${labels[bestActiveTab]}:</strong> ` +
+    `Sharpe=<span style="color:${sharpeColor(agg.sharpe)}">${fmtSign(agg.sharpe)}</span>  ` +
+    `IC=${fmtSign(agg.ic,3)}  Hit=${agg.hit != null ? fmt(agg.hit,1)+'%' : '--'}`;
+}
+
+// Sortable columns — persists across refresh cycles
+let sortKey = null, sortAsc = false;
+function applySortToEntries(entries) {
+  if (!sortKey) return entries.slice().reverse(); // default: newest first
+  return entries.slice().sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (va == null) va = -Infinity;
+    if (vb == null) vb = -Infinity;
+    if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortAsc ? va - vb : vb - va;
+  });
+}
+// Delegate click on the exp-table for sorting
+document.getElementById('exp-table').addEventListener('click', e => {
+  const th = e.target.closest('th[data-sort]');
+  if (!th) return;
+  e.stopPropagation();
+  const key = th.dataset.sort;
+  if (sortKey === key) sortAsc = !sortAsc;
+  else { sortKey = key; sortAsc = false; }
+  // Update header indicators
+  document.querySelectorAll('#exp-table th[data-sort]').forEach(h => {
+    h.textContent = h.textContent.replace(/ [▲▼]/g, '');
+    if (h.dataset.sort === sortKey) {
+      h.textContent += sortAsc ? ' ▲' : ' ▼';
+    }
+  });
+  renderExpTable();
+});
+
+function renderExpTable() {
+  const validEntries = allEntries.filter(e => e.composite != null && e.status !== 'CRASH');
+  const bestComposite = validEntries.length ? Math.max(...validEntries.map(e => e.composite)) : -999;
+  const sorted = applySortToEntries(allEntries);
+  const tbody = document.getElementById('exp-body');
+  tbody.innerHTML = sorted.map(e => {
+    const origIdx = allEntries.indexOf(e);
+    const isBest = e.composite != null && e.composite === bestComposite;
+    const rowClass = (isBest ? 'best-row' : e.status === 'KEEP' ? 'keep' : e.status === 'CRASH' ? 'crash' : 'discard')
+      + ' clickable' + (origIdx === selectedIdx ? ' selected' : '');
+    return `<tr class="${rowClass}" onclick="showDetail(${origIdx})">
+      <td>${e.experiment_num || ''}</td>
+      <td>${e.status || ''}</td>
+      <td>${e.description || ''}</td>
+      <td style="color:${sharpeColor(e.composite)};font-weight:600">${e.composite != null ? fmtSign(e.composite) : '--'}</td>
+      <td style="color:${sharpeColor(e.sharpe)}">${fmtSign(e.sharpe)}</td>
+      <td style="color:${sharpeColor(e.val_sharpe)}">${fmtSign(e.val_sharpe)}</td>
+      <td style="color:${sharpeColor(e.train_sharpe)}">${e.train_sharpe != null ? fmtSign(e.train_sharpe) : '--'}</td>
+      <td>${fmtSign(e.ic, 3)}</td>
+      <td>${fmt(e.hit, 1)}</td>
+      <td>${fmt(e.psr)}</td>
+      <td>$${fmt(e.equity, 0)}</td>
+      <td style="${e.confidence_mean != null ? (e.confidence_mean >= 0.9 ? 'color:#3fb950' : e.confidence_mean >= 0.8 ? 'color:#58a6ff' : 'color:#d29922') : ''}">${e.confidence_mean != null ? fmt(e.confidence_mean, 3) : '--'}</td>
+      <td>${e.aleatoric_mean != null ? e.aleatoric_mean.toExponential(1) : '--'}</td>
+      <td>${e.test_pos_folds||'?'}/${e.val_pos_folds||'?'}</td>
+      <td>${e.elapsed_sec || 0}s</td>
+      <td class="timestamp">${e.timestamp || ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function fetchText(url) {
+  const r = await fetch(url + '?t=' + Date.now());
+  if (!r.ok) throw new Error(r.status);
+  return r.text();
+}
+
+async function refresh() {
+  const now = new Date().toLocaleTimeString();
+  document.getElementById('last-update').textContent = now;
+
+  // Check for currently running experiment
+  try {
+    const runText = await fetchText('running.json');
+    const running = JSON.parse(runText);
+    const c = running.config || {};
+    document.getElementById('running-title').style.display = 'block';
+    const el = document.getElementById('running-config');
+    el.style.display = 'block';
+    el.textContent =
+      `${running.backbone || '?'}: ${running.description || '?'}\n` +
+      `lr: ${c.lr}    batch_size: ${c.batch_size}    seq_len: ${c.seq_len}\n` +
+      `weight_decay: ${c.weight_decay}    patience: ${c.patience}    epochs: ${c.epochs}\n` +
+      `Started: ${running.started || '?'}`;
+  } catch(e) {
+    document.getElementById('running-title').style.display = 'none';
+    document.getElementById('running-config').style.display = 'none';
+  }
+
+  let best = null;
+
+  try {
+    const logText = await fetchText(LOG_PATH);
+    allEntries = logText.trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
+  } catch(e) {
+    if (e.message !== '404') {
+      document.getElementById('error').textContent = 'Log: ' + e.message;
+      document.getElementById('error').style.display = 'block';
+    }
+  }
+
+  try {
+    const bestText = await fetchText(BEST_PATH);
+    best = JSON.parse(bestText);
+  } catch(e) {}
+
+  // Status
+  const dot = document.getElementById('status-dot');
+  const stxt = document.getElementById('status-text');
+  if (allEntries.length > 0) {
+    const last = allEntries[allEntries.length - 1];
+    const elapsed = (Date.now() - new Date(last.timestamp).getTime()) / 1000;
+    if (elapsed < 600) {
+      dot.className = 'status-dot running';
+      stxt.textContent = `Running -- ${allEntries.length} experiments, last ${Math.round(elapsed)}s ago`;
+    } else {
+      dot.className = 'status-dot idle';
+      stxt.textContent = `Idle -- ${allEntries.length} experiments completed`;
+    }
+  }
+
+  // Summary cards
+  const keeps = allEntries.filter(e => e.status === 'KEEP');
+  const discards = allEntries.filter(e => e.status === 'DISCARD');
+  const crashes = allEntries.filter(e => e.status === 'CRASH');
+  const bestSharpe = best ? best.sharpe : 0;
+  const bestPSR = best ? best.psr : 0;
+  const bestEquity = best ? best.equity : 1000;
+
+  document.getElementById('summary-cards').innerHTML = `
+    <div class="card"><div class="label">Best Sharpe</div><div class="value ${cls(bestSharpe)}">${fmtSign(bestSharpe)}</div></div>
+    <div class="card"><div class="label">PSR</div><div class="value ${bestPSR>0.95?'positive':'neutral'}">${fmt(bestPSR)}</div></div>
+    <div class="card"><div class="label">Equity ($1000)</div><div class="value ${bestEquity>1000?'positive':'negative'}">$${fmt(bestEquity,0)}</div></div>
+    <div class="card"><div class="label">Experiments</div><div class="value neutral">${allEntries.length}</div></div>
+    <div class="card"><div class="label">Kept</div><div class="value positive">${keeps.length}</div></div>
+    <div class="card"><div class="label">Discarded</div><div class="value negative">${discards.length}</div></div>
+  `;
+
+  // Best config
+  if (best) {
+    const c = best.config;
+    document.getElementById('best-config').textContent =
+      `lr: ${c.lr}    batch_size: ${c.batch_size}    seq_len: ${c.seq_len}\n` +
+      `weight_decay: ${c.weight_decay}    patience: ${c.patience}    epochs: ${c.epochs}\n` +
+      `--- Exp ${best.experiment_num}: "${best.description}"`;
+  }
+
+  // Experiment table (newest first)
+  // Find best composite and populate winner section
+  const validEntries = allEntries.filter(e => e.composite != null && e.status !== 'CRASH');
+  const bestComposite = validEntries.length ? Math.max(...validEntries.map(e => e.composite)) : -999;
+  const winner = validEntries.find(e => e.composite === bestComposite);
+  if (winner) {
+    document.getElementById('winner-section').style.display = 'block';
+    const c = winner.config || {};
+    const tw = (winner.per_window || []).filter(w => !w.skipped);
+    const vw = (winner.val_per_window || []).filter(w => !w.skipped);
+    const tp = tw.filter(w => w.sharpe > 0).length;
+    const vp = vw.filter(w => w.sharpe > 0).length;
+    document.getElementById('winner-title').innerHTML =
+      `Exp ${winner.experiment_num || '?'}: <span style="color:#3fb950">${winner.description || ''}</span>`;
+    document.getElementById('winner-metrics').textContent =
+      `Composite: ${fmtSign(winner.composite)}    Test Sharpe: ${fmtSign(winner.sharpe)}    Val Sharpe: ${fmtSign(winner.val_sharpe)}\n` +
+      `PSR: ${fmt(winner.psr)}    Equity: $${fmt(winner.equity,0)}    Test: ${tp}/${tw.length} pos    Val: ${vp}/${vw.length} pos\n` +
+      `lr: ${c.lr}    batch_size: ${c.batch_size}    seq_len: ${c.seq_len}    wd: ${c.weight_decay}    patience: ${c.patience}    epochs: ${c.epochs}\n` +
+      `Confidence: ${winner.confidence_mean != null ? fmt(winner.confidence_mean, 3) : '--'}    Aleatoric: ${winner.aleatoric_mean != null ? winner.aleatoric_mean.toExponential(2) : '--'}    Epistemic: ${winner.epistemic_mean != null ? winner.epistemic_mean.toExponential(2) : '--'}`;
+  }
+
+  renderExpTable();
+
+  // Best run per-window
+  const bestWindows = best ? (best.per_window || []) : [];
+  // Store best globally for tab switching
+  window._bestData = best;
+  updateBestWindows();
+
+  // Update selected detail if still open
+  if (selectedIdx >= 0 && allEntries[selectedIdx]) {
+    renderWindows(allEntries[selectedIdx].per_window, 'window-body');
+  }
+
+  document.getElementById('error').style.display = 'none';
+}
+
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+</body>
+</html>

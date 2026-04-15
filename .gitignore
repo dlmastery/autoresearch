@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+catboost_info/
+*.egg-info/
+.env
+autoresearch_project*.zip
+autoresearch/.data_cache/
+autoresearch/autoresearch_results/best_model.pt
+autoresearch/autoresearch_results/running.json
+autoresearch/.claude/
