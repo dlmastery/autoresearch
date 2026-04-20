@@ -21,6 +21,20 @@
 
 ---
 
+## 📄 Paper & Article
+
+- **Research paper (arxiv-style, submission-ready):** [`docs/paper.md`](docs/paper.md) — *AutoResearch: An LLM-Driven Autonomous Research Loop for Financial Time Series Forecasting*. 8 numbered sections + 3 appendices, ~9,900 words, 46 references with arXiv IDs. Double-blind format for NeurIPS / ICML / ICLR submission.
+- **Abstract (teaser):** [`paper_abstract.md`](paper_abstract.md) — one-page abstract + key-numbers table, linkable from external sites.
+- **Medium-style long-form article (v3):** [`docs/medium_article.md`](docs/medium_article.md) — *The Research Loop Was the Model: 151 Experiments in Quantitative FX Run by a Large Language Model.* 17 sections, 7 Mermaid diagrams, ~9,700 words. Popular-science-grade with full technical depth.
+
+**Current global champion (latest):** LSTM Exp35 — composite **+6.4242**, test Sharpe **+6.5242**, val Sharpe **+7.1539**, 7/7 positive test folds, **+1,122% return** over 2008–2025. Archived at [`autoresearch/autoresearch_results/winners/lstm_exp35_wd7e4_bs16_seed42/`](autoresearch/autoresearch_results/winners/lstm_exp35_wd7e4_bs16_seed42/).
+
+**Experiment count:** 151 experiments across 4 backbones. LSTM family 46/50 per-backbone mandate in progress; PatchTST, PatchTSMixer, XGBoost, LightGBM, CatBoost queued next. Plus 10 new 2024–2026 Tier-2 SOTA backbones on the roadmap (TimesFM 2.5, Chronos-Bolt / Chronos-2, Moirai 2.0, MOMENT, TiRex, Sundial, Time-MoE, TimeMixer++, TimesNet, MambaTS).
+
+> Note: the badges and "Champion Model Results" section below still cite the earlier MLP champion (+5.50 / 90 exps); they will be refreshed as the LSTM phase completes. For the current state always see the paper, the article, or `memory/project_autoresearch_checkpoint.md`.
+
+---
+
 ## Table of Contents
 
 - [Highlights](#highlights)
