@@ -1417,6 +1417,26 @@
     "citations": "Loshchilov & Hutter 2019 ICLR (AdamW arXiv:1711.05101) \u2014 decoupled wd; perturbations should be log-spaced.\nGu & Dao 2024 (Mamba arXiv:2312.00752) \u2014 wd=0.1 default for language; for TS, MambaTS (Cai 2024 arXiv:2405.16440) uses wd in [0.01, 0.1] depending on horizon.",
     "hypothesis": "Run dmamba expand=4 with --wd 0.05 (half champion). Mechanism: weaker L2 shrinkage allows model to retain larger weights \u2192 more expressive features. Risk: overfit if our n=2738 is too small for reduced regularisation.",
     "prediction": "Composite +5.0 to +5.7. Probability of beating champion: 30%. Most informative: train-test gap. Higher gap means overfit; neutral or smaller gap means clean win.",
+    "_manual": true,
+    "verdict": "DISCARD \u2014 composite +5.3026, test Sharpe +5.4026 (global best remains +6.4242 on lstm)",
+    "learning": "Test Sharpe +5.4026 | Val Sharpe +5.6365 | Train Sharpe +6.9478 | Return +731.88% | Val loss 0.000037"
+  },
+  "172": {
+    "diagnosis": "wd sweep continuation. wd=0.05 hurt (+5.30); now test wd=0.2 (double champion). Symmetric exploration to characterise wd axis curvature.",
+    "citations": "Loshchilov & Hutter 2019 ICLR 'Decoupled Weight Decay Regularization' (AdamW arXiv:1711.05101). Gu & Dao 2024 (Mamba arXiv:2312.00752) wd=0.1 default.",
+    "hypothesis": "Run dmamba expand=4 with --wd 0.2 (2x champion). More explicit shrinkage; if model is currently under-regularised, this helps; otherwise hurts.",
+    "prediction": "Composite +5.0 to +5.6.",
+    "verdict": "DISCARD. Composite +5.1657 vs champion +5.5996 (-0.43). Test 7/7 positive but val fold 2 -1.45. wd axis closed: {0.05:+5.30, 0.1:+5.60 CHAMP, 0.2:+5.17}. Symmetric peak at 0.1.",
+    "learning": "wd axis CLOSED. Mamba paper default wd=0.1 confirmed optimal. Next: head_dropout sweep, then warmup, then ensemble work.",
     "_manual": true
+  },
+  "173": {
+    "diagnosis": "Probe head_dropout axis. Champion uses hd=0.1 (Mamba paper default for the prediction head). LSTM phase showed hd=0.25 is sharply optimal \u2014 but Mamba's intrinsic noise from selective scan + cosine-schedule training is different. Try hd=0.2 (2x default) to see if extra head regularisation helps.",
+    "citations": "Srivastava, Hinton, Krizhevsky, Sutskever, Salakhutdinov 2014 JMLR 'Dropout' (arXiv:1207.0580) \u2014 head dropout 0.1-0.5 typical.\nGal & Ghahramani 2016 ICML 'Dropout as Bayesian Approximation' (arXiv:1506.02142) \u2014 MC Dropout interpretation; dropout level affects both regularisation and uncertainty.\nEmpirical from this project: LSTM phase showed hd=0.25 strictly best (0.20 -1.0 composite worse, 0.30 -0.4 composite worse).",
+    "hypothesis": "Run dmamba expand=4 with --head-dropout 0.2. Mechanism: 2x stronger head regularisation. May help if Mamba's learned features are over-specialised on training distribution.",
+    "prediction": "Composite +5.0 to +5.7. Probability of beating champion: 30%.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite +3.0213 vs champion +5.5996 (-2.58 \u2014 large). Test 6/7 positive; val 5/7 (folds 1, 2 negative). Doubling head dropout broke the model.",
+    "learning": "head_dropout axis CLOSED at 0.1. Mamba is much more sensitive to head dropout than LSTM (LSTM peak 0.25, Mamba peak 0.1). All HP axes now confirmed at Mamba paper defaults. Champion held: dmamba expand=4 nl=2 d_state=16 lr=5e-4 wd=0.1 bs=32 hd=0.1 +5.5996."
   }
 }
