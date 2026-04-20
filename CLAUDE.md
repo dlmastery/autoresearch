@@ -226,6 +226,23 @@ code_versions/
 
 Rule: never modify `backbone.py` code specific to backbone X while experiments on backbone Y are in progress. Finish one backbone's 50 experiments, snapshot, then move on.
 
+### Dashboard Reasoning Annotations (MANDATORY write per experiment)
+
+Every experiment MUST populate `autoresearch_results/reasoning_annotations.json` at runtime. The runner writes an entry keyed by `experiment_num` with these 6 fields:
+
+- `diagnosis` — what the experiment examines (backbone + what changed)
+- `citations` — arxiv / paper references (parenthetical tag from description at minimum)
+- `hypothesis` — the config change in concrete terms
+- `prediction` — expected composite / per-fold outcome (ideally set BEFORE running; otherwise auto-logged)
+- `verdict` — KEEP / DISCARD + composite + global-best comparison
+- `learning` — test/val/train Sharpe + return + val loss
+
+Dashboard (`dashboard.html`) renders this in the detail panel when a row is clicked. Manual curated entries should have `_manual: true` so backfill scripts won't overwrite them.
+
+**Runner is responsible for writing this file on EVERY run** — not as a post-hoc backfill. `backfill_reasoning.py` exists only to retrofit old entries and fill gaps.
+
+Manual deep annotations (diagnosis, citations, hypothesis, prediction) should be authored BEFORE the experiment as part of the 7-step process — these become part of `research_journal.md` AND the `reasoning_annotations.json` entry. The runner's auto-generated entry is minimum viable, not gold standard.
+
 ### Per-Backbone 50-Experiment Mandate (MANDATORY, not optional)
 
 **Every backbone gets a full 50-experiment exploration.** Do not stop early because "axes look exhausted." The mandate:

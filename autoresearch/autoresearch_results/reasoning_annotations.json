@@ -973,5 +973,45 @@
     "verdict": "(pending)",
     "learning": "(pending)",
     "_manual": true
+  },
+  "121": {
+    "diagnosis": "lstm experiment #121: lstm: Exp16 seq=5 shorter memory (test boundary)",
+    "citations": "test boundary",
+    "hypothesis": "Sequence length = 5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +5.702 did not beat then-current best",
+    "learning": "Result: composite +5.7020, test Sharpe +5.8020. Status: DISCARD."
+  },
+  "122": {
+    "diagnosis": "lstm experiment #122: lstm: Exp17 warmup=3 from champion (Goyal2017)",
+    "citations": "Goyal et al. 2017 (Accurate Large Minibatch SGD) \u2014 warmup stabilization",
+    "hypothesis": "With LR warmup",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.372 did not beat then-current best",
+    "learning": "Result: composite +4.3721, test Sharpe +4.7346. Status: DISCARD."
+  },
+  "123": {
+    "diagnosis": "lstm experiment #123: lstm: Exp18 hd=0.20 fine-grained dropout (between 0.15 and 0.25)",
+    "citations": "between 0.15 and 0.25",
+    "hypothesis": "Head dropout = 0.20",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +5.531 did not beat then-current best",
+    "learning": "Result: composite +5.5311, test Sharpe +5.5311. Status: DISCARD."
+  },
+  "124": {
+    "diagnosis": "lstm experiment #124: lstm: Exp19 grad_clip=0.5 tighter clipping (Pascanu2013)",
+    "citations": "Pascanu2013",
+    "hypothesis": "Exp19 grad_clip=0.5 tighter clipping (Pascanu2013)",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +5.459 did not beat then-current best",
+    "learning": "Result: composite +5.4587, test Sharpe +5.8755. Status: DISCARD."
+  },
+  "125": {
+    "diagnosis": "lstm experiment #125: lstm: Exp20 wd=5e-4 extreme L2 (Zaremba2014)",
+    "citations": "Zaremba et al. 2014 (Recurrent NN Regularization) \u2014 LSTM L2/dropout",
+    "hypothesis": "Weight decay = 5e-4",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +6.131)",
+    "learning": "Result: composite +6.1312, test Sharpe +6.3363. Status: KEEP."
   }
 }

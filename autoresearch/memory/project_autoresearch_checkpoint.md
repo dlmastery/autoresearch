@@ -1,61 +1,66 @@
 ---
 name: Autoresearch Checkpoint
-description: 117 exps. Global champion LSTM Exp9 composite +6.1035. Moved from LSTM (done) to PatchTST (1/50).
+description: 125 exps. NEW GLOBAL CHAMPION LSTM Exp20 composite +6.1312 test Sharpe +6.3363. LSTM 20/50.
 type: project
 ---
 
 ## Session Recovery
 1. Read this
 2. Read `memory/project_hardware_crash_log.md` — CPU 60% cap, Turbo off, 0 crashes since mitigation
-3. Read JSONL tail
-4. Dashboard at http://localhost:8765/dashboard.html (per-backbone tabs)
+3. Read JSONL tail (125 entries)
+4. Dashboard: http://localhost:8765/dashboard.html (per-backbone tabs + reasoning panel)
 
-## 🏆 GLOBAL CHAMPION (across ALL backbones)
-**LSTM Exp9** — composite **+6.1035**, test Sharpe **+6.2956**, 7/7 positive test folds, +1033% return
-- Config: bidirectional 2-layer LSTM h=128, lr=1e-3, bs=32, seq=10, ep=100, wd=1e-4, pat=15, huber=1.0, hd=0.25, seed=0
-- Archived at `winners/lstm_exp9_wd1e4_seed0/` (17 artifacts, portable)
-- Previous: MLP Exp32 residual (+5.499). LSTM beat MLP by +0.60 composite.
+## 🏆 GLOBAL CHAMPION
+**LSTM Exp20** — composite **+6.1312** | test Sharpe **+6.3363** | 7/7 positive test | +1048% return
+- Config: BiLSTM h=128, 2-layer, lr=1e-3, bs=32, seq=10, ep=100, wd=5e-4, pat=15, hd=0.25, huber=1.0, seed=0
+- Archived `winners/lstm_exp20_wd5e4_seed0/`
+- Prior champions: LSTM Exp9 (+6.10), LSTM Exp4 (+6.07), MLP Exp32 residual (+5.50)
 
 ## Per-Backbone Status
 | Backbone | Exps | Best Comp | Best Test Sharpe | Status |
 |----------|------|-----------|------------------|--------|
-| lfm2-350m | 43 | +1.77 | +2.07 | Done |
-| mlp | 54 | +5.499 | +6.21 | Done |
-| lstm | **12** | **+6.10** | **+6.30** | **Done — all SOTA axes exhausted, GLOBAL CHAMPION** |
-| patchtst | **1** | -1.72 | -0.82 | **IN PROGRESS** |
-| patchtsmixer | 0 | - | - | Pending |
-| xgboost | 0 | - | - | Pending |
-| lightgbm | 0 | - | - | Pending |
-| catboost | 0 | - | - | Pending |
+| lfm2-350m | 43 | +1.77 | +2.07 | done (need 7 more per 50-mandate) |
+| mlp | 54 | +5.499 | +6.21 | done |
+| **lstm** | **20** | **+6.1312** | **+6.3363** | **IN PROGRESS (20/50) — GLOBAL CHAMP** |
+| patchtst | 1 | -1.72 | -0.82 | pending (49/50) |
+| patchtsmixer | 0 | — | — | pending |
+| xgboost | 0 | — | — | pending |
+| lightgbm | 0 | — | — | pending |
+| catboost | 0 | — | — | pending |
 
-## Dead Params Caught and Fixed This Session
-- `hidden_size` was not wired for LSTM backbone (only MLP). Fixed.
-- `bidirectional` wasn't configurable. Fixed with `--unidirectional` flag.
+## LSTM Experiment Summary (20 so far)
+| # | Change | Composite | Learning |
+|---|--------|-----------|----------|
+| 108 | SOTA baseline | +4.12 | baseline |
+| 109 | huber=0.5 | +3.98 | huber doesn't help LSTM |
+| 110 | ep=100 pat=15 | +5.06 | SOTA epochs help |
+| 111 | hd=0.25 | +6.07 | GLOBAL CHAMP — head dropout breakthrough |
+| 112 | hd=0.30 | +6.02 | 0.25 peaks |
+| 113 | wd=1e-4 | +6.10 | GLOBAL CHAMP — 10x L2 |
+| 114 | lr=5e-4 | +4.95 | flat minima hurt test |
+| 115 | unidirectional | +5.00 | val/test split |
+| 116 | seq=20 | +4.25 | longer context hurts |
+| 117 | PatchTST Exp1 (different backbone) | — | — |
+| 118 | 3-layer stacked | +1.64 | depth hurts small n |
+| 119 | GRU cell | +4.59 | LSTM better |
+| 120 | LayerNorm input | +4.51 | double-norm destabilizes |
+| 121 | seq=5 | +5.70 | fold 2 test +3.70 BEST EVER but fold 1/7 weaker |
+| 122 | warmup=3 | +4.37 | warmup hurts |
+| 123 | hd=0.20 | +5.53 | 14/14 folds positive BEST but lower peak |
+| 124 | grad_clip=0.5 | +5.46 | tighter clip hurts fold 2 |
+| **125** | **wd=5e-4** | **+6.13** | **GLOBAL CHAMP — 50x L2** |
 
-## LSTM Final Summary (12 exps)
-Best: Exp9 composite +6.1035. Plateau confirmed across all SOTA axes.
-- lr sweep: 5e-4 (worse), 1e-3 (best). Fischer&Krauss confirmed.
-- bs sweep: 64 (worse), 32 (best).
-- ep sweep: 50 (worse), 100 pat=15 (best). Fischer&Krauss SOTA confirmed.
-- hd sweep: 0.15 (5.06), 0.25 (6.07), 0.30 (6.02). Srivastava peak at 0.25.
-- wd sweep: 1e-5 (6.07), 1e-4 (6.10). Slight improvement.
-- hidden sweep: 64 (4.46), 128 (6.10). Capacity matters.
-- seq sweep: 10 (6.10), 20 (4.25). Longer context worse.
-- bidirectional: True (6.10), False (5.00). Bidir better for test.
-- huber: 0.5 (3.98), 1.0 (6.10). Bidir LSTM doesn't need robust loss.
+## Code Changes This Session
+- CurrencyLSTM: `num_layers`, `bidirectional`, `cell` (lstm/gru), `input_layernorm` parameters
+- Runner: `--num-layers`, `--rnn-cell`, `--unidirectional`, `--input-layernorm` flags
+- **Bug fix**: best_config.json now tracks GLOBAL champion (was per-backbone)
+- **New**: Runner auto-writes reasoning_annotations.json per experiment (for dashboard)
 
-## PatchTST (1/50) — just started
-**Exp1 baseline:** lr=1e-4, bs=32, seq=10, ep=100, pat=20, wd=1e-5, hd=0.15 (Nie 2023 SOTA)
-Result: composite -1.72, test Sharpe -0.82, 2/7 test pos. Train Sharpe +1.42 = model barely learning.
-
-**Diagnosis:** seq=10 with patch_length=5 gives only 2 patches. Attention needs more tokens. Nie 2023 used seq=96-336 with patch=16. Our setup is fundamentally under-scaled for transformer attention.
-
-## Next Experiment (PatchTST Exp2)
-**Hypothesis:** seq=60 with patch=10 gives 6 attention tokens — more tokens = more attention signal. Cite: Nie et al. (2023) Table 4 — PatchTST needs ≥ 4 patches for meaningful self-attention.
-
-```bash
-python -m autoresearch.run_autoresearch --backbone patchtst --lr 1e-4 --batch-size 32 --seq-len 60 --epochs 100 --weight-decay 1e-5 --patience 20 --grad-clip 1.0 --huber-delta 1.0 --head-dropout 0.15 --seed 0 --description "patchtst: Exp2 seq=60 patch=10 enable proper attention (Nie2023 Table 4)"
-```
-
-## Hardware Mitigations Active
-CPU 60% cap, Turbo off, 156 user processes on P-cores, Python runner 4-thread P-core affinity. **No crashes since mitigation (5+ hours now).**
+## Next LSTM Experiments (need 30+ more to hit 50)
+Per CLAUDE.md SOTA mandate, explore 2024-2026 variants:
+- **xLSTM** (Beck et al. 2024) — extended LSTM with exponential gating
+- **Mamba / SSM** (Gu & Dao 2024) — state-space model replacement for RNN
+- **AWD-LSTM** (Merity 2018) — weight-dropped LSTM for regularization
+- **DA-RNN attention** (Qin 2017) — dual-stage attention on input+temporal
+- Fine-grained search: wd sweep (5e-4 → 1e-3), hd × wd combos, lr×patience grid
+- Multi-seed variance study on Exp20 champion (seeds 7, 42, 99, 2024)
