@@ -493,52 +493,39 @@ class GBMWrapper:
     The ablation runner handles them separately from neural models.
     """
 
-    # Backbone-default SOTA hyperparameters per CLAUDE.md Tier-3 recipe table.
-    # These are starting points; users override via runner CLI flags which are
-    # routed through `hp_overrides` at __init__ time.
-    _DEFAULTS = {
-        "xgboost": dict(
-            n_estimators=1500, max_depth=6, learning_rate=0.03,
-            subsample=0.8, colsample_bytree=0.8,
-            min_child_weight=1, gamma=0.0,
-            reg_alpha=0.0, reg_lambda=1.0,
-            tree_method="hist",
-        ),
-        "lightgbm": dict(
-            n_estimators=2000, num_leaves=63, max_depth=-1,
-            learning_rate=0.03, feature_fraction=0.8, bagging_fraction=0.8,
-            bagging_freq=5, min_data_in_leaf=20,
-            reg_alpha=0.1, reg_lambda=1.0,
-        ),
-        "catboost": dict(
-            iterations=2000, depth=6, learning_rate=0.03,
-            l2_leaf_reg=3.0, random_strength=1.0,
-            bagging_temperature=1.0, bootstrap_type="Bayesian",
-        ),
-    }
-
-    def __init__(self, gbm_type: str, n_targets: int = 2,
-                 hp_overrides: dict | None = None):
+    def __init__(self, gbm_type: str, n_targets: int = 2):
         self.gbm_type = gbm_type
         self.n_targets = n_targets
         self.models: list = []  # one per target column
         self._fitted = False
-        # Merge user overrides onto the backbone-default recipe
-        base = dict(self._DEFAULTS.get(gbm_type, {}))
-        if hp_overrides:
-            base.update({k: v for k, v in hp_overrides.items() if v is not None})
-        self.hp = base
 
     def _create_estimator(self):
         if self.gbm_type == "xgboost":
             from xgboost import XGBRegressor
-            return XGBRegressor(verbosity=0, **self.hp)
+            return XGBRegressor(
+                n_estimators=500, max_depth=4, learning_rate=0.03,
+                subsample=0.7, colsample_bytree=0.7,
+                min_child_weight=5, gamma=0.1, reg_alpha=0.1, reg_lambda=1.0,
+                tree_method="hist", device="cuda",
+                verbosity=0,
+            )
         elif self.gbm_type == "lightgbm":
             from lightgbm import LGBMRegressor
-            return LGBMRegressor(verbose=-1, **self.hp)
+            return LGBMRegressor(
+                n_estimators=500, max_depth=4, learning_rate=0.03,
+                subsample=0.7, colsample_bytree=0.7,
+                num_leaves=31, min_child_samples=20,
+                reg_alpha=0.1, reg_lambda=1.0,
+                device="gpu", verbose=-1,
+            )
         elif self.gbm_type == "catboost":
             from catboost import CatBoostRegressor
-            return CatBoostRegressor(verbose=0, **self.hp)
+            return CatBoostRegressor(
+                iterations=500, depth=4, learning_rate=0.03,
+                l2_leaf_reg=3.0, subsample=0.7,
+                bootstrap_type="Bernoulli",
+                task_type="GPU", verbose=0,
+            )
         else:
             raise ValueError(f"Unknown GBM type: {self.gbm_type}")
 
@@ -559,50 +546,6 @@ class GBMWrapper:
         """Predict all targets. Returns (n_samples, n_targets)."""
         preds = np.column_stack([m.predict(X) for m in self.models])
         return preds
-
-    # No-op torch.nn.Module compatibility shims so the runner's
-    # _evaluate_per_window / predict helpers can call .eval() / .train()
-    # on any model without branching.
-    def eval(self):
-        return self
-
-    def train(self, mode: bool = True):
-        return self
-
-    @property
-    def training(self) -> bool:
-        return False
-
-    def __call__(self, x):
-        """Torch-compatible forward: accepts [B, L, D] tensor, flattens to
-        [B, L*D] and predicts, returns a dict shaped like neural heads so the
-        runner's _evaluate_per_window can treat GBMs and nets uniformly.
-
-        Output schema matches _make_heads output: each head key maps to a
-        [B, N_PAIRS] tensor. Since our GBMs are trained to predict
-        EUR/USD scalar per horizon, the prediction is placed at column 0
-        (the pair_idx the evaluator reads) and zeros fill the remaining
-        pair slots.
-        """
-        import torch as _torch
-        if isinstance(x, _torch.Tensor):
-            X_np = x.detach().cpu().numpy()
-        else:
-            X_np = np.asarray(x)
-        if X_np.ndim == 3:
-            B, L, D = X_np.shape
-            X_flat = X_np.reshape(B, L * D)
-        else:
-            B = X_np.shape[0]
-            X_flat = X_np
-        preds = self.predict(X_flat)  # [B, n_targets] — ret_1d, ret_5d
-        out = {}
-        horizons = ["ret_1d", "ret_5d"]
-        for col, horizon in enumerate(horizons[:self.n_targets]):
-            arr = np.zeros((B, N_PAIRS), dtype=np.float32)
-            arr[:, 0] = preds[:, col]
-            out[horizon] = _torch.from_numpy(arr)
-        return out
 
 
 # ---------------------------------------------------------------------------
@@ -707,7 +650,6 @@ def create_model(
     mamba_variant: str | None = None,
     mamba_d_state: int | None = None,
     mamba_expand: int | None = None,
-    gbm_hp_overrides: dict | None = None,
 ) -> nn.Module | GBMWrapper:
     """Create a model by backbone name.
 
@@ -761,7 +703,7 @@ def create_model(
             kwargs["expand"] = mamba_expand
         return CurrencyMamba(n_input_features, **kwargs)
     elif backbone in GBM_BACKBONES:
-        return GBMWrapper(backbone, n_targets=2, hp_overrides=gbm_hp_overrides)
+        return GBMWrapper(backbone, n_targets=2)
     else:
         raise ValueError(
             f"Unknown backbone '{backbone}'. Available: {list(BACKBONE_REGISTRY.keys())}"

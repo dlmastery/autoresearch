@@ -321,30 +321,7 @@ def _run_experiment_inner(backbone, config, description):
     scaler.fit(train_feat.values)
 
     if is_gbm(backbone):
-        # Route CLI-provided GBM hyperparameters through the config
-        gbm_hp = {k: v for k, v in {
-            "n_estimators": config.get("n_estimators"),
-            "max_depth": config.get("max_depth"),
-            "learning_rate": config.get("gbm_lr"),
-            "subsample": config.get("subsample"),
-            "colsample_bytree": config.get("colsample_bytree"),
-            "reg_lambda": config.get("reg_lambda"),
-            "reg_alpha": config.get("reg_alpha"),
-            "min_child_weight": config.get("min_child_weight"),
-            "gamma": config.get("gamma"),
-            "num_leaves": config.get("num_leaves"),
-            "feature_fraction": config.get("feature_fraction"),
-            "bagging_fraction": config.get("bagging_fraction"),
-            "min_data_in_leaf": config.get("min_data_in_leaf"),
-            "iterations": config.get("iterations"),
-            "depth": config.get("depth"),
-            "l2_leaf_reg": config.get("l2_leaf_reg"),
-            "random_strength": config.get("random_strength"),
-            "bagging_temperature": config.get("bagging_temperature"),
-            "bootstrap_type": config.get("bootstrap_type"),
-        }.items() if v is not None}
-        model = create_model(backbone, n_features, seq_len=seq_len,
-                              gbm_hp_overrides=gbm_hp or None)
+        model = create_model(backbone, n_features, seq_len=seq_len)
         train_s = scaler.transform(train_feat.values)
         # Contiguous-segment windowing to avoid spanning punched-out gaps
         segments = find_contiguous_segments(train_feat.index)
@@ -354,13 +331,8 @@ def _run_experiment_inner(backbone, config, description):
             seg_tgt = train_tgt.iloc[seg_start:seg_end]
             if len(seg) <= seq_len:
                 continue
-            # Target alignment MUST match FXDataset/evaluator convention:
-            # window [i..i+seq_len-1] predicts target AT i+seq_len-1 (the last
-            # timestep of the window). Earlier version used target at i+seq_len
-            # which caused an off-by-one mismatch between training and eval,
-            # producing anti-predictive GBMs with negative train-set Sharpe.
-            X = np.array([seg[i:i+seq_len].ravel() for i in range(len(seg) - seq_len + 1)])
-            y = seg_tgt.values[seq_len-1:][:len(X)]
+            X = np.array([seg[i:i+seq_len].ravel() for i in range(len(seg) - seq_len)])
+            y = seg_tgt.values[seq_len:][:len(X)]
             X_parts.append(X[:len(y)])
             y_parts.append(y)
         if X_parts:
@@ -638,26 +610,6 @@ def main():
     parser.add_argument("--mamba-variant", type=str, default=None, choices=["vanilla","s_mamba","dmamba","mambats"], help="Mamba backbone: select variant (Gu&Dao 2024 / arXiv 2403.11144 / 2602.09081 / 2405.16440)")
     parser.add_argument("--mamba-d-state", type=int, default=None, help="Mamba backbone: state dimension d_state (default 16)")
     parser.add_argument("--mamba-expand", type=int, default=None, help="Mamba backbone: inner expansion factor (default 2)")
-    # GBM backbone hyperparameters (XGBoost / LightGBM / CatBoost per Chen 2016, Ke 2017, Prokhorenkova 2018)
-    parser.add_argument("--n-estimators", type=int, default=None, help="XGBoost/LightGBM: number of boosting rounds")
-    parser.add_argument("--max-depth", type=int, default=None, help="XGBoost/LightGBM: max tree depth (XGBoost default 6)")
-    parser.add_argument("--gbm-lr", type=float, default=None, help="GBM learning_rate (default 0.03 per CLAUDE.md)")
-    parser.add_argument("--subsample", type=float, default=None, help="XGBoost: row subsample (default 0.8)")
-    parser.add_argument("--colsample-bytree", type=float, default=None, help="XGBoost: column subsample by tree (default 0.8)")
-    parser.add_argument("--reg-lambda", type=float, default=None, help="XGBoost/LightGBM: L2 regularisation on leaf weights (default 1.0)")
-    parser.add_argument("--reg-alpha", type=float, default=None, help="XGBoost/LightGBM: L1 regularisation on leaf weights (default 0/0.1)")
-    parser.add_argument("--min-child-weight", type=float, default=None, help="XGBoost: minimum sum of instance weight per child (default 1)")
-    parser.add_argument("--gamma", type=float, default=None, help="XGBoost: minimum loss reduction to make a split (default 0)")
-    parser.add_argument("--num-leaves", type=int, default=None, help="LightGBM: max number of leaves (default 63)")
-    parser.add_argument("--feature-fraction", type=float, default=None, help="LightGBM: feature subsample ratio (default 0.8)")
-    parser.add_argument("--bagging-fraction", type=float, default=None, help="LightGBM: row subsample ratio (default 0.8)")
-    parser.add_argument("--min-data-in-leaf", type=int, default=None, help="LightGBM: min samples per leaf (default 20)")
-    parser.add_argument("--iterations", type=int, default=None, help="CatBoost: number of boosting iterations (default 2000)")
-    parser.add_argument("--depth", type=int, default=None, help="CatBoost: tree depth (default 6)")
-    parser.add_argument("--l2-leaf-reg", type=float, default=None, help="CatBoost: L2 regularisation on leaves (default 3.0)")
-    parser.add_argument("--random-strength", type=float, default=None, help="CatBoost: randomisation strength for splits (default 1.0)")
-    parser.add_argument("--bagging-temperature", type=float, default=None, help="CatBoost: Bayesian bootstrap temperature (default 1.0)")
-    parser.add_argument("--bootstrap-type", type=str, default=None, help="CatBoost: bootstrap type ('Bayesian', 'Bernoulli', 'No')")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
     parser.add_argument("--het-loss", action="store_true", default=False, help="Use heteroscedastic loss (default: plain Huber)")
     parser.add_argument("--description", required=True)
@@ -694,25 +646,6 @@ def main():
         config["mamba_d_state"] = args.mamba_d_state
     if args.mamba_expand is not None:
         config["mamba_expand"] = args.mamba_expand
-    # GBM hyperparameters (only set if user provided)
-    for _name, _val in [
-        ("n_estimators", args.n_estimators), ("max_depth", args.max_depth),
-        ("gbm_lr", args.gbm_lr), ("subsample", args.subsample),
-        ("colsample_bytree", args.colsample_bytree),
-        ("reg_lambda", args.reg_lambda), ("reg_alpha", args.reg_alpha),
-        ("min_child_weight", args.min_child_weight), ("gamma", args.gamma),
-        ("num_leaves", args.num_leaves),
-        ("feature_fraction", args.feature_fraction),
-        ("bagging_fraction", args.bagging_fraction),
-        ("min_data_in_leaf", args.min_data_in_leaf),
-        ("iterations", args.iterations), ("depth", args.depth),
-        ("l2_leaf_reg", args.l2_leaf_reg),
-        ("random_strength", args.random_strength),
-        ("bagging_temperature", args.bagging_temperature),
-        ("bootstrap_type", args.bootstrap_type),
-    ]:
-        if _val is not None:
-            config[_name] = _val
     config["het_loss"] = args.het_loss
 
     run_single_experiment(backbone, config, args.description)
