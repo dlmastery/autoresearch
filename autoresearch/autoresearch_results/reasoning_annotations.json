@@ -1013,5 +1013,29 @@
     "prediction": "(auto-backfilled: specific prediction not recorded)",
     "verdict": "GLOBAL CHAMPION (composite +6.131)",
     "learning": "Result: composite +6.1312, test Sharpe +6.3363. Status: KEEP."
+  },
+  "126": {
+    "diagnosis": "lstm experiment #126: lstm: Exp21 wd=1e-3 push L2 further (Zaremba2014)",
+    "citations": "Zaremba2014",
+    "hypothesis": "lr=0.001; batch_size=32; seq_len=10; epochs=100; weight_decay=0.001; patience=15; grad_clip=1.0; huber_delta=1.0; head_dropout=0.25; warmup_epochs=0; het_loss=False",
+    "prediction": "(auto-logged at runtime; see research_journal.md for pre-run prediction)",
+    "verdict": "KEEP \u2014 composite +6.1938, test Sharpe +6.3987 (new global best, previous +6.1312 on lstm)",
+    "learning": "Test Sharpe +6.3987 | Val Sharpe +6.2938 | Train Sharpe +6.7609 | Return +1072.65% | Val loss 0.000028"
+  },
+  "127": {
+    "diagnosis": "lstm experiment #127: lstm: Exp22 wd=2e-3 push L2 further",
+    "citations": "(no citation tag)",
+    "hypothesis": "lr=0.001; batch_size=32; seq_len=10; epochs=100; weight_decay=0.002; patience=15; grad_clip=1.0; huber_delta=1.0; head_dropout=0.25; warmup_epochs=0; het_loss=False",
+    "prediction": "(auto-logged at runtime; see research_journal.md for pre-run prediction)",
+    "verdict": "DISCARD \u2014 composite +6.1920, test Sharpe +6.4644 (global best remains +6.1938 on lstm)",
+    "learning": "Test Sharpe +6.4644 | Val Sharpe +6.2920 | Train Sharpe +6.8676 | Return +1098.61% | Val loss 0.000028"
+  },
+  "128": {
+    "diagnosis": "lstm experiment #128: lstm: Exp23 lr=1.5e-3 faster convergence",
+    "citations": "(no citation tag)",
+    "hypothesis": "lr=0.0015; batch_size=32; seq_len=10; epochs=100; weight_decay=0.001; patience=15; grad_clip=1.0; huber_delta=1.0; head_dropout=0.25; warmup_epochs=0; het_loss=False",
+    "prediction": "(auto-logged at runtime; see research_journal.md for pre-run prediction)",
+    "verdict": "DISCARD \u2014 composite +5.5530, test Sharpe +5.5530 (global best remains +6.1938 on lstm)",
+    "learning": "Test Sharpe +5.5530 | Val Sharpe +6.8567 | Train Sharpe +6.7770 | Return +777.05% | Val loss 0.000028"
   }
 }
