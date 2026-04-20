@@ -17,6 +17,7 @@
   .neutral { color: #58a6ff; }
   table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.85em; }
   th { background: #161b22; color: #8b949e; text-align: left; padding: 8px 10px; border-bottom: 2px solid #30363d; font-weight: 600; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; }
+  #exp-table thead th { position: sticky; top: 0; z-index: 10; background: #161b22; }
   td { padding: 7px 10px; border-bottom: 1px solid #21262d; }
   tr:hover { background: #1c2128; }
   tr.keep { border-left: 3px solid #3fb950; }
@@ -80,8 +81,9 @@
   </div>
 </div>
 
-<div class="section-title">Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for per-window breakdown, click header to sort)</span></div>
-<table id="exp-table">
+<div class="section-title">Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for per-window breakdown, click header to sort — scrollable, max ~12 rows visible)</span></div>
+<div id="exp-table-scroll" style="max-height:480px;overflow-y:auto;border:1px solid #30363d;border-radius:6px;position:relative">
+<table id="exp-table" style="margin-bottom:0">
   <thead>
     <tr>
       <th data-sort="experiment_num" style="cursor:pointer">#</th>
@@ -110,6 +112,7 @@
   </thead>
   <tbody id="exp-body"></tbody>
 </table>
+</div>
 
 <div class="detail-panel" id="detail-panel">
   <div class="detail-header">

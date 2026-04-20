@@ -5,11 +5,29 @@
 You ARE the autoresearch loop. Claude Code is the outer loop — there is no separate Python agent. When a session starts:
 
 1. **Read the crash-recovery checkpoint:** `memory/project_autoresearch_checkpoint.md` — it has the current champion, last experiment result, per-fold diagnostics, and what to try next.
-2. **Read the experiment log tail:** `autoresearch_results/experiment_log.jsonl` (last 3 entries) and `autoresearch_results/best_config.json` to verify state.
-3. **Resume the experiment loop** from where the checkpoint says. Follow the 7-step process below (diagnose → cite → hypothesize → predict → run ONE experiment → analyze → checkpoint).
-4. **Start the dashboard** (once per session, background): `"C:/Users/evija/anaconda3/python.exe" -m http.server 8765 --directory C:/Users/evija/autoresearch/autoresearch/autoresearch_results` — then tell the user: "Dashboard at http://localhost:8765/dashboard.html"
-5. **Run experiments** via: `cd C:/Users/evija/autoresearch && "C:/Users/evija/anaconda3/python.exe" -m autoresearch.run_autoresearch --backbone lfm2-350m [flags] --description "..."` (timeout 600s).
-6. **If the user says "continue" or "keep going"** — resume the loop. No need to ask what to do.
+2. **Read the hardware crash log:** `memory/project_hardware_crash_log.md` — documents BSOD history and CPU core exclusion rules. Must follow.
+3. **Read the experiment log tail:** `autoresearch_results/experiment_log.jsonl` (last 3 entries) and `autoresearch_results/best_config.json` to verify state.
+4. **Resume the experiment loop** from where the checkpoint says. Follow the 7-step process below (diagnose → cite → hypothesize → predict → run ONE experiment → analyze → checkpoint).
+5. **Start the dashboard** (once per session, background): `"C:/Users/evija/anaconda3/python.exe" -m http.server 8765 --directory C:/Users/evija/autoresearch/autoresearch/autoresearch_results` — then tell the user: "Dashboard at http://localhost:8765/dashboard.html"
+6. **Run experiments** via: `cd C:/Users/evija/autoresearch && "C:/Users/evija/anaconda3/python.exe" -m autoresearch.run_autoresearch --backbone lfm2-350m [flags] --description "..."` (timeout 600s).
+7. **If the user says "continue" or "keep going"** — resume the loop. No need to ask what to do.
+
+## Hardware Constraints (MANDATORY — updated 2026-04-19)
+
+**E-cores are BANNED.** On this Intel 14th-gen HX system (32 logical CPUs), WHEA-Logger
+reported Internal parity errors on CPU APIC IDs 16, 17, 24, 25 (all E-cores). System
+BSODed 4 times today under sustained compute.
+
+- **Use ONLY P-cores**: logical IDs 0-15. Even IDs (0,2,4,...,14) are primary threads,
+  odd IDs (1,3,...,15) are HT siblings.
+- **Default**: 4 P-core threads via `torch.set_num_threads(4)` + `cpu_affinity([0,2,4,6])`.
+- **GPU does heavy compute**; CPU is coordination only. 4 cores is enough.
+- `run_autoresearch.py:_pin_to_safe_cores()` handles this automatically.
+- Override with env var `AUTORESEARCH_USE_ALL_CORES=1` (not recommended).
+- Override thread count with `AUTORESEARCH_N_THREADS=N`.
+
+**NEVER run a training loop without the pinning.** If you write a new runner script,
+call `_pin_to_safe_cores()` first thing or the laptop will BSOD.
 
 ## Crash-Recovery Checkpointing (MANDATORY — laptop crashes constantly)
 
@@ -141,6 +159,45 @@ You are a strong MLOps engineer. Every artifact and every experiment must be doc
 2. **No orphan artifacts.** Every file must be referenced from either the checkpoint, experiment summary, or winner README.
 3. **Consistent formatting.** Same table format, same metric names, same precision (4 decimal places for ratios, 2 for percentages).
 4. **Append-only experiment log.** Never delete or rewrite experiment entries. If an experiment was wrong (e.g., bug found), add a note — don't erase history.
+
+### Explainability & Auditability Report (MANDATORY for every NEW BEST)
+
+When a new champion is found, produce a full data-scientist-grade audit to `autoresearch_results/winners/<exp_id>/audit_report.md`. This is not optional — a trading model without explainability is un-deployable.
+
+**Required sections (all of them):**
+
+1. **Executive summary** — Champion test Sharpe, return, max drawdown, PSR, all 7 fold Sharpes. Regime-by-regime pass/fail.
+
+2. **Feature importance (permutation method)** — For each of the 104 features, shuffle that column in the test set, re-evaluate, report the drop in test Sharpe. Rank features by importance. Cite: Breiman (2001) "Random Forests" section on variable importance. Save `feature_importance.csv` with columns `[feature_name, sharpe_drop, rank, domain_category]`.
+
+3. **Top-N feature analysis** — For the top 10 most-impactful features, explain:
+   - What the feature measures (from features.py docs)
+   - Why it matters economically (e.g., "VIX = equity volatility, negatively correlated with USD risk appetite")
+   - Per-fold impact: is feature X strong in regime A but weak in regime B?
+
+4. **SHAP-style local explanations** — For 10 random test-set predictions, compute per-feature contribution to the prediction. Use gradient * input as a cheap approximation. Save as `shap_local.csv`.
+
+5. **Per-fold feature drift** — For each fold, compute mean/std of each feature vs the training set. Features with Z-score > 2 on a fold indicate distribution shift. Report top 5 drifted features per fold with explanation.
+
+6. **Calibration analysis** — Plot predicted-return quantile vs realized-return mean. Ideal: monotonic. Report calibration error (mean absolute deviation from monotonic). Cite: Guo et al. (2017) "On Calibration of Modern Neural Networks."
+
+7. **Uncertainty sanity** — Plot aleatoric vs prediction absolute error. Should be monotonic. Plot confidence vs hit-rate. Bucket predictions by confidence decile, report hit-rate per decile. Cite: Kendall & Gal (2017).
+
+8. **Per-regime prediction distribution** — For each fold, plot histogram of predicted returns. Identify if the model is systematically biased (e.g., always predicting +0.01%) vs appropriately reactive.
+
+9. **Trade attribution** — Decompose the cumulative return: for each test fold, report top-5 winning trades (date, pair, predicted, actual, P&L) and top-5 losers. Pattern analysis: are losses concentrated on specific dates/regimes?
+
+10. **Risk audit** — Max drawdown period: which dates, what was the market doing, what features were the model reading. VaR-95, CVaR-95 per fold. Skewness, kurtosis of strategy returns.
+
+11. **Data pipeline audit** — Reassert: zero train/val/test leakage, 90-day purge, 21-day embargo, 10-day label horizon buffer. Rerun `validate_purge_embargo()` and include the output verbatim. No assumptions — MEASURE.
+
+12. **Model config complete dump** — Every hyperparameter + the Python version + torch version + numpy version + random seed. For true reproducibility.
+
+13. **Known limitations & risks** — What regimes has this model NEVER been tested on? (e.g., hyperinflation, CB digital currencies, war shocks). Where will it most likely fail in live trading?
+
+14. **Deployment checklist** — What monitoring is needed? What's the kill-switch criterion (max drawdown threshold, consecutive loss count)? What retraining cadence?
+
+**Implementation:** Add `run_audit_report.py` that takes a `best_model.pt` path and produces the full report. Run it automatically when `composite > prev_best` in the runner.
 
 ### Heteroscedastic Loss Rules (Kendall & Gal 2017)
 - The model outputs mean + log_variance per prediction. Loss = `exp(-s) * huber(mu, y) + 0.5 * s`.

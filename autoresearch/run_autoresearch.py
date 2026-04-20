@@ -14,12 +14,51 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import torch
+
+
+def _pin_to_safe_cores(n_threads: int = 4):
+    """Pin process to a small subset of P-cores to minimize CPU stress.
+
+    GPU does the heavy compute; CPU is coordination only. Using fewer cores
+    reduces thermal load and avoids failing E-cores (APIC 16,17,24,25 on
+    this Intel 14th-gen HX showed WHEA Internal parity errors on 2026-04-15).
+
+    Default: 4 P-core logical threads (even-numbered, avoid HT siblings)
+    Override with AUTORESEARCH_USE_ALL_CORES=1 or AUTORESEARCH_N_THREADS=N.
+    """
+    if os.environ.get("AUTORESEARCH_USE_ALL_CORES"):
+        return
+    try:
+        import psutil
+        n = int(os.environ.get("AUTORESEARCH_N_THREADS", n_threads))
+        proc = psutil.Process(os.getpid())
+        logical = psutil.cpu_count(logical=True)
+        if logical and logical >= 32:  # Intel hybrid
+            # Even logical IDs 0,2,4,... are primary P-core threads (no HT
+            # sibling contention). Use just the first N of those.
+            safe_cores = [2 * i for i in range(min(n, 8))]
+            proc.cpu_affinity(safe_cores)
+            torch.set_num_threads(n)
+            os.environ["OMP_NUM_THREADS"] = str(n)
+            os.environ["MKL_NUM_THREADS"] = str(n)
+            print(f"[CPU SAFETY] Pinned to {n} P-core threads {safe_cores} "
+                  f"(WHEA errors on E-cores 16,17,24,25). "
+                  f"Override with AUTORESEARCH_USE_ALL_CORES=1.")
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f"[CPU SAFETY] Could not pin affinity: {e}")
+
+
+# Pin at import time so every run benefits
+_pin_to_safe_cores()
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader
 
