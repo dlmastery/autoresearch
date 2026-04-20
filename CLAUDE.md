@@ -9,7 +9,7 @@ You ARE the autoresearch loop. Claude Code is the outer loop — there is no sep
 3. **Read the experiment log tail:** `autoresearch_results/experiment_log.jsonl` (last 3 entries) and `autoresearch_results/best_config.json` to verify state.
 4. **Resume the experiment loop** from where the checkpoint says. Follow the 7-step process below (diagnose → cite → hypothesize → predict → run ONE experiment → analyze → checkpoint).
 5. **Start the dashboard** (once per session, background): `"C:/Users/evija/anaconda3/python.exe" -m http.server 8765 --directory C:/Users/evija/autoresearch/autoresearch/autoresearch_results` — then tell the user: "Dashboard at http://localhost:8765/dashboard.html"
-6. **Run experiments** via: `cd C:/Users/evija/autoresearch && "C:/Users/evija/anaconda3/python.exe" -m autoresearch.run_autoresearch --backbone lfm2-350m [flags] --description "..."` (timeout 600s).
+6. **Run experiments** via: `cd C:/Users/evija/autoresearch && "C:/Users/evija/anaconda3/python.exe" -m autoresearch.run_autoresearch --backbone <backbone> [flags] --description "..."` (timeout 600s). **LFM2 is SKIPPED** per user instruction 2026-04-19 — its 43 experiments are frozen, no more LFM2 runs. Active backbone order: lstm → patchtst → patchtsmixer → xgboost → lightgbm → catboost.
 7. **If the user says "continue" or "keep going"** — resume the loop. No need to ask what to do.
 
 ## Hardware Constraints (MANDATORY — updated 2026-04-19)
@@ -226,22 +226,60 @@ code_versions/
 
 Rule: never modify `backbone.py` code specific to backbone X while experiments on backbone Y are in progress. Finish one backbone's 50 experiments, snapshot, then move on.
 
-### Dashboard Reasoning Annotations (MANDATORY write per experiment)
+### Dashboard Reasoning Annotations (MANDATORY — capture EVERYTHING, every experiment)
 
-Every experiment MUST populate `autoresearch_results/reasoning_annotations.json` at runtime. The runner writes an entry keyed by `experiment_num` with these 6 fields:
+**Every single experiment MUST have a complete reasoning record in `autoresearch_results/reasoning_annotations.json` keyed by `experiment_num`. No experiment ships without one. Orphan entries or "auto-backfilled" placeholders are a bug.**
 
-- `diagnosis` — what the experiment examines (backbone + what changed)
-- `citations` — arxiv / paper references (parenthetical tag from description at minimum)
-- `hypothesis` — the config change in concrete terms
-- `prediction` — expected composite / per-fold outcome (ideally set BEFORE running; otherwise auto-logged)
-- `verdict` — KEEP / DISCARD + composite + global-best comparison
-- `learning` — test/val/train Sharpe + return + val loss
+The entry is a JSON object with these REQUIRED fields (all non-empty strings):
 
-Dashboard (`dashboard.html`) renders this in the detail panel when a row is clicked. Manual curated entries should have `_manual: true` so backfill scripts won't overwrite them.
+| Field | Content | Source |
+|-------|---------|--------|
+| `diagnosis` | Why THIS experiment now: which champion weakness it targets, which fold is weakest and why (regime, dates, uncertainty profile), what prior experiments ruled out the alternatives | Authored by Claude BEFORE running |
+| `citations` | Full author/year/venue string for every paper motivating the choice (e.g. "Keskar et al. 2017 ICLR — On Large-Batch Training for Deep Learning: Generalization Gap and Sharp Minima; He et al. 2016 CVPR (ResNet)"). Multiple papers semicolon-separated. Parenthetical-only tags (e.g. `(Keskar2017)`) are INSUFFICIENT — expand to full reference | Authored before running |
+| `hypothesis` | Concrete mechanism: "parameter X = value Y will change metric Z via mechanism M (what the paper argues)". Not just "try X". | Authored before running |
+| `prediction` | Numeric target: "composite should move from +6.37 to +6.40-6.50; val fold 2 expected to improve from -0.17 to +0.0-0.3". Include ranges, not single numbers | Authored before running |
+| `verdict` | KEEP / DISCARD / NEAR-MISS + composite achieved + delta vs global best + which folds carried it | Written immediately after results |
+| `learning` | What this result updates in the mental model: did the prediction hold? Which axis is now exhausted? Which variant should be tried next? | Written immediately after results |
+| `_manual` | `true` if authored by Claude as part of the 7-step process (which is ALL non-trivial experiments); `false` only for purely mechanical variance-check runs that reuse a prior annotation template | Always set |
 
-**Runner is responsible for writing this file on EVERY run** — not as a post-hoc backfill. `backfill_reasoning.py` exists only to retrofit old entries and fill gaps.
+**Dashboard `dashboard.html` renders all 7 fields in the detail panel when a row is clicked.** If any field is missing, empty, or placeholder ("(auto-backfilled)", "(no explicit citation)"), that's a regression — fix it before the next experiment.
 
-Manual deep annotations (diagnosis, citations, hypothesis, prediction) should be authored BEFORE the experiment as part of the 7-step process — these become part of `research_journal.md` AND the `reasoning_annotations.json` entry. The runner's auto-generated entry is minimum viable, not gold standard.
+**Write cadence — two places on every run:**
+1. **BEFORE the experiment command runs:** Claude adds the entry to `reasoning_annotations.json` with `diagnosis`, `citations`, `hypothesis`, `prediction`, `_manual: true`. The experiment is not launched until this entry exists. This enforces the "never guess, never grid-search" rule.
+2. **AFTER the experiment completes:** Claude appends `verdict` and `learning` to the same entry by reading the runner's JSONL output. The runner's auto-written entry is only a fallback; Claude's post-analysis is authoritative.
+
+**Enforcement:** At the start of every experiment cycle, Claude MUST check:
+- Does `reasoning_annotations.json` already have a complete entry for the previous experiment? If no `verdict`/`learning`, write them before starting the next.
+- Is the next experiment's pre-entry already authored? If no, write it now.
+- Did the citation field survive any recent `backfill_reasoning.py` run? Check `_manual: true` is preserved.
+
+**Parallel write to `research_journal.md`.** The same diagnosis/citations/hypothesis/prediction/verdict/learning narrative belongs in the research journal in markdown form, keyed by experiment number. Journal format:
+
+```markdown
+## Exp<N> — <short title>
+**Diagnosis:** ...
+**Citations:** ...
+**Hypothesis:** ...
+**Prediction:** ...
+**Verdict:** ...
+**Learning:** ...
+```
+
+The journal is the human-readable twin of the JSON; they must stay in sync. If they drift, the JSON is authoritative (runner-written), and the journal gets updated from it.
+
+**`backfill_reasoning.py` rules:**
+- Only runs on DEMAND — not automatically, not after every experiment
+- Never overwrites entries with `_manual: true`
+- Fills in only the fields that are empty AND whose experiment JSONL entry exists
+- Logs every overwrite it makes
+- Is NOT a substitute for authoring the annotation before the run
+
+**Runner's responsibility (`run_autoresearch.py`):**
+- On every invocation, merge the user-visible description's citation tags + the CLI flag delta into the runtime `reasoning_annotations.json` entry — WITHOUT clobbering `_manual: true` fields
+- Populate `verdict` and `learning` from the results automatically as a fallback
+- Never emit placeholder strings like "(auto-backfilled)"; if it can't compute a field, leave it blank and log a warning so Claude knows to author it
+
+**Why this matters:** the dashboard is the shared memory between sessions. A new Claude Code session resuming this project reads the dashboard reasoning panel to understand why a champion was chosen. Missing or shallow annotations mean lost institutional knowledge and wasted experiments that retry dead-end ideas.
 
 ### Per-Backbone 50-Experiment Mandate (MANDATORY, not optional)
 
@@ -267,22 +305,179 @@ Manual deep annotations (diagnosis, citations, hypothesis, prediction) should be
 
 5. **Only after 50 experiments** may a backbone be declared "done" and progression to the next backbone resume.
 
-### Per-Backbone SOTA Training Recipes (starting points for Experiment 1/50)
+### Per-Backbone SOTA Training Recipes (MANDATORY — re-derive per backbone)
 
-Always start a new backbone with the literature-recommended SOTA config. Then iterate. **Epoch and patience counts are backbone-specific — do NOT reuse MLP's ep=50 for LSTM/Transformer/PatchTST.**
+**Every backbone picks its OWN epochs, patience, learning rate, batch size, scheduler, and optimizer from the latest SOTA literature for THAT architecture. Never copy another backbone's config.** Defaults in `train.py` (ep=20, pat=5, lr=3e-4, bs=32, wd=1e-5) are starting points for MLP only — inherited values are bugs.
 
-| Backbone | Epochs | Patience | LR | Batch | Citation |
-|----------|--------|----------|-----|-------|----------|
-| mlp | 50 | 10 | 3e-4 | 32 | Gu, Kelly & Xiu 2020 RFS (financial MLP) |
-| lstm | 100 | 15 | 1e-3 | 32 | Fischer & Krauss 2018 EJOR (financial LSTM) |
-| lfm2-350m | 20 | 5 | 2e-5 | 32 | Head-only fine-tuning conv. (Devlin 2019, Hu 2022) |
-| patchtst | 100 | 20 | 1e-4 | 32 | Nie et al. 2023 ICLR |
-| patchtsmixer | 100 | 20 | 1e-3 | 32 | Ekambaram et al. 2023 NeurIPS |
-| xgboost | n/a | n/a | 0.03 (lr) | — | Chen & Guestrin 2016 (500-2000 iters) |
-| lightgbm | n/a | n/a | 0.03 (lr) | — | Ke et al. 2017 (500-2000 iters) |
-| catboost | n/a | n/a | 0.03 (lr) | — | Prokhorenkova 2018 (500-2000 iters) |
+**Before the first experiment on any new backbone, Claude MUST:**
 
-**Empirical evidence for LSTM epoch bump:** LSTM Exp3 (ep=100 pat=15) beat Exp1 (ep=50 pat=10) by +0.94 composite, confirming Fischer & Krauss 2018 SOTA prescription.
+1. **Pull the latest 2024-2026 arXiv / NeurIPS / ICML / ICLR paper for the backbone family.** For each backbone, read the paper's experimental section and note:
+   - Recommended epochs (and how they terminate — fixed vs early-stop)
+   - Patience threshold (absolute vs relative to epochs — e.g. "10% of total")
+   - Learning rate (and whether warmup is required — many 2024+ transformers need 5-10% warmup)
+   - Scheduler (cosine annealing, linear decay, plateau, ReduceLROnPlateau — varies widely)
+   - Optimizer (Adam vs AdamW vs Lion vs Adafactor vs SOAP — Lion/SOAP in 2024+ for large models)
+   - Batch size (and whether it's effective-batch via grad accumulation)
+   - Weight decay (AdamW uses decoupled; varies from 0 to 0.1 by architecture)
+   - Gradient clipping (transformers usually clip to 1.0; RNNs to 0.25-1.0; GBMs N/A)
+   - Loss function (MSE vs Huber vs Quantile vs Log-Cosh)
+
+2. **Record the chosen recipe with a paper citation in the reasoning annotation** for Experiment 1 of that backbone. Other experiments in the backbone's 50-run cycle start from this config, not from MLP's or LSTM's.
+
+3. **Justify the DELTA from the paper.** If our chosen epochs deviate from the paper's recommendation, the reasoning entry MUST explain why (e.g. "Nie 2023 used ep=100 on ETTh1 n=8640; we scale to ep=80 for our n=2738 — 3.15× less data, scale training proportionally per Smith 2017 rule").
+
+4. **Never assume "ep=50 works for everything."** Historical proof:
+   - MLP Exp32 champion converged at ep=50, pat=10 (Gu/Kelly/Xiu 2020)
+   - LSTM Exp3 (ep=100, pat=15) beat LSTM Exp1 (ep=50, pat=10) by **+0.94 composite** (Fischer & Krauss 2018) — wrong epoch count costs 20% of peak performance
+   - PatchTST Exp1 at our MLP defaults (seq=10, ep=20) gave composite **−1.72** because Nie 2023's minimum seq=60 and ep=100 were ignored
+   - LFM2 head-only fine-tuning needs ep=20, pat=5 — LSTM's ep=100 would catastrophically overfit the adapter head
+
+### Backbone-Specific Training Recipes (updated 2026-04-19 from SOTA literature)
+
+Each row links to the paper Claude must re-read before starting the backbone. The config shown is the STARTING point for Experiment 1 — not a final answer. Iterate per the 7-step process.
+
+| Backbone | Epochs | Patience | LR | Warmup | Scheduler | Batch | WD | Opt. | Loss | Paper (full citation) |
+|----------|--------|----------|-----|--------|-----------|-------|-----|------|------|-----------------------|
+#### Tier 1 — neural backbones (require from-scratch or fine-tune training)
+
+| Backbone | Epochs | Patience | LR | Warmup | Scheduler | Batch | WD | Opt. | Loss | Paper (full citation) |
+|----------|--------|----------|-----|--------|-----------|-------|-----|------|------|-----------------------|
+| mlp | 50 | 10 | 3e-4 | 0 | cosine | 32 | 1e-5 | AdamW | Huber δ=1 | Gu, Kelly & Xiu 2020 RFS "Empirical Asset Pricing via Machine Learning" |
+| lstm | 100 | 15 | 1e-3 | 0 | cosine | 16-32 | 7e-4 | AdamW | Huber δ=1 | Fischer & Krauss 2018 EJOR "Deep learning with LSTMs for financial market predictions" |
+| ~~lfm2-350m~~ | ~~20~~ | ~~5~~ | ~~2e-5~~ | ~~1~~ | ~~linear~~ | ~~32~~ | ~~1e-6~~ | ~~AdamW~~ | ~~Huber~~ | SKIPPED per user 2026-04-19 |
+| patchtst | 100 | 20 | 1e-4 | 10 | cosine | 32 | 1e-4 | AdamW | MSE | Nie, Nguyen, Sinthong, Kalagnanam 2023 ICLR "A Time Series is Worth 64 Words" (arXiv:2211.14730) — requires seq_len ≥ 60 |
+| patchtsmixer | 100 | 15 | 1e-3 | 5 | cosine | 32 | 1e-5 | AdamW | MSE | Ekambaram, Jati, Nguyen, Sinthong, Kalagnanam 2023 KDD "TSMixer: Lightweight MLP-Mixer Model for Multivariate Time Series" (arXiv:2306.09364) |
+| itransformer | 150 | 20 | 5e-5 | 10 | cosine | 32 | 0 | AdamW | MSE | Liu, Hu, Zhang, Wang, Wu, Wang, Long 2024 ICLR "iTransformer: Inverted Transformers Are Effective for Time Series Forecasting" (arXiv:2310.06625) |
+| xlstm | 80 | 15 | 5e-4 | 5 | cosine | 16 | 1e-3 | AdamW | Huber δ=1 | Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS "xLSTM: Extended Long Short-Term Memory" (arXiv:2405.04517) — exponential gating, matrix memory |
+| mamba | 100 | 20 | 5e-4 | 10 | cosine | 32 | 0.1 | AdamW | MSE | Gu & Dao 2024 COLM "Mamba: Linear-Time Sequence Modeling with Selective State Spaces" (arXiv:2312.00752) |
+
+#### Tier 2 — 10 NEW 2024-2026 SOTA backbones (add to runner before running)
+
+| # | Backbone | Family | Epochs | Patience | LR | Warmup | Scheduler | Batch | WD | Opt. | Loss | Paper (full citation) |
+|---|----------|--------|--------|----------|-----|--------|-----------|-------|-----|------|------|-----------------------|
+| 1 | **timesfm** | Foundation (decoder-only, fine-tune) | 20 | 5 | 1e-4 | 2 | cosine | 32 | 1e-5 | AdamW | Quantile | Das, Kong, Sen, Zhou 2024 ICML "A Decoder-Only Foundation Model for Time-Series Forecasting" (arXiv:2310.10688); TimesFM 2.5 (Google 2025) — 500M params, 100B time-points pretrain, 2.5 adds continuous quantile heads & longer context |
+| 2 | **chronos-bolt** | Foundation (T5-based encoder-decoder) | 15 | 5 | 5e-5 | 2 | cosine | 32 | 1e-5 | AdamW | CrossEnt (token) | Ansari, Stella, Turkmen, Zhang, Mercado, Shen, Shchur, Rangapuram, Pineda Arango, Kapoor, Zschiegner, Maddix, Mahoney, Torkkola, Wilson, Bohlke-Schneider, Wang 2024 TMLR "Chronos: Learning the Language of Time Series" (arXiv:2403.07815); Chronos-2 (arXiv:2510.15821, 2025) — univariate→universal, top benchmark score |
+| 3 | **moirai** | Foundation (probabilistic encoder + MoE) | 20 | 5 | 1e-4 | 2 | cosine | 32 | 0 | AdamW | NLL (student-T mix) | Woo, Liu, Kumar, Xiong, Savarese, Sahoo 2024 ICML "Unified Training of Universal Time Series Forecasting Transformers" (arXiv:2402.02592); Moirai-MoE (arXiv:2410.10469); Moirai 2.0 (arXiv:2511.11698, 2025) — sparse MoE, 36M-series pretrain, multi-token prediction |
+| 4 | **moment** | Foundation (T5 encoder, masked-ts pretraining) | 30 | 10 | 5e-5 | 3 | cosine | 32 | 1e-5 | AdamW | MSE | Goswami, Szafer, Choudhry, Cai, Li, Dubrawski 2024 ICML "MOMENT: A Family of Open Time-series Foundation Models" (arXiv:2402.03885) |
+| 5 | **tirex** | Foundation (xLSTM-based, decoder) | 25 | 8 | 1e-4 | 3 | cosine | 16 | 1e-4 | AdamW | Quantile | Auer, Pöppel, Pflüger, Brandstetter, Hochreiter 2025 "TiRex: Zero-Shot Forecasting with Recurrent xLSTM Backbones" (NXAI/JKU 2025) — decoder-only xLSTM, strong short+long horizon zero-shot |
+| 6 | **sundial** | Foundation (Transformer, continuous TimeFlow loss) | 30 | 10 | 1e-4 | 3 | cosine | 32 | 1e-5 | AdamW | TimeFlow (flow-matching on values) | Liu, Zhang, Wu, Long 2025 "Sundial: A Family of Highly Capable Time Series Foundation Models" (arXiv:2502.00816) — 1T time-points TimeBench pretrain, flow-matching loss |
+| 7 | **time-moe** | Foundation (sparse MoE decoder) | 20 | 5 | 1e-4 | 2 | cosine | 32 | 1e-5 | AdamW | MSE + load-balance | Shi, Wang, Yang, Wang, Yang, Wang, Li, Li, Sun, Gao, Li 2024 ICLR '25 "Time-MoE: Billion-Scale Time Series Foundation Models with Mixture of Experts" (arXiv:2409.16040) |
+| 8 | **timemixer** | MLP-multiscale (from-scratch) | 100 | 15 | 1e-3 | 5 | cosine | 32 | 1e-5 | AdamW | MSE | Wang, Wu, Shi, Hu, Luo, Ma, Zhang, Zhou 2024 ICLR "TimeMixer: Decomposable Multiscale Mixing for Time Series Forecasting" (arXiv:2405.14616); TimeMixer++ 2024 follow-up — multi-scale decomposition, state-of-art on 8 tasks |
+| 9 | **timesnet** | 2D-variation (CNN-inception) | 100 | 20 | 1e-4 | 5 | cosine | 32 | 1e-4 | AdamW | MSE | Wu, Hu, Liu, Ma, Long 2023 ICLR "TimesNet: Temporal 2D-Variation Modeling for General Time Series Analysis" (arXiv:2210.02186) — reshape 1D→2D via period-FFT, Inception blocks |
+| 10 | **mambats** | SSM (Mamba-based) | 100 | 20 | 1e-3 | 5 | cosine | 32 | 1e-4 | AdamW | MSE | Cai, Jiang, Wu, Zhang, Wang 2024 NeurIPS "MambaTS: Improved Selective State Space Models for Long-Term Time Series Forecasting" (arXiv:2405.16440); DMamba (arXiv:2602.09081 2025) variant with season-trend decomposition |
+
+**Bonus Tier 2.5 candidates (add if budget allows):** DLinear/NLinear (Zeng et al. 2023 AAAI arXiv:2205.13504), N-HiTS (Challu et al. 2023 AAAI arXiv:2201.12886), TFT (Lim et al. 2021 IJF arXiv:1912.09363), Crossformer (Zhang & Yan 2023 ICLR), Autoformer (Wu et al. 2021 NeurIPS arXiv:2106.13008), N-BEATS (Oreshkin et al. 2020 ICLR arXiv:1905.10437), EMTSF ensemble (arXiv:2510.23396 2025). These are well-studied but less likely to beat Tier-2 foundation models at our n.
+
+#### Tier 3 — gradient boosted machines (each is its OWN backbone, run independently)
+
+GBMs are fundamentally different from neural nets: no epochs, no LR schedule, no batch. Iterations are tree-count. Each GBM has its own paper, its own hyperparameter language, its own 50-experiment exploration budget. **Do NOT bundle xgboost/lightgbm/catboost as "the GBM backbone" — they are three separate architectures with different splitting algorithms, different regularization mechanisms, and different category handling.** Explore each fully.
+
+| Backbone | Key HP | Default Start | Regularization | Special feature | Paper (full citation) |
+|----------|--------|---------------|----------------|------------------|----------------------|
+| **xgboost** | n_estimators=1500, max_depth=6, lr=0.03, subsample=0.8, colsample_bytree=0.8, early_stop=50 | level-wise trees | reg_lambda=1.0, reg_alpha=0, min_child_weight=1, gamma=0 | 2nd-order Newton boosting; monotonic constraints; histogram method | Chen & Guestrin 2016 KDD "XGBoost: A Scalable Tree Boosting System" (arXiv:1603.02754) |
+| **lightgbm** | n_estimators=2000, num_leaves=63, lr=0.03, feature_fraction=0.8, bagging_fraction=0.8, early_stop=50 | leaf-wise trees (GOSS) | reg_alpha, reg_lambda, min_data_in_leaf=20 | Gradient-based One-Side Sampling; Exclusive Feature Bundling; categorical native support | Ke, Meng, Finley, Wang, Chen, Ma, Ye, Liu 2017 NeurIPS "LightGBM: A Highly Efficient Gradient Boosting Decision Tree" |
+| **catboost** | iterations=2000, depth=6, lr=0.03, random_strength=1.0, early_stop=100 | symmetric oblivious trees | l2_leaf_reg=3, bagging_temperature=1.0 | Ordered boosting (prediction shift); native categorical via ordered target-stat | Prokhorenkova, Gusev, Vorobev, Dorogush, Gulin 2018 NeurIPS "CatBoost: Unbiased Boosting with Categorical Features" (arXiv:1706.09516) |
+
+**Why GBMs are 3 separate backbones:**
+- **XGBoost** uses 2nd-order gradient info (Hessian) — effective on imbalanced targets, fast on GPU
+- **LightGBM** uses leaf-wise growth + GOSS sampling — fastest wall-clock, handles large n well
+- **CatBoost** uses ordered boosting to fight prediction shift + has the best default categorical handling — slowest but often best out-of-box accuracy on tabular
+
+On our 104-feature FX prediction, each will rank different features as important and each has different failure modes (LightGBM risk: leaf-wise overfit on small data; CatBoost risk: depth ceiling at 6 symmetric trees). Do not skip any.
+
+**Re-derive for EVERY new 2024-2026 variant.** When a backbone family has multiple SOTA variants (e.g. LSTM family → xLSTM/sLSTM/mLSTM/Mamba; Transformer TS → PatchTST/iTransformer/Crossformer/Autoformer/FEDformer; Mamba family → MambaTS/DMamba/S-Mamba/CMMamba), each variant re-derives its recipe from its OWN paper. Don't assume xLSTM uses vanilla LSTM's ep=100, pat=15, or that MambaTS uses vanilla Mamba's ep=100.
+
+### GPU Memory Constraint (MANDATORY — 16 GB VRAM hard cap)
+
+**This laptop has 16 GB of GPU VRAM. Every backbone selection, every experiment, every fine-tuning run MUST fit within this budget with headroom. A model that OOMs mid-training is not a valid experiment — it's a wasted GPU cycle and a crash risk.**
+
+**Memory budget breakdown (16 GB total):**
+
+| Component | Budget | Notes |
+|-----------|--------|-------|
+| Model parameters | ≤ 3 GB | FP32 weights; BF16/FP16 halves this |
+| Optimizer state (AdamW) | ≤ 6 GB | Adam stores 2 moments at FP32 even with BF16 weights → ≈ 2× param size |
+| Gradients | ≤ 3 GB | Same size as params; freed after step |
+| Activations | ≤ 3 GB | batch × seq × hidden, scales with bs and depth |
+| Reserved / fragmentation | ≥ 1 GB | PyTorch caching allocator overhead |
+
+**Practical parameter ceilings by training mode:**
+
+| Training mode | Max params @ FP32 | Max params @ BF16/FP16 | Max params w/ grad-ckpt + BF16 |
+|---------------|-------------------|------------------------|-------------------------------|
+| From-scratch train (Adam full states) | ~500 M | ~1.0 B | ~2.0 B |
+| Full fine-tune | ~500 M | ~1.0 B | ~2.0 B |
+| Parameter-efficient FT (LoRA r=8, adapter-only) | ~1.0 B | ~3.0 B | ~5.0 B |
+| Frozen-backbone head-only FT | ~1.5 B | ~4.0 B | ~7.0 B |
+| Inference only (no grads) | ~4.0 B | ~8.0 B | ~8.0 B |
+
+**Rules by backbone size class:**
+
+1. **< 100 M params** — safe for anything. Use FP32 defaults. Most of our historical backbones (MLP, LSTM, PatchTST, TSMixer, iTransformer, xLSTM-small) are here.
+2. **100 M – 500 M params** — FROM-SCRATCH TRAIN OK in FP32 at bs=32. Measure GPU use on Experiment 1; if > 12 GB, drop batch to 16 and/or switch to BF16. Applies to MOMENT-small, Chronos-T5-small/base, Moirai-small/base, TimesFM-base, Time-MoE-base.
+3. **500 M – 2 B params** — FROM-SCRATCH not viable. Use: (a) parameter-efficient fine-tuning (LoRA/adapters), OR (b) frozen backbone + trainable head, OR (c) zero-shot inference then distil into a smaller student. Applies to TimesFM-2.5 (~500 M), Chronos-T5-large (700 M), MOMENT-large (385 M borderline), Moirai-large (311 M borderline), Sundial (exact size unknown — likely 500 M–1 B).
+4. **> 2 B params** — INFERENCE ONLY. Use zero-shot forecasting, cache predictions, never train. Unlikely for our workflow.
+
+**Mandatory pre-flight check for any new backbone:**
+
+Before launching Experiment 1 on ANY new backbone, run this check (in reasoning annotation):
+
+```
+Measured/estimated size: N million params
+Training mode selected: [from-scratch | LoRA fine-tune | head-only FT | zero-shot]
+Expected peak VRAM: <X> GB at bs=<Y>, seq=<Z>, precision=<FP32|BF16>
+Headroom vs 16 GB: <16 - X> GB
+Fallback plan if OOM: [reduce bs to 16 | switch to BF16 | gradient checkpointing | adapter-only]
+```
+
+Without this entry, Experiment 1 does not launch. The same check applies any time we change batch size or sequence length during a backbone's 50-experiment cycle.
+
+**Size-class annotations for the Tier-2 backbones (add to their first-experiment reasoning):**
+
+| Backbone | Approx size | Training mode fit in 16 GB |
+|----------|------------|-----------------------------|
+| timesfm-200m (small) | 200 M | from-scratch fine-tune OK at BF16 |
+| timesfm-2.5 (500 M) | 500 M | PEFT or head-only FT; full fine-tune risky |
+| chronos-bolt-small | 9 M | trivially fits |
+| chronos-bolt-base | 48 M | trivially fits |
+| chronos-bolt-large | 205 M | fine-tune fits in FP32 |
+| chronos-t5-large | 700 M | PEFT only |
+| moirai-small/base | 14 M / 91 M | fits, from-scratch OK |
+| moirai-large / moirai 2.0 | 311 M / ~500 M | fine-tune at BF16 |
+| moment-small / base / large | 40 M / 125 M / 385 M | all fit; large at BF16 |
+| tirex | ~300 M (est.) | fine-tune at BF16 |
+| sundial | 500 M – 1 B (est.) | PEFT only |
+| time-moe-base / large | 113 M / 453 M | fits; large at BF16 |
+| timemixer / timesnet / mambats | < 50 M each | trivially fits |
+
+**Default protocol when adopting a new foundation model:**
+
+1. Start with the SMALLEST published checkpoint of that family (e.g. Chronos-Bolt-small, Moirai-small, MOMENT-small).
+2. Run zero-shot first — measure composite without any training. Pay only inference cost.
+3. If zero-shot is promising, fine-tune (full or PEFT depending on size).
+4. Scale up to larger checkpoint ONLY if smaller shows signal AND the memory math works.
+
+**BF16 note.** On our RTX-class GPU, BF16 is the safer mixed-precision choice vs FP16 — keeps dynamic range without loss-scaling. Use `torch.autocast(dtype=torch.bfloat16)` + `GradScaler` unset. Measure before/after; some ops (LayerNorm, GroupNorm) should stay FP32.
+
+**Gradient checkpointing note.** Use `torch.utils.checkpoint.checkpoint_sequential` for any model > 200 M params that we're fine-tuning. Costs ~30% more FLOPs but cuts activation memory by 70-80%, unlocking bs=32 at 500 M-1 B params.
+
+### Epoch-budget rule of thumb (when in doubt)
+
+If the paper's recipe is unclear, use this scaling heuristic:
+
+- **Data scaling (Smith 2017):** `epochs ≈ paper_epochs × (paper_n / our_n)^0.5`. Our n=2738; if paper used n=8000, scale paper_epochs × 0.59.
+- **Parameter scaling (Kaplan 2020):** holding data fixed, larger models need more epochs. `epochs ≈ base × (our_params / paper_params)^0.2`.
+- **Patience as 15% of epochs** is a safe default when papers don't specify.
+- **Warmup = 5-10% of total epochs** for transformer families (required by layer-norm stability).
+
+These are starting heuristics; always iterate and checkpoint the actual convergence profile per backbone.
+
+### Empirical evidence (LSTM phase confirmations)
+
+- LSTM Exp3 (ep=100 pat=15) beat Exp1 (ep=50 pat=10) by +0.94 composite — confirmed Fischer & Krauss 2018
+- PatchTST at seq=10 gave -1.72 — confirmed Nie 2023's seq≥60 minimum
+- MLP converged at ep=50 — Gu/Kelly/Xiu 2020 recipe validated
+- Per-backbone convergence epochs (observed early-stop point): MLP ~25, LSTM ~29, PatchTST pending ~40-60 est.
 
 ### Backbone Isolation Rule
 
@@ -291,6 +486,114 @@ Before starting experiments on a new backbone, snapshot `model/backbone.py`, `mo
 ### Dashboard Backbone Tabs
 
 Dashboard (`dashboard.html`) renders a backbone tab bar above the experiment list. Default view shows "ALL". Tabs filter the scrollable experiment list to just that backbone's experiments. Click to switch.
+
+### Dashboard Files Update Mandate (MANDATORY — every experiment, zero exceptions)
+
+**Every single experiment updates ALL the following files. If any file is stale after an experiment completes, that's a regression — stop and fix before moving on. No "I'll batch-update at the end." No "It's just a variance check."**
+
+**Ownership — who writes what:**
+
+| File | Written by | When | Content |
+|------|------------|------|---------|
+| `autoresearch_results/experiment_log.jsonl` | **runner (auto)** | every run, appended | full metrics: composite, test/val/train Sharpe, per-fold results, per-window classification metrics, uncertainty, timing, config |
+| `autoresearch_results/best_config.json` | **runner (auto)** | only when new GLOBAL champion | overwritten with full champion entry |
+| `autoresearch_results/best_model.pt` | **runner (auto)** | only when new GLOBAL champion | weights + scaler + config + feature_columns + provenance |
+| `autoresearch_results/trade_logs/exp<N>_trades.csv` | **runner (auto)** | every run | one row per test-day trade (date, fold, regime, prediction, direction, returns, confidence, aleatoric, epistemic, pnl_bps) |
+| `autoresearch_results/trade_logs/exp<N>_trade_summary.json` | **runner (auto)** | every run | per-fold totals, wins, losses, avg_win/loss bps, max win/loss, win_rate |
+| `autoresearch_results/reasoning_annotations.json` | **Claude BEFORE run + runner AFTER run** | every run, two-phase | diagnosis, citations, hypothesis, prediction (Claude); verdict, learning (runner fallback, Claude overrides) |
+| `autoresearch_results/research_journal.md` | **Claude** | every run, appended | markdown narrative of the full 7-step process (diagnosis → citations → hypothesis → prediction → verdict → learning) |
+| `autoresearch_results/experiment_summary.md` | **Claude** | every run, appended | short tabular entry per experiment (config delta, result, per-fold Sharpe, status, learning) |
+| `memory/project_autoresearch_checkpoint.md` | **Claude** | every run | update champion, update experiment history table, update next-command block |
+| `autoresearch_results/winners/<backbone>_exp<N>_<desc>/*` | **Claude** | only when new GLOBAL champion | README.md, config.json, model_checkpoint.pt (copy), code/ snapshot, inference/predict.py, per_fold_results.json, experiment_log_entry.json |
+| `autoresearch_results/winners/<backbone>_exp<N>_<desc>/audit_report.md` | **Claude** | only when new GLOBAL champion | 14-section audit per Explainability & Auditability Report spec |
+| `autoresearch_results/winners/<backbone>_exp<N>_<desc>/colab_train_and_infer.ipynb` | **Claude** | only when new GLOBAL champion | self-contained Colab notebook |
+| `autoresearch_results/dashboard.html` | **Claude (rarely)** | only when adding a new metric/tab | static HTML — reads the JSONL + annotations live |
+
+**Per-experiment ritual (repeat in order, every single run):**
+
+1. **Before launch:** open `reasoning_annotations.json`, insert a new entry keyed by the upcoming `experiment_num` with `diagnosis`, `citations` (full reference), `hypothesis`, `prediction` (numeric target), `_manual: true`. If this entry isn't there, the experiment doesn't run.
+2. **Before launch:** append a matching section to `research_journal.md` with the same 4 fields in markdown.
+3. **Launch:** run the CLI command.
+4. **Runner auto-updates:** JSONL, best_config (if champion), best_model (if champion), trade_logs CSV + JSON, reasoning_annotations verdict/learning fallback.
+5. **After completion:** Claude reads the runner output, overwrites the `verdict` and `learning` fields in `reasoning_annotations.json` with richer analysis (per-fold narrative, which regimes won/lost, uncertainty profile). Updates the corresponding section in `research_journal.md`.
+6. **After completion:** Claude appends a row to `experiment_summary.md`.
+7. **After completion:** Claude updates `memory/project_autoresearch_checkpoint.md` with the new experiment in the history table, updated champion (if applicable), and the exact next-experiment command.
+8. **If new champion:** Claude archives to `winners/<backbone>_exp<N>_<desc>/` — README, config copy, model copy, frozen code snapshot, inference predict.py, per-fold results, audit_report.md, Colab notebook. The archive must be self-contained.
+
+**Verification at the start of every experiment cycle:**
+
+Before launching Experiment N+1, confirm all of these are CURRENT for Experiment N:
+
+- [ ] `experiment_log.jsonl` has an entry for N (runner writes, verify)
+- [ ] `reasoning_annotations.json[N]` has all 7 fields non-empty and non-placeholder
+- [ ] `research_journal.md` has a section for N
+- [ ] `experiment_summary.md` has a row for N
+- [ ] `memory/project_autoresearch_checkpoint.md` references N in its history table
+- [ ] `trade_logs/expN_trades.csv` and `expN_trade_summary.json` exist
+- [ ] If N set a new champion: `winners/<backbone>_expN_<desc>/` exists with all required files
+
+If ANY checkbox is unchecked, stop and fix BEFORE launching N+1. This is how we keep the dashboard as authoritative, up-to-date institutional memory.
+
+**Placeholder strings are a bug.** The runner refuses to fabricate pre-run content. If a pre-run entry is missing, the runner inserts `"TODO-REWRITE"` sentinel values and a `_needs_rewrite: true` flag — Claude MUST rewrite those entries before launching the next experiment. Fix the process, not the string.
+
+### Citation Rigor (MANDATORY format for `citations` field)
+
+**Every citation string MUST contain, for every paper referenced:**
+
+1. **All authors' surnames** (not just first-author et al. unless > 6 authors)
+2. **Year** of publication
+3. **Venue** — journal name, conference abbreviation (NeurIPS, ICML, ICLR, AAAI, CVPR, KDD, etc.), or `arXiv` if preprint-only
+4. **Full paper title** in single quotes
+5. **arXiv ID** in the form `(arXiv:XXXX.YYYYY)` if available — mandatory for any paper posted to arXiv
+6. **One-sentence relevance note** — why this paper motivates THIS experiment specifically
+
+**Format template:**
+
+```
+Author1, Author2, Author3 YEAR VENUE 'Paper Title'
+(arXiv:XXXX.XXXXX) — one-sentence note on why we cite it here.
+```
+
+**Multiple papers separated by semicolons + linebreak.** Minimum one primary citation per experiment; secondary citations encouraged when the experiment combines ideas from multiple papers.
+
+**Examples of GOOD citations (copy this style):**
+
+> Keskar, Mudigere, Nocedal, Smelyanskiy, Tang 2017 ICLR 'On Large-Batch Training for Deep Learning: Generalization Gap and Sharp Minima' (arXiv:1609.04836) — motivates bs=16 as a flat-minima probe.
+
+> Loshchilov & Hutter 2019 ICLR 'Decoupled Weight Decay Regularization' (arXiv:1711.05101) — AdamW wd acts as decoupled weight shrinkage, so perturbations must be log-scale.
+
+> Nie, Nguyen, Sinthong, Kalagnanam 2023 ICLR 'A Time Series is Worth 64 Words: Long-term Forecasting with Transformers' (arXiv:2211.14730) — requires seq_len ≥ 60 for attention heads to have enough patches.
+
+**Examples of BAD citations (REJECTED — rewrite required):**
+
+- `"Keskar 2017 flat minima"` — missing coauthors, venue, title, arXiv, relevance note
+- `"(Keskar2017)"` — parenthetical tag only, useless
+- `"Keskar et al."` — no year, no venue
+- `"arxiv paper on batch size"` — no attribution
+- `"(no citation tag)"` — confesses the author didn't do the work
+- `"see research_journal.md"` — redirects instead of citing
+
+**The goal:** anyone (including a future Claude Code session with zero project context) must be able to open the dashboard, click a row, read the `citations` field, and immediately know which paper to read and why. Citations are institutional memory.
+
+**Arxiv ID lookup discipline.** If you know the paper but not its arXiv ID, fetch it via WebSearch or WebFetch (arxiv.org/abs search) before writing the entry. Authoring a citation without the arXiv ID is a partial job.
+
+### Reasoning Blob Completeness (what "full reasoning" means)
+
+Each of the 7 fields in `reasoning_annotations.json` has a minimum content spec. Entries that fall below this spec must be rewritten. Use these as acceptance criteria before an experiment is considered "documented":
+
+| Field | Minimum content | Word count floor | Must include |
+|-------|-----------------|------------------|--------------|
+| `diagnosis` | Why THIS experiment NOW; which champion weakness; which fold is worst and why (regime name, date range, uncertainty signature); what prior experiments ruled out | ≥ 60 words | Reference to at least one prior experiment by number OR a per-fold metric from the current champion |
+| `citations` | Per the Citation Rigor spec above | ≥ 40 words for single paper, ≥ 80 for multi-paper | Author list + year + venue + title + arXiv ID + relevance note for each paper |
+| `hypothesis` | The config change stated mechanistically — what parameter(s) move, what they do in the model, what the cited paper predicts will happen | ≥ 50 words | The word "mechanism" or "because" or "per [paper]"; the specific parameter and value |
+| `prediction` | Concrete numeric range on composite AND at least one fold-level or uncertainty-level sub-prediction | ≥ 25 words | A numeric range (e.g. "+6.30 to +6.50"); a direction for at least one sub-metric |
+| `verdict` | KEEP/DISCARD/NEAR-MISS + exact composite + delta vs global best + per-fold narrative (which folds carried or killed it) | ≥ 30 words | Status label; composite to 4 decimals; mention of at least one per-fold result |
+| `learning` | What this updates in the mental model; which axis is now closed/open; what to try next | ≥ 40 words | "Axis closed" / "axis open" language OR a concrete "next try: ..." |
+| `_manual` | Boolean | — | `true` if Claude-authored (expected for non-variance experiments); `false` only for mechanical reruns |
+
+**When running a batch of variance checks** (same config, varying seed), the `_manual: true` entries can share templated `diagnosis` and `citations` across runs, but `verdict`/`learning` must always be per-run-specific (different seed → different fold outcomes).
+
+**Batch updates are forbidden.** Don't do 5 experiments then update the journal/summary/checkpoint in one go — each experiment's state gets stale and crash-recovery breaks. Update everything, then move on.
 
 ### Heteroscedastic Loss Rules (Kendall & Gal 2017)
 - The model outputs mean + log_variance per prediction. Loss = `exp(-s) * huber(mu, y) + 0.5 * s`.
@@ -532,3 +835,66 @@ autoresearch/                    # package root
 | Absolute imports in package | `ModuleNotFoundError` when run as `-m` | Always `from .module import ...` |
 | Assuming timing/performance | Wrong estimates, wrong priorities | Measure with `time.time()`, log elapsed |
 | Monolithic scripts | Can't debug, can't reuse, can't monitor | Runners log. Dashboard reads. Decoupled. |
+| `--learning-rate` flag | argparse expects `--lr` only | Use `--lr` in every runner command |
+| `huber_delta` > 1.0 | Residuals are ~5e-3, never cross the Huber kink | Any value ≥ 1 is equivalent — treat Huber as MSE at our scale |
+| Fine-grained AdamW `wd` < 30% change | AdamW decouples wd from grads; tiny changes are no-ops | Use log-spaced sweeps (1e-4, 5e-4, 1e-3, 5e-3) not 7e-4 vs 8e-4 |
+| Smaller batch without seed plan | bs=16 improves mean-case but **doubles** seed std vs bs=32 | When trying bs<32, always multi-seed before declaring champion |
+| Blaming model when problem is regime | Folds 1 & 2 are genuinely hard (GFC-onset / post-crash) across all backbones | Don't chase fold-2 perfection; aim for ≥ 0 with acceptable std |
+
+## Session Learnings (LSTM Phase, Exps 1-44 of 50)
+
+Document what the LSTM phase taught us so future backbones don't repeat dead ends. This section is append-only — add but don't delete.
+
+### Confirmed optimal LSTM hyperparameters (at n=2738 daily FX samples)
+- `hidden_size=128` — 96 underfits, 256 overfits (both reproduced)
+- `num_layers=2` bidirectional — 1-layer loses recent regime; 3-layer overfits dramatically (+1.64)
+- `cell=lstm` — GRU 2-gate underperforms at n<3k
+- `seq_len=10` — 5, 8, 12, 20 all worse (either too noisy or too few training windows)
+- `lr=1e-3` — 5e-4 finds flat val minima that hurt test; 1.5e-3 diverges fold 2
+- `bs=16` — champion; bs=32 safer but lower peak; bs=8 destabilizes fold 2
+- `head_dropout=0.25` — 0.20, 0.22, 0.30 all worse
+- `weight_decay=7e-4` — peaked here; 5e-4, 1e-3, 2e-3 within ±0.2 composite
+- `grad_clip=1.0` — 0.5 and 1.5 and 2.0 all worse
+- `huber_delta=1.0` — value irrelevant (always MSE at our residual scale)
+- `epochs=100` + `patience=15` — consistently early-stops at 25-30
+
+### Axes that DID NOT help
+- LayerNorm input (double-normalizes standardized features)
+- Unidirectional LSTM (loses test context; wins val)
+- Heteroscedastic loss (helps fold 2 specifically but hurts fold 1; could be ensemble component)
+- Learning rate warmup (1-5 epoch warmup all hurt)
+- GRU replacement
+- Stacked 3-layer
+
+### Seed variance is LARGE and backbone-specific
+| Config | Seeds tried | Mean | Std | Max-Min |
+|--------|-------------|------|-----|---------|
+| wd=1e-3 bs=32 | 0, 42, 99, 7 | 5.99 | 0.52 | 1.22 |
+| wd=7e-4 bs=16 | 42, 0, 99, 2024 | ≈ 5.53 | ≈ 0.96 | ≈ 2.18 |
+
+**Implication:** Single-seed "champions" are often luck. Deploy via seed-ensemble (≥5 seeds, average predictions). Declare champion only after 3-seed median > baseline median.
+
+### Key protocol additions
+
+**1. Always use `--lr` (not `--learning-rate`).** Common mistake; wasted runs.
+
+**2. Between-experiment cooldown.** 60s `Start-Sleep` blocked by sandbox — the CPU pin-mitigations suffice; skip cooldown during automated sweeps.
+
+**3. `_manual=True` preserves curated reasoning.** When running backfill_reasoning.py after a batch, the `_manual` flag on hand-written annotations (diagnoses, citations, predictions) prevents overwrite.
+
+**4. Archive winner on EVERY new global champion immediately.** Don't batch. File layout per `Winner Archiving Protocol`. The archive must be standalone: README + config.json + model_checkpoint.pt + code/ snapshot + inference/predict.py.
+
+**5. Seed-ensemble for deployment.** `inference/predict.py` should accept a list of checkpoint paths and average predictions. This is the single most-effective variance reducer for LSTM at this n.
+
+### Next-backbone priorities
+- **PatchTST**: seq_len needs ≥ 60 (patch_length=5 × 12+ tokens) for attention to shine — don't use seq=10
+- **PatchTSMixer**: TSMixer-style channel-and-time mixing; good for seq_len 30-60
+- **iTransformer (Liu et al. 2024)**: invert attention over variates — promising for 104 features
+- **xLSTM / mLSTM / sLSTM (Beck et al. 2024)**: exponential gating + matrix memory — code change needed
+- **Mamba (Gu & Dao 2024)**: SSM replacement, needs selective scan kernels
+- **GBM trio (XGBoost/LightGBM/CatBoost)**: tabular-style features; flatten windows to feature vectors; expect strong baseline but low ceiling
+
+### Checkpoint + packaging cadence
+- After **every** experiment: update `memory/project_autoresearch_checkpoint.md` AND `autoresearch_results/experiment_summary.md`
+- After **every** session end or user-requested package: zip `autoresearch_results/` + `memory/` + `code_versions/` + frozen `model/` + `data/` + `evaluation/` + `run_autoresearch.py` + CLAUDE.md. Exclude `.data_cache/` (large, reproducible), `__pycache__/`, `.git/`.
+

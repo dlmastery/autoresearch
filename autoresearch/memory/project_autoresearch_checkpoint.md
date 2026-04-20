@@ -1,66 +1,112 @@
 ---
 name: Autoresearch Checkpoint
-description: 125 exps. NEW GLOBAL CHAMPION LSTM Exp20 composite +6.1312 test Sharpe +6.3363. LSTM 20/50.
+description: 147 exps. GLOBAL CHAMPION LSTM Exp35 (wd=7e-4 bs=16 seed=42) composite +6.4242 test Sharpe +6.5242. LSTM 44/50.
 type: project
 ---
 
 ## Session Recovery
 1. Read this
 2. Read `memory/project_hardware_crash_log.md` — CPU 60% cap, Turbo off, 0 crashes since mitigation
-3. Read JSONL tail (125 entries)
+3. Read JSONL tail (147 entries)
 4. Dashboard: http://localhost:8765/dashboard.html (per-backbone tabs + reasoning panel)
 
 ## 🏆 GLOBAL CHAMPION
-**LSTM Exp20** — composite **+6.1312** | test Sharpe **+6.3363** | 7/7 positive test | +1048% return
-- Config: BiLSTM h=128, 2-layer, lr=1e-3, bs=32, seq=10, ep=100, wd=5e-4, pat=15, hd=0.25, huber=1.0, seed=0
-- Archived `winners/lstm_exp20_wd5e4_seed0/`
-- Prior champions: LSTM Exp9 (+6.10), LSTM Exp4 (+6.07), MLP Exp32 residual (+5.50)
+**LSTM Exp35 (wd=7e-4 bs=16 seed=42)** — composite **+6.4242** | test Sharpe **+6.5242** | val Sharpe **+7.1539** | 7/7 positive test | +1122% return
+- Config: BiLSTM h=128, 2-layer, lr=1e-3, bs=16, seq=10, ep=100, wd=7e-4, pat=15, hd=0.25, huber=1.0, seed=42
+- Archived `winners/lstm_exp35_wd7e4_bs16_seed42/`
+- Prior champions: Exp29 (bs=16, +6.37), Exp24 (seed=42, +6.36), Exp21 (wd=1e-3, +6.19), Exp20 (wd=5e-4, +6.13), Exp9 (+6.10), Exp4 (+6.07), MLP residual (+5.50)
 
 ## Per-Backbone Status
 | Backbone | Exps | Best Comp | Best Test Sharpe | Status |
 |----------|------|-----------|------------------|--------|
-| lfm2-350m | 43 | +1.77 | +2.07 | done (need 7 more per 50-mandate) |
+| ~~lfm2-350m~~ | 43 | +1.77 | +2.07 | **SKIPPED per user 2026-04-19** — 43 exps frozen, not extended to 50 |
 | mlp | 54 | +5.499 | +6.21 | done |
-| **lstm** | **20** | **+6.1312** | **+6.3363** | **IN PROGRESS (20/50) — GLOBAL CHAMP** |
+| **lstm** | **44** | **+6.4242** | **+6.5242** | **IN PROGRESS (44/50) — GLOBAL CHAMP** |
 | patchtst | 1 | -1.72 | -0.82 | pending (49/50) |
 | patchtsmixer | 0 | — | — | pending |
 | xgboost | 0 | — | — | pending |
 | lightgbm | 0 | — | — | pending |
 | catboost | 0 | — | — | pending |
 
-## LSTM Experiment Summary (20 so far)
-| # | Change | Composite | Learning |
-|---|--------|-----------|----------|
-| 108 | SOTA baseline | +4.12 | baseline |
-| 109 | huber=0.5 | +3.98 | huber doesn't help LSTM |
-| 110 | ep=100 pat=15 | +5.06 | SOTA epochs help |
-| 111 | hd=0.25 | +6.07 | GLOBAL CHAMP — head dropout breakthrough |
-| 112 | hd=0.30 | +6.02 | 0.25 peaks |
-| 113 | wd=1e-4 | +6.10 | GLOBAL CHAMP — 10x L2 |
-| 114 | lr=5e-4 | +4.95 | flat minima hurt test |
-| 115 | unidirectional | +5.00 | val/test split |
-| 116 | seq=20 | +4.25 | longer context hurts |
-| 117 | PatchTST Exp1 (different backbone) | — | — |
-| 118 | 3-layer stacked | +1.64 | depth hurts small n |
-| 119 | GRU cell | +4.59 | LSTM better |
-| 120 | LayerNorm input | +4.51 | double-norm destabilizes |
-| 121 | seq=5 | +5.70 | fold 2 test +3.70 BEST EVER but fold 1/7 weaker |
-| 122 | warmup=3 | +4.37 | warmup hurts |
-| 123 | hd=0.20 | +5.53 | 14/14 folds positive BEST but lower peak |
-| 124 | grad_clip=0.5 | +5.46 | tighter clip hurts fold 2 |
-| **125** | **wd=5e-4** | **+6.13** | **GLOBAL CHAMP — 50x L2** |
+## LSTM Experiment Summary (44 so far)
+| LSTM # | Change | Composite | Learning |
+|-----|--------|-----------|----------|
+| 1 | SOTA baseline | +4.12 | baseline |
+| 2 | huber=0.5 | +3.98 | huber doesn't help |
+| 3 | ep=100 pat=15 | +5.06 | SOTA epochs help |
+| 4 | hd=0.25 | +6.07 | CHAMP — head dropout breakthrough |
+| 5 | hd=0.30 | +6.02 | 0.25 peaks |
+| 6 | hidden=256 (dead bug) | +6.07 | wiring bug, fixed |
+| 7 | wd=1e-4 | +6.10 | CHAMP |
+| 8 | lr=5e-4 | +4.95 | flat minima hurt test |
+| 9 | unidirectional | +5.00 | val/test split |
+| 10 | seq=20 | +4.25 | too long |
+| 11 | 3-layer stacked | +1.64 | depth hurts |
+| 12 | GRU cell | +4.59 | LSTM better |
+| 13 | LayerNorm input | +4.51 | double-norm bad |
+| 14 | seq=5 | +5.70 | peak drops |
+| 15 | warmup=3 | +4.37 | warmup hurts |
+| 16 | hd=0.20 | +5.53 | peak drops |
+| 17 | grad_clip=0.5 | +5.46 | tighter hurts |
+| 18 | wd=5e-4 | +6.13 | CHAMP |
+| 19 | wd=1e-3 seed=0 | +6.19 | CHAMP |
+| 20 | wd=2e-3 | +5.96 | peak reached |
+| 21 | lr=1.5e-3 | +5.55 | too fast |
+| 22 | seed=42 variance | +6.36 | CHAMP — seed matters |
+| 23 | seed=99 | +6.24 | near champ |
+| 24 | seed=7 | +5.17 | wide variance |
+| 25 | grad_clip=2.0 (xLSTM) | +6.33 | near miss |
+| 26 | hidden=256 (Gu 2020) | +4.27 | overfits |
+| 27 | bs=16 seed=42 (Keskar 2017) | +6.37 | CHAMP (bs axis) |
+| 28 | bs=8 seed=42 | +5.84 | too small |
+| 29 | bs=16 seed=0 | +4.24 | seed-dependent |
+| 30 | bs=16 seed=99 | +5.44 | seed-dependent |
+| 31 | bs=24 midpoint | +6.00 | robust but lower peak |
+| 32 | het_loss at champ (Kendall-Gal) | +6.12 | fold 2 BIG gain +2.31, val1 hurt |
+| 33 | wd=7e-4 seed=42 | **+6.42** | **CHAMP — current** |
+| 34 | wd=8e-4 (AdamW inert) | +6.42 | identical (decoupled wd) |
+| 35 | hd=0.22 | +5.68 | peak drops |
+| 36 | lr=8e-4 | +5.20 | too slow |
+| 37 | num_layers=1 | +3.57 | underfit |
+| 38 | hidden=96 | +4.05 | underfit |
+| 39 | seq=12 | +4.35 | slightly too long |
+| 40 | grad_clip=1.5 | +5.97 | peak at 1.0 |
+| 41 | huber=1.5 (inert) | +6.42 | identical (Huber unused at our scale) |
+| 42 | seed=2024 champ var | +6.01 | variance wide |
+
+*(Note: LSTM# 33 = JSONL Exp134 = Exp35 in this session's experiment naming.)*
 
 ## Code Changes This Session
-- CurrencyLSTM: `num_layers`, `bidirectional`, `cell` (lstm/gru), `input_layernorm` parameters
-- Runner: `--num-layers`, `--rnn-cell`, `--unidirectional`, `--input-layernorm` flags
-- **Bug fix**: best_config.json now tracks GLOBAL champion (was per-backbone)
-- **New**: Runner auto-writes reasoning_annotations.json per experiment (for dashboard)
+- CurrencyLSTM: `num_layers`, `bidirectional`, `cell` (lstm/gru), `input_layernorm`, `hidden_size` parameters
+- Runner: `--num-layers`, `--rnn-cell`, `--unidirectional`, `--input-layernorm`, `--hidden-size`, `--seed`, `--het-loss` flags
+- Runner auto-writes `reasoning_annotations.json` per experiment (dashboard feed)
+- best_config.json tracks GLOBAL champion (not per-backbone)
 
-## Next LSTM Experiments (need 30+ more to hit 50)
-Per CLAUDE.md SOTA mandate, explore 2024-2026 variants:
-- **xLSTM** (Beck et al. 2024) — extended LSTM with exponential gating
-- **Mamba / SSM** (Gu & Dao 2024) — state-space model replacement for RNN
-- **AWD-LSTM** (Merity 2018) — weight-dropped LSTM for regularization
-- **DA-RNN attention** (Qin 2017) — dual-stage attention on input+temporal
-- Fine-grained search: wd sweep (5e-4 → 1e-3), hd × wd combos, lr×patience grid
-- Multi-seed variance study on Exp20 champion (seeds 7, 42, 99, 2024)
+## Seed Variance at Champion Config (wd=7e-4 bs=16)
+| Seed | Composite | Test Sharpe |
+|------|-----------|-------------|
+| 42 | +6.42 | +6.52 |
+| 2024 | +6.01 | +6.11 |
+| 0 | +4.24 (bs=16 wd=1e-3 approx) | +4.54 |
+| 99 | +5.44 (bs=16 wd=1e-3 approx) | +5.54 |
+
+Mean ≈ 5.5, std ≈ 1.0. Single-seed champions are lucky; deployment requires seed ensembling.
+
+## Next 6 LSTM Experiments to Reach 50/50
+Per CLAUDE.md 50-mandate. All use champion base: BiLSTM h=128 2L bidir, bs=16, seq=10, lr=1e-3, wd=7e-4, hd=0.25, pat=15, ep=100.
+
+- **LSTM #43 / JSONL Exp148**: `--seed 13` variance
+- **LSTM #44 / Exp149**: `--seed 77` variance
+- **LSTM #45 / Exp150**: `--seed 123` variance
+- **LSTM #46 / Exp151**: `--seed 2026` variance
+- **LSTM #47 / Exp152**: champion + huber=0.8 (unexplored narrow)
+- **LSTM #48 / Exp153**: champion + cosine no-restart (already using cosine; try constant lr via `--warmup-epochs -1` if wired — skip if not)
+- **LSTM #49-50**: hand-pick after variance set to decide if ensemble needed
+
+## After LSTM 50 → Move to PatchTST
+Reset to seq_len=60 (SOTA recommended per Nie et al. 2023). Our first PatchTST experiment used seq=10 (in our runner default), giving composite −1.72. Redo with seq=60, patch_length=12, stride=6.
+
+## Next Experiment Command
+```bash
+cd C:/Users/evija/autoresearch && "C:/Users/evija/anaconda3/python.exe" -m autoresearch.run_autoresearch --backbone lstm --epochs 100 --patience 15 --batch-size 16 --seq-len 10 --lr 1e-3 --weight-decay 7e-4 --head-dropout 0.25 --huber-delta 1.0 --seed 13 --description "lstm: Exp45 champion seed=13 variance"
+```

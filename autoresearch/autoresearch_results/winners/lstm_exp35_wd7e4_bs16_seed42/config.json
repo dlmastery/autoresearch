@@ -1,6 +1,6 @@
 {
   "backbone": "lstm",
-  "description": "lstm: Exp43 huber=1.5 wider Huber delta",
+  "description": "lstm: Exp35 wd=7e-4 fine-grained around champion",
   "config": {
     "seq_len": 10,
     "lr": 0.001,
@@ -10,7 +10,7 @@
     "patience": 15,
     "grad_clip": 1.0,
     "warmup_epochs": 0,
-    "huber_delta": 1.5,
+    "huber_delta": 1.0,
     "head_dropout": 0.25,
     "seed": 42,
     "het_loss": false
@@ -19,8 +19,8 @@
   "test_pos_folds": 7,
   "val_pos_folds": 6,
   "val_loss": 2.8e-05,
-  "elapsed_sec": 54.3,
-  "timestamp": "2026-04-19T19:58:56",
+  "elapsed_sec": 52.1,
+  "timestamp": "2026-04-19T19:48:20",
   "sharpe": 6.5242,
   "psr": 1.0,
   "equity": 12222.92,
@@ -511,6 +511,6 @@
       "fn": 369
     }
   ],
-  "experiment_num": 148,
+  "experiment_num": 140,
   "status": "KEEP"
 }
