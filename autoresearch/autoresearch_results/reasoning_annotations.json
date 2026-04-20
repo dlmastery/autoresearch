@@ -1393,5 +1393,30 @@
     "_manual": true,
     "verdict": "Variance run (DISCARD vs champion). Composite +4.3896 (test Sharpe +4.4896, val Sharpe +5.3803). Test 6/7 positive, val 7/7 positive. Seed=77 datapoint added to variance distribution.",
     "learning": "Seeds tested so far at champion config: 0->+3.8873, 7->+3.4425, 13->+5.5374, 42->+5.5996, 77->+4.3896, 99->+3.8246, 2024->+4.4761. Mean +4.4510, std 0.8398, median +4.3896, range 2.1571. Champion seed=42 is 1.37\u03c3 above mean. Single-seed champion-declaration policy: only declare new global champion if (a) 3-seed median beats prior 3-seed median AND (b) peak seed beats peak prior."
+  },
+  "169": {
+    "diagnosis": "Architectural axes (variant, d_state, expand, num_layers, bs) all closed. Multi-seed variance characterised: champion seed=42 is +1.4 sigma above 7-seed mean. Now probe optimization axes starting with lr. Champion uses lr=5e-4 (Mamba paper default). Try lr=3e-4 (60% of champion) \u2014 slower convergence but per Lewkowycz 2020 may find flatter minima with better val/test behavior on hard folds.",
+    "citations": "Lewkowycz, Bahri, Dyer, Sohl-Dickstein, Gur-Ari 2020 ICML 'The Large Learning Rate Phase of Deep Learning' (arXiv:2003.02218) \u2014 low LR finds flatter basins.\nSmith 2017 'A disciplined approach to neural network hyper-parameters: Part 1 -- learning rate, batch size, momentum, and weight decay' (arXiv:1803.09820) \u2014 LR range tests.\nLoshchilov & Hutter 2019 ICLR 'Decoupled Weight Decay Regularization' (arXiv:1711.05101) \u2014 AdamW lr scaling.",
+    "hypothesis": "Run dmamba expand=4 with --lr 3e-4 (vs 5e-4 default). All other params identical: d_model=128, d_state=16, num_layers=2, bs=32, wd=0.1, warmup=10, ep=100, pat=20, seed=42. Mechanism: 60% smaller step finds flatter basin per Lewkowycz 2020. May regularise mildly without losing convergence at our 100 epoch budget.",
+    "prediction": "Composite +5.0 to +5.7. Probability of beating champion +5.5996: 30%. Most informative: train Sharpe \u2014 if it stays at +7.0+ while test holds, lr=3e-4 is a clean win.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite +4.1448 vs champion +5.5996 (\u22121.45). Test 6/7 positive (fold 1 \u22120.40), val 5/7 positive (folds 1, 2 negative). Train Sharpe +7.53 (close to champion +7.16) \u2014 TRAIN didn't drop but val/test did, ruling out under-convergence. Lewkowycz 2020 flat-minima hypothesis NOT confirmed at our scale: lower LR found different basin but worse generalisation.",
+    "learning": "lr axis lower bound: 3e-4 hurts substantially. Sweep so far: {3e-4: +4.14, 5e-4: +5.60 champ}. Try lr=1e-3 next (LSTM-style high LR) to map the upper bound. If 1e-3 also hurts, lr axis closes at 5e-4 (Mamba paper default)."
+  },
+  "170": {
+    "diagnosis": "lr=3e-4 hurt (+4.14). Test the upper end with lr=1e-3 (LSTM champion's LR). Mamba paper recommends 5e-4 but the LSTM champion at lr=1e-3 was clearly better than at 5e-4, so it's worth one experiment to see if Mamba behaves similarly.",
+    "citations": "Gu & Dao 2024 COLM 'Mamba' (arXiv:2312.00752) \u2014 recommends 5e-4 default but uses 1e-3 for some larger models.\nLoshchilov & Hutter 2019 ICLR (AdamW arXiv:1711.05101) \u2014 lr scaling principles.\nEmpirical: LSTM champion at lr=1e-3 (Fischer & Krauss 2018 default), but Mamba and LSTM have different gradient scales due to selective scan vs matrix multiply.",
+    "hypothesis": "Run dmamba expand=4 with --lr 1e-3 (2\u00d7 champion default). Mechanism: faster convergence, possibly different basin. Risk: instability from large gradient updates through the cumulative scan. With wd=0.1 and warmup=10, should be manageable.",
+    "prediction": "Composite +4.5 to +5.6. Probability of beating champion: 25%. Risk: optimization divergence (early NaN losses).",
+    "_manual": true,
+    "verdict": "DISCARD. Composite +4.8050 vs champion +5.5996 (\u22120.79). All 14 folds positive (rare!). Test fold 2 = +3.61 (second-best ever for this regime). Train Sharpe +6.72 \u2014 converged but to a different basin that has higher per-fold mean but lower min-fold-Sharpe.",
+    "learning": "lr axis CLOSED. Sweep: {3e-4: +4.14, 5e-4: +5.60 champ, 1e-3: +4.81}. Symmetric degradation around 5e-4 \u2014 peak narrow. Mamba's selective scan is more lr-sensitive than LSTM's matrix multiply. Next: wd sweep ({0.05, 0.2}); head_dropout sweep ({0.05, 0.2}); then move to multi-seed ensemble work which is the highest-value remaining experiment cluster."
+  },
+  "171": {
+    "diagnosis": "lr axis closed at 5e-4. Probe wd axis. Champion uses wd=0.1 (Mamba paper default). Try wd=0.05 (half) \u2014 less explicit regularisation, may help if model is currently over-regularised.",
+    "citations": "Loshchilov & Hutter 2019 ICLR (AdamW arXiv:1711.05101) \u2014 decoupled wd; perturbations should be log-spaced.\nGu & Dao 2024 (Mamba arXiv:2312.00752) \u2014 wd=0.1 default for language; for TS, MambaTS (Cai 2024 arXiv:2405.16440) uses wd in [0.01, 0.1] depending on horizon.",
+    "hypothesis": "Run dmamba expand=4 with --wd 0.05 (half champion). Mechanism: weaker L2 shrinkage allows model to retain larger weights \u2192 more expressive features. Risk: overfit if our n=2738 is too small for reduced regularisation.",
+    "prediction": "Composite +5.0 to +5.7. Probability of beating champion: 30%. Most informative: train-test gap. Higher gap means overfit; neutral or smaller gap means clean win.",
+    "_manual": true
   }
 }
