@@ -26,3 +26,10 @@ exclude:
   - Gemfile.lock
   - vendor
   - .bundle
+
+# Mermaid support for diagrams
+plugins:
+  - jekyll-remote-theme
+mermaid:
+  version: "10.6.1"
+

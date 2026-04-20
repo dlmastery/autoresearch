@@ -343,8 +343,7 @@ def _run_experiment_inner(backbone, config, description):
                              seq_len=seq_len, freeze_backbone=True,
                              head_dropout=config.get("head_dropout", 0.1),
                              het_loss=config.get("het_loss", False),
-                             hidden_size=config.get("hidden_size"),
-                             bidirectional=config.get("bidirectional")).to(device)
+                             hidden_size=config.get("hidden_size")).to(device)
         result = train_one_fold(
             model, train_feat, train_tgt, val_feat, val_tgt,
             scaler=scaler, epochs=config["epochs"], seq_len=seq_len,
@@ -527,8 +526,7 @@ def main():
     parser.add_argument("--warmup-epochs", type=int, default=0)
     parser.add_argument("--huber-delta", type=float, default=1.0)
     parser.add_argument("--head-dropout", type=float, default=0.1)
-    parser.add_argument("--hidden-size", type=int, default=None, help="Hidden size for MLP/LSTM backbone")
-    parser.add_argument("--unidirectional", action="store_true", help="LSTM only: use unidirectional instead of default bidirectional")
+    parser.add_argument("--hidden-size", type=int, default=None, help="Hidden size for MLP backbone")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
     parser.add_argument("--het-loss", action="store_true", default=False, help="Use heteroscedastic loss (default: plain Huber)")
     parser.add_argument("--description", required=True)
@@ -551,8 +549,6 @@ def main():
         config["seed"] = args.seed
     if args.hidden_size is not None:
         config["hidden_size"] = args.hidden_size
-    if args.unidirectional:
-        config["bidirectional"] = False
     config["het_loss"] = args.het_loss
 
     run_single_experiment(backbone, config, args.description)

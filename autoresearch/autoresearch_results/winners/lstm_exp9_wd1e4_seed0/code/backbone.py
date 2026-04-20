@@ -168,21 +168,18 @@ class CurrencyMLP(nn.Module):
 # LSTM Backbone
 # ---------------------------------------------------------------------------
 class CurrencyLSTM(nn.Module):
-    def __init__(self, n_input_features: int, hidden_size: int = 128, num_layers: int = 2,
-                 head_dropout: float = 0.1, het_loss: bool = True, bidirectional: bool = True):
+    def __init__(self, n_input_features: int, hidden_size: int = 128, num_layers: int = 2, head_dropout: float = 0.1, het_loss: bool = True):
         super().__init__()
         self.het_loss = het_loss
-        self.bidirectional = bidirectional
         self.lstm = nn.LSTM(
             input_size=n_input_features,
             hidden_size=hidden_size,
             num_layers=num_layers,
             batch_first=True,
-            bidirectional=bidirectional,
+            bidirectional=True,
             dropout=0.1,
         )
-        out_features = hidden_size * (2 if bidirectional else 1)
-        self.heads = _make_heads(out_features, dropout=head_dropout, het_loss=het_loss)
+        self.heads = _make_heads(hidden_size * 2, dropout=head_dropout, het_loss=het_loss)
 
     def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
         lstm_out, _ = self.lstm(x)
@@ -473,7 +470,6 @@ def create_model(
     head_dropout: float = 0.1,
     het_loss: bool = True,
     hidden_size: int | None = None,
-    bidirectional: bool | None = None,
 ) -> nn.Module | GBMWrapper:
     """Create a model by backbone name.
 
@@ -494,8 +490,6 @@ def create_model(
         kwargs = dict(head_dropout=head_dropout, het_loss=het_loss)
         if hidden_size is not None:
             kwargs["hidden_size"] = hidden_size
-        if bidirectional is not None:
-            kwargs["bidirectional"] = bidirectional
         return CurrencyLSTM(n_input_features, **kwargs)
     elif backbone == "lfm2-350m":
         return CurrencyLFM(

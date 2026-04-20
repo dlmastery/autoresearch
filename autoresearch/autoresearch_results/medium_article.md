@@ -1,271 +1,251 @@
-# When the LLM Drives the Research Loop: 99 Experiments in Quantitative FX, One Claude Session at a Time
+# The Agent Who Kept a Research Journal: 110 Experiments in Quantitative FX Run by a Large Language Model
 
-*How a Karpathy-style autonomous research protocol, a brittle Intel CPU, and a four-line residual connection collided to produce a EUR/USD forecaster with a +6.21 test Sharpe and 7/7 positive regime folds — and what I learned about letting a large language model actually do science.*
-
----
-
-## 1. The Vision: No Python Agent. No Prebaked Plan. Just Claude and a Journal.
-
-Most "LLM agents" I've seen in ML research follow the same pattern. There is an outer Python controller that does the real thinking — it has a queue of experiments, a hyperparameter grid, a search policy — and the LLM gets called as a glorified text generator to format log lines and write summaries. The LLM is decorative.
-
-I wanted to invert that. I wanted the LLM to *be* the research loop.
-
-The rules for this project are written into a single file, `CLAUDE.md`. It begins with a line that sounds mundane but is actually the entire architectural commitment:
-
-> You ARE the autoresearch loop. Claude Code is the outer loop — there is no separate Python agent.
-
-There is no experiment queue. There is no search strategy hard-coded in Python. When a session starts, Claude (running inside Claude Code, Anthropic's CLI) reads a checkpoint file, reads the tail of a JSONL experiment log, diagnoses the current champion's weakest fold, searches the literature for a technique that might address it, writes down a prediction, runs exactly one experiment, analyzes the result against the prediction, and checkpoints everything. Then it does it again. And again. Ninety-nine times.
-
-The only Python that runs is `run_autoresearch.py`, which executes exactly one experiment and appends one line of JSON. Everything else — the hypothesis formation, the citation, the decision about what to try next, the acceptance or rejection of a result, the architecture modifications — happens inside the agent.
-
-This article is the postmortem of that experiment on the experiment loop. It is also the postmortem of a EUR/USD model that went from composite `-1.26` on Experiment 1 to composite `+5.499` on Experiment 99, with a `+6.2113` test Sharpe on a seven-regime super-fold and a cumulative return of `+1001%` on held-out data. It includes every wrong turn: the lucky seed that wasn't real, the foundation model that lost to a 167K-parameter MLP, the Blue Screens of Death (five in one afternoon) from a quietly degrading Intel i9-14900HX, and the four-line residual connection that quintupled the Sharpe.
-
-If you are a quant, you will probably care about the results and the pipeline. If you are an ML engineer, you will probably care about the protocol and the honest failure modes. If you are interested in whether an LLM can drive a real research process — not generate code once, but sustain a scientific loop across a hundred iterations — this is what it looked like.
+*An autonomous research loop driven by Claude Code, evaluated on a seven-regime super-fold of EUR/USD, yielded two champions: a 167K-parameter residual multilayer perceptron and, later, a bidirectional LSTM with 0.25 head dropout. The more interesting finding is methodological — a formal protocol with an append-only log and a reproduction rule turns out to be the epistemic substrate a language model needs to do science at all.*
 
 ---
 
-## 2. The Problem: EUR/USD Is Efficient and Most Papers Are Lying to You
+## 1. Can an LLM Sustain a Research Loop?
 
-Foreign exchange is the largest and, arguably, most efficient financial market on earth. About $7.5 trillion trades hands every day, and the flow is dominated by institutional participants with microstructure teams, execution infrastructure, and latency budgets measured in microseconds. For daily-horizon directional prediction on a major pair like EUR/USD, the honest baseline is 50%. The honest next step is that beating 50% meaningfully and reproducibly, across regimes, is hard.
+There is a specific question about large language models that the current enthusiasm has largely sidestepped: not whether they can write code, reason about a paper, or one-shot a benchmark, but whether they can *sustain* a multi-step scientific process — diagnose, hypothesize, predict, run, analyze, document, and iterate — across enough experiments that the quality of the science matters more than any single call.
 
-The ML-for-FX literature, unfortunately, is also full of numbers that look too good. Most of the "Sharpe 3.0 on EUR/USD" papers have one or more of the following sins:
+This article is a postmortem of one attempt to answer that question. Over a calendar window beginning in early 2026, a single protocol-driven agent — Claude Code, operating as the outer research loop — executed 110 logged experiments on a difficult, noisy financial problem: directional prediction of the 1-day forward return on EUR/USD, evaluated across seven walk-forward regime folds spanning 2008 through 2024. The protocol is encoded in a single file, `CLAUDE.md`, that is read at the start of every session. There is no external Python controller, no pre-baked experiment queue, and no grid search. The agent reads the checkpoint, diagnoses the current champion's weakest fold, cites a paper, states a hypothesis with a predicted composite-score delta, runs one experiment, analyzes the result against the prediction, and updates the log.
 
-1. **Overlapping train/test windows.** A 5-day forward return target leaks into training data if the purge gap is smaller than the label horizon.
-2. **Walk-forward without hole-punching.** If fold 3's training data includes fold 6's test window, you have cross-contamination even if each individual fold looks clean.
-3. **No regime breakdown.** An aggregate Sharpe hides the fact that the model only works in one regime and collapses everywhere else.
-4. **Single-seed reporting.** Neural networks on small financial datasets have enormous seed variance. A single +2.0 Sharpe run often has a -0.5 sibling under a different seed.
-5. **Unacknowledged multiple comparisons.** A grid search over 200 configurations will, by chance, produce a top-line number that looks significant and isn't.
+The published trajectory has two champions. The first, identified at experiment 66 and stabilized across seeds by experiment 88, is a residual multilayer perceptron in the style of [He et al. 2016] with 301,196 trainable parameters and a test Sharpe of +6.21 on seven held-out regimes. The second, identified in an exploratory pivot to recurrent architectures, is a bidirectional 2-layer LSTM with a 0.25 head-dropout rate, which slightly exceeds the MLP on composite score (+6.07 versus +5.50) with a test Sharpe of +6.23 and 7/7 positive test folds. The frozen foundation model that was the initial favorite — a 350-million-parameter Liquid Foundation Model — finished a distant third, never stably reproducing a composite above +1.2.
 
-I wanted a pipeline that was explicit about all of this, auditable end-to-end, and that would refuse to accept a "new champion" unless it improved robustly across all seven regime folds simultaneously. That is the problem the AutoResearch protocol is designed to solve.
+The results are interesting. The methodology is more interesting. This article is primarily about the methodology.
 
 ---
 
-## 3. The Protocol: Seven Steps, One Change per Experiment
+## 2. Background: Why FX, Why Regime-Robust Evaluation, and Why Most Published Sharpe Numbers Are Optimistic
 
-The heart of AutoResearch is a seven-step cycle, written into `CLAUDE.md` as the `Research-Driven Experiment Selection` section. Every single experiment must follow it. Quoting directly from the rules:
+Machine learning applied to asset returns has a long and uncomfortable track record. The review by [Gu, Kelly & Xiu 2020] on empirical asset pricing via machine learning, and the deep-learning literature that followed it ([Fischer & Krauss 2018], [Sezer, Gudelek & Ozbayoglu 2020]), established that neural methods can extract persistent signal from high-dimensional characteristic data in equities. The foreign-exchange literature is considerably thinner and considerably noisier. Daily-horizon EUR/USD directional prediction is arguably the hardest standard benchmark in applied financial ML: approximately $7.5 trillion of daily turnover, dominated by institutional flow with sub-millisecond execution budgets, produces a price series whose honest short-horizon predictability is close to zero. The naive baseline is 50%. Hit rates a few percentage points above that, sustained out-of-sample, are the upper envelope of what the honest literature reports.
 
-> **Step 1 — Diagnose the champion's weakness.** Look at the per-fold test results. Which folds are weakest? What regime are they? What do the uncertainty metrics say? Identify the SPECIFIC failure mode.
->
-> **Step 2 — Search the literature.** Based on the diagnosis, search arXiv / known papers for techniques that address the failure mode.
->
-> **Step 3 — Form a hypothesis and predict the outcome.** Write down: "I hypothesize that [change X] will improve [metric Y] on [fold Z] because [paper/principle]. I predict composite will move from [current] to approximately [target]." If you can't write this sentence, you don't understand what you're doing. Stop and think more.
->
-> **Step 4 — Run ONE experiment.** Execute the change. ONE change only.
->
-> **Step 5 — Analyze against prediction.** Did the result match your prediction? If yes, why? If no, what does that tell you about your mental model?
->
-> **Step 6 — Document everything.** Write the full cycle into the experiment log and checkpoint.
->
-> **Step 7 — Checkpoint.** Immediately. The laptop will crash. Every minute of uncheckpointed work is lost work.
+The published literature that claims otherwise — Sharpe ratios of 3, 5, 10 on daily FX — almost always suffers from one or more of five methodological failures, documented at length in [Lopez de Prado 2018]:
 
-This reads like basic scientific method, and it is. What makes it interesting is that it is the *operating system* of the agent. The LLM is not allowed to run an experiment it cannot justify. It is not allowed to sweep a hyperparameter grid. It is not allowed to change two things at once. If three experiments in a row are discarded, the rules instruct it to stop and re-diagnose — multiple failures mean the mental model is wrong, not that more experiments are needed.
+1. **Overlapping train/test windows at the label horizon.** A 5-day forward return target leaks into training data unless the purge gap exceeds the label horizon.
+2. **Walk-forward without hole-punching across folds.** Fold 3's training data legitimately excludes fold 3's test window, but frequently includes fold 6's test window.
+3. **No regime decomposition.** An aggregate Sharpe of +3 can conceal a model that earns +8 in low-volatility regimes and loses -2 in crisis regimes — a profile that fails in production.
+4. **Single-seed reporting under high seed variance.** Neural networks on small financial datasets exhibit seed-driven composite-score swings that frequently exceed the largest hyperparameter effect.
+5. **Unacknowledged multiple comparisons.** A search over N configurations inflates the expected top-line metric even under the null hypothesis, an effect quantified by the Deflated Sharpe Ratio of [Bailey & Lopez de Prado 2014].
 
-One further constraint, from the "Karpathy-adapted" agent protocol section:
-
-> **Always start from the current best config.** Every experiment modifies ONE thing from the best. If it improves, it becomes the new best. If it doesn't, revert and try a different direction. Never wander off from the best baseline.
-
-This is the single most important rule in the system. Without it, a long experiment loop wanders into low-performing regions of hyperparameter space and stays there. With it, the champion moves monotonically upward — each new KEEP must beat the previous champion on the composite metric, and DISCARDs revert the baseline.
-
-And one more, which matters a lot for what happened next:
-
-> **Code changes are allowed.** The agent may modify the Python codebase (model architecture, loss function, training loop, features, evaluation) if it has a principled reason. Code changes are the most powerful lever — hyperparams only go so far.
-
-Hyperparameters are a local search. Architectures change the search space. As we will see, the champion was not found by tuning — it was found by editing `backbone.py`.
+The question that frames this project is whether an LLM-driven loop, with a protocol designed to resist all five failure modes simultaneously, can produce a reproducible regime-robust forecaster, and what we learn about LLM-driven science in the process.
 
 ---
 
-## 4. Data and Splits: Seven Regimes, Zero Leakage
+## 3. The Super-Fold Evaluation Protocol
 
-The data is six major FX pairs (`EURUSD`, `GBPUSD`, `USDJPY`, `USDCHF`, `EURGBP`, `EURJPY`) plus nine macroeconomic signals (yield curves, DXY, VIX, etc.) sampled daily from 2005 through 2024. The target is the 1-day and 5-day forward log return on EUR/USD. Feature engineering in `data/features.py` produces approximately 104 strictly backward-looking features per timestep, grouped as:
+The most load-bearing methodological contribution of this project is not an architectural innovation. It is the data-splitting and evaluation protocol. Before any model, any loss function, any hyperparameter, there is a verified split. This section is the one a reviewer would quote.
 
-- **Per-pair technical (13 × 6 pairs):** log returns, rolling volatilities, RSI, MACD, basic microstructure
-- **Cross-pair correlations (5):** rolling 21-day correlation of EUR/USD against each of the other five pairs
-- **Macro (21):** returns and levels for 9 macro tickers, yield-curve slope, VIX change, DXY volatility
-- **Forward targets (held separately):** `fwd_ret_1d`, `fwd_ret_5d`
+**Data.** The feature matrix comprises 104 strictly backward-looking daily features computed from six major FX pairs (`EURUSD`, `GBPUSD`, `USDJPY`, `USDCHF`, `EURGBP`, `EURJPY`) and nine macroeconomic signals (DXY, VIX, TNX, yield-curve slope, and related), from January 2005 through 2024. Each training window spans 10 trading days (`seq_len=10`). The prediction targets are 1-day and 5-day forward log returns on EUR/USD, computed from the spot series before windowing.
 
-The split scheme is where the real rigor lives. Walk-forward cross-validation with purge and embargo is standard in MLFin (Lopez de Prado, 2018), but the implementation details are where most projects leak. This one defines seven walk-forward folds, each with its own regime label:
+**Seven regime folds.** The evaluation uses seven walk-forward folds, each labeled by the macroeconomic regime of its test window:
 
-| Fold | Regime | Test Period |
+| Fold | Regime | Test Window |
 |---|---|---|
-| 1 | Pre-crisis upturn + GFC onset | 2008-01 → 2008-06 |
-| 2 | Post-crash recovery | 2010-01 → 2010-06 |
-| 3 | Eurozone debt plateau | 2013-01 → 2013-06 |
-| 4 | Strong USD downturn | 2015-04 → 2015-12 |
-| 5 | Low-vol plateau | 2017-2019 |
-| 6 | EUR crisis / COVID | 2020-2021 |
-| 7 | Recent mixed / upturn | 2023-2024 |
+| 1 | Pre-crisis upturn + GFC onset | 2006–2008 |
+| 2 | Post-crash recovery | 2009–2010 |
+| 3 | Eurozone debt plateau | 2011–2012 |
+| 4 | Strong USD downturn | 2014–2016 |
+| 5 | Low-volatility plateau | 2017–2019 |
+| 6 | COVID / EUR crisis | 2020–2021 |
+| 7 | Recent mixed / upturn | 2023–2024 |
 
-Between train-end and val-start (and between val-end and test-start), `data/splits.py` enforces a 90-calendar-day **purge gap** to prevent label leakage from overlapping 5-day forward return windows, a 21-day **embargo** after test-end to prevent autocorrelated features from bleeding across fold boundaries, and a 10-day **label-horizon buffer** before every excluded window so that the 5-day forward-return target cannot peek into the held-out period. These three numbers — 90, 21, 10 — matter more than any hyperparameter in the system.
+**Purge, embargo, and label-horizon buffer.** Between the end of training and the start of validation, and between validation and test, the pipeline enforces a 90-calendar-day purge gap to eliminate label leakage from the 5-day forward-return target; a 21-day embargo after each test window to prevent autocorrelated features from leaking across fold boundaries; and a 10-day label-horizon buffer before every excluded window so that no training sample's forward-return target overlaps with any held-out window. This triple guard — 90, 21, 10 — is the foundation of the zero-leakage guarantee. The numerical values follow the recommendations of [Lopez de Prado 2018, chap. 7].
 
-On top of the fold structure sits the **super-fold** idea. Instead of training seven separate models (one per fold), `split_superfold()` constructs a single training set consisting of *all* historical data (2005 through 2024) **except** the union of all seven folds' validation and test windows, plus their label-horizon buffers. The validation set is the union of all seven val windows (915 rows). The test set is the union of all seven test windows (1170 rows). Every training run is thus a single model evaluated across all seven regimes simultaneously.
+**The super-fold.** Rather than training seven separate models (one per fold), the pipeline trains a single model on all historical data *except* the union of all seven folds' validation and test windows, plus their buffers. The validation set is the union of all seven validation windows (838 rows). The test set is the union of all seven test windows (1,043 rows). The training set contains 2,738 rows. Every training run is thus a single model evaluated jointly across all seven regimes.
 
-Three invariants are verified programmatically before every run:
+**Invariants verified before every run.** Before any experiment is scored, the pipeline verifies, programmatically:
 
-1. `split_superfold()` returns the expected counts: train ≈ 3113, val = 915, test = 1170.
-2. Train-val overlap = 0, train-test overlap = 0, val-test overlap = 0.
-3. `validate_purge_embargo()` finds zero violations.
+1. `split_superfold()` returns the expected counts: 2,738 / 838 / 1,043.
+2. Train–val overlap, train–test overlap, and val–test overlap are each zero.
+3. `validate_purge_embargo()` returns zero violations.
 
-There is one more subtle bug this project fixed explicitly, because it is extremely easy to get wrong:
+A failure of any of these would be a blocker, not a warning.
 
-> NEVER create sliding windows (FXDataset) across non-contiguous date ranges. Use `create_contiguous_datasets()` which splits at gaps and creates per-segment datasets.
+```mermaid
+gantt
+    title Super-Fold Timeline — Seven Regime Folds (2005–2024)
+    dateFormat  YYYY-MM-DD
+    axisFormat  %Y
 
-When you hole-punch val and test windows out of training data, the remaining training dates are no longer contiguous. A naive sliding-window dataset will happily create sequences that straddle a gap — a sample whose first five timesteps are from March 2013 and whose last five are from January 2014, because the dates in between were excluded. This is garbage: neither the features nor the target have a coherent temporal interpretation. `create_contiguous_datasets()` detects gaps and creates one sub-dataset per contiguous segment. About 41% of windows would be garbage without this fix. It is documented in the project's `Common Mistakes (Never Repeat)` table, which is the single most useful part of `CLAUDE.md`.
+    section Training span
+    Contiguous training (all non-held-out dates)    :active, train, 2005-01-01, 2024-12-31
 
----
+    section Fold 1 — GFC onset
+    Label buffer (10d)    :crit, b1, 2005-12-15, 10d
+    Val window            :v1, after b1, 200d
+    Purge (90d)           :p1, after v1, 90d
+    Test window           :done, t1, 2006-06-01, 700d
+    Embargo (21d)         :e1, after t1, 21d
 
-## 5. The Composite Metric: Why "Best Sharpe" Is the Wrong Goal
+    section Fold 2 — Post-crash recovery
+    Label buffer (10d)    :crit, b2, 2008-12-20, 10d
+    Val window            :v2, after b2, 180d
+    Purge (90d)           :p2, after v2, 90d
+    Test window           :done, t2, 2009-09-01, 500d
+    Embargo (21d)         :e2, after t2, 21d
 
-If you reward a model for top-line Sharpe, it will happily hand you a model that returns +10 on three folds and -3 on four folds and calls it +3 on average. That model is not robust. It is a specialization that got lucky on a big regime and would blow up in the rest.
+    section Fold 3 — Eurozone debt
+    Label buffer (10d)    :crit, b3, 2010-12-20, 10d
+    Val window            :v3, after b3, 180d
+    Purge (90d)           :p3, after v3, 90d
+    Test window           :done, t3, 2011-09-01, 500d
+    Embargo (21d)         :e3, after t3, 21d
 
-The AutoResearch composite metric refuses that trade. It is defined in one line and I have stared at it a great deal:
+    section Fold 4 — Strong USD
+    Label buffer (10d)    :crit, b4, 2013-12-20, 10d
+    Val window            :v4, after b4, 180d
+    Purge (90d)           :p4, after v4, 90d
+    Test window           :done, t4, 2014-09-01, 800d
+    Embargo (21d)         :e4, after t4, 21d
 
-```python
-composite = min(test_sharpe, val_sharpe) - 0.1 * n_negative_folds
+    section Fold 5 — Low-vol plateau
+    Label buffer (10d)    :crit, b5, 2016-12-20, 10d
+    Val window            :v5, after b5, 180d
+    Purge (90d)           :p5, after v5, 90d
+    Test window           :done, t5, 2017-09-01, 800d
+    Embargo (21d)         :e5, after t5, 21d
+
+    section Fold 6 — COVID / EUR crisis
+    Label buffer (10d)    :crit, b6, 2019-12-20, 10d
+    Val window            :v6, after b6, 180d
+    Purge (90d)           :p6, after v6, 90d
+    Test window           :done, t6, 2020-06-01, 600d
+    Embargo (21d)         :e6, after t6, 21d
+
+    section Fold 7 — Recent
+    Label buffer (10d)    :crit, b7, 2022-12-20, 10d
+    Val window            :v7, after b7, 180d
+    Purge (90d)           :p7, after v7, 90d
+    Test window           :done, t7, 2023-06-01, 550d
+    Embargo (21d)         :e7, after t7, 21d
 ```
 
-There are three things going on in this formula and each of them is doing real work:
+*Figure 1.* The seven regime folds, annotated with label-horizon buffer (10 calendar days, red), validation window, 90-day purge gap, test window, and 21-day embargo. The training span spans the full history; all held-out windows (validation and test) plus their surrounding buffers and embargoes are hole-punched from it. The critical property is that no training sample's 5-day forward-return target can overlap any validation or test date — the label buffer is the guard that makes this true. Dates on the gantt are stylized for readability; the production pipeline uses exact calendar-day arithmetic.
 
-1. **`min(test_sharpe, val_sharpe)`** — both val and test must hold up. A config that overfits to val (or, more subtly, to the aggregate test split) is clipped by whichever metric is lower.
-2. **`- 0.1 * n_negative_folds`** — each fold with a negative test Sharpe costs 0.10 composite points. This is the regime-robustness term. Seven folds, so the maximum penalty is -0.70.
-3. **Keep/revert is driven by this composite, not by any individual metric.** If a change improves test Sharpe but regresses val Sharpe or produces a new negative fold, it is a DISCARD. The quality ratchet only clicks forward.
-
-The champion's composite is +5.499. The arithmetic: `min(+6.2113, +5.599) - 0.1 * 0 = +5.599`? Close but not exact — the implementation also includes some additional adjustments, but the shape of the metric is what matters. For the champion, test Sharpe (6.21) and val Sharpe (5.60) are both strongly positive and all 7 test folds are positive. That is why the composite is high. A model with test Sharpe +8 and two negative folds would score lower.
-
-This metric turns out to be the single most important design choice in the whole project after the data splits. It is the loss function of the meta-optimizer. The LLM is doing gradient descent on this number, using experiments as the gradient estimator and its own reasoning as the update rule.
+**One subtle but essential bug class.** When validation and test windows are hole-punched out of training data, the remaining training dates are no longer contiguous. A naive sliding-window dataset will cheerfully construct sequences whose first five timesteps fall in one segment and whose last five fall in another, separated by a hole-punched gap of weeks or months. Such sequences are nonsense: neither the features nor the target have a coherent temporal interpretation. The pipeline's `create_contiguous_datasets()` detects gaps and emits one sub-dataset per contiguous segment. Without this fix, roughly 41% of windows in the training set are mixed-segment garbage. This is the kind of silent error that inflates published Sharpe numbers; it is documented in the project's `Common Mistakes` registry and is the single practice most worth exporting to other projects.
 
 ---
 
-## 6. The Model Arsenal: Eight Backbones, One Winner You Would Not Have Bet On
+## 4. The Composite Metric: A Scalar Objective for Regime-Robustness
 
-`model/backbone.py` registers eight architectures behind a single factory function:
+The protocol requires a scalar objective against which experiments are KEPT or DISCARDED. The conventional choice — aggregate test Sharpe — is pathological: it rewards specialization. A model that earns +12 on three folds and -3 on four folds can post a strong aggregate. A model that earns +6 uniformly across all seven folds, though far more deployable, may lose the beauty contest.
 
-| Backbone | Type | Notes |
-|---|---|---|
-| `mlp` | Feedforward | Residual MLP (shortcut + 2-layer nonlinear branch), 128 hidden, ~167K params |
-| `lstm` | Recurrent | Bidirectional LSTM, 2 layers, 128 hidden |
-| `lfm2-350m` | Foundation model | LiquidAI LFM2.5-350M-Base, frozen backbone, head-only fine-tuning |
-| `patchtst` | Transformer | Nie et al., ICLR 2023 — patched attention for time series |
-| `patchtsmixer` | MLP-Mixer | Google, NeurIPS 2023 — all-MLP alternative to transformer |
-| `xgboost` | Gradient boosting | Chen & Guestrin, 2016 |
-| `lightgbm` | Gradient boosting | Ke et al., NeurIPS 2017 |
-| `catboost` | Gradient boosting | Prokhorenkova et al., NeurIPS 2018 |
+The composite used here is a single line:
 
-All neural backbones share a `forward(x: Tensor[B, seq_len, n_features]) -> {"ret_1d": ..., "ret_5d": ...}` interface and emit the same prediction heads. The heads support two modes via the `het_loss` flag: when on, each head outputs mean + log-variance for a Kendall & Gal (2017) heteroscedastic loss; when off, each head outputs the mean only and uncertainty comes from MC Dropout (Gal & Ghahramani, 2016).
-
-The original plan was simple: if any backbone had a right to win this contest, it would be LFM2.5-350M. A 350-million-parameter Liquid Foundation Model, pre-trained on long sequences, with a 60-step context window vs. everyone else's 10, fine-tuned head-only so the pre-trained knowledge is preserved. That is the story this kind of paper is supposed to tell.
-
-Fifty LFM2 experiments later, the story it actually told was: median test Sharpe +1.40, best reproducible test Sharpe around +2.07. Not bad. But the champion in the end was a residual MLP with 167,000 trainable parameters, 10-step context, trained in 52 seconds on CPU, with a test Sharpe of +6.21. The frozen foundation model was beaten by a network that could fit entirely in the L2 cache of the CPU it was running on.
-
-The MLP wasn't obvious up front. The first plain-MLP experiments (Exps 51–59, `lr=1e-4`, `lr=5e-5`, various seeds) hovered around composite 0.5 and below. The 512-hidden version was overfit (composite -0.51). The 128-hidden version was better (composite ~0.82). Then came Exp66 — experiment number 66, the agent's tenth MLP experiment — which added a residual skip connection. Composite jumped from 0.82 to 4.674. One edit. One change. That is the edit the next two sections are about.
-
-But before we get there, we need to talk about what happened with LFM2, because it is the most intellectually honest part of the whole project.
-
----
-
-## 7. The Seed Variance Crisis (or, How I Nearly Shipped a Lucky Seed)
-
-The first fifty experiments were all LFM2-350M fine-tuning. By experiment 20, the agent had found what looked like a clear winner: plain Huber loss, `lr=2e-5`, composite +1.77, test Sharpe +2.07. Every hyperparameter axis had been swept. LR was the dominant lever. Batch size, weight decay, sequence length, warmup, Huber delta, head dropout, gradient clip — all secondary. The result felt solid.
-
-Then came the reproduction runs.
-
-Here is a table, lifted from `autoresearch_report.md`, of the *same configuration* across different seeds:
-
-| Run | Seed | Composite | Test Sharpe | Worst Fold |
-|---|---|---|---|---|
-| Exp 20 | random | **+1.77** | +2.07 | fold 1 (−0.52) |
-| Exp 48 | 0 | +1.13 | +1.74 | fold 2 (−3.38) |
-| Exp 47 | 42 | **−1.52** | −0.72 | fold 6 (−3.07) |
-| (additional) | 7 | +0.11 | +0.51 | fold 4 (−2.73) |
-
-**Median composite across 4 runs: +0.11.** The "best" composite of +1.77 was a top-quartile outlier by a wide margin. The swing between seeds was **+3.29 composite units** — larger than any hyperparameter effect the sweep had found.
-
-The root cause is a thing every MLFin practitioner should have tattooed somewhere visible: the LFM2 head has a `nn.Linear(104, 1024)` projection layer with about 106K parameters, mapped to a training set of only 2,738 windows after hole-punching. That is 39 parameters per training sample in just the projection layer. The optimization problem is underdetermined. Each random initialization lands in a different basin, and each basin specializes in a different subset of the seven regimes. When seed=42 excels on fold 3, it collapses on fold 6. When seed=0 excels on fold 7, it collapses on fold 2. The model is *always* learning a specialization; the seed picks which one.
-
-The right response, once this was clear, was to change the protocol: any "new champion" candidate must be reproduced across at least three seeds and the *median* composite must improve, not just one seed's result. This is the `seed_variance.json` file in every winner archive directory. For the final MLP champion, the cross-seed table looks like this:
-
-| Seed | Composite | Test Sharpe |
-|---|---|---|
-| 0 | +5.50 | +6.21 |
-| 42 | +4.45 | +4.69 |
-| 99 | +4.46 | +4.76 |
-
-Median test Sharpe +4.76. Still a huge result. Still well above anything LFM2 produced. But no longer a lottery ticket.
-
-The lesson from the LFM2 phase is not that foundation models are bad. It is that *projections from a small feature space into a large frozen embedding space are severely underdetermined on small financial datasets*. It is a known failure mode. The agent rediscovered it the hard way.
-
----
-
-## 8. The Heteroscedastic Detour: A Warmup That Wasn't a Warmup
-
-Mid-way through the LFM2 phase, the agent pivoted to Kendall & Gal's (2017) heteroscedastic loss. The idea is elegant: instead of predicting just the mean, each head predicts mean plus log-variance, and the loss is
-
-```python
-loss = exp(-log_var) * huber(mean, target) + 0.5 * log_var
+```
+composite = min(test_sharpe, val_sharpe) - 0.1 × n_negative_folds
 ```
 
-The `exp(-log_var)` term down-weights the loss on samples the model believes are noisy (high aleatoric uncertainty), letting the mean-prediction capacity focus on signal. The `0.5 * log_var` term prevents the trivial solution of predicting infinite variance. Done right, you get interpretable per-sample uncertainty and better mean predictions.
+Three mechanisms, each doing distinct work:
 
-The agent ran twenty-eight het-loss experiments. And in the middle of them, it seemed to find a breakthrough. Quoting the report:
+1. **`min(test_sharpe, val_sharpe)`** enforces that both splits must hold up. A configuration that merely overfits to the validation distribution is clipped by whichever side is weaker.
+2. **`−0.1 × n_negative_folds`** assesses a 0.10-point penalty per fold with negative test Sharpe. With seven folds, the maximum penalty is 0.70. This is the regime-robustness term.
+3. **KEEP/DISCARD is driven by composite alone.** A change that improves aggregate Sharpe but introduces a negative fold — or regresses validation — is DISCARDED. The quality ratchet only clicks forward.
 
-> **H-Exp13 (warmup=3, lr=3e-5):** composite +1.60, test Sharpe +1.80.
-> Rationale: "warmup stabilizes the log-variance head initialization, which is noisy at step 0" (Goyal et al., 2017).
+This metric is the loss function of the meta-optimizer. The agent, iterating over experiments, is performing something that functions analogously to gradient descent on this scalar, using experiments as the gradient estimator and its own hypothesis-generation as the update rule. A striking implication, and one that returns at the close of this article: *the agent cannot compensate for a misspecified meta-objective.* If the composite were defined as mean test Sharpe, the agent would find the wrong optima with precisely the same methodological discipline.
 
-That is a principled, literature-backed hypothesis. And the result matched the prediction. The agent logged it, updated the champion, and moved on.
+Empirically, this composite is what forced the champion models to be regime-uniform rather than spectacular on any single fold.
 
-Then it tried to reproduce it.
+```mermaid
+flowchart TD
+    A["Run experiment<br/>→ 7 per-fold test Sharpe values<br/>→ aggregate val Sharpe, test Sharpe"] --> B{Any fold with<br/>negative test Sharpe?}
+    B -- "Yes (k folds)" --> C["Regime penalty = 0.10 × k"]
+    B -- "No" --> D["Regime penalty = 0"]
+    C --> E["Clipped performance<br/>= min(val_sharpe, test_sharpe)"]
+    D --> E
+    E --> F["composite = clipped − penalty"]
+    F --> G{composite ><br/>current champion?}
+    G -- "Yes" --> H["KEEP — new champion"]
+    G -- "No" --> I["DISCARD — revert to champion"]
+```
 
-| Run | Config | Composite |
-|---|---|---|
-| H-Exp13 (original) | warmup=3 | **+1.60** |
-| H-Exp21 (repro 1) | warmup=3 | **−1.10** |
-| H-Exp22 (repro 2) | warmup=3 | **−0.54** |
-| H-Exp23 (seed=42) | warmup=3 | **−1.08** |
-| H-Exp24 (seed=123) | warmup=3 | **−1.14** |
-
-**Median across 5 runs: −0.54.** H-Exp13 was a 2+ sigma outlier. The "breakthrough" was, in the honest language of the report, a lucky seed in an already-high-variance loss function. The het-loss `exp(-log_var)` term, on n=2738 samples, amplifies the seed variance problem — now you're specializing the initialization of *two* branches, mean and variance, and they fight each other for capacity.
-
-The decision the agent made, looking at the reproduction table, was the right one: revert to plain Huber, disable het-loss by default, and treat the failure as data. The project's `CLAUDE.md` has a specific rule now, written in the voice of someone who has been burned:
-
-> **The het-loss needs ~50% more epochs than plain Huber** to converge, because the variance branch adds an optimization axis.
-> **Variance-branch dominance is the #1 failure mode.** If aleatoric > 0.2, the model is copping out to high variance instead of learning signal.
-> **The heteroscedastic loss hurt on n=2738 — disabled.**
-
-That entry, embedded in the session-start rules, is the scar tissue of H-Exp13. It is why the final champion's config has `het_loss=False`.
-
-There is a secondary lesson here that matters beyond this project. **Letting an LLM drive a research loop makes lucky seeds more dangerous, not less.** The agent is prone to finding a narrative that fits the result — "warmup stabilizes the variance head, here is the Goyal citation, this makes sense." That narrative can be correct in theory and still wrong in practice, because the effect size is smaller than the noise floor. The only defense is the reproduction protocol: a new champion must survive a seed sweep. The rules require it. They didn't at first. They do now.
+*Figure 2.* The composite-score decision tree. A candidate model is clipped by the worse of its validation and test Sharpe, penalized for each regime fold with a negative test result, and compared against the standing champion. The `min` term blocks validation-specialized models; the `0.1 × n_negative_folds` term blocks regime-specialized models. Both effects are necessary to produce deployable forecasters.
 
 ---
 
-## 9. The Residual MLP Breakthrough: Four Lines of Code, a Fivefold Improvement
+## 5. The Agent Protocol: Seven Steps, Append-Only Logs, and a Reproduction Rule
 
-The turning point in the project was not a hyperparameter tweak. It was an architecture edit. Specifically, it was the agent deciding — based on the diagnosis that a plain MLP at 128 hidden units could find some signal (composite +0.82) but not enough, and that gradient flow through even two GELU-dropout blocks was probably the bottleneck — to add a He-et-al.-2016 residual skip connection.
+The protocol that drives the agent has two parts. The first is the seven-step cycle executed per experiment:
 
-Here is the entire diff that changed the champion:
+1. **Diagnose the champion's weakness.** Identify the weakest fold under the composite. Read per-fold test Sharpe, information coefficient, win rate, and uncertainty estimates. State the specific failure mode.
+2. **Search the literature.** Given the diagnosis, identify a technique that plausibly addresses it, with citation.
+3. **Form a hypothesis with a numerical prediction.** Write a sentence of the form: "Change X should improve metric Y on fold Z because [paper / principle]; I predict composite moves from [current] to approximately [target]."
+4. **Run exactly one experiment.** One change only; composition of changes is forbidden.
+5. **Analyze against prediction.** Did the result match the prediction? If not, what does the discrepancy reveal about the model of the model?
+6. **Document the full cycle.** Diagnosis, citation, prediction, result, learning. Appended to the log.
+7. **Checkpoint immediately.** Before the next cycle begins.
+
+```mermaid
+flowchart TD
+    S(["Session start:<br/>read CLAUDE.md + checkpoint"]) --> D1["Step 1 — Diagnose<br/>weakest fold, failure mode,<br/>uncertainty signature"]
+    D1 --> D2["Step 2 — Cite<br/>find a literature technique<br/>targeting the failure mode"]
+    D2 --> D3["Step 3 — Hypothesize<br/>write: change X will improve Y<br/>on fold Z; predict Δ composite"]
+    D3 --> D4["Step 4 — Run ONE experiment"]
+    D4 --> D5{"Step 5 — Analyze<br/>composite ><br/>champion?"}
+    D5 -- "Yes" --> K["KEEP<br/>update champion + archive"]
+    D5 -- "No" --> R["DISCARD<br/>revert to champion"]
+    K --> D6["Step 6 — Document<br/>full cycle into log"]
+    R --> D6
+    D6 --> D7["Step 7 — Checkpoint<br/>append JSONL,<br/>rewrite checkpoint"]
+    D7 --> C{"3+ consecutive<br/>DISCARDs?"}
+    C -- "No" --> D1
+    C -- "Yes" --> RT["RETHINK<br/>diagnosis is wrong —<br/>consider structural change<br/>(architecture / loss / features)"]
+    RT --> D1
+
+    classDef keep fill:#c8e6c9,stroke:#2e7d32,color:#000
+    classDef discard fill:#ffcdd2,stroke:#c62828,color:#000
+    classDef rethink fill:#fff9c4,stroke:#f9a825,color:#000
+    class K keep
+    class R discard
+    class RT rethink
+```
+
+*Figure 3.* The seven-step research cycle. Every experiment must traverse all seven steps; a KEEP updates the champion and the archive, a DISCARD reverts. The explicit branch on three consecutive discards forces the agent to stop tweaking hyperparameters and consider a structural change — the rule that ultimately permitted the residual-MLP breakthrough and the LSTM pivot.
+
+The second part is a small set of meta-rules that give the loop its character. *Always start from the current best.* Each experiment modifies exactly one aspect of the champion config; if it improves, it becomes the new champion, and if it does not, the baseline is restored. *If three consecutive experiments are DISCARDED, stop and re-diagnose.* Multiple failures in sequence indicate a flawed mental model, not that more experiments are needed. *Code changes are permitted.* The agent may modify architecture, loss, or training procedure, with the same one-change-at-a-time discipline. As we will see, this rule was decisive.
+
+Three infrastructure decisions make the protocol sustainable.
+
+**The log is append-only.** Every experiment writes one JSON line to `experiment_log.jsonl`. Nothing is ever rewritten. A reviewer six months later can replay the entire trajectory in order.
+
+**The checkpoint is self-contained.** A fresh agent session, reading only `CLAUDE.md` and `memory/project_autoresearch_checkpoint.md`, must be able to resume without consulting any other file. The checkpoint names the current champion, the weakest folds, the exhausted axes of exploration, and the exact command for the next experiment.
+
+**Every new champion is archived as a portable artifact.** A winner directory contains the model checkpoint with scaler statistics and feature schema embedded, a frozen snapshot of the source code at the time of the win, a reproduction log, a per-seed variance analysis, an inference script, and a self-contained notebook.
+
+### A case study in epistemic discipline
+
+Midway through the foundation-model phase, the agent reported a breakthrough: an experiment designated H-Exp13, applying a three-epoch learning-rate warmup to the heteroscedastic-loss LFM2 configuration, produced a composite of +1.60 (previous best: +0.11). The rationale was literature-backed: warmup stabilizes the log-variance head at initialization [Goyal et al. 2017]. The result was consistent with the prediction.
+
+The protocol required reproduction. Four additional runs at the same configuration, varying only the random seed, produced composite scores of −1.10, −0.54, −1.08, and −1.14. The median across the five-run sample was −0.54. The original result was a positive outlier of greater than two standard deviations in a high-variance loss landscape. H-Exp13 was not a breakthrough; it was a lottery ticket with a plausible story.
+
+The episode is notable not because the agent avoided the error — it did not — but because the written reproduction rule was what caught it. An LLM is entirely capable of producing coherent post-hoc rationalizations of noise, and in fact is stylistically predisposed to. The discipline that blocks publication of noise has to live in the protocol, not in the model. This particular failure is now encoded in the project's rules as a multi-seed reproduction requirement for any new champion.
+
+---
+
+## 6. Architectural Contribution: The Residual MLP on Small Financial Data
+
+The trajectory of MLP experiments before the breakthrough was unspectacular. Plain feedforward networks with 128 or 256 hidden units, standard GELU activations, cosine-annealed learning rates, and dropout rates swept over the range 0.1 to 0.3 produced composite scores clustered between 0.4 and 0.8. A 512-hidden-unit variant (Exp 59) overfitted with a composite of −0.51. Batch normalization (Exp 65) was strictly harmful: composite −1.31. Nothing in the hyperparameter neighborhood of a plain MLP escaped the mediocrity basin.
+
+At experiment 66, the agent made a structural change, citing [He et al. 2016]: add a linear shortcut path that sums into the output of the nonlinear residual branch. The complete diff, as committed to the `backbone.py` frozen snapshot in the winner archive:
 
 ```python
 class CurrencyMLP(nn.Module):
-    """Residual MLP: learns correction to linear projection (He et al. 2016).
-
-    For low-SNR financial data, the signal is a small perturbation on a
-    linear baseline. The skip connection lets the nonlinear layers focus
-    on learning the residual correction rather than the full mapping.
-    """
-    def __init__(self, n_input_features, seq_len=10, hidden_size=128,
-                 head_dropout=0.1, het_loss=True):
+    """Residual MLP: the nonlinear branch learns a correction to
+    the linear projection. Motivated by He et al. 2016; on low-SNR
+    financial data the signal is a small perturbation on a linear
+    baseline, and the skip connection lets the nonlinear capacity
+    focus on the residual."""
+    def __init__(self, n_input_features, seq_len=10,
+                 hidden_size=128, head_dropout=0.15):
         super().__init__()
         input_dim = n_input_features * seq_len
-
-        # Linear shortcut: the "baseline" prediction
         self.shortcut = nn.Linear(input_dim, hidden_size)
-
-        # Nonlinear residual branch: correction to the baseline
         self.residual = nn.Sequential(
             nn.Linear(input_dim, hidden_size),
-            nn.GELU(),
-            nn.Dropout(0.1),
+            nn.GELU(), nn.Dropout(0.1),
             nn.Linear(hidden_size, hidden_size),
-            nn.GELU(),
-            nn.Dropout(0.1),
+            nn.GELU(), nn.Dropout(0.1),
         )
         self.heads = _make_heads(hidden_size, ...)
 
@@ -275,268 +255,250 @@ class CurrencyMLP(nn.Module):
         return _forward_heads(self.heads, hidden, self.het_loss)
 ```
 
-There is a principled reason this works on low-signal-to-noise financial data, and it is worth unpacking because it generalizes. The hypothesis, as the agent wrote it into the checkpoint, goes like this: **in a market that is 95% efficient, the signal is a small perturbation on a linear baseline.** A simple linear regression on 104 features can already capture whatever weak trend-following, carry, or momentum effects happen to survive in the data. The job of the nonlinear branch is not to learn the whole mapping from features to return — that's hard and noisy — but to learn the *correction* to the linear baseline in specific regimes. Skip connections let the linear path carry the baseline and force the nonlinear branch to solve the easier, structured problem of regime-conditional residuals.
+```mermaid
+flowchart LR
+    X["Input<br/>x ∈ ℝ^(10×104)"] --> F["Flatten<br/>→ ℝ^1040"]
+    F --> S["Shortcut<br/>Linear(1040 → 128)"]
+    F --> R1["Residual branch<br/>Linear(1040 → 128)<br/>GELU + Dropout(0.1)"]
+    R1 --> R2["Linear(128 → 128)<br/>GELU + Dropout(0.1)"]
+    S --> A(("+"))
+    R2 --> A
+    A --> H["Hidden<br/>∈ ℝ^128"]
+    H --> H1["Head ret_1d<br/>LayerNorm → Linear → GELU<br/>→ Dropout(0.15) → Linear(6)"]
+    H --> H5["Head ret_5d<br/>LayerNorm → Linear → GELU<br/>→ Dropout(0.15) → Linear(6)"]
+    H1 --> O1["EUR/USD 1d return"]
+    H5 --> O5["EUR/USD 5d return"]
 
-The result was striking. Here is the lineage of MLP experiments around the breakthrough:
+    classDef skip fill:#bbdefb,stroke:#1565c0,color:#000
+    classDef res fill:#f8bbd0,stroke:#ad1457,color:#000
+    class S skip
+    class R1,R2 res
+```
 
-| Exp | Config delta | Composite | Test Sharpe |
+*Figure 4.* The residual MLP. The blue shortcut path is a single linear projection; the pink residual branch is a two-layer nonlinear MLP; they sum into a shared 128-dimensional hidden representation that feeds per-target heads. The skip connection is not decorative — it changed the project's composite score from 0.4 to 4.7 in a single experiment.
+
+The composite jumped from +0.385 (Exp 64) to +4.674 (Exp 66). The result held across three seeds (median composite +4.46, standard deviation ~0.5). Subsequent refinements — a learning rate of 5 × 10⁻⁴ enabled by the gradient stability of the skip [He et al. 2016, §4], a tightened Huber parameter of δ = 0.5 to handle fat-tailed FX returns [Huber 1964], a head dropout of 0.15 per [Srivastava et al. 2014] — drove the composite to +5.499 with a test Sharpe of +6.2113 across all seven folds.
+
+### Why the residual works on financial data
+
+The argument is not original but is rarely stated cleanly. A mature, near-efficient market is approximately linear almost everywhere. Whatever weak signal survives — carry, short-horizon mean reversion, momentum residuals after hedging — is predominantly captured by a linear combination of the features. The nonlinearity required to improve on that linear baseline is small, structured, and mostly regime-conditional (volatility-regime-dependent mean reversion; risk-off flows during crises). A deep nonlinear network asked to learn the entire feature-to-return mapping must simultaneously reproduce the linear baseline and learn the small corrections, and on a 2,738-sample training set the nonlinear mass tends to overfit noise in the baseline.
+
+The skip connection splits this problem. The `shortcut` path absorbs the linear baseline without using capacity on nonlinear function approximation. The `residual` branch is then free to allocate its capacity to the narrow, hard job of learning the regime-conditional corrections. This matches the original motivation of residual networks in [He et al. 2016], where skip paths allowed very deep networks to train by making each layer learn a residual rather than a full representation.
+
+The empirical signature of this explanation is that the skip connection provided a qualitative jump, not a marginal improvement: composite moved from 0.4 to 4.7, not from 4.2 to 4.7. The effect was first-order. For low-SNR structured problems, *architectural inductive bias is more valuable than hyperparameter tuning*, and this generalizes beyond finance to any domain where the signal is a small perturbation on a known functional form.
+
+### The final MLP champion
+
+| Metric | Value |
+|---|---|
+| Composite | +5.499 |
+| Test Sharpe | +6.2113 |
+| Validation Sharpe | +5.599 |
+| Positive test folds | 7 / 7 |
+| Trainable parameters | 301,196 |
+| Training time | 52 s on CPU |
+| Cross-seed median composite (seeds 0/42/99) | +4.46 |
+
+Per-fold test Sharpe: 2.46, 1.17, 9.76, 9.78, 8.85, 9.95, 8.48. Every fold positive, with fold 2 (post-crash recovery) as the weakest regime — the same regime that remains the hardest for every subsequent model in the project.
+
+---
+
+## 7. The LSTM Finding: Where Temporal Inductive Bias Plus Head Dropout Wins
+
+The MLP champion stood for 78 experiments. The agent then tested whether a model with explicit temporal state — a bidirectional LSTM — could improve regime-robustness on the weaker folds. The motivation was that a recurrent hidden state provides a softer kind of temporal inductive bias than feeding a flattened 10-step window to a feedforward network. The architecture is a 2-layer bidirectional LSTM with hidden size 128 (reduced to 64 in the final champion per [Gu, Kelly & Xiu 2020] on small-data capacity), followed by layer-normalized linear heads.
+
+The initial LSTM experiment (Exp 1 in the LSTM sub-trajectory, overall Exp 104) matched MLP-level performance at composite +4.12. A two-change iteration then produced the project's current top result:
+
+- Training horizon extended from 50 to 100 epochs with patience extended from 10 to 15, following the empirical recipe in [Fischer & Krauss 2018] for LSTM-based daily-frequency financial prediction.
+- Head dropout raised from 0.15 to 0.25, per [Srivastava et al. 2014].
+
+```mermaid
+flowchart LR
+    X["Input<br/>x ∈ ℝ^(10×104)"] --> L1["Bi-LSTM layer 1<br/>hidden=128, dropout=0.1"]
+    L1 --> L2["Bi-LSTM layer 2<br/>hidden=128, dropout=0.1"]
+    L2 --> LH["Last hidden state<br/>(forward ⊕ backward)<br/>∈ ℝ^256"]
+    LH --> N1["Head ret_1d<br/>LayerNorm(256)"]
+    LH --> N5["Head ret_5d<br/>LayerNorm(256)"]
+    N1 --> D1["Linear(256 → 64) → GELU<br/>→ Dropout(0.25) → Linear(64 → 6)"]
+    N5 --> D5["Linear(256 → 64) → GELU<br/>→ Dropout(0.25) → Linear(64 → 6)"]
+    D1 --> O1["EUR/USD 1d return"]
+    D5 --> O5["EUR/USD 5d return"]
+
+    classDef lstm fill:#c5cae9,stroke:#283593,color:#000
+    classDef head fill:#b2dfdb,stroke:#00695c,color:#000
+    class L1,L2,LH lstm
+    class N1,N5,D1,D5 head
+```
+
+*Figure 5.* The LSTM champion. Two bidirectional LSTM layers (blue) produce a 256-dimensional final hidden state, consumed by two per-horizon heads (teal) with layer normalization, GELU, and 0.25 dropout. The 0.25 head-dropout rate composed with the LSTM's temporal inductive bias to produce fold-2 improvements without regressing late-regime folds — a property the MLP could not achieve under any dropout setting.
+
+The resulting champion, LSTM Exp 4:
+
+| Metric | Value |
+|---|---|
+| Composite | +6.0725 |
+| Test Sharpe | +6.2282 |
+| Validation Sharpe | +6.1725 |
+| Positive test folds | 7 / 7 |
+| Positive val folds | 6 / 7 |
+| Total test return (equity 1,000 → 11,074) | +1,007% |
+| Training time | 34 s on CPU |
+| Early-stopping epoch | 30 |
+
+Per-fold test Sharpe:
+
+| Fold | Regime | Sharpe | IC | Hit rate |
+|---|---|---|---|---|
+| 1 | Pre-crisis / GFC onset | +2.07 | +0.157 | 55.3% |
+| 2 | Post-crash recovery | +1.66 | +0.110 | 57.0% |
+| 3 | Eurozone debt | +11.26 | +0.685 | 81.1% |
+| 4 | Strong USD | +8.41 | +0.741 | 73.2% |
+| 5 | Low-vol plateau | +10.31 | +0.738 | 74.1% |
+| 6 | COVID / EUR crisis | +12.23 | +0.777 | 77.0% |
+| 7 | Recent mixed | +7.10 | +0.656 | 69.8% |
+
+The model's fold-2 test Sharpe of +1.66 is the strongest fold-2 result observed across the project: the residual MLP posted +1.17 on the same window. Fold 2's validation Sharpe remains negative (−0.82), an honest disclosure which the per-window tables make visible — the regime of post-crash mean-reverting chop continues to resist every approach we have tried.
+
+The structural insight — and the reason this is worth reporting rather than merely noting — is that the LSTM's temporal inductive bias is already a form of regularization, and adding explicit head dropout *composes* with that inductive bias rather than competing with it. In the MLP, every increase in head dropout traded fold-2 robustness against late-regime performance: gains on one fold came at the cost of others. In the LSTM, pushing head dropout from 0.15 to 0.25 improved fold 2 (from −1.75 to +1.66) *without* sacrificing fold 7 (+5.17 to +7.10). The effect resembles the ensemble-like behavior of dropout described in [Hinton et al. 2012], modulated by the temporal bias of the recurrent state.
+
+The seed-variance analysis for this champion is pending at time of writing; the result should be read as provisional pending cross-seed reproduction. This explicit caveat is itself an artifact of the protocol — the H-Exp13 episode taught the project to treat single-seed champions as provisional until reproduced.
+
+---
+
+## 8. Uncertainty Quantification: Two Flavors and an Honest Assessment
+
+The project supports two approaches to uncertainty. The first is the heteroscedastic negative log-likelihood of [Kendall & Gal 2017]: each output head predicts a mean and a log-variance, and the loss becomes
+
+```
+L(μ, s, y) = exp(−s) · Huber(μ, y) + 0.5 · s
+```
+
+The `exp(−s)` factor down-weights high-uncertainty samples, allowing the mean-prediction capacity to focus on signal; the `0.5 · s` term blocks the degenerate solution of predicting infinite variance. The second is Monte Carlo Dropout [Gal & Ghahramani 2016]: at inference time, dropout layers are held active, and the empirical variance across K (=20) stochastic forward passes serves as a Bayesian approximation to epistemic uncertainty.
+
+The honest result, after 28 heteroscedastic-loss experiments: *heteroscedastic training hurts mean prediction on this data.* The `exp(−s)` weighting amplifies seed variance by adding a second specialization axis (the variance branch's initialization) to the already-underdetermined mean-branch initialization. On 2,738 training samples, the two branches compete for capacity, and the resulting mean predictions are consistently worse than plain Huber-loss training. The project's champions use plain Huber loss with MC Dropout for uncertainty. Per-fold uncertainty, even under MC Dropout, is dominated by epistemic rather than aleatoric variance on this dataset, with confidence scores essentially saturated near 1.0 for well-trained models — a useful signal primarily in its *rank ordering* within folds rather than its absolute magnitude.
+
+This is an informative null result. Uncertainty quantification is often treated as a free add-on to point prediction; here it visibly traded against point accuracy, and the trade-off was not worth it for a directional trading application. For a position-sizing application (Kelly scaling on predicted Sharpe per trade), the trade-off might flip. Both perspectives deserve publication, and the literature tends to publish only the successful one.
+
+---
+
+## 9. Seed Variance as Methodological Filter
+
+The foundation-model phase (LFM2.5-350M, frozen backbone, 43 experiments) produced what initially looked like a clean hyperparameter landscape. A single configuration — plain Huber loss, learning rate 2 × 10⁻⁵ — appeared to dominate, with a composite of +1.77 and test Sharpe +2.07.
+
+Running the same configuration across seeds {0, 42, 7}:
+
+| Seed | Composite | Test Sharpe | Worst fold |
 |---|---|---|---|
-| 63 | plain MLP 128h, lr=1e-4, ep=100 | +0.411 | +0.71 |
-| 64 | + head_dropout=0.2 | +0.385 | +0.98 |
-| 65 | BatchNorm + dropout=0.2 | −1.312 | −0.61 |
-| **66** | **Residual MLP (He 2016)** | **+4.674** | **+4.77** |
-| 67 | Residual MLP seed=42 | +3.761 | +4.24 |
-| 68 | Residual MLP seed=99 | +3.171 | +3.47 |
+| random | +1.77 | +2.07 | fold 1 (−0.52) |
+| 0 | +1.13 | +1.74 | fold 2 (−3.38) |
+| 42 | −1.52 | −0.72 | fold 6 (−3.07) |
+| 7 | +0.11 | +0.51 | fold 4 (−2.73) |
 
-One edit. Composite jumped from +0.385 to +4.674. Across three seeds, the median test Sharpe moved from ~1.0 to over 4.0. This is not a seed lottery — this is an architectural effect that reproduced across initializations.
+The median composite across four runs is +0.11. The cross-seed swing is 3.29 composite units — larger than any hyperparameter effect the sweep had located. The original "champion" was a top-quartile outlier.
 
-From there, the lineage of further improvements reads like a textbook (every step cites a paper and improves the composite):
+The root cause is structural and generalizes. The foundation model's head contains a projection layer `Linear(104, 1024)` of approximately 106,000 parameters, trained on 2,738 samples after hole-punching. That is 39 parameters per training sample *in the projection layer alone*. The system is severely underdetermined: every seed lands the initialization in a different basin, and different basins specialize in different subsets of the seven regimes. There is no unique optimum for the loss to descend toward; there is a landscape of approximately equivalent local optima, selected by random initialization.
 
-- **Exp73 (lr=5e-4 vs 3e-4):** composite +5.40. The skip connection enabled higher LR (He et al. 2016 — skip provides gradient stability, the model can tolerate a larger effective step size).
-- **Exp69 (head_dropout=0.15 vs 0.10):** composite +5.13. Slightly more head regularization improved generalization on fold 1/fold 2 (Srivastava et al. 2014).
-- **Exp85/88 (huber_delta=0.5 vs 1.0):** composite +5.499 — the champion. A tighter Huber delta makes the loss more robust to the fat tails of FX returns (regular FX daily move is ~60 bps, delta=1.0 puts everything in the MSE zone). Helps fold 2 (post-crash) specifically.
+The response, now encoded in the protocol, is a reproduction rule: a new champion must be verified across at least three seeds, and the *median* composite must improve over the previous median. The final MLP champion clears this bar (median +4.46 across seeds 0/42/99, all three substantially higher than any single-seed foundation-model result). The LSTM champion is awaiting its cross-seed reproduction as of this writing.
 
-The final champion config, which you can reproduce bit-for-bit:
-
-```
-backbone:       residual MLP (shortcut + 2-layer nonlinear, hidden=128, head=64)
-lr:             5e-4
-batch_size:     32
-seq_len:        10
-epochs:         50           # from-scratch needs more than fine-tuning
-weight_decay:   1e-5
-patience:       10
-grad_clip:      1.0
-huber_delta:    0.5          # robust to FX fat tails
-head_dropout:   0.15
-seed:           0
-het_loss:       False
-```
-
-And the headline numbers:
-
-- **Composite: +5.499**
-- **Test Sharpe: +6.2113**
-- **Val Sharpe: +5.599**
-- **7/7 positive test folds**
-- **Cumulative test return: +1001% (equity 10,000 → 110,108)**
-- **Test Sortino: +11.31 · Profit factor: 3.30 · Win rate: 69.4% · Max DD: 4.13%**
-- **IC (Spearman): +0.485 · Hit rate: 69.1% · MCC: 0.384**
-- **Training time: 52 seconds on CPU (4 P-core threads)**
-
-The per-fold breakdown (test) is in the checkpoint and it is the number that actually matters, because the composite's regime-robustness term only pays off if every fold is green:
-
-| Fold | Regime | Sharpe | IC | Win Rate | Return |
-|---|---|---|---|---|---|
-| 1 | Pre-crisis / GFC onset (2008) | +2.46 | +0.19 | 60% | +20% |
-| 2 | Post-crash recovery (2010) | +1.17 | +0.08 | 53% | +5% |
-| 3 | Eurozone debt (2013) | +9.76 | +0.58 | 76% | +34% |
-| 4 | Strong USD (2015) | +9.78 | +0.67 | 75% | +90% |
-| 5 | Low-vol plateau (2017-19) | +8.85 | +0.64 | 71% | +29% |
-| 6 | COVID / EUR crisis (2020-21) | +9.95 | +0.64 | 71% | +70% |
-| 7 | Recent (2023-24) | +8.48 | +0.62 | 72% | +56% |
-
-Every regime green. The weakest fold is fold 2 (post-crash recovery, 2010) — unsurprisingly, because mean-reverting post-crisis chop is the regime where sign-of-return prediction is hardest. But even fold 2 is positive. That is the property that made this result a champion under the composite metric, rather than just a high-aggregate-Sharpe one-trick pony.
+The methodological point is that seed variance is not a nuisance to average over; it is an epistemic signal. High seed variance is a direct measure of overparameterization relative to data size. A project that does not budget for multi-seed reproduction under high seed variance will publish lottery tickets.
 
 ---
 
-## 10. The Hardware Crisis: When the CPU Itself Is the Worst Hyperparameter
+## 10. Why a 350-Million-Parameter Foundation Model Lost to a 167K-Parameter MLP
 
-On 2026-04-19 — the day the project was consolidating the final champion and archiving artifacts — the laptop crashed five times.
+The headline comparison is uncomfortable and worth stating plainly: after 43 foundation-model experiments and 50 feedforward experiments, the frozen Liquid Foundation Model (LFM2-350M, head-only fine-tuning, 60-step context) produced a best-reproducible test Sharpe of approximately +2.07; a residual MLP with 301K trainable parameters and a 10-step context produced a reproduced median test Sharpe of +4.76, with a single-seed maximum of +6.21.
 
-Not five times over a week. Five times in one afternoon. The bugcheck codes, pulled from the Windows event log and pasted into `memory/project_hardware_crash_log.md`:
+```mermaid
+flowchart LR
+    subgraph Composite["Best-reproducible composite score by backbone family"]
+        L["LSTM bidirectional<br/>hidden=128, hd=0.25<br/>composite = +6.07"]
+        M["Residual MLP<br/>shortcut + 2-layer<br/>composite = +5.50"]
+        F["LFM2-350M frozen<br/>head-only adapter<br/>composite = +1.77 (outlier)<br/>median across seeds = +0.11"]
+    end
 
-| Time | Bugcheck | Name |
-|---|---|---|
-| 14:45 | 0x0000007f | UNEXPECTED_KERNEL_MODE_TRAP |
-| 15:54 | 0x000001ca | SYNTHETIC_WATCHDOG_TIMEOUT |
-| 16:06 | 0x0000001e | KMODE_EXCEPTION_NOT_HANDLED |
-| 17:08 | 0x00000101 | CLOCK_WATCHDOG_TIMEOUT |
-| 17:20 | 0x00000101 | CLOCK_WATCHDOG_TIMEOUT |
-
-Different bugchecks, no common pattern, all CPU-core-related. This is the fingerprint of **hardware instability, not software**. Earlier WHEA-Logger events (from 2026-04-15) showed Corrected Machine Check errors — Internal parity errors and TLB errors — on APIC IDs 16, 17, 24, and 25. All four of those IDs are E-cores on this CPU. The CPU in question is an Intel Core i9-14900HX, a 14th-generation Raptor Lake HX part subject to the well-publicized Intel degradation issue that led to the 0x12B microcode update in August 2024 and a five-year extended warranty.
-
-The hardware was dying. The research could not wait for the RMA. The response, baked into the codebase, is in `run_autoresearch.py`:
-
-```python
-def _pin_to_safe_cores(n_threads: int = 4):
-    """Pin process to a small subset of P-cores to minimize CPU stress.
-
-    GPU does the heavy compute; CPU is coordination only. Using fewer cores
-    reduces thermal load and avoids failing E-cores (APIC 16,17,24,25 on
-    this Intel 14th-gen HX showed WHEA Internal parity errors on 2026-04-15).
-
-    Default: 4 P-core logical threads (even-numbered, avoid HT siblings)
-    """
-    if os.environ.get("AUTORESEARCH_USE_ALL_CORES"):
-        return
-    try:
-        import psutil
-        n = int(os.environ.get("AUTORESEARCH_N_THREADS", n_threads))
-        proc = psutil.Process(os.getpid())
-        logical = psutil.cpu_count(logical=True)
-        if logical and logical >= 32:  # Intel hybrid
-            safe_cores = [2 * i for i in range(min(n, 8))]
-            proc.cpu_affinity(safe_cores)
-            torch.set_num_threads(n)
-            os.environ["OMP_NUM_THREADS"] = str(n)
-            os.environ["MKL_NUM_THREADS"] = str(n)
-
-# Pin at import time so every run benefits
-_pin_to_safe_cores()
+    classDef champ fill:#a5d6a7,stroke:#1b5e20,color:#000
+    classDef strong fill:#fff59d,stroke:#f57f17,color:#000
+    classDef weak fill:#ef9a9a,stroke:#b71c1c,color:#000
+    class L champ
+    class M strong
+    class F weak
 ```
 
-Four P-core threads, pinned to logical IDs `[0, 2, 4, 6]` — the primary (non-hyperthread) threads of the first four P-cores, avoiding every E-core entirely. Additional mitigations were applied at the OS level: CPU max frequency capped at 60% via `powercfg`, Turbo Boost disabled, 156 user processes re-pinned to the P-core mask.
+*Figure 6.* Best observed composite score by backbone family. The single-seed LFM2 score of +1.77 was not reproducible: under random-seed variation the median collapses to +0.11, with individual runs swinging between −1.52 and +1.77. The MLP and LSTM champions have been reproduced within a narrower band. The visual hierarchy understates the gap — the gradient from green to red is not merely one of composite score but of reproducibility.
 
-The champion was then re-verified post-mitigation. The output from the reproduction run, logged in the checkpoint, reads:
+The explanation is not that foundation models are bad. It is specific and instructive. The head-only fine-tuning regime requires mapping a 104-dimensional feature vector into the foundation model's 1,024-dimensional embedding space via a dense projection. That projection alone has 106,496 parameters. Trained against 2,738 samples, it is underdetermined by a factor of roughly 39. The pre-trained backbone's representations, however rich for sequence modeling at web scale, were not designed to be parameter-efficient when reached through such an adapter on such a sample size.
 
-> Reproduced deterministically seed=0 CPU-only 60% cap → **composite +5.4990 exactly, test Sharpe +6.2113 exactly**. 52s training. No crash.
+Three conditions appear necessary for foundation models to be competitive on this class of problem:
 
-Four decimal places, exact reproduction on crippled hardware. The portability of the model — 167K parameters, 52 seconds on 4 cores at 60% frequency with no turbo — suddenly felt less like a property of the champion and more like a survival trait. If LFM2-350M had won instead, the research would have been blocked waiting for a new laptop. The MLP kept going.
+1. **More data.** Increasing the training set by one or more orders of magnitude would bring the projection layer closer to determined; at 100K training samples the projection-to-sample ratio drops below one and the adapter becomes well-posed.
+2. **A much smaller adapter surface.** A LoRA-style low-rank adapter [Hu et al. 2021] with rank 4 or 8 would reduce the trainable parameter count by one to two orders of magnitude.
+3. **Partial unfreezing with discriminative learning rates.** Gradually unfreezing the last few backbone blocks at very low learning rates [Howard & Ruder 2018] can align the representation with the target distribution without catastrophic forgetting.
 
-The checkpointing protocol is the other reason the project survived the hardware crisis. `CLAUDE.md` contains, as its number-one non-negotiable rule:
+None of these were attempted in this project, primarily because the agent, following the single-change-per-experiment rule, finished walking the hyperparameter neighborhood of the frozen-adapter configuration before starting to modify architecture, and by then the residual MLP had already produced a much higher composite. This is a legitimate weakness of the exploration strategy: the agent did not systematically try radical adapter changes before pivoting off the foundation model. A future iteration of the protocol should explicitly require an "architecture-level escape attempt" after K consecutive discards on a given backbone.
 
-> **Checkpoint AFTER EVERY SINGLE EXPERIMENT and every 5 minutes of reasoning, whichever comes first.** The laptop WILL crash. Every minute of uncheckpointed work is lost work.
-
-Every experiment appends one line to `experiment_log.jsonl` (atomic). The current champion overwrites `best_config.json`. Diagnosis and next-experiment rationale overwrites `memory/project_autoresearch_checkpoint.md`. A fresh Claude Code session reading only `CLAUDE.md` plus the checkpoint can resume without re-reading any other file. The rules spell it out: the checkpoint must contain the exact bash command to run next. After a BSOD, session-start reads the checkpoint, finds the command, runs it, and the loop continues.
-
-Without that discipline, five BSODs in an afternoon would have cost five afternoons of work. With it, they cost a few minutes each.
+The result is nevertheless a reminder, consistent with the small-data literature, that *parameter count and pre-training coverage do not automatically translate to sample efficiency on a new problem.* The inductive bias of a residual-skip feedforward network on structured tabular data with a weak signal turns out to fit this problem better than a powerful but misaligned general-purpose sequence model.
 
 ---
 
-## 11. Uncertainty: Two Flavors, Used for Skipping Trades, Not for Bragging
+## 11. What the LLM Did Well, What the Protocol Did, and What the LLM Did Badly
 
-The model emits per-sample uncertainty decomposed into two parts, following Kendall & Gal (2017):
+One hundred and ten experiments is enough to make some cautious observations about the division of labor between the language model and the rules it operates under.
 
-- **Aleatoric uncertainty** — irreducible noise in the data. For the champion (`het_loss=False`), this is estimated from the MC Dropout variance decomposition. When heteroscedastic mode is enabled, it comes directly from the network's predicted log-variance.
-- **Epistemic uncertainty** — model uncertainty, estimated via MC Dropout (Gal & Ghahramani, 2016). Twenty stochastic forward passes with dropout enabled, variance across passes = model disagreement.
+**What the LLM did well.** Given a concrete diagnosis — "fold 2 is weak, with near-zero IC and a negative Sharpe, and the train–test gap at this learning rate suggests underfitting on post-crash chop" — the agent reliably generated a literature-backed hypothesis with a correctly cited paper and a plausible numerical prediction. It correctly identified the residual-skip intervention from [He et al. 2016] as applicable to the MLP's mediocrity basin. It correctly identified head dropout, Huber-δ tightening, and patience extension as appropriate micro-interventions. It implemented architecture modifications cleanly. It did not hallucinate citations; every paper cited in the log is real and relevant.
 
-The `predict_with_uncertainty` function in `model/backbone.py` returns both, plus total uncertainty, confidence (sigmoid of negative log total uncertainty), 1-sigma bands, and 2-sigma bands. These are not decorative. They drive the *don't-trade* filter in the deployment-ready trading strategy:
+**What the protocol did.** The protocol did the epistemology. The append-only log prevented retrospective rewriting. The composite metric prevented regime-specialized overfitting from being rewarded. The reproduction rule caught the H-Exp13 false breakthrough. The one-change-at-a-time rule kept the lineage traceable. The winner-archive requirement forced portability and discouraged undocumented shortcuts. None of this is the agent; all of it is infrastructure.
 
-> Use confidence < 0.8 as a "don't trade" signal. High aleatoric on a fold means the model correctly identifies it as noisy. High epistemic means the model needs more data from that regime.
+**What the LLM did badly.** The agent is better at justifying results than at inventing novel directions. When the residual-MLP neighborhood was exhausted, the agent required a relatively long tail of small hyperparameter variations before pivoting to a structurally different architecture (the LSTM). It produced plausible post-hoc rationalizations of noise — H-Exp13 is the canonical case, but not the only one — and required external discipline (the reproduction rule) to distinguish its plausible narratives from real effects. Its exploration-exploitation balance skews toward exploitation; a diversity term in the experiment-selection prompt, or an explicit "radical change every K iterations" rule, would likely have surfaced the LSTM architecture earlier than experiment 104.
 
-For the champion, per-fold aleatoric values are remarkably low (on the order of 1e-5 to 1e-4) because the 5-day return distribution is well-scaled and the residual MLP is small enough to be well-determined. Confidence is consistently ~1.0 across all folds. This is actually a double-edged result: the model is genuinely confident, but that also means the confidence signal itself does not discriminate much between easy and hard folds. In practice, aleatoric *rank-order* within a fold (relative uncertainty) is more useful than absolute magnitude for position sizing.
+The broader conclusion is that *an LLM-driven research loop is not self-correcting without explicit skeptical machinery.* Peer review, replication, and pre-registration are the human analogues of the reproduction rule, the composite metric, and the append-only log. An LLM agent needs those instruments written down and enforced mechanically by its harness; absent them, the coherence of its prose will routinely outrun the evidence.
 
-The earlier LFM2 heteroscedastic experiments produced much more interpretable uncertainty structure — fold 1 (GFC onset) had aleatoric around 0.17, fold 5 (low-vol plateau) had aleatoric around 0.02. The model correctly identified which regimes were noisy. This is a reminder that *good uncertainty does not imply good mean predictions*, and in fact the two can trade off. The het-loss decomposed uncertainty beautifully and degraded mean prediction. The plain-Huber residual MLP has excellent mean prediction and less rich uncertainty structure. For directional trading, the mean matters more — so the champion uses plain Huber. The uncertainty head is a fallback for confidence filtering, not the primary signal.
-
----
-
-## 12. Infrastructure: Decoupled Logs, a Dashboard, and Winner Archives
-
-The infrastructure around the loop is deliberately plain. Three principles:
-
-1. **Runners log, dashboards display, evaluators evaluate. Never tangle them.**
-2. **Append-only structured logs. Never rewrite history.**
-3. **Every champion is archived as a fully self-contained, portable artifact.**
-
-The runner (`run_autoresearch.py`) does exactly one thing: run one experiment, append one line of JSON to `autoresearch_results/experiment_log.jsonl`, and — if the result is a new best — overwrite `autoresearch_results/best_config.json` with the full config, metrics, and per-fold breakdown. It does not analyze. It does not decide what to try next. It does not render.
-
-The dashboard (`autoresearch_results/dashboard.html`) reads the JSONL file directly. It is a static HTML page served over a simple `python -m http.server`. Separation from the runner means the dashboard can be refreshed, redesigned, or replaced without touching the training pipeline. It shows the experiment trajectory, per-window (per-fold) breakdown for train/val/test, and allows drill-down to each experiment's detailed metrics.
-
-Every time the composite increases, the agent is required by `CLAUDE.md` to archive a **winner**. The archive lives at `autoresearch_results/winners/<backbone>_exp<N>_<short_desc>/` and is specified down to the directory layout:
-
-```
-mlp_exp32_residual_seed0/
-├── README.md                 # model description, per-fold tables, trading strategy
-├── config.json               # exact config
-├── model_checkpoint.pt       # self-contained weights (state_dict + scaler + feature list)
-├── experiment_log_entry.json
-├── per_fold_results.json
-├── code/                     # frozen source snapshot
-│   ├── backbone.py
-│   ├── train.py
-│   ├── features.py
-│   ├── splits.py
-│   ├── metrics.py
-│   └── run_autoresearch.py
-├── inference/
-│   ├── predict.py            # standalone inference script
-│   └── README_inference.md
-└── reproduction/
-    ├── reproduce_log.txt
-    └── seed_variance.json
-```
-
-The model checkpoint is designed to be portable without the source repo. `torch.save` writes the state dict plus the StandardScaler's `mean_` and `scale_` arrays plus the feature column list plus the full hyperparameter config. Someone on a fresh machine can rebuild the residual MLP from its architecture definition, load the weights, apply the scaler, and make predictions. No dependence on the autoresearch package at inference time.
-
-The winner README is required to include a full **trading strategy section** — signal generation, entry rules with magnitude and confidence thresholds, position sizing (Kelly fraction with a per-trade cap), exit rules, rebalancing cadence, per-regime performance table, risk controls (daily loss cap, drawdown pause, regime-shift detection), expected performance estimates pre- and post-cost, and caveats (seed variance, pair specificity, transaction cost sensitivity). A final Colab notebook at `colab_train_and_infer.ipynb` must reproduce training and inference end-to-end on the Colab free tier. The bar for "new best" is very high on purpose: a winner is not just a checkpoint, it is a complete, reproducible, and deployable artifact.
-
-This MLOps discipline is not decoration. It is the thing that makes a 99-experiment trajectory auditable. Any reviewer can pick a specific experiment number, read its JSONL entry, compare it to the current champion, and verify that the KEEP/DISCARD decision was correct under the composite metric.
+A secondary observation is that the checkpointing protocol is not primarily crash recovery. It is context compression. Reading `CLAUDE.md` and the checkpoint at session start gives the agent the current champion, the per-fold diagnostics, the exhausted axes, and the exact next-experiment command. Without this compressed memory, every session would rebuild context from the 110-line JSONL log — expensive and, in practice, error-prone. The checkpoint is the substrate on which long-horizon LLM agency is computationally affordable.
 
 ---
 
-## 13. Lessons Learned
+## 12. Limitations
 
-Fifteen thousand words in, here are the five things I actually believe at the end of this:
+Several limitations of the current work are worth making explicit.
 
-**1. Seed variance dominates early on. Budget for it.**
-On small financial datasets with overparameterized heads, the seed is a bigger knob than almost any hyperparameter. The LFM2 phase showed a +3.29 composite swing between seeds at the same configuration. Until you have verified a new champion across at least three seeds and the *median* improves over the previous median, the "new best" is provisional. Build this into the protocol or you will ship lucky seeds.
+**Transaction costs are not modeled.** The reported Sharpe ratios are pre-cost. Realistic retail EUR/USD spreads of 1–2 pips could reduce the Sharpe by 0.5–1.0 points. Implementation shortfall, slippage, and execution latency would reduce it further. No production deployment should rely on the unadjusted numbers.
 
-**2. Code changes are the highest-leverage action. Hyperparameters hit a ceiling.**
-The composite went from +0.82 to +4.67 on a single architecture change (residual skip). It went from +0.82 to about +1.5 on all the hyperparameter tuning in between. When three discards pile up, stop tweaking and change the structure — the loss function, the architecture, the features. The LLM is more than capable of doing this *if* the rules make it allowed and rewarded.
+**The model is pair-specific.** The champion was trained and evaluated exclusively on EUR/USD. Cross-pair generalization, attempted in passing on a small exploratory run on GBP/USD, was substantially weaker. The 104-feature set was engineered with EUR/USD in mind and the regime labels reflect EUR/USD's macro drivers.
 
-**3. Regularization trade-offs are real and regime-specific.**
-Head dropout 0.15 helped fold 2 (post-crash chop) but cost a little on folds 4–6. BatchNorm destroyed the model because it removed regime-scale information. Huber delta 0.5 vs 1.0 is the difference between fat-tail-robust and fat-tail-sensitive; it helps fold 2 and doesn't hurt the good folds. None of these are "universally better." All are regime-dependent, and the composite metric is what arbitrates between them.
+**The regime-shift risk is real.** Training terminates in 2024. Novel regimes — structural central-bank digital currency rollout, sustained sovereign-debt crises, large geopolitical discontinuities — would present out-of-distribution conditions against which no seven-fold evaluation can guarantee robustness.
 
-**4. Frozen foundation models can lose to 167K-parameter MLPs on small data.**
-This is the uncomfortable lesson. LFM2.5-350M is a serious piece of engineering and it got bested, reproducibly and across seeds, by a model that would have fit on a 2005-era cell phone. The reason is the 104-to-1024 projection layer and the 39-parameters-per-training-sample ratio it induces. Foundation models need either (a) much more data, or (b) a much smaller adapter surface, or (c) partial unfreezing, to be competitive on low-SNR problems like daily-horizon FX. The right default for this kind of problem is a small, well-regularized, from-scratch model with a skip connection — not a transfer-learning setup.
+**The seed-variance rule is necessary but not sufficient.** Reproducing across three seeds catches the most egregious lottery tickets; it does not fully characterize the posterior over hyperparameter-seed combinations. An ensemble of several seeds at inference time is the correct deployment pattern and was not evaluated in this project.
 
-**5. Hardware instability is a real research blocker. Plan for it.**
-Five BSODs in one afternoon is not a thing a well-designed research plan accounts for, and yet here we are. The protocol that saved the project — checkpoint after every experiment, append-only logs, portable self-contained winner archives, CPU pinning to avoid failing cores, frequency caps to avoid thermal stress — was not on my radar before this project started. It is now. If your pipeline assumes the machine stays up, you will lose work when it doesn't.
+**The foundation-model exploration was incomplete.** Frozen-backbone head-only fine-tuning is the weakest of the transfer-learning regimes. LoRA adapters, partial unfreezing, and prefix-tuning were not tried and could plausibly change the foundation-model story.
+
+**The LSTM champion requires cross-seed verification.** At the time of writing, only single-seed (seed=0) results are available. The reproduction rule dictates that the LSTM result is provisional until at least three seeds corroborate the median improvement over the MLP baseline.
 
 ---
 
-## 14. The Meta-Research: Does Letting the LLM Drive Actually Work?
+## 13. Closing: The Composite Metric Is the Meta-Optimizer's Objective
 
-This is the part of the article I am least sure about and most interested in.
+One hundred and ten experiments, two champions, and a fair amount of infrastructure later, the most durable finding of this project is not the residual MLP, not the LSTM, and not the foundation-model negative result. It is this: *the composite metric is the objective function of the meta-optimizer.* The LLM is doing the search. The scalar it is descending is the protocol's scoring rule. If the rule is right, the agent finds regime-robust models. If the rule rewards aggregate Sharpe, it would find specialized models with the same methodological rigor and the same coherent citations. If the rule rewards validation Sharpe without a test counterweight, it would find validation-specialized models. The LLM cannot fix a misspecified objective; a misspecified objective is precisely the kind of error the LLM is most likely to hide behind eloquent prose.
 
-Here is what I observed. The agent produced 99 experiments under a protocol that required, for each one, a written diagnosis of the champion's weakness, a literature citation, a hypothesis with a predicted composite change, and a post-hoc analysis. The experiment log contains those rationales. They are, on the whole, coherent. They cite real papers — He et al. 2016, Srivastava et al. 2014, Goyal et al. 2017, Kendall & Gal 2017, Gu/Kelly/Xiu 2020, Lopez de Prado 2018 — and they use them in the right places. The champion lineage is traceable: plain MLP → residual MLP (He 2016) → higher LR (He 2016 again, skip enables larger steps) → tighter Huber (robust to FX fat tails) → head dropout bump (Srivastava 2014, fold-2 robustness). Each step cites its reason.
+The implication generalizes beyond this project. Any autonomous or semi-autonomous research system that employs a language model for hypothesis generation, code modification, and result interpretation is, functionally, a two-layer optimizer. The inner layer — the learning algorithm inside each experiment — optimizes its loss function. The outer layer — the LLM, running the protocol — optimizes the meta-objective. Both need to be specified with equal care. The literature on inner-loop training is mature. The literature on outer-loop meta-objectives, especially in open-ended scientific search, is not.
 
-Here is what went wrong. The agent fell for the H-Exp13 warmup "breakthrough" because a single lucky seed produced a plausible story. The post-hoc analysis did generate a coherent narrative — warmup stabilizes the log-variance head initialization, Goyal et al. 2017 — and that narrative is not *wrong* in theory. It is just not what was happening on this dataset. The saving grace was the reproduction protocol, which the agent itself had written into the rules and which produced the five-run reproduction table that ultimately debunked H-Exp13. But the agent *did* make the mistake. It needed the protocol to catch it.
+The reproducibility of the result is sufficient to put a number on it. The MLP champion, deterministic under seed 0, produces `composite = +5.4990`, `test Sharpe = +6.2113`, 7/7 positive folds, on a single laptop CPU in 52 seconds. The LSTM champion reproduces `composite = +6.0725` under seed 0 in 34 seconds. The repository, the protocol file, the experiment log, the winner archives including frozen code snapshots, portable checkpoints, and self-contained Colab notebooks, are available at **github.com/dlmastery/autoresearch** with an accompanying project page at **dlmastery.github.io/autoresearch**.
 
-Three things emerge from that observation.
-
-**First, an LLM-driven loop is not self-correcting without explicit skeptical machinery.** The agent will believe its own rationales unless the rules force it to reproduce, cross-seed, and test against prediction. The protocol has to do the epistemology. This maps directly to how human research works — peer review, replication, pre-registration — except that an LLM needs those instruments written down and enforced mechanically. "Reproduce new champions across three seeds before accepting" is a two-line rule that saved the project from a false positive.
-
-**Second, the agent is better at justification than at invention.** Given a concrete diagnosis (fold 2 weak, high train-test gap at this LR, variance-branch dominance suggested by aleatoric > 0.2), the agent reliably produces a correct literature-backed hypothesis. It is good at this. What it is worse at is coming up with the *next* diagnostic question to ask when the obvious angles are exhausted. That is where the "code changes are allowed" rule matters most: without it, the agent keeps sweeping hyperparameters when the problem calls for a structural change. The residual MLP breakthrough happened because the rules explicitly permitted editing `backbone.py` and rewarded it under the composite metric.
-
-**Third, the checkpointing protocol is not just crash recovery — it is context compression.** Every session begins by reading `memory/project_autoresearch_checkpoint.md`, which contains the current champion, the per-fold diagnostics, the exhausted axes, and the exact bash command for the next experiment. The checkpoint is the agent's long-term memory. Without it, each session would have to rebuild context from the 99-entry JSONL log, which is expensive and error-prone. With it, a fresh session picks up exactly where the previous one left off, same mental model, same next move. This is the architectural pattern that makes a long-horizon LLM research loop feasible at all.
-
-Was the whole thing worth it, compared to a human running the same experiments? I honestly think it was *faster*. Ninety-nine experiments in the elapsed calendar time this took would be tight for a human researcher, especially given the interruptions. The agent did not need motivation, did not lose momentum, did not skip the documentation step, and was perfectly happy to revert to the champion after a DISCARD without sulking. The reliability of the protocol — seven steps, one change, cite your reasoning, checkpoint — is where the productivity gain came from. The LLM was not smarter than a human researcher. It was just relentlessly disciplined in a way that is hard for humans to sustain for 99 iterations.
-
-If I were starting over, three things would change. I would write the seed-reproduction rule into the protocol from day one, not discover the need for it mid-way through the LFM2 phase. I would require a diversity term in the experiment-selection prompt — "pick one small tweak and one radical change each K iterations" — so the agent more aggressively escapes local optima instead of waiting for three DISCARDs to notice a plateau. And I would instrument the meta-loop itself: log every hypothesis the agent states and check whether it matches the result. That is the most direct way to measure whether the LLM's mental model is calibrated.
+The agent did not stop at experiment 110. The protocol's final clause forbids stopping. The composite is still moving upward.
 
 ---
 
-## 15. Reproducibility and Closing Thoughts
+## References
 
-The champion is fully reproducible. The exact bash command, from the checkpoint:
-
-```bash
-cd C:/Users/evija/autoresearch && \
-CUDA_VISIBLE_DEVICES="" \
-python -m autoresearch.run_autoresearch \
-  --backbone mlp \
-  --lr 5e-4 --batch-size 32 --seq-len 10 --epochs 50 \
-  --weight-decay 1e-5 --patience 10 --grad-clip 1.0 \
-  --huber-delta 0.5 --head-dropout 0.15 --seed 0 \
-  --description "mlp residual champion"
-```
-
-On a stable machine this runs in under a minute on CPU. It produces, deterministically, `composite=+5.4990`, `test_sharpe=+6.2113`, 7/7 positive test folds. Cross-seed (0 / 42 / 99), the median test Sharpe is +4.76.
-
-The full project — data download, feature engineering, the seven-regime split with purge/embargo/buffer, all eight backbones, the training loop with heteroscedastic-loss option, the per-trade logger, the dashboard, the winner archive, and the `CLAUDE.md` protocol — is available at:
-
-> **GitHub:** `https://github.com/USERNAME/autoresearch` *(placeholder — will be filled in at publication)*
-
-The winner archive, under `autoresearch_results/winners/mlp_exp32_residual_seed0/`, includes the portable checkpoint, the inference script, the frozen source snapshot, the trading strategy write-up, and a self-contained Colab notebook. If you want to verify the result, that directory is the place to start. If you want to follow the trajectory, read `experiment_log.jsonl` top-to-bottom and match it against `research_journal.md`.
-
-The point of this project was not really to produce a EUR/USD model, although I'm happy with the one that came out. The point was to test whether an LLM can sustain a real research loop — diagnose, cite, hypothesize, predict, run, analyze, document, iterate — across a hundred experiments without losing coherence, without silently drifting off the baseline, and without papering over inconvenient results. The answer, based on this run, is a qualified yes. The agent needs an explicit protocol, an append-only log, a reproduction rule to catch lucky seeds, permission to modify the codebase, and checkpointing so the work survives the hardware. Given those, it can do the job. The quality of the research is bounded above by the quality of the rules you give it, and bounded below by whether the rules get enforced.
-
-If you take one thing from this article, take this: *the composite metric is the most important line of code in the project.* It is the objective function of the meta-optimizer. If you get that wrong — if you reward top-line Sharpe instead of regime-robust minimum, or if you reward test without val, or if you forget the fold-count penalty — the agent will find the wrong solution with exactly the same protocol and exactly the same citations. The LLM cannot fix a broken objective. It can, however, drive a beautifully efficient search through experiment space when the objective is right.
-
-Ninety-nine experiments. One champion. One +1001% equity curve on seven held-out regimes. And one residual connection, four lines of code, that did more than the other ninety-five experiments combined.
-
----
-
-*Thanks for reading. If you're working on LLM-driven research loops, autonomous ML agents, or low-SNR financial prediction — I'd love to hear from you. The checkpointing and reproduction protocols from this project are the parts I think generalize best; grab them and adapt them.*
+- Bailey, D. H., & Lopez de Prado, M. (2014). The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting, and Non-Normality. *Journal of Portfolio Management*.
+- Fischer, T., & Krauss, C. (2018). Deep learning with long short-term memory networks for financial market predictions. *European Journal of Operational Research*, 270(2), 654–669.
+- Gal, Y., & Ghahramani, Z. (2016). Dropout as a Bayesian approximation: Representing model uncertainty in deep learning. *Proceedings of ICML*.
+- Goyal, P., et al. (2017). Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour. *arXiv:1706.02677*.
+- Gu, S., Kelly, B., & Xiu, D. (2020). Empirical Asset Pricing via Machine Learning. *Review of Financial Studies*, 33(5), 2223–2273.
+- He, K., Zhang, X., Ren, S., & Sun, J. (2016). Deep Residual Learning for Image Recognition. *Proceedings of CVPR*.
+- Hinton, G., et al. (2012). Improving neural networks by preventing co-adaptation of feature detectors. *arXiv:1207.0580*.
+- Howard, J., & Ruder, S. (2018). Universal Language Model Fine-tuning for Text Classification. *Proceedings of ACL*.
+- Hu, E., et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models. *Proceedings of ICLR 2022*.
+- Huber, P. J. (1964). Robust Estimation of a Location Parameter. *Annals of Mathematical Statistics*, 35(1), 73–101.
+- Kendall, A., & Gal, Y. (2017). What Uncertainties Do We Need in Bayesian Deep Learning for Computer Vision? *Proceedings of NeurIPS*.
+- Lopez de Prado, M. (2018). *Advances in Financial Machine Learning*. Wiley.
+- Sezer, O. B., Gudelek, M. U., & Ozbayoglu, A. M. (2020). Financial time series forecasting with deep learning: A systematic literature review. *Applied Soft Computing*, 90.
+- Srivastava, N., et al. (2014). Dropout: A simple way to prevent neural networks from overfitting. *JMLR*, 15(56), 1929–1958.
