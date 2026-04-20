@@ -1,0 +1,28 @@
+title: AutoResearch
+description: Karpathy-style autonomous FX prediction — LLM-driven research loop, 104 experiments, residual MLP champion test Sharpe +6.21
+theme: jekyll-theme-cayman
+url: https://dlmastery.github.io
+baseurl: /autoresearch
+
+# Rendering
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  hard_wrap: false
+
+# Navigation
+show_downloads: true
+github:
+  repository_url: https://github.com/dlmastery/autoresearch
+  repository_nwo: dlmastery/autoresearch
+  owner_name: dlmastery
+  owner_url: https://github.com/dlmastery
+
+# Exclude non-content
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - .bundle

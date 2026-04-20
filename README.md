@@ -11,7 +11,8 @@
     <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
     <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.5%2B-ee4c2c.svg" alt="PyTorch 2.5+"></a>
     <a href="#license"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
-    <a href="https://github.com/dlmastery/autoresearch"><img src="https://img.shields.io/badge/experiments-90-orange.svg" alt="90 Experiments"></a>
+    <a href="https://github.com/dlmastery/autoresearch"><img src="https://img.shields.io/badge/experiments-104-orange.svg" alt="104 Experiments"></a>
+    <a href="https://dlmastery.github.io/autoresearch/"><img src="https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg" alt="GitHub Pages"></a>
     <a href="#champion-model-results"><img src="https://img.shields.io/badge/test%20Sharpe-+6.21-brightgreen.svg" alt="Test Sharpe +6.21"></a>
     <a href="#champion-model-results"><img src="https://img.shields.io/badge/total%20return-+1%2C001%25-brightgreen.svg" alt="Total Return +1,001%"></a>
     <a href="#champion-model-results"><img src="https://img.shields.io/badge/positive%20folds-7%2F7-brightgreen.svg" alt="7/7 Folds Positive"></a>
