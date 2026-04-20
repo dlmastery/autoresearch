@@ -74,3 +74,10 @@ Research / educational use. Past backtest performance on EUR/USD ≠ live tradin
 ---
 
 *Built with Claude Code as the outer research loop. Hardware: Intel i9-14900HX (degraded), RTX 4090 Laptop (unused for champion — CPU-only trains in 52s).*
+
+
+---
+
+## Live experiment dashboard
+
+[Live dashboard](./dashboard/) — every experiment, per-fold Sharpe/IC/hit-rate, click a row to see its arXiv-cited reasoning. Auto-synced from `autoresearch/autoresearch_results/` on every commit per CLAUDE.md 'GitHub Pages Dashboard Sync' rule.
