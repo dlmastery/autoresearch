@@ -81,7 +81,8 @@
   </div>
 </div>
 
-<div class="section-title">Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for per-window breakdown, click header to sort — scrollable, max ~12 rows visible)</span></div>
+<div class="section-title">Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for per-window breakdown, click header to sort)</span></div>
+<div id="backbone-tabs" style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap"></div>
 <div id="exp-table-scroll" style="max-height:480px;overflow-y:auto;border:1px solid #30363d;border-radius:6px;position:relative">
 <table id="exp-table" style="margin-bottom:0">
   <thead>
@@ -418,10 +419,29 @@ document.getElementById('exp-table').addEventListener('click', e => {
   renderExpTable();
 });
 
+let activeBackbone = 'all';
+function renderBackboneTabs() {
+  const counts = {};
+  allEntries.forEach(e => { const b = e.backbone || 'unknown'; counts[b] = (counts[b]||0)+1; });
+  const backbones = ['all', ...Object.keys(counts).sort()];
+  const tabBar = document.getElementById('backbone-tabs');
+  if (!tabBar) return;
+  tabBar.innerHTML = backbones.map(b => {
+    const cnt = b === 'all' ? allEntries.length : (counts[b] || 0);
+    const isActive = b === activeBackbone;
+    const bg = isActive ? '#1a2332' : '#21262d';
+    const col = isActive ? '#58a6ff' : '#8b949e';
+    const bd = isActive ? 'border:1px solid #58a6ff' : 'border:1px solid #30363d';
+    return `<button onclick="setBackboneTab('${b}')" style="${bd};background:${bg};color:${col};padding:6px 14px;border-radius:4px;cursor:pointer;font-size:0.85em;font-weight:600">${b.toUpperCase()} (${cnt})</button>`;
+  }).join('');
+}
+function setBackboneTab(b) { activeBackbone = b; renderBackboneTabs(); renderExpTable(); }
+
 function renderExpTable() {
-  const validEntries = allEntries.filter(e => e.composite != null && e.status !== 'CRASH');
+  const filteredEntries = activeBackbone === 'all' ? allEntries : allEntries.filter(e => (e.backbone||'unknown') === activeBackbone);
+  const validEntries = filteredEntries.filter(e => e.composite != null && e.status !== 'CRASH');
   const bestComposite = validEntries.length ? Math.max(...validEntries.map(e => e.composite)) : -999;
-  const sorted = applySortToEntries(allEntries);
+  const sorted = applySortToEntries(filteredEntries);
   const tbody = document.getElementById('exp-body');
   tbody.innerHTML = sorted.map(e => {
     const origIdx = allEntries.indexOf(e);
@@ -562,6 +582,7 @@ async function refresh() {
       `Confidence: ${winner.confidence_mean != null ? fmt(winner.confidence_mean, 3) : '--'}    Aleatoric: ${winner.aleatoric_mean != null ? winner.aleatoric_mean.toExponential(2) : '--'}    Epistemic: ${winner.epistemic_mean != null ? winner.epistemic_mean.toExponential(2) : '--'}`;
   }
 
+  renderBackboneTabs();
   renderExpTable();
 
   // Best run per-window

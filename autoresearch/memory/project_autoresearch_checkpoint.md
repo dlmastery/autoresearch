@@ -1,126 +1,62 @@
 ---
 name: Autoresearch Checkpoint
-description: 99 exps. Champion Exp41 +5.499/+6.2113 (VERIFIED POST-5th-CRASH). HW cap 60%, turbo off, P-cores only.
+description: 108 exps. NEW GLOBAL CHAMPION: LSTM Exp4 composite +6.0725 test Sharpe +6.2282 (beat MLP +5.499).
 type: project
 ---
 
-## 2026-04-19 5th-CRASH MITIGATION APPLIED
-New mitigations this session (after 5 BSODs today, i9-14900HX degraded):
-1. CPU max freq **capped at 60%** (`powercfg PROCTHROTTLEMAX=60`) — base 2200MHz, max ~1320MHz
-2. CPU min freq floor at 30%
-3. Intel **Turbo Boost DISABLED** (`powercfg PERFBOOSTMODE=0`)
-4. **156 user processes pinned to P-cores** (affinity mask 0xFFFF, logical 0-15)
-5. HWiNFO64 installed for real-time monitoring
-
-Previous mitigations (still active):
-1. `run_autoresearch.py`: `_pin_to_safe_cores()` pins Python to 4 P-core threads [0,2,4,6]
-2. E-cores APIC 16,17,24,25 banned (WHEA parity errors)
-3. Runner env override: `AUTORESEARCH_USE_ALL_CORES=1` or `AUTORESEARCH_N_THREADS=N`
-
-## Champion VERIFIED at 60% CPU cap (2026-04-19 17:30)
-Reproduced deterministically seed=0 CPU-only 60% cap → **composite +5.4990 exactly, test Sharpe +6.2113 exactly**. 52s training. No crash.
-
-
 ## Session Recovery
-1. Read this checkpoint
-2. Verify JSONL tail (97 entries) + best_config.json
-3. Start dashboard: `"C:/Users/evija/anaconda3/python.exe" -m http.server 8765 --directory C:/Users/evija/autoresearch/autoresearch/autoresearch_results`
-4. Dashboard at http://localhost:8765/dashboard.html
-5. Resume from next experiment below
+1. Read this
+2. Read `memory/project_hardware_crash_log.md` (CPU 60% cap, Turbo off, P-core only, no crashes since mitigation)
+3. Read JSONL tail
+4. Dashboard at http://localhost:8765/dashboard.html (now has per-backbone tabs)
 
-## HARDWARE CRASH DIAGNOSIS (2026-04-19)
-**NOT a software bug. CPU hardware instability.** Windows Event Log shows:
+## 🏆 GLOBAL CHAMPION (across ALL backbones)
+**LSTM Exp4** (108 in JSONL) — composite **+6.0725**, test Sharpe **+6.2282**, 7/7 positive test folds
+- Config: lr=1e-3, bs=32, seq=10, ep=100, wd=1e-5, pat=15, huber=1.0, hd=0.25, seed=0, het_loss=False
+- Architecture: Bidirectional 2-layer LSTM, hidden=128
+- Early-stopped at epoch 30
+- +1007% return on held-out test (1000 → 11074)
+- Archived at `winners/lstm_exp4_hd025_seed0/` (all 17 artifacts)
 
-**Today (2026-04-19) — 4 BSODs:**
-- 14:45 — 0x0000007f UNEXPECTED_KERNEL_MODE_TRAP
-- 15:54 — 0x000001ca SYNTHETIC_WATCHDOG_TIMEOUT
-- 16:06 — 0x0000001e KMODE_EXCEPTION_NOT_HANDLED
-- 17:08 — 0x00000101 CLOCK_WATCHDOG_TIMEOUT
+Previous champion (now 2nd): MLP residual Exp42, composite +5.499.
 
-Different bugchecks + no common pattern = hallmark of hardware instability.
+## Per-Backbone Status
+| Backbone | Exps | Best Comp | Best Test Sharpe | Status |
+|----------|------|-----------|------------------|--------|
+| lfm2-350m | 43 | +1.77 | +2.07 | Done |
+| mlp | 54 | +5.499 | +6.21 | Done |
+| lstm | **4** | **+6.07** | **+6.23** | **IN PROGRESS (4/50) — GLOBAL WINNER** |
+| patchtst | 0 | - | - | Pending |
+| patchtsmixer | 0 | - | - | Pending |
+| xgboost | 0 | - | - | Pending |
+| lightgbm | 0 | - | - | Pending |
+| catboost | 0 | - | - | Pending |
 
-**2026-04-15 — WHEA CPU Corrected Machine Check errors:**
-- Internal parity errors on cores APIC 16, 17, 24, 25
-- TLB errors on same cores
+## LSTM Experiment Summary
+| # | Change | Composite | Test Sharpe | Key learning |
+|---|--------|-----------|-------------|--------------|
+| 1 | SOTA baseline lr=1e-3 ep=50 pat=10 | +4.12 | +4.32 | Good baseline |
+| 2 | huber=0.5 | +3.98 | +4.18 | DISCARD — LSTM doesn't respond to huber delta like MLP |
+| 3 | ep=100 pat=15 (Fischer&Krauss SOTA) | +5.06 | +5.81 | KEEP — more epochs + patience helps |
+| **4** | **hd=0.25** | **+6.07** | **+6.23** | **GLOBAL CHAMPION — head dropout 0.15→0.25 fixed fold 2** |
 
-**Root cause:** BIOS update reset voltage/C-state settings. Bad cores (16,17,24,25) fail under sustained compute.
+## Next LSTM Experiment (5/50)
+**Hypothesis:** hd=0.25 was the key. Try hd=0.30 — maybe even more dropout helps. Or try hidden_size=64 (half) for more regularization by capacity reduction per Gu et al. 2020.
 
-### User action items (hardware):
-1. BIOS: disable C-states, set Intel SVID to "Fail Safe", check power limits
-2. Reseat RAM (SODIMM)
-3. Run MemTest86 overnight
-4. Update Intel chipset + MEI drivers
-5. Roll back BIOS if recent version unstable
-
-### Software mitigation (until fixed):
-1. **Force CPU-only** — set `CUDA_VISIBLE_DEVICES=""` before runs
-2. MLP trains in 15s CPU — doesn't need GPU
-3. Already saving model after every experiment (good)
-4. Checkpoint after every experiment (ALWAYS)
-
-## CURRENT CHAMPION: Exp41 (Residual MLP)
-
-**Config:**
-- Architecture: Residual MLP (shortcut + 2-layer, hidden=128, head=64)
-- lr=5e-4, bs=32, seq=10, ep=50
-- wd=1e-5, pat=10, gc=1.0
-- huber=0.5, hd=0.15
-- seed=0, het_loss=False
-
-**Composite +5.50 | Test Sharpe +6.21 | 7/7 positive test folds | Return +1001%**
-
-### Per-fold test (champion)
-| Fold | Period | Regime | Sharpe | IC | WR |
-|------|--------|--------|--------|-----|-----|
-| 1 | 2006-08 | Pre-crisis/GFC | +2.46 | +0.19 | 60% |
-| 2 | 2009-10 | Post-crash | +0.44 | +0.08 | 51% |
-| 3 | 2011-12 | EZ debt | +9.76 | +0.58 | 75% |
-| 4 | 2014-16 | Strong USD | +9.78 | +0.67 | 75% |
-| 5 | 2017-19 | Low-vol | +8.85 | +0.64 | 71% |
-| 6 | 2020-21 | COVID | +10.22 | +0.64 | 72% |
-| 7 | 2023-24 | Recent | +8.33 | +0.62 | 71% |
-
-### Cross-seed verified (median test Sharpe +4.76)
-| Seed | Composite | Test Sharpe |
-|------|-----------|-------------|
-| 0 | +5.50 | +6.21 |
-| 42 | +4.45 | +4.69 |
-| 99 | +4.46 | +4.76 |
-
-## Experiment History
-- **LFM2**: 50 exps (median test Sharpe +1.40, best +2.07)
-- **MLP**: 47 exps (champion +6.21)
-
-### Key Architectural Discoveries
-1. Residual skip (He 2016): +0.82 → +4.24 Sharpe
-2. Higher LR 5e-4 enabled by skip: +4.24 → +5.23
-3. hd=0.15: +5.23 → +6.21
-4. huber=0.5: regime-balancing (helps fold 2)
-5. MLP 512h→128h: essential (Gu Kelly Xiu 2020)
-6. 50 epochs for from-scratch training
-7. Heteroscedastic loss HURT on n=2738 — disabled
-8. BatchNorm HURT (removes regime-scale info)
-
-### Exhausted MLP Axes
-- Architecture: plain → **residual skip**
-- Hidden: 512, **128**
-- LR: 3e-4, **5e-4**, 7e-4
-- Epochs: 20, **50**, 100
-- Head dropout: 0.1, **0.15**, 0.2
-- Huber delta: **0.5**, 1.0
-- Seq len: **10**, 20
-- Batch size: 16, **32**, 64
-- Warmup: 0, **3** (Exp38 small improvement +4.89)
-- Seeds verified: 0, 42, 99
-
-## Next Experiments (continue to 50 MLP total)
-Currently at 47 MLP exps. 3 remaining before LSTM.
-
-**STEP 1: Re-verify champion post-crash (CPU-only)**
+### Option A (explore dropout direction further):
 ```bash
-cd C:/Users/evija/autoresearch && CUDA_VISIBLE_DEVICES="" "C:/Users/evija/anaconda3/python.exe" -m autoresearch.run_autoresearch --backbone mlp --lr 5e-4 --batch-size 32 --seq-len 10 --epochs 50 --weight-decay 1e-5 --patience 10 --grad-clip 1.0 --huber-delta 0.5 --head-dropout 0.15 --seed 0 --description "mlp: Exp42 POST-CRASH CPU verify champion Exp41 (must match)"
+python -m autoresearch.run_autoresearch --backbone lstm --lr 1e-3 --batch-size 32 --seq-len 10 --epochs 100 --weight-decay 1e-5 --patience 15 --grad-clip 1.0 --huber-delta 1.0 --head-dropout 0.30 --seed 0 --description "lstm: Exp5 hd=0.30 push dropout further"
 ```
 
-**STEP 2-3: Final MLP explorations before LSTM**
-- grad_clip=0.5 (tighter clipping for lr=5e-4)
-- lr=4e-4 (between 3e-4 and 5e-4)
+### Option B (capacity reduction):
+```bash
+python -m autoresearch.run_autoresearch --backbone lstm --lr 1e-3 --batch-size 32 --seq-len 10 --epochs 100 --weight-decay 1e-5 --patience 15 --grad-clip 1.0 --huber-delta 1.0 --head-dropout 0.25 --hidden-size 64 --seed 0 --description "lstm: Exp6 hidden=64 Gu2020 SOTA LSTM capacity"
+```
+
+Try A first — smaller perturbation from new champion.
+
+## Hardware Mitigations Active
+- CPU max 60%, min 30%, Turbo OFF
+- 156 user processes pinned to P-cores (0xFFFF)
+- Python runner `_pin_to_safe_cores()` active (4 threads)
+- **0 crashes since mitigation (17:30 today) — even with GPU enabled in Exp2**

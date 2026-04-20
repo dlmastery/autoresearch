@@ -199,6 +199,58 @@ When a new champion is found, produce a full data-scientist-grade audit to `auto
 
 **Implementation:** Add `run_audit_report.py` that takes a `best_model.pt` path and produces the full report. Run it automatically when `composite > prev_best` in the runner.
 
+### Winner Definition (CLARIFICATION)
+
+**"Winner" means the GLOBAL champion across ALL backbones and ALL experiments.** Not per-backbone. The one single best model (by composite score) at any point in time.
+
+Per-backbone best is tracked separately in the checkpoint but does NOT get archived to `winners/` unless it is also the global best.
+
+When a new experiment beats the global composite:
+1. Save artifacts to `autoresearch_results/winners/<backbone>_exp<N>_<desc>/`
+2. Include: README.md, config.json, model_checkpoint.pt, code/ (frozen snapshot), inference/, reproduction/, audit_report.md (14 sections per audit rules)
+3. Update `best_config.json` at repo root
+
+### Per-Backbone Code Snapshots (MANDATORY)
+
+Before starting experiments on a new backbone, snapshot the CURRENT `model/backbone.py` and `model/train.py` to `code_versions/<backbone>_start/` so you can diff what changed during that backbone's exploration. This prevents mixing MLP-specific changes into LSTM exploration, etc.
+
+```
+code_versions/
+  v1_original/                 # pre-any-change snapshot
+  v2_residual_mlp/             # after residual skip connection (MLP champion)
+  v3_residual_128h/            # MLP mid-session snapshot
+  lstm_start/                  # snapshot before LSTM experiments begin
+  patchtst_start/              # snapshot before PatchTST experiments begin
+  ...
+```
+
+Rule: never modify `backbone.py` code specific to backbone X while experiments on backbone Y are in progress. Finish one backbone's 50 experiments, snapshot, then move on.
+
+### Per-Backbone SOTA Training Recipes (starting points for Experiment 1/50)
+
+Always start a new backbone with the literature-recommended SOTA config. Then iterate. **Epoch and patience counts are backbone-specific — do NOT reuse MLP's ep=50 for LSTM/Transformer/PatchTST.**
+
+| Backbone | Epochs | Patience | LR | Batch | Citation |
+|----------|--------|----------|-----|-------|----------|
+| mlp | 50 | 10 | 3e-4 | 32 | Gu, Kelly & Xiu 2020 RFS (financial MLP) |
+| lstm | 100 | 15 | 1e-3 | 32 | Fischer & Krauss 2018 EJOR (financial LSTM) |
+| lfm2-350m | 20 | 5 | 2e-5 | 32 | Head-only fine-tuning conv. (Devlin 2019, Hu 2022) |
+| patchtst | 100 | 20 | 1e-4 | 32 | Nie et al. 2023 ICLR |
+| patchtsmixer | 100 | 20 | 1e-3 | 32 | Ekambaram et al. 2023 NeurIPS |
+| xgboost | n/a | n/a | 0.03 (lr) | — | Chen & Guestrin 2016 (500-2000 iters) |
+| lightgbm | n/a | n/a | 0.03 (lr) | — | Ke et al. 2017 (500-2000 iters) |
+| catboost | n/a | n/a | 0.03 (lr) | — | Prokhorenkova 2018 (500-2000 iters) |
+
+**Empirical evidence for LSTM epoch bump:** LSTM Exp3 (ep=100 pat=15) beat Exp1 (ep=50 pat=10) by +0.94 composite, confirming Fischer & Krauss 2018 SOTA prescription.
+
+### Backbone Isolation Rule
+
+Before starting experiments on a new backbone, snapshot `model/backbone.py`, `model/train.py`, `run_autoresearch.py` to `code_versions/<backbone>_start/`. Do NOT modify backbone code specific to backbone X while experiments on backbone Y are in progress. Complete one backbone's 50-experiment cycle, snapshot as `<backbone>_final/`, then move to next backbone.
+
+### Dashboard Backbone Tabs
+
+Dashboard (`dashboard.html`) renders a backbone tab bar above the experiment list. Default view shows "ALL". Tabs filter the scrollable experiment list to just that backbone's experiments. Click to switch.
+
 ### Heteroscedastic Loss Rules (Kendall & Gal 2017)
 - The model outputs mean + log_variance per prediction. Loss = `exp(-s) * huber(mu, y) + 0.5 * s`.
 - **Variance-branch dominance is the #1 failure mode.** If aleatoric > 0.2, the model is copping out to high variance instead of learning signal. Fix: higher LR, more epochs, or clamp log_var.
