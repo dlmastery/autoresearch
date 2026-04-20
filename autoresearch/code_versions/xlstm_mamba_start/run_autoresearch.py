@@ -347,10 +347,7 @@ def _run_experiment_inner(backbone, config, description):
                              bidirectional=config.get("bidirectional"),
                              num_layers=config.get("num_layers"),
                              rnn_cell=config.get("rnn_cell"),
-                             input_layernorm=config.get("input_layernorm", False),
-                             mamba_variant=config.get("mamba_variant"),
-                             mamba_d_state=config.get("mamba_d_state"),
-                             mamba_expand=config.get("mamba_expand")).to(device)
+                             input_layernorm=config.get("input_layernorm", False)).to(device)
         result = train_one_fold(
             model, train_feat, train_tgt, val_feat, val_tgt,
             scaler=scaler, epochs=config["epochs"], seq_len=seq_len,
@@ -607,9 +604,6 @@ def main():
     parser.add_argument("--num-layers", type=int, default=None, help="LSTM only: number of stacked LSTM layers (default 2)")
     parser.add_argument("--rnn-cell", type=str, default=None, choices=["lstm","gru"], help="LSTM backbone: use 'lstm' (default) or 'gru' cell")
     parser.add_argument("--input-layernorm", action="store_true", help="LSTM backbone: apply LayerNorm over input features per timestep (Ba 2016)")
-    parser.add_argument("--mamba-variant", type=str, default=None, choices=["vanilla","s_mamba","dmamba","mambats"], help="Mamba backbone: select variant (Gu&Dao 2024 / arXiv 2403.11144 / 2602.09081 / 2405.16440)")
-    parser.add_argument("--mamba-d-state", type=int, default=None, help="Mamba backbone: state dimension d_state (default 16)")
-    parser.add_argument("--mamba-expand", type=int, default=None, help="Mamba backbone: inner expansion factor (default 2)")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
     parser.add_argument("--het-loss", action="store_true", default=False, help="Use heteroscedastic loss (default: plain Huber)")
     parser.add_argument("--description", required=True)
@@ -640,12 +634,6 @@ def main():
         config["rnn_cell"] = args.rnn_cell
     if args.input_layernorm:
         config["input_layernorm"] = True
-    if args.mamba_variant is not None:
-        config["mamba_variant"] = args.mamba_variant
-    if args.mamba_d_state is not None:
-        config["mamba_d_state"] = args.mamba_d_state
-    if args.mamba_expand is not None:
-        config["mamba_expand"] = args.mamba_expand
     config["het_loss"] = args.het_loss
 
     run_single_experiment(backbone, config, args.description)

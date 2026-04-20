@@ -1,8 +1,52 @@
 ---
 name: Autoresearch Checkpoint
-description: 147 exps. GLOBAL CHAMPION LSTM Exp35 (wd=7e-4 bs=16 seed=42) composite +6.4242 test Sharpe +6.5242. LSTM 44/50.
+description: 152 exps. GLOBAL CHAMPION LSTM Exp35 composite +6.4242. LSTM halted 46/50 per user. NOW IN MAMBA PHASE 1/50 (Exp152 +5.27 val fold 2 breakthrough).
 type: project
 ---
+
+## PHASE TRANSITION 2026-04-19
+- **LSTM phase halted** at 46/50 per user instruction ("enough lstm - move on to mamba")
+- Champion preserved: LSTM Exp35 (bs=16 wd=7e-4 seed=42) composite +6.4242
+- **Mamba phase STARTED** — Exp1/50 complete, exceeded first-experiment prediction
+
+## Mamba Phase — Experiments so far
+**Exp1 (JSONL 152) vanilla — composite +5.2714** (test Sharpe +5.37, val Sharpe +6.30)
+- Test 6/7 positive (fold 2 at −0.98); Val 7/7 positive; Val fold 2 = +1.37 (LSTM ≈ 0 — SSM breakthrough)
+- Config: d_model=128, d_state=16, expand=2, 2-layer, lr=5e-4, bs=32, wd=0.1, warmup=10, ep=100, pat=20, seed=42
+- Runtime 359s (naive O(L) scan)
+
+**Exp2 (JSONL 153) s_mamba — NULL EXPERIMENT.** Bit-identical composite +5.2714 because the s_mamba branch in SelectiveSSM was a no-op placeholder at the time of the run. FIXED in backbone.py after the fact (added _forward_s_mamba implementing proper variate-axis scan per Liu 2024 arXiv:2403.11144). Re-running s_mamba next.
+
+## Checkpoint Discipline (user-requested 2026-04-19 session)
+- **Checkpoint every 10 minutes minimum** during active work
+- Every experiment auto-triggers checkpoint update (experiments are 6-7 min each)
+- Before/after every code change, update this file with a note on what changed
+- Runner auto-writes experiment_log.jsonl + trade_logs + reasoning_annotations on each run
+
+## Next Mamba Experiments (in order)
+1. **Exp3 (JSONL 154): re-run s_mamba** now that _forward_s_mamba has real variate-axis scan
+2. **Exp4: dmamba** — trend+seasonal decomposition (arXiv:2602.09081) — already implemented
+3. **Exp5: vanilla d_state=32** — double state capacity
+4. **Exp6: vanilla d_state=8** — half state capacity (regularise)
+5. **Exp7: vanilla expand=1** — minimal inner dim
+6. **Exp8: vanilla expand=4** — larger inner dim
+
+## Next Mamba Experiments (planned)
+- **Exp2**: `--mamba-variant s_mamba` — channel-token inversion (Liu 2024 arXiv:2403.11144)
+- **Exp3**: `--mamba-variant dmamba` — trend+seasonal decomposition (arXiv:2602.09081)
+- **Exp4**: `--mamba-variant mambats` — LTSF-tuned (Cai et al. 2024 arXiv:2405.16440)
+- **Exp5**: d_state=32 (2x state capacity)
+- **Exp6**: d_state=8 (½ state capacity — regularise)
+- **Exp7**: expand=1 (minimal inner dim)
+- **Exp8**: expand=4 (larger inner dim)
+- **Exp9-10**: num_layers ∈ {1, 3}
+- **Exp11-15**: HP tuning around winner (lr, wd, bs, head_dropout, warmup)
+- **Exp16-20**: multi-seed variance on best variant
+- **Exp21-40**: cross-variant combinations + hyperparameter refinement
+- **Exp41-50**: LSTM+Mamba ensemble experiments (they are clearly complementary on fold 2)
+
+## LEGACY (unchanged below)
+
 
 ## Session Recovery
 1. Read this

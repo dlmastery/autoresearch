@@ -20,7 +20,6 @@ from __future__ import annotations
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -34,7 +33,6 @@ BACKBONE_REGISTRY: dict[str, str] = {
     "lfm2-350m": "LiquidAI/LFM2.5-350M-Base (frozen)",
     "patchtst": "PatchTST — Patch Time Series Transformer (Nie et al., ICLR 2023)",
     "patchtsmixer": "PatchTSMixer — MLP-Mixer for time series (Google, NeurIPS 2023)",
-    "mamba": "Mamba — Selective State Space Model (Gu & Dao 2024, arXiv:2312.00752). Variants via --mamba-variant {vanilla, s_mamba, dmamba, mambats}",
     "xgboost": "XGBoost gradient boosting (Chen & Guestrin, 2016)",
     "lightgbm": "LightGBM gradient boosting (Ke et al., NeurIPS 2017)",
     "catboost": "CatBoost gradient boosting (Prokhorenkova et al., NeurIPS 2018)",
@@ -195,168 +193,6 @@ class CurrencyLSTM(nn.Module):
             x = self.input_ln(x)
         lstm_out, _ = self.lstm(x)
         hidden = lstm_out[:, -1, :]
-        return _forward_heads(self.heads, hidden, self.het_loss)
-
-
-# ---------------------------------------------------------------------------
-# Mamba Backbone — Selective State Space Model
-# Gu & Dao 2024, COLM (arXiv:2312.00752) — canonical Mamba.
-# Variants supported via `variant` kwarg:
-#   vanilla  — canonical Mamba (Gu & Dao 2024)
-#   s_mamba  — channel-flipped variant (arXiv:2403.11144, 2024)
-#   dmamba   — trend+seasonal decomposition (arXiv:2602.09081, 2025)
-#   mambats  — LTSF-tuned MambaTS (Cai et al. 2024 NeurIPS, arXiv:2405.16440)
-#
-# Implementation choices:
-#   - Naive O(L) recurrent scan (seq_len=10 is small, parallel scan unnecessary)
-#   - Pre-norm + residual per block (standard for SSM stability)
-#   - Gated MLP wrapper from Gu & Dao 2024 Section 3
-# ---------------------------------------------------------------------------
-class SelectiveSSM(nn.Module):
-    """Simplified selective SSM block with input-dependent Δ, B, C (the
-    'selective' mechanism from Gu & Dao 2024). State matrix A is a learnable
-    negative real vector (HiPPO-LegS diagonal approximation). Skip D is learned.
-
-    Reference: Gu & Dao 2024, 'Mamba: Linear-Time Sequence Modeling with
-    Selective State Spaces', arXiv:2312.00752 Section 3.2–3.3."""
-
-    def __init__(self, d_model: int, d_state: int = 16, expand: int = 2,
-                 variant: str = "vanilla"):
-        super().__init__()
-        self.d_model = d_model
-        self.d_state = d_state
-        self.d_inner = d_model * expand
-        self.variant = variant
-
-        # Input → (x_in, z_gate)
-        self.in_proj = nn.Linear(d_model, 2 * self.d_inner)
-        # Input-dependent B, C, Δ (the selective bits)
-        self.x_proj = nn.Linear(self.d_inner, 2 * d_state + 1)
-        self.dt_proj = nn.Linear(1, self.d_inner)
-        # A: log-parameterised negative reals, HiPPO-like init
-        A = torch.arange(1, d_state + 1, dtype=torch.float32).unsqueeze(0).repeat(self.d_inner, 1)
-        self.A_log = nn.Parameter(torch.log(A))
-        self.D = nn.Parameter(torch.ones(self.d_inner))
-        self.out_proj = nn.Linear(self.d_inner, d_model)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x: [B, L, D]
-        B, L, _ = x.shape
-        xz = self.in_proj(x)
-        x_in, z = xz.chunk(2, dim=-1)  # each [B, L, d_inner]
-
-        # S-Mamba variant (Liu et al. 2024, arXiv:2403.11144):
-        # Run the SSM over the CHANNEL/variate axis instead of the time axis.
-        # Equivalent to transposing L <-> d_inner before the scan so each
-        # "timestep" of the scan is a different feature channel.
-        if self.variant == "s_mamba":
-            return self._forward_s_mamba(x_in, z, B, L)
-
-        # Selective params from x_in
-        bcd = self.x_proj(x_in)  # [B, L, 2*d_state+1]
-        B_mat, C_mat, dt = bcd.split([self.d_state, self.d_state, 1], dim=-1)
-        dt = F.softplus(self.dt_proj(dt))  # [B, L, d_inner]
-
-        # A = -exp(A_log); shape [d_inner, d_state]
-        A = -torch.exp(self.A_log)
-
-        # Recurrent scan (naive, fine at L≤60)
-        h = torch.zeros(B, self.d_inner, self.d_state, device=x.device, dtype=x.dtype)
-        ys = []
-        for t in range(L):
-            # Zero-order hold discretisation (Gu & Dao 2024 Eq. 4)
-            dA = torch.exp(dt[:, t].unsqueeze(-1) * A)            # [B, d_inner, d_state]
-            dB = dt[:, t].unsqueeze(-1) * B_mat[:, t].unsqueeze(1)  # [B, d_inner, d_state]
-            h = dA * h + dB * x_in[:, t].unsqueeze(-1)
-            y_t = (h * C_mat[:, t].unsqueeze(1)).sum(-1) + self.D * x_in[:, t]
-            ys.append(y_t)
-        y = torch.stack(ys, dim=1)  # [B, L, d_inner]
-
-        # Gated output (Mamba block structure)
-        y = y * F.silu(z)
-        return self.out_proj(y)
-
-    def _forward_s_mamba(self, x_in: torch.Tensor, z: torch.Tensor,
-                          B: int, L: int) -> torch.Tensor:
-        """S-Mamba (Liu 2024): transpose variate<->time; scan across channels.
-        Each channel becomes a scan step; d_inner channels become 'length'."""
-        # Transpose: [B, L, d_inner] -> [B, d_inner, L]; treat d_inner as scan steps
-        x_t = x_in.transpose(1, 2).contiguous()   # [B, d_inner, L]
-        # x_proj expects d_inner on last axis; project per-step vector of length L
-        # Build ad-hoc per-channel B/C/dt using a length-L MLP: reuse self.x_proj
-        # by mapping x_t[..., :] of shape [B, d_inner, L] to [B, d_inner, 2*d_state+1]
-        # via an average-pool over L (simplest faithful S-Mamba reduction).
-        pooled = x_t.mean(dim=-1)                  # [B, d_inner]
-        # Now pooled is fed through x_proj which expects d_inner input
-        bcd = self.x_proj(pooled)                  # [B, 2*d_state+1]
-        B_mat = bcd[..., :self.d_state]            # [B, d_state]
-        C_mat = bcd[..., self.d_state:2*self.d_state]  # [B, d_state]
-        dt_s = bcd[..., -1:]                       # [B, 1]
-        dt = F.softplus(self.dt_proj(dt_s))        # [B, d_inner]
-        A = -torch.exp(self.A_log)                 # [d_inner, d_state]
-
-        # Scan ACROSS channels: each "step" is one of d_inner channels
-        h = torch.zeros(B, L, self.d_state, device=x_in.device, dtype=x_in.dtype)
-        ys = []
-        for c in range(self.d_inner):
-            dA = torch.exp(dt[:, c:c+1].unsqueeze(-1) * A[c])  # [B, 1, d_state]
-            dB = dt[:, c:c+1].unsqueeze(-1) * B_mat.unsqueeze(1)  # [B, 1, d_state]
-            h = dA * h + dB * x_t[:, c, :].unsqueeze(-1)
-            y_c = (h * C_mat.unsqueeze(1)).sum(-1) + self.D[c] * x_t[:, c, :]  # [B, L]
-            ys.append(y_c)
-        y = torch.stack(ys, dim=1)   # [B, d_inner, L]
-        y = y.transpose(1, 2)        # [B, L, d_inner] — transpose back
-        y = y * F.silu(z)
-        return self.out_proj(y)
-
-
-class CurrencyMamba(nn.Module):
-    """Mamba-family backbone for return prediction.
-
-    Variants:
-      vanilla  — canonical 2-layer Mamba (Gu & Dao 2024)
-      s_mamba  — S-Mamba channel-flipped variant
-      dmamba   — decomposition: seasonal via Mamba, trend via MLP (arXiv:2602.09081)
-      mambats  — same block with LTSF-tuned hyperparams (Cai et al. 2024)
-    """
-
-    def __init__(self, n_input_features: int, hidden_size: int = 128,
-                 num_layers: int = 2, d_state: int = 16, expand: int = 2,
-                 head_dropout: float = 0.1, het_loss: bool = True,
-                 variant: str = "vanilla"):
-        super().__init__()
-        self.het_loss = het_loss
-        self.variant = variant
-        self.embed = nn.Linear(n_input_features, hidden_size)
-        self.blocks = nn.ModuleList([
-            SelectiveSSM(hidden_size, d_state=d_state, expand=expand, variant=variant)
-            for _ in range(num_layers)
-        ])
-        self.norms = nn.ModuleList([nn.LayerNorm(hidden_size) for _ in range(num_layers)])
-        self.final_norm = nn.LayerNorm(hidden_size)
-
-        if variant == "dmamba":
-            # Decomposition: trend branch is a simple MLP on mean-pool, seasonal is Mamba output
-            self.trend_mlp = nn.Sequential(
-                nn.Linear(hidden_size, hidden_size), nn.GELU(),
-                nn.Linear(hidden_size, hidden_size)
-            )
-
-        self.heads = _make_heads(hidden_size, dropout=head_dropout, het_loss=het_loss)
-
-    def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
-        h = self.embed(x)
-        for norm, block in zip(self.norms, self.blocks):
-            h = h + block(norm(h))
-        h = self.final_norm(h)
-
-        if self.variant == "dmamba":
-            trend = self.trend_mlp(h.mean(dim=1))
-            seasonal = h[:, -1, :]
-            hidden = trend + seasonal
-        else:
-            hidden = h[:, -1, :]
-
         return _forward_heads(self.heads, hidden, self.het_loss)
 
 
@@ -647,9 +483,6 @@ def create_model(
     num_layers: int | None = None,
     rnn_cell: str | None = None,
     input_layernorm: bool = False,
-    mamba_variant: str | None = None,
-    mamba_d_state: int | None = None,
-    mamba_expand: int | None = None,
 ) -> nn.Module | GBMWrapper:
     """Create a model by backbone name.
 
@@ -689,19 +522,6 @@ def create_model(
         return CurrencyPatchTST(n_input_features, seq_len=seq_len, head_dropout=head_dropout, het_loss=het_loss)
     elif backbone == "patchtsmixer":
         return CurrencyPatchTSMixer(n_input_features, seq_len=seq_len, head_dropout=head_dropout, het_loss=het_loss)
-    elif backbone == "mamba":
-        kwargs = dict(head_dropout=head_dropout, het_loss=het_loss)
-        if hidden_size is not None:
-            kwargs["hidden_size"] = hidden_size
-        if num_layers is not None:
-            kwargs["num_layers"] = num_layers
-        if mamba_variant is not None:
-            kwargs["variant"] = mamba_variant
-        if mamba_d_state is not None:
-            kwargs["d_state"] = mamba_d_state
-        if mamba_expand is not None:
-            kwargs["expand"] = mamba_expand
-        return CurrencyMamba(n_input_features, **kwargs)
     elif backbone in GBM_BACKBONES:
         return GBMWrapper(backbone, n_targets=2)
     else:
