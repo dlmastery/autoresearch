@@ -27,7 +27,7 @@ from .data.download import download_all_pairs, download_macro_signals
 from .data.features import compute_all_features, compute_targets
 from .data.splits import FOLDS, split_superfold, validate_purge_embargo, get_fold_dates
 from .evaluation.metrics import (
-    sharpe_ratio, trading_report, information_coefficient, classification_metrics,
+    sharpe_ratio, trading_report, information_coefficient,
     probabilistic_sharpe_ratio,
 )
 from .model.backbone import create_model, get_seq_len, BACKBONE_REGISTRY, is_gbm, GBMWrapper, predict_with_uncertainty
@@ -51,7 +51,6 @@ def _evaluate_per_window(
     all_preds, all_actuals, per_window = [], [], []
     all_aleatoric, all_epistemic, all_confidence = [], [], []
     use_mc = isinstance(model, torch.nn.Module) and window_type != "train"
-    trade_rows = []  # Per-trade records for CSV logging
 
     if window_type == "train":
         data_scaled = pd.DataFrame(
@@ -74,7 +73,6 @@ def _evaluate_per_window(
             returns = np.sign(preds) * actuals
             rpt = trading_report(returns)
             ic = information_coefficient(preds, actuals)
-            cm = classification_metrics(preds, actuals)
             per_window.append({
                 "fold": "all_train", "regime": "Training data",
                 "sharpe": round(sharpe_ratio(returns), 4),
@@ -82,10 +80,6 @@ def _evaluate_per_window(
                 "equity": rpt["final_equity"], "max_dd": rpt["max_drawdown_pct"],
                 "win_rate": rpt["win_rate"], "profit_factor": rpt["profit_factor"],
                 "ic": ic["ic_spearman"], "hit": ic["hit_rate"], "n": len(returns),
-                "precision": cm["precision"], "recall": cm["recall"],
-                "f1": cm["f1"], "f2": cm["f2"], "mcc": cm["mcc"],
-                "accuracy": cm["accuracy"],
-                "tp": cm["tp"], "fp": cm["fp"], "tn": cm["tn"], "fn": cm["fn"],
             })
             all_preds.append(preds)
             all_actuals.append(actuals)
@@ -128,7 +122,6 @@ def _evaluate_per_window(
             returns = np.sign(preds) * actuals
             rpt = trading_report(returns)
             ic = information_coefficient(preds, actuals) if len(returns) > 3 else {"ic_spearman": 0.0, "hit_rate": 0.0}
-            cm = classification_metrics(preds, actuals)
 
             window_entry = {
                 "fold": fold["name"], "regime": fold["regime"],
@@ -137,10 +130,6 @@ def _evaluate_per_window(
                 "equity": rpt["final_equity"], "max_dd": rpt["max_drawdown_pct"],
                 "win_rate": rpt["win_rate"], "profit_factor": rpt["profit_factor"],
                 "ic": ic["ic_spearman"], "hit": ic["hit_rate"], "n": len(returns),
-                "precision": cm["precision"], "recall": cm["recall"],
-                "f1": cm["f1"], "f2": cm["f2"], "mcc": cm["mcc"],
-                "accuracy": cm["accuracy"],
-                "tp": cm["tp"], "fp": cm["fp"], "tn": cm["tn"], "fn": cm["fn"],
             }
 
             if use_mc and w_aleatoric:
@@ -156,30 +145,6 @@ def _evaluate_per_window(
                 all_epistemic.append(epi)
                 all_confidence.append(conf)
 
-            # Per-trade CSV records — dates align with the target position (idx+seq_len-1)
-            fold_dates = wf.index[seq_len - 1 : seq_len - 1 + len(preds)]
-            cum_ret = np.cumprod(1.0 + returns) - 1.0
-            for i, dt in enumerate(fold_dates):
-                ale_i = float(ale[i]) if use_mc and w_aleatoric else None
-                epi_i = float(epi[i]) if use_mc and w_aleatoric else None
-                conf_i = float(conf[i]) if use_mc and w_aleatoric else None
-                trade_rows.append({
-                    "date": str(dt.date()) if hasattr(dt, 'date') else str(dt),
-                    "fold": fold["name"],
-                    "regime": fold["regime"],
-                    "prediction": float(preds[i]),
-                    "pred_direction": int(np.sign(preds[i])) or 1,
-                    "actual_return": float(actuals[i]),
-                    "actual_direction": int(np.sign(actuals[i])) or 1,
-                    "strategy_return": float(returns[i]),
-                    "cumulative_return": float(cum_ret[i]),
-                    "confidence": conf_i,
-                    "aleatoric": ale_i,
-                    "epistemic": epi_i,
-                    "correct": int(np.sign(preds[i]) == np.sign(actuals[i])),
-                    "pnl_bps": float(returns[i] * 10000),
-                })
-
             per_window.append(window_entry)
             all_preds.append(preds)
             all_actuals.append(actuals)
@@ -190,16 +155,12 @@ def _evaluate_per_window(
         ar = np.sign(ap) * aa
         rpt = trading_report(ar)
         ic = information_coefficient(ap, aa)
-        cm = classification_metrics(ap, aa)
         result = {
             "sharpe": round(sharpe_ratio(ar), 4), "psr": round(probabilistic_sharpe_ratio(ar), 4),
             "equity": round(rpt["final_equity"], 2), "sortino": rpt["sortino"],
             "return_pct": rpt["total_return_pct"], "max_dd": rpt["max_drawdown_pct"],
             "win_rate": rpt["win_rate"], "profit_factor": rpt["profit_factor"],
             "ic": ic["ic_spearman"], "hit": ic["hit_rate"],
-            "precision": cm["precision"], "recall": cm["recall"],
-            "f1": cm["f1"], "f2": cm["f2"], "mcc": cm["mcc"],
-            "accuracy": cm["accuracy"],
             "n": len(ar), "per_window": per_window,
         }
         if all_aleatoric:
@@ -209,7 +170,6 @@ def _evaluate_per_window(
             result["aleatoric_mean"] = round(float(agg_ale.mean()), 6)
             result["epistemic_mean"] = round(float(agg_epi.mean()), 6)
             result["confidence_mean"] = round(float(agg_conf.mean()), 4)
-        result["trade_rows"] = trade_rows
         return result
     return {"sharpe": 0.0, "psr": 0.0, "equity": 1000.0, "sortino": 0.0,
             "return_pct": 0.0, "max_dd": 0.0, "win_rate": 0.0, "profit_factor": 0.0,
@@ -345,8 +305,7 @@ def _run_experiment_inner(backbone, config, description):
     for prefix, ev in [("", test_eval), ("val_", val_eval), ("train_", train_eval)]:
         for k in ["sharpe", "psr", "equity", "sortino", "return_pct", "max_dd",
                    "win_rate", "profit_factor", "ic", "hit",
-                   "aleatoric_mean", "epistemic_mean", "confidence_mean",
-                   "precision", "recall", "f1", "f2", "mcc", "accuracy"]:
+                   "aleatoric_mean", "epistemic_mean", "confidence_mean"]:
             if k in ev:
                 entry[prefix + k] = ev[k]
         entry[prefix + "per_window"] = ev.get("per_window", [])
@@ -404,54 +363,14 @@ def _run_experiment_inner(backbone, config, description):
 
     entry["status"] = "KEEP" if composite > prev_best else "DISCARD"
 
-    # Write trade-level CSV (per CLAUDE.md Trade-Level Win/Loss Logging)
-    trade_dir = RESULTS_DIR / "trade_logs"
-    trade_dir.mkdir(exist_ok=True)
-    test_trades = test_eval.get("trade_rows", [])
-    if test_trades:
-        import csv as _csv
-        csv_path = trade_dir / f"exp{entry['experiment_num']}_trades.csv"
-        with open(csv_path, "w", newline="") as f:
-            writer = _csv.DictWriter(f, fieldnames=list(test_trades[0].keys()))
-            writer.writeheader()
-            writer.writerows(test_trades)
-        # Summary stats
-        summary = {"exp": entry["experiment_num"], "total_trades": len(test_trades),
-                   "wins": sum(1 for r in test_trades if r["correct"]),
-                   "losses": sum(1 for r in test_trades if not r["correct"]),
-                   "total_pnl_bps": sum(r["pnl_bps"] for r in test_trades),
-                   "per_fold": {}}
-        from collections import defaultdict
-        by_fold = defaultdict(list)
-        for r in test_trades:
-            by_fold[r["fold"]].append(r)
-        for fn, rows in by_fold.items():
-            wins = [r["pnl_bps"] for r in rows if r["correct"]]
-            losses = [r["pnl_bps"] for r in rows if not r["correct"]]
-            summary["per_fold"][fn] = {
-                "n": len(rows), "wins": len(wins), "losses": len(losses),
-                "avg_win_bps": round(float(np.mean(wins)), 2) if wins else 0.0,
-                "avg_loss_bps": round(float(np.mean(losses)), 2) if losses else 0.0,
-                "max_win_bps": round(float(np.max(wins)), 2) if wins else 0.0,
-                "max_loss_bps": round(float(np.min(losses)), 2) if losses else 0.0,
-                "win_rate": round(len(wins)/len(rows)*100, 2) if rows else 0.0,
-            }
-        with open(trade_dir / f"exp{entry['experiment_num']}_trade_summary.json", "w") as f:
-            json.dump(summary, f, indent=2)
-
-    # Remove trade_rows from entry before logging JSONL (too large)
-    for ev_key in ["per_window", "val_per_window", "train_per_window"]:
-        pass  # per_window already in entry, no trade_rows in those
-    entry_to_log = {k: v for k, v in entry.items() if k != "trade_rows"}
-
     # Log to JSONL (append)
     with open(log_path, "a") as f:
-        f.write(json.dumps(entry_to_log) + "\n")
+        f.write(json.dumps(entry) + "\n")
 
     if composite > prev_best:
         with open(best_path, "w") as f:
             json.dump(entry, f, indent=2)
-        # Save model + scaler for reuse (portable, reloadable)
+        # Save model weights for reuse
         if not is_gbm(backbone) and hasattr(model, 'state_dict'):
             weights_path = RESULTS_DIR / "best_model.pt"
             torch.save({
@@ -460,14 +379,8 @@ def _run_experiment_inner(backbone, config, description):
                 "composite": composite,
                 "description": description,
                 "backbone": backbone,
-                "n_features": n_features,
-                "scaler_mean": scaler.mean_,
-                "scaler_scale": scaler.scale_,
-                "feature_columns": list(train_feat.columns),
-                "target_columns": list(train_tgt.columns),
-                "experiment_num": entry["experiment_num"],
             }, weights_path)
-            print(f"\n  >>> NEW BEST for {backbone}: {composite:+.4f} (was {prev_best:+.4f})  [weights+scaler saved to {weights_path}]")
+            print(f"\n  >>> NEW BEST for {backbone}: {composite:+.4f} (was {prev_best:+.4f})  [weights saved to {weights_path}]")
     else:
         print(f"\n  >>> composite={composite:+.4f} vs best={prev_best:+.4f} — not improved")
 

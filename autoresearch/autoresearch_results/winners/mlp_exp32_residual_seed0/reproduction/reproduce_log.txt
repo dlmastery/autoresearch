@@ -1,0 +1,61 @@
+# Reproduction Log — Exp32 Residual MLP Champion
+# Generated: 2026-04-19 (post-BIOS upgrade)
+
+## Verification: Exp36 (post-BIOS-upgrade rerun of Exp32)
+
+Command:
+  python -m autoresearch.run_autoresearch --backbone mlp --lr 5e-4 \
+    --batch-size 32 --seq-len 10 --epochs 50 --weight-decay 1e-5 \
+    --patience 10 --grad-clip 1.0 --huber-delta 0.5 --head-dropout 0.15 \
+    --seed 0 --description "mlp: Exp36 POST-BIOS verify champion must be +6.21"
+
+## Aggregate Metrics
+                    Exp32 (original)    Exp36 (rerun)    Match?
+  Composite:        +5.4990             +5.4990          YES (exact)
+  Test Sharpe:      +6.2113             +6.2113          YES (exact)
+  Val Sharpe:       +5.5990             +5.5990          YES (exact)
+  Train Sharpe:     +7.9415             +7.9415          YES (exact)
+  Final Equity:     $11,011             $11,011          YES (exact)
+  Total Return:     +1001.09%           +1001.09%        YES (exact)
+  Val Loss:         0.000038            0.000038         YES (exact)
+
+## Per-Fold Test Sharpe (7/7 positive)
+  Fold                          Exp32      Exp36      Match
+  fold_1 Pre-crisis/GFC         +2.4608    +2.4608    YES
+  fold_2 Post-crash recovery    +1.1722    +1.1722    YES
+  fold_3 Eurozone debt          +9.7583    +9.7583    YES
+  fold_4 Strong USD             +9.7799    +9.7799    YES
+  fold_5 Low-vol plateau        +8.8545    +8.8545    YES
+  fold_6 EUR crisis             +9.9474    +9.9474    YES
+  fold_7 Recent mixed           +8.4769    +8.4769    YES
+
+## Per-Fold Val Sharpe (6/7 positive)
+  Fold                          Exp32      Exp36      Match
+  fold_1                        +0.0212    +0.0212    YES
+  fold_2                        -0.6284    -0.6284    YES
+  fold_3                        +11.0234   +11.0234   YES
+  fold_4                        +7.8607    +7.8607    YES
+  fold_5                        +10.5961   +10.5961   YES
+  fold_6                        +9.2138    +9.2138    YES
+  fold_7                        +9.5361    +9.5361    YES
+
+## Conclusion
+REPRODUCTION SUCCESSFUL. All metrics match to 4 decimal places.
+
+Training is fully deterministic with seed=0 + torch.backends.cudnn.deterministic=True.
+BIOS upgrade did not affect numerical computation. The system crashes that
+prompted the BIOS upgrade were real hardware stability issues (RAM/voltage),
+not software/training issues.
+
+## Cross-Seed Variance (from seed_variance.json)
+  seed=0:   Composite +5.50  Test Sharpe +6.21
+  seed=42:  Composite +4.45  Test Sharpe +4.69
+  seed=99:  Composite +4.46  Test Sharpe +4.76
+  Median Test Sharpe: +4.76
+  Mean Test Sharpe:   +5.22
+
+## Next Verification Schedule
+Re-verify reproduction every 10 experiments or when:
+- Code in backbone.py, train.py, metrics.py, or splits.py is modified
+- PyTorch/CUDA version changes
+- System hardware changes (RAM, CPU, GPU)

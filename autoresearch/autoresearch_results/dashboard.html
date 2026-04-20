@@ -97,6 +97,12 @@
       <th data-sort="equity" style="cursor:pointer">$Equity</th>
       <th data-sort="confidence_mean" style="cursor:pointer">Conf</th>
       <th data-sort="aleatoric_mean" style="cursor:pointer">Ale</th>
+      <th data-sort="precision" style="cursor:pointer">Prec</th>
+      <th data-sort="recall" style="cursor:pointer">Rec</th>
+      <th data-sort="f1" style="cursor:pointer">F1</th>
+      <th data-sort="f2" style="cursor:pointer">F2</th>
+      <th data-sort="mcc" style="cursor:pointer">MCC</th>
+      <th data-sort="accuracy" style="cursor:pointer">Acc</th>
       <th>T+/V+</th>
       <th data-sort="elapsed_sec" style="cursor:pointer">Time</th>
       <th data-sort="timestamp" style="cursor:pointer">When</th>
@@ -119,7 +125,7 @@
   </div>
   <table class="window-table">
     <thead>
-      <tr><th>Fold</th><th>Regime</th><th>Sharpe</th><th>Visual</th><th>Sortino</th><th>Return%</th><th>Equity</th><th>MaxDD%</th><th>WinRate%</th><th>PF</th><th>IC</th><th>Hit%</th><th>Conf</th><th>Aleatoric</th><th>Epistemic</th><th>n</th></tr>
+      <tr><th>Fold</th><th>Regime</th><th>Sharpe</th><th>Visual</th><th>Sortino</th><th>Return%</th><th>Equity</th><th>MaxDD%</th><th>WinRate%</th><th>PF</th><th>IC</th><th>Hit%</th><th>Conf</th><th>Aleatoric</th><th>Epistemic</th><th>Prec</th><th>Rec</th><th>F1</th><th>F2</th><th>MCC</th><th>Acc</th><th>n</th></tr>
     </thead>
     <tbody id="window-body"></tbody>
   </table>
@@ -134,7 +140,7 @@
 </div>
 <table class="window-table" id="best-window-table">
   <thead>
-    <tr><th>Fold</th><th>Regime</th><th>Sharpe</th><th>Visual</th><th>Sortino</th><th>Return%</th><th>Equity</th><th>MaxDD%</th><th>WinRate%</th><th>PF</th><th>IC</th><th>Hit%</th><th>Conf</th><th>Aleatoric</th><th>Epistemic</th><th>n</th></tr>
+    <tr><th>Fold</th><th>Regime</th><th>Sharpe</th><th>Visual</th><th>Sortino</th><th>Return%</th><th>Equity</th><th>MaxDD%</th><th>WinRate%</th><th>PF</th><th>IC</th><th>Hit%</th><th>Conf</th><th>Aleatoric</th><th>Epistemic</th><th>Prec</th><th>Rec</th><th>F1</th><th>F2</th><th>MCC</th><th>Acc</th><th>n</th></tr>
   </thead>
   <tbody id="best-window-body"></tbody>
 </table>
@@ -199,6 +205,12 @@ function renderWindows(windows, tbodyId, aggMetrics) {
       <td style="${confColor(w.confidence_mean)}">${w.confidence_mean != null ? fmt(w.confidence_mean, 3) : '--'}</td>
       <td>${w.aleatoric_mean != null ? w.aleatoric_mean.toExponential(1) : '--'}</td>
       <td>${w.epistemic_mean != null ? w.epistemic_mean.toExponential(1) : '--'}</td>
+      <td>${w.precision != null ? fmt(w.precision, 3) : '--'}</td>
+      <td>${w.recall != null ? fmt(w.recall, 3) : '--'}</td>
+      <td>${w.f1 != null ? fmt(w.f1, 3) : '--'}</td>
+      <td>${w.f2 != null ? fmt(w.f2, 3) : '--'}</td>
+      <td style="${w.mcc != null ? (w.mcc > 0.1 ? 'color:#3fb950' : w.mcc < -0.05 ? 'color:#f85149' : '') : ''}">${w.mcc != null ? fmtSign(w.mcc, 3) : '--'}</td>
+      <td>${w.accuracy != null ? fmt(w.accuracy, 3) : '--'}</td>
       <td>${w.n || 0}</td>
     </tr>`
   );
@@ -219,7 +231,15 @@ function renderWindows(windows, tbodyId, aggMetrics) {
       <td>${aggMetrics.profit_factor != null ? fmt(aggMetrics.profit_factor, 3) : '--'}</td>
       <td>${fmtSign(aggMetrics.ic, 3)}</td>
       <td>${fmt(aggMetrics.hit, 1)}</td>
-      <td colspan="3"></td>
+      <td>${aggMetrics.confidence_mean != null ? fmt(aggMetrics.confidence_mean, 3) : '--'}</td>
+      <td>${aggMetrics.aleatoric_mean != null ? aggMetrics.aleatoric_mean.toExponential(1) : '--'}</td>
+      <td>${aggMetrics.epistemic_mean != null ? aggMetrics.epistemic_mean.toExponential(1) : '--'}</td>
+      <td>${aggMetrics.precision != null ? fmt(aggMetrics.precision, 3) : '--'}</td>
+      <td>${aggMetrics.recall != null ? fmt(aggMetrics.recall, 3) : '--'}</td>
+      <td>${aggMetrics.f1 != null ? fmt(aggMetrics.f1, 3) : '--'}</td>
+      <td>${aggMetrics.f2 != null ? fmt(aggMetrics.f2, 3) : '--'}</td>
+      <td>${aggMetrics.mcc != null ? fmtSign(aggMetrics.mcc, 3) : '--'}</td>
+      <td>${aggMetrics.accuracy != null ? fmt(aggMetrics.accuracy, 3) : '--'}</td>
       <td>${totalN}</td>
     </tr>`);
   }
@@ -284,6 +304,15 @@ function updateDetailWindows() {
     max_dd: e[pfx+'max_dd'] || null,
     win_rate: e[pfx+'win_rate'] || null,
     profit_factor: e[pfx+'profit_factor'] || null,
+    confidence_mean: e[pfx+'confidence_mean'] != null ? e[pfx+'confidence_mean'] : null,
+    aleatoric_mean: e[pfx+'aleatoric_mean'] != null ? e[pfx+'aleatoric_mean'] : null,
+    epistemic_mean: e[pfx+'epistemic_mean'] != null ? e[pfx+'epistemic_mean'] : null,
+    precision: e[pfx+'precision'] != null ? e[pfx+'precision'] : null,
+    recall: e[pfx+'recall'] != null ? e[pfx+'recall'] : null,
+    f1: e[pfx+'f1'] != null ? e[pfx+'f1'] : null,
+    f2: e[pfx+'f2'] != null ? e[pfx+'f2'] : null,
+    mcc: e[pfx+'mcc'] != null ? e[pfx+'mcc'] : null,
+    accuracy: e[pfx+'accuracy'] != null ? e[pfx+'accuracy'] : null,
   };
   renderWindows(windows, 'window-body', agg);
   const psr = activeTab === 'test' ? fmt(e.psr) : '--';
@@ -338,6 +367,15 @@ function updateBestWindows() {
     sortino: b[pfx+'sortino'] || null, return_pct: b[pfx+'return_pct'] || null,
     max_dd: b[pfx+'max_dd'] || null, win_rate: b[pfx+'win_rate'] || null,
     profit_factor: b[pfx+'profit_factor'] || null,
+    confidence_mean: b[pfx+'confidence_mean'] != null ? b[pfx+'confidence_mean'] : null,
+    aleatoric_mean: b[pfx+'aleatoric_mean'] != null ? b[pfx+'aleatoric_mean'] : null,
+    epistemic_mean: b[pfx+'epistemic_mean'] != null ? b[pfx+'epistemic_mean'] : null,
+    precision: b[pfx+'precision'] != null ? b[pfx+'precision'] : null,
+    recall: b[pfx+'recall'] != null ? b[pfx+'recall'] : null,
+    f1: b[pfx+'f1'] != null ? b[pfx+'f1'] : null,
+    f2: b[pfx+'f2'] != null ? b[pfx+'f2'] : null,
+    mcc: b[pfx+'mcc'] != null ? b[pfx+'mcc'] : null,
+    accuracy: b[pfx+'accuracy'] != null ? b[pfx+'accuracy'] : null,
   };
   renderWindows(windows, 'best-window-body', agg);
   const labels = { test: 'TEST', val: 'VALIDATION', train: 'TRAIN' };
@@ -401,6 +439,12 @@ function renderExpTable() {
       <td>$${fmt(e.equity, 0)}</td>
       <td style="${e.confidence_mean != null ? (e.confidence_mean >= 0.9 ? 'color:#3fb950' : e.confidence_mean >= 0.8 ? 'color:#58a6ff' : 'color:#d29922') : ''}">${e.confidence_mean != null ? fmt(e.confidence_mean, 3) : '--'}</td>
       <td>${e.aleatoric_mean != null ? e.aleatoric_mean.toExponential(1) : '--'}</td>
+      <td>${e.precision != null ? fmt(e.precision, 3) : '--'}</td>
+      <td>${e.recall != null ? fmt(e.recall, 3) : '--'}</td>
+      <td>${e.f1 != null ? fmt(e.f1, 3) : '--'}</td>
+      <td>${e.f2 != null ? fmt(e.f2, 3) : '--'}</td>
+      <td style="${e.mcc != null ? (e.mcc > 0.1 ? 'color:#3fb950' : e.mcc < -0.05 ? 'color:#f85149' : '') : ''}">${e.mcc != null ? fmtSign(e.mcc, 3) : '--'}</td>
+      <td>${e.accuracy != null ? fmt(e.accuracy, 3) : '--'}</td>
       <td>${e.test_pos_folds||'?'}/${e.val_pos_folds||'?'}</td>
       <td>${e.elapsed_sec || 0}s</td>
       <td class="timestamp">${e.timestamp || ''}</td>

@@ -143,56 +143,6 @@ def information_coefficient(
     }
 
 
-def classification_metrics(
-    predictions: np.ndarray,
-    actuals: np.ndarray,
-) -> dict:
-    """Direction-classification metrics for sign(prediction) strategy.
-
-    Treats prediction as a binary classifier on direction:
-      TP: pred UP and actual UP
-      TN: pred DOWN and actual DOWN
-      FP: pred UP but actual DOWN (false positive)
-      FN: pred DOWN but actual UP (missed positive)
-
-    Returns precision, recall, F1, F2, accuracy, MCC, and confusion counts.
-    Per CLAUDE.md traditional ML metrics requirement.
-    """
-    if len(predictions) == 0:
-        return {"precision": 0.0, "recall": 0.0, "f1": 0.0, "f2": 0.0,
-                "accuracy": 0.0, "mcc": 0.0,
-                "tp": 0, "fp": 0, "tn": 0, "fn": 0}
-
-    pred_up = predictions > 0
-    actual_up = actuals > 0
-    tp = int(np.sum(pred_up & actual_up))
-    tn = int(np.sum(~pred_up & ~actual_up))
-    fp = int(np.sum(pred_up & ~actual_up))
-    fn = int(np.sum(~pred_up & actual_up))
-
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    accuracy = (tp + tn) / len(predictions) if len(predictions) > 0 else 0.0
-
-    # F_beta: (1 + beta^2) * P * R / (beta^2 * P + R)
-    f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
-    f2 = (5 * precision * recall / (4 * precision + recall)) if (4 * precision + recall) > 0 else 0.0
-
-    # Matthews Correlation Coefficient
-    denom = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
-    mcc = (tp * tn - fp * fn) / denom if denom > 0 else 0.0
-
-    return {
-        "precision": round(precision, 4),
-        "recall": round(recall, 4),
-        "f1": round(f1, 4),
-        "f2": round(f2, 4),
-        "accuracy": round(accuracy, 4),
-        "mcc": round(mcc, 4),
-        "tp": tp, "fp": fp, "tn": tn, "fn": fn,
-    }
-
-
 def average_sharpe_across_folds(fold_returns: list[np.ndarray]) -> float:
     """Mean of per-fold Sharpe ratios.
 

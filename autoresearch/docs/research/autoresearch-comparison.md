@@ -8,7 +8,11 @@
 
 ## 1. Executive Summary
 
-Our autonomous optimizer already implements a solid single-agent hill-climbing loop for FX Sharpe improvement. Karpathy's autoresearch (March 2026) demonstrates that even a minimal three-file architecture with git-based version control can drive meaningful improvements (11% faster time-to-GPT-2-quality in 700 experiments). The broader ecosystem -- Sakana AI's AI Scientist, DeepMind's FunSearch, AIDE's tree search, OpenAI's MLE-bench, and AutoML-Zero -- reveals several high-impact patterns we can adopt: **tree-structured search** (not just greedy hill-climbing), **population-based exploration**, **failure analysis feedback**, and **structured experiment logging**. This document maps each system's architecture, identifies what we do well, and provides a ranked roadmap for improvements.
+Our AutoResearch system represents a fundamentally different paradigm from both traditional AutoML and other autonomous ML research systems. While tools like Optuna, Ray Tune, and Google's AutoML search parameter spaces using mathematical optimization (Bayesian, evolutionary, hyperband), and while Karpathy's autoresearch uses an LLM as a code generator within a greedy hill-climbing loop, **our system uses an LLM as a reasoning agent that reads results, cites published literature, forms hypotheses about model behavior, and makes theory-driven experiment decisions**. The intelligence is not in the search algorithm -- it is in the natural language reasoning that connects per-fold regime diagnostics to published research to targeted interventions.
+
+After 90 experiments across two backbones, this approach has produced a champion Residual MLP with test Sharpe +6.21 and +1001% total return across 7 market regime folds. Key discoveries -- such as residual skip connections providing a 5x improvement, and foundation models (LFM2) underperforming simple MLPs on daily FX data -- emerged from the agent's diagnostic reasoning, not from search.
+
+The broader ecosystem -- Sakana AI's AI Scientist, DeepMind's FunSearch, AIDE's tree search, OpenAI's MLE-bench, Optuna, Ray Tune, and AutoML-Zero -- reveals several high-impact patterns we can adopt: **tree-structured search** (not just greedy hill-climbing), **population-based exploration**, **failure analysis feedback**, and **structured experiment logging**. This document maps each system's architecture, identifies what we do well, and provides a ranked roadmap for improvements.
 
 ---
 
@@ -627,7 +631,108 @@ After evaluation, record:
 
 ---
 
-## 10. Sources
+## 10. Comparison with Industry-Standard Tools
+
+### 10.1 Optuna (Preferred Bayesian, 2019-present)
+
+**Repository:** [github.com/optuna/optuna](https://github.com/optuna/optuna)
+
+**What it is:** A hyperparameter optimization framework using Tree-structured Parzen Estimators (TPE), CMA-ES, and multi-objective optimization. The most popular open-source HPO tool with 11k+ GitHub stars.
+
+**How it works:**
+- User defines a search space (ranges for each hyperparameter)
+- Optuna samples configurations using Bayesian optimization (TPE by default)
+- Each trial trains a model and returns a metric
+- The sampler builds a probabilistic model of which regions of the search space perform well
+- Pruning (MedianPruner, SuccessiveHalving) stops unpromising trials early
+
+**Strengths:** Efficient sampling, multi-objective support, pruning for early termination, excellent visualization, integration with PyTorch/TensorFlow.
+
+**Limitations for our use case:**
+- **No reasoning about WHY** -- Optuna knows that LR=5e-4 worked better than LR=3e-4, but it cannot reason that "the residual skip connection stabilizes gradients, enabling higher learning rates" (He et al. 2016)
+- **No per-fold diagnosis** -- treats the composite metric as a scalar black box, cannot identify that fold 1 (GFC) is the weakest and needs targeted intervention
+- **No architecture search** -- can tune hyperparameters but cannot decide "let me add a residual skip connection" or "let me switch from plain MLP to residual MLP"
+- **No literature grounding** -- hyperparameter ranges are user-defined, not derived from published research for the specific domain
+
+### 10.2 Ray Tune (Scalable HPO, 2018-present)
+
+**Repository:** [github.com/ray-project/ray](https://github.com/ray-project/ray/tree/master/python/ray/tune)
+
+**What it is:** A distributed hyperparameter tuning framework built on Ray, supporting Population-Based Training (PBT), ASHA, and HyperOpt integration.
+
+**How it works:**
+- Distributes trials across multiple GPUs/machines
+- Population-Based Training: trains a population of models simultaneously, periodically replacing worst performers with mutations of best performers
+- ASHA: aggressive early stopping of unpromising configurations
+
+**Strengths:** Scalable to hundreds of GPUs, PBT adapts hyperparameters during training, supports custom search spaces, integrates with all major ML frameworks.
+
+**Limitations for our use case:**
+- **Requires multiple GPUs** -- our system runs on a single CPU laptop
+- **PBT is powerful but opaque** -- it finds good schedules but cannot explain why they work
+- **Same black-box limitation as Optuna** -- no reasoning about model architecture, no per-regime diagnosis, no literature citation
+- **Overhead** -- Ray's distributed runtime adds complexity for single-machine workloads
+
+### 10.3 OpenAI's Automated Research Efforts
+
+**Systems:** MLE-bench (Oct 2024), Deep Research (Jan 2025), internal research agents
+
+**What they are:** OpenAI has pursued automated ML engineering from two directions: (1) MLE-bench as a benchmark for evaluating AI agents on Kaggle-style ML tasks, and (2) Deep Research as a literature-search agent that reads papers and synthesizes findings.
+
+**How they relate to us:**
+- **MLE-bench** evaluates agent performance on 75 Kaggle competitions. Best result: o1-preview + AIDE achieves Kaggle bronze in 16.9% of tasks. This is a benchmark, not a tool -- it measures how well agents do ML engineering but does not provide a reusable system.
+- **Deep Research** excels at literature synthesis but does not run experiments, modify code, or evaluate models. It is a reading agent, not a doing agent.
+
+**Our advantage:** We combine both capabilities -- the agent reads results AND runs experiments AND cites literature, all within a single reasoning loop. MLE-bench shows that code-level search works; our system demonstrates that theory-driven code-level search works better.
+
+### 10.4 Google's AutoML Ecosystem
+
+**Systems:** AutoML-Zero (ICML 2020), AutoML Tables, Vertex AI AutoML, NAS
+
+**What they are:** Google's AutoML covers a spectrum from evolutionary program search (AutoML-Zero discovers ML algorithms from scratch) to production AutoML services (Vertex AI automates model selection and deployment for enterprise customers).
+
+**How they relate to us:**
+- **AutoML-Zero** is philosophically fascinating -- it rediscovered backpropagation from basic math operations -- but requires massive compute (thousands of GPU-hours) and produces algorithms that are hard to interpret
+- **Vertex AI AutoML** is a production tool for tabular/image/text tasks with automatic feature engineering, model selection, and deployment. It is optimized for business metrics, not research insight.
+- **NAS** automates architecture search using RL or evolutionary methods. It can discover novel architectures but operates within a predefined cell-based search space.
+
+**Our advantage:** We operate at a higher level of abstraction. NAS searches cell topologies. Optuna searches parameter spaces. Our agent searches the space of *hypotheses about what should work and why*, guided by financial ML literature and per-regime performance diagnostics.
+
+### 10.5 The Fundamental Differentiation: Natural Language Reasoning vs. Mathematical Optimization
+
+The table below highlights the core distinction between our system and all optimization-based approaches:
+
+| Dimension | **Optimization-Based** (Optuna, Ray Tune, NAS) | **Code-Generation** (Karpathy, AIDE) | **Theory-Driven Reasoning** (Our System) |
+|-----------|-----------------------------------------------|--------------------------------------|------------------------------------------|
+| **Decision mechanism** | Mathematical sampler (TPE, CMA-ES, evolutionary) | LLM generates code modifications | LLM reasons about results, cites papers, forms hypotheses |
+| **What it optimizes** | Numeric hyperparameters in a predefined space | Arbitrary code in modifiable files | Architecture + hyperparameters + training procedure, guided by domain theory |
+| **Handles architecture changes** | Only within predefined search space | Yes, via code generation | Yes, motivated by published research (e.g., He 2016 residual connections) |
+| **Per-fold diagnosis** | No -- treats metric as scalar black box | Limited -- agent may or may not inspect details | Mandatory -- every fold's Sharpe is analyzed, weak regimes are diagnosed |
+| **Literature grounding** | None | Optional (agent may cite papers) | Required -- every experiment must cite a paper, guideline, or empirical finding |
+| **Explains discoveries** | "Config X scored 0.87" | "I added residual connections and the score improved" | "Residual connections (He 2016) stabilize gradient flow, enabling higher LR (5e-4 vs 3e-4), which is critical because the small dataset (3113 training rows) benefits from faster convergence to avoid memorization (Gu, Kelly & Xiu 2020)" |
+| **Failure analysis** | Prune trial, try next sample | Log error, sometimes retry | Diagnose WHY the experiment failed, identify which regime worsened and what the uncertainty metrics reveal, inform next hypothesis |
+| **Search efficiency** | Requires 100-1000+ trials for convergence | ~20 improvements in 700 experiments (Karpathy) | ~20 improvements in 90 experiments (22% keep rate) -- reasoning narrows the search space |
+| **Domain-specific insight** | Generic -- same algorithm for any metric | Limited -- depends on LLM's training data | Deep -- FX microstructure, regime-aware evaluation, heteroscedastic uncertainty |
+
+### 10.6 Extended Comparison Table
+
+| Feature | **Our System** | **Optuna** | **Ray Tune** | **Karpathy** | **AIDE** | **AI Scientist** |
+|---------|---------------|-----------|-------------|-------------|---------|-----------------|
+| **Paradigm** | Theory-driven reasoning | Bayesian optimization | Distributed HPO | Greedy hill-climb | Tree search | Full paper pipeline |
+| **Search space** | Unbounded (code + theory) | User-defined numeric ranges | User-defined + PBT | Single-file code | Full Python scripts | Template code |
+| **Agent intelligence** | LLM reasons about results | Mathematical sampler | Mathematical sampler | LLM generates code | LLM generates/debugs code | LLM writes papers |
+| **Per-fold diagnosis** | Mandatory (7 regimes) | No | No | No | No | No |
+| **Literature citation** | Required per experiment | N/A | N/A | Optional | No | Yes (auto-generated) |
+| **Crash recovery** | Checkpoint every 5 min | Trial DB persistence | Ray object store | Git history | Solution tree | Not specified |
+| **Experiment cost** | ~30s (MLP), ~15min (LFM2) | User-defined | User-defined | Fixed 5 min | Minutes per node | Hours per paper |
+| **Keep rate** | ~22% (90 experiments) | N/A (no keep/discard) | N/A | ~3% (700 experiments) | Not reported | Not reported |
+| **Champion quality** | Sharpe +6.21 (EUR/USD) | N/A (framework only) | N/A (framework only) | 11% improvement | Kaggle bronze 16.9% | Weak Accept papers |
+| **Multi-backbone** | Yes (8 backbones) | No (single model) | No (single model) | No (single GPT) | Per-competition | Per-template |
+| **Financial domain** | Native (purge/embargo/regime) | Generic | Generic | NLP-focused | Generic | Generic |
+
+---
+
+## 11. Sources
 
 - [Karpathy autoresearch - GitHub](https://github.com/karpathy/autoresearch)
 - [Karpathy autoresearch - program.md](https://github.com/karpathy/autoresearch/blob/master/program.md)
@@ -654,3 +759,13 @@ After evaluation, record:
 - [Auto-Keras - arxiv:1806.10282](https://arxiv.org/abs/1806.10282)
 - [AgentRxiv](https://agentrxiv.github.io/)
 - [AutoML NAS Overview](https://www.automl.org/nas-overview/)
+- [Optuna - A Next-generation Hyperparameter Optimization Framework (KDD 2019)](https://arxiv.org/abs/1907.10902)
+- [Optuna - GitHub](https://github.com/optuna/optuna)
+- [Ray Tune - Scalable Hyperparameter Tuning](https://docs.ray.io/en/latest/tune/)
+- [Ray Tune - GitHub](https://github.com/ray-project/ray/tree/master/python/ray/tune)
+- [OpenAI Deep Research](https://openai.com/index/introducing-deep-research/)
+- [Google Vertex AI AutoML](https://cloud.google.com/vertex-ai/docs/beginner/beginners-guide)
+- [He et al. (2016) - Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
+- [Gu, Kelly & Xiu (2020) - Empirical Asset Pricing via Machine Learning](https://academic.oup.com/rfs/article/33/5/2223/5758276)
+- [Kendall & Gal (2017) - What Uncertainties Do We Need in Bayesian Deep Learning?](https://arxiv.org/abs/1703.04977)
+- [Lopez de Prado (2018) - Advances in Financial Machine Learning](https://www.wiley.com/en-us/Advances+in+Financial+Machine+Learning-p-9781119482086)

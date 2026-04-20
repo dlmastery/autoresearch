@@ -1,46 +1,25 @@
 {
-  "backbone": "mlp",
-  "description": "mlp: Exp41 RESAVE champion with scaler for portability",
-  "config": {
-    "seq_len": 10,
-    "lr": 0.0005,
-    "batch_size": 32,
-    "epochs": 50,
-    "weight_decay": 1e-05,
-    "patience": 10,
-    "grad_clip": 1.0,
-    "warmup_epochs": 0,
-    "huber_delta": 0.5,
-    "head_dropout": 0.15,
-    "seed": 0,
-    "het_loss": false
+  "experiment_num": 96,
+  "description": "mlp: Exp40 RECOMPUTE champion Exp32 with new ML metrics",
+  "test_aggregate": {
+    "sharpe": 6.2113,
+    "precision": 0.6778,
+    "recall": 0.7173,
+    "f1": 0.697,
+    "f2": 0.709,
+    "mcc": 0.3843,
+    "accuracy": 0.6917
   },
-  "composite": 5.499,
-  "test_pos_folds": 7,
-  "val_pos_folds": 6,
-  "val_loss": 3.8e-05,
-  "elapsed_sec": 14.4,
-  "timestamp": "2026-04-19T17:05:53",
-  "sharpe": 6.2113,
-  "psr": 1.0,
-  "equity": 11010.87,
-  "sortino": 11.3103,
-  "return_pct": 1001.09,
-  "max_dd": 4.13,
-  "win_rate": 69.35,
-  "profit_factor": 3.295,
-  "ic": 0.4846,
-  "hit": 69.06,
-  "aleatoric_mean": 2.6e-05,
-  "epistemic_mean": 5.2e-05,
-  "confidence_mean": 0.9999,
-  "precision": 0.6778,
-  "recall": 0.7173,
-  "f1": 0.697,
-  "f2": 0.709,
-  "mcc": 0.3843,
-  "accuracy": 0.6917,
-  "per_window": [
+  "val_aggregate": {
+    "sharpe": 5.599,
+    "precision": 0.6588,
+    "recall": 0.6082,
+    "f1": 0.6325,
+    "f2": 0.6177,
+    "mcc": 0.3249,
+    "accuracy": 0.6641
+  },
+  "test_per_fold": [
     {
       "fold": "fold_1",
       "regime": "Pre-crisis upturn + GFC onset",
@@ -245,26 +224,7 @@
       "epistemic_std": 2e-05
     }
   ],
-  "val_sharpe": 5.599,
-  "val_psr": 1.0,
-  "val_equity": 3472.42,
-  "val_sortino": 8.4457,
-  "val_return_pct": 247.24,
-  "val_max_dd": 7.43,
-  "val_win_rate": 66.19,
-  "val_profit_factor": 2.61,
-  "val_ic": 0.4582,
-  "val_hit": 65.76,
-  "val_aleatoric_mean": 1.5e-05,
-  "val_epistemic_mean": 3e-05,
-  "val_confidence_mean": 1.0,
-  "val_precision": 0.6588,
-  "val_recall": 0.6082,
-  "val_f1": 0.6325,
-  "val_f2": 0.6177,
-  "val_mcc": 0.3249,
-  "val_accuracy": 0.6641,
-  "val_per_window": [
+  "val_per_fold": [
     {
       "fold": "fold_1",
       "regime": "Pre-crisis upturn + GFC onset",
@@ -469,23 +429,7 @@
       "epistemic_std": 1.1e-05
     }
   ],
-  "train_sharpe": 7.9415,
-  "train_psr": 1.0,
-  "train_equity": 5670149.5,
-  "train_sortino": 23.2561,
-  "train_return_pct": 566914.95,
-  "train_max_dd": 4.92,
-  "train_win_rate": 78.04,
-  "train_profit_factor": 7.921,
-  "train_ic": 0.7556,
-  "train_hit": 77.72,
-  "train_precision": 0.794,
-  "train_recall": 0.7716,
-  "train_f1": 0.7826,
-  "train_f2": 0.776,
-  "train_mcc": 0.5596,
-  "train_accuracy": 0.7797,
-  "train_per_window": [
+  "train_per_fold": [
     {
       "fold": "all_train",
       "regime": "Training data",
@@ -510,7 +454,5 @@
       "tn": 949,
       "fn": 291
     }
-  ],
-  "experiment_num": 97,
-  "status": "KEEP"
+  ]
 }

@@ -5,6 +5,12 @@
 
 ---
 
+## Executive Summary
+
+This document codifies the quality standards for a financial ML system where the cost of a quality failure is not a broken UI but a **systematically wrong backtest** that produces phantom Sharpe ratios. Quality in this project is governed by three principles: (1) **data integrity above all** -- every performance number is meaningless if there is leakage; (2) **monotonic quality progression** -- the system must never regress, every experiment either improves the champion or is discarded; (3) **research-driven experiment selection** -- every hyperparameter choice must be justified by published literature, model developer guidelines, or measured empirical results from this project. The document covers practices already followed (Part A), improvements recommended (Part B), common mistakes and their prevention (Part C), the monotonic quality progression principle (Part D), the research-driven experiment protocol (Part E), and the technical debt register (Part F).
+
+---
+
 ## Part A: Best Practices Already Followed
 
 ### A1. Data Integrity & Leakage Prevention
@@ -75,6 +81,25 @@
 | **Integration test** | E2E mini pipeline test | test_e2e.py |
 
 **Assessment:** Adequate. Coverage exists for critical paths but could be expanded.
+
+---
+
+## Part A.6: Common Mistakes Registry (Learned from 90 Experiments)
+
+Every mistake below was made during this project, caught, and permanently prevented. This registry exists so that no mistake is ever repeated -- by this team or by any future contributor.
+
+| # | Mistake | Consequence | How It Was Caught | Prevention |
+|---|---------|-------------|-------------------|------------|
+| 1 | **Sliding windows across date gaps** | ~41% garbage windows when seq_len=60 was applied to concatenated non-contiguous test windows. Model received inputs where the first 30 days were from 2012 and the next 30 from 2015. | Manual inspection of window date ranges during debugging. | `create_contiguous_datasets()` for train/val; `_evaluate_per_window()` for test. Each fold's test window processed individually. |
+| 2 | **Expanding window without hole-punching** | Cross-fold contamination: fold 7's training data included folds 1-6's val/test dates, inflating Sharpe from 0.62 (clean) to 1.19 (contaminated). | Wrote explicit overlap check between train dates and val/test dates. | `split_data()` punches ALL val/test from ALL folds. Verified by `test_no_cross_fold_contamination()`. |
+| 3 | **Dead config params (dropout, huber_delta)** | Experiments sweeping these parameters showed no effect -- the params were in the config but never wired to `_make_heads()` or `HuberLoss()`. Hours of compute wasted. | Noticed identical results across "different" configs. | Wire every param end-to-end or remove it. Verified by tracing config values to their use site. |
+| 4 | **Data re-downloading every run** | 30-60 seconds wasted per run, flaky runs when Yahoo Finance was slow, unnecessary network dependency. | Measured wall-clock time and noticed download phase. | Default `cache_dir=.data_cache/` in download.py. Data loaded ONCE at startup. |
+| 5 | **Grid sweep instead of diagnostic** | 26 experiments x 7 folds = 182 training runs with no reasoning about which dimensions mattered. Uninformed, 10x more experiments than needed. | User feedback: "This is the opposite of Karpathy's autoresearch." | One change at a time. Diagnose per-fold results. Form hypothesis. Cite literature. Test. |
+| 6 | **Running all 7 folds per experiment** | 7x slower than necessary. Each experiment took 30+ minutes instead of ~30 seconds. | Timed experiments and compared to single-fold runs. | Super-fold: one train, one eval pass. Train on fold 7's holed data, evaluate on all combined windows. |
+| 7 | **Absolute imports in package** | `ModuleNotFoundError` when running as `python -m autoresearch.run_autoresearch`. | Runtime crash on first execution. | Always `from .module import ...` within the package. |
+| 8 | **Assuming timing/performance** | Stated "~50s per fold" without measuring. Actual was 5-15 minutes for LFM2. Wrong estimates led to wrong priorities. | User asked for measured numbers. | Measure with `time.time()`, log elapsed. Never claim without data. |
+| 9 | **Monolithic scripts** | Runner, evaluator, and dashboard tangled in one file. Impossible to debug, reuse, or monitor independently. | Codebase review revealed tight coupling. | Runners log. Dashboards read. Evaluators evaluate. Decoupled by design. |
+| 10 | **Pre-baked experiment lists** | Wrote Python code generating 102 experiments as a static grid. Intelligence was in a for-loop, not in reasoning. | User feedback: "The agent decides each experiment based on prior results." | Claude IS the loop. Every experiment decision is reasoned from results + literature. |
 
 ---
 
@@ -221,7 +246,85 @@ CMD ["python", "run_ablation.py"]
 
 ---
 
-## Part C: Technical Debt Register
+## Part C: Monotonic Quality Progression Principle
+
+### The Principle
+
+The system's champion model must **never regress**. Every experiment either produces a new champion (with a strictly higher composite score) or is discarded entirely. There is no concept of "partial improvement" or "we'll fix it later." This is enforced by the composite metric and the keep/discard protocol.
+
+### Composite Metric
+
+```
+composite = min(test_sharpe, val_sharpe) - 0.1 * n_negative_folds
+```
+
+This metric encodes three requirements simultaneously:
+
+1. **Both val and test must be good** -- `min(test_sharpe, val_sharpe)` prevents overfitting to either set. A model that achieves test Sharpe +8.0 but val Sharpe +1.0 scores only +1.0.
+2. **All regime folds must be viable** -- the `0.1 * n_negative_folds` penalty discourages models that perform spectacularly on easy regimes but have catastrophic drawdowns in crisis periods. A model with 3 negative folds loses 0.3 from its composite.
+3. **Monotonic progression** -- since we only keep experiments that exceed the current champion's composite, the champion's quality can only increase over time.
+
+### Keep/Discard Protocol
+
+```
+IF new_composite > champion_composite:
+    KEEP — new experiment becomes the champion
+    Update best_config.json
+    Log status: "KEEP"
+ELSE:
+    DISCARD — champion unchanged
+    Log status: "DISCARD"
+    Analyze WHY to inform next experiment
+```
+
+### Why Monotonic Matters
+
+In the first 90 experiments, only ~20 produced improvements (a ~22% keep rate). This is expected and healthy:
+
+- **LFM2 backbone (50 experiments):** Median test Sharpe +1.40, best +2.28. Many experiments explored dead ends (het-loss variance dominance, warmup-epoch interference, LR too low for frozen backbone).
+- **MLP backbone (40 experiments):** Rapid improvement from Sharpe +1.1 (plain MLP) to +6.21 (residual MLP with optimized config). The residual skip connection alone was a 5x improvement.
+
+Each "DISCARD" is information: it narrows the search space and informs the next hypothesis. Discards are never wasted -- they are logged with full per-fold breakdowns so the agent can diagnose why they failed.
+
+---
+
+## Part D: Research-Driven Experiment Selection Protocol
+
+### The Protocol
+
+Every experiment must follow this 7-step process. No exceptions.
+
+| Step | Action | Output |
+|------|--------|--------|
+| 1. **Diagnose** | Examine per-fold test Sharpe for the champion. Identify weakest folds. | "Fold 1 (GFC) has Sharpe +2.46 vs fold 6 (EUR crisis) at +9.95" |
+| 2. **Cite** | Find published literature that addresses the diagnosed weakness. | "He et al. (2016) show residual connections stabilize deep nets; Gu, Kelly & Xiu (2020) demonstrate smaller models outperform on financial data" |
+| 3. **Hypothesize** | Formulate a testable hypothesis for one specific change. | "Reducing hidden size from 512 to 128 will reduce memorization and improve fold 2 (post-crash recovery)" |
+| 4. **Predict** | State the expected outcome before running. | "Expected: fold 2 Sharpe improves from -0.5 to +1.0; overall composite improves by 0.2-0.5" |
+| 5. **Run** | Execute ONE experiment with ONE config change. | `run_autoresearch.py --hidden-size 128 ...` |
+| 6. **Analyze** | Compare per-fold results against prediction. Explain any surprises. | "Fold 2 improved to +1.17 (predicted +1.0). Fold 4 also improved unexpectedly." |
+| 7. **Checkpoint** | Save state to crash-recovery file. Plan next experiment. | `memory/project_autoresearch_checkpoint.md` updated |
+
+### What "Cite" Means in Practice
+
+Every hyperparameter choice must be justified by one of three sources:
+
+1. **Published paper** -- e.g., "Huber delta 0.5 better for fat-tailed FX returns (Huber 1964, applied to financial time series by Lopez de Prado 2018)"
+2. **Model developer guidelines** -- e.g., "LFM2 recommended LR range 1e-5 to 5e-5 per LiquidAI documentation"
+3. **Empirical result from this project** -- e.g., "Experiment 15 showed LR 3e-4 diverges with het-loss; 3e-5 is the observed sweet spot"
+
+### Anti-Patterns (Never Do These)
+
+| Anti-Pattern | Why It Fails | What to Do Instead |
+|-------------|-------------|-------------------|
+| "Let me try LR 1e-3 and see what happens" | No hypothesis, no prediction, no learning even if it works | Diagnose which fold is weak, find literature on why, predict effect |
+| Change 3 things at once | Cannot attribute improvement to any single change | One change per experiment, always |
+| Grid sweep over a parameter | 10 experiments that could be 2-3 with reasoning | Start at the literature-recommended value, move in the direction results indicate |
+| Ignore negative folds | "Average Sharpe is good enough" | Each negative fold is a regime where the model loses money. Diagnose and fix. |
+| Keep running the same axis after 3 discards | The axis is exhausted or the hypothesis is wrong | Stop, rethink, try a different dimension or a radical change |
+
+---
+
+## Part E: Technical Debt Register
 
 | ID | Item | Severity | Effort | Description |
 |----|------|----------|--------|-------------|
@@ -238,7 +341,7 @@ CMD ["python", "run_ablation.py"]
 
 ---
 
-## Part D: Compliance Matrix (SWEBoK Knowledge Areas)
+## Part F: Compliance Matrix (SWEBoK Knowledge Areas)
 
 | KA | Area | Coverage | Notes |
 |----|------|----------|-------|
