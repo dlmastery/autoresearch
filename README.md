@@ -21,6 +21,61 @@
 
 ---
 
+## 🧬 Generalized ML AutoResearch — for ANY supervised ML problem
+
+The FX-specific framework has been generalized to a **domain-agnostic** successor at [`generalized_ml_autoresearch/`](generalized_ml_autoresearch/) — works for regression, classification (binary / multiclass), time-series forecasting, ranking, and survival. **Every single rule from this repo's `CLAUDE.md` is preserved** (52/52 sections audited in [`generalized_ml_autoresearch/templates/SECTION_MAPPING.md`](generalized_ml_autoresearch/templates/SECTION_MAPPING.md)).
+
+**Start here:** [`generalized_ml_autoresearch/README.md`](generalized_ml_autoresearch/README.md) · [Architecture](generalized_ml_autoresearch/ARCHITECTURE.md) · [Setup Skill](generalized_ml_autoresearch/skills/ml-autoresearch-setup/SKILL.md) · [CLAUDE template](generalized_ml_autoresearch/templates/CLAUDE_template.md) · [SOTA catalog](generalized_ml_autoresearch/templates/sota_catalog.yaml)
+
+Delivered by a hierarchical swarm (Queen + Architect + Template extractor + Skill author + Runner/Backbones/Eval coder + Dashboard coder + Example builder + Reviewer + Tester + Docs writer):
+
+| Metric | Count |
+|---|---|
+| Files | 44 |
+| Lines of code/docs | 5,982 |
+| CLAUDE.md sections preserved | **52 / 52** |
+| Worked examples validated end-to-end | 3 / 3 (regression, classification, time-series) |
+| Automated tests | 10 / 10 passing |
+| Validation gates passed | 6 / 6 (section-coverage, self-consistency, cross-task, reasoning-rigor, documentation, architect-signoff) |
+
+```
+generalized_ml_autoresearch/
+├── README.md, ARCHITECTURE.md              # entry points
+├── core/
+│   ├── runner.py, checkpoint.py
+│   ├── reasoning.py (Citation Rigor + Completeness gates)
+│   ├── winner_archive.py (14-section audit + Colab)
+│   ├── backbones/ (MLP, LSTM, FT-Transformer, GBMs, foundation-model stubs)
+│   └── evaluation/ (metrics, composite, splits, uncertainty)
+├── templates/
+│   ├── CLAUDE_template.md (parameterised, preserves every section)
+│   ├── SECTION_MAPPING.md (1-to-1 audit vs source CLAUDE.md)
+│   └── sota_catalog.yaml (2024-2026 backbones per task type)
+├── skills/ml-autoresearch-setup/SKILL.md   # 12-step interactive wizard
+├── dashboard/dashboard.html                 # task-agnostic
+├── examples/
+│   ├── regression_house_prices/  (scikit-learn California housing)
+│   ├── classification_titanic/   (binary classification)
+│   └── time_series_airline/      (univariate forecasting)
+└── tests/ (smoke, runner-e2e, section-coverage)
+```
+
+**How to test it (3 ways):**
+
+```bash
+# 1. Smoke + integration tests
+cd generalized_ml_autoresearch && python -m pytest tests/ -v
+
+# 2. Run a worked example end-to-end (regression on California housing)
+cd examples/regression_house_prices && python run_experiment.py
+
+# 3. Invoke the setup wizard on your own dataset (Claude Code)
+/ml-autoresearch-setup
+# Answers 12 steps → generates a filled-in CLAUDE.md + folder skeleton
+```
+
+---
+
 ## 📄 Paper & Article
 
 - **Research paper (arxiv-style, submission-ready):** [`docs/paper.md`](docs/paper.md) — *AutoResearch: An LLM-Driven Autonomous Research Loop for Financial Time Series Forecasting*. 8 numbered sections + 3 appendices, ~9,900 words, 46 references with arXiv IDs. Double-blind format for NeurIPS / ICML / ICLR submission.

@@ -1,0 +1,23 @@
+{
+  "0": {
+    "regime": "kfold-0",
+    "n_total": 6880,
+    "n_correct": 0,
+    "accuracy": 0.0,
+    "primary_metric": 0.6592236317639674
+  },
+  "1": {
+    "regime": "kfold-1",
+    "n_total": 6880,
+    "n_correct": 0,
+    "accuracy": 0.0,
+    "primary_metric": 0.6708922165666162
+  },
+  "2": {
+    "regime": "kfold-2",
+    "n_total": 6880,
+    "n_correct": 0,
+    "accuracy": 0.0,
+    "primary_metric": 0.6470776896775914
+  }
+}

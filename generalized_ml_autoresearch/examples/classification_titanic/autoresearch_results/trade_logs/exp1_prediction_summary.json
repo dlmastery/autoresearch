@@ -1,0 +1,23 @@
+{
+  "0": {
+    "regime": "stratified-0",
+    "n_total": 190,
+    "n_correct": 180,
+    "accuracy": 0.9473684210526315,
+    "primary_metric": 0.9572649572649573
+  },
+  "1": {
+    "regime": "stratified-1",
+    "n_total": 190,
+    "n_correct": 180,
+    "accuracy": 0.9473684210526315,
+    "primary_metric": 0.959349593495935
+  },
+  "2": {
+    "regime": "stratified-2",
+    "n_total": 189,
+    "n_correct": 182,
+    "accuracy": 0.9629629629629629,
+    "primary_metric": 0.970954356846473
+  }
+}

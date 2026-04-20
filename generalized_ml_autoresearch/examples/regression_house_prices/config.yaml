@@ -1,0 +1,40 @@
+# California Housing — regression example
+# A minimal config the runner can execute end-to-end.
+paths:
+  results_dir: "C:/Users/evija/autoresearch/generalized_ml_autoresearch/examples/regression_house_prices/autoresearch_results"
+
+task_type: regression
+primary_metric: rmse
+
+backbone: mlp
+backbone_config:
+  hidden: [64, 32]
+  dropout: 0.1
+  epochs: 15
+  patience: 5
+  batch_size: 64
+  lr: 3e-4
+  weight_decay: 1.0e-5
+  seed: 0
+  force_cpu: true
+  uncertainty_samples: 10
+
+data:
+  format: sklearn
+  loader: fetch_california_housing
+  target_columns: [target]
+  feature_columns: null   # let runner default to bunch.feature_names
+
+split:
+  name: kfold
+  n_splits: 3
+  seed: 0
+  val_fraction_of_train: 0.1
+
+composite:
+  higher_is_better: false  # RMSE lower is better
+  penalty_weight: 0.1
+  below_threshold: -10.0
+
+description: "baseline MLP on California Housing (E2E smoke)"
+seed: 0

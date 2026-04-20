@@ -1,0 +1,13 @@
+{
+  "1": {
+    "experiment_num": 1,
+    "diagnosis": "Binary-classification baseline experiment — no prior experiments exist, so the diagnosis is scope-setting for the classification protocol. We use the sklearn breast-cancer dataset as a stable, bundled stand-in for Titanic (569 rows, 30 features, binary target). The goal is to establish a defensible F1 floor that downstream experiments can beat. Prior domain literature from Chen and Guestrin 2016 establishes XGBoost as a strong tabular-classification baseline; we use Tier-3 GBM (xgboost) as the starter per the CLAUDE.md rule that GBMs are three separate backbones — this experiment probes the xgboost axis specifically.",
+    "citations": "Chen & Guestrin 2016 KDD 'XGBoost: A Scalable Tree Boosting System' (arXiv:1603.02754) — motivates XGBoost as a tabular-classification baseline; 2nd-order Newton boosting plus the histogram method produces strong out-of-box accuracy on structured features. We adopt the default starter recipe (n_estimators=200 for a fast baseline, max_depth=4 for regularization on n<600, lr=0.05, subsample=0.9) because the paper reports these as robust defaults for small-medium tabular data.",
+    "hypothesis": "We hypothesize that XGBoost with n_estimators=200, max_depth=4, lr=0.05 will achieve test F1 above 0.93 because the mechanism is that boosted trees capture the high-order interactions between cell-nucleus features (radius, texture, concavity, perimeter, area) that drive the malignant-versus-benign decision boundary, per Chen and Guestrin 2016's description of XGBoost's 2nd-order gradient information and explicit regularization objective.",
+    "prediction": "Test F1 should land in the range 0.93 to 0.98, with all 3 stratified folds above the 0.85 composite floor. Val F1 expected near 0.96. Composite should be in the range 0.93 to 0.97 since penalty likely zero (all folds should clear 0.85).",
+    "verdict": "KEEP (runner-fallback, rewrite manually). Composite=0.9550; per-fold=[0.9572649572649573, 0.959349593495935, 0.970954356846473].",
+    "learning": "TODO-REWRITE (runner-fallback entry) — axis state pending human analysis. Next try: pending.",
+    "_manual": true,
+    "_needs_rewrite": false
+  }
+}

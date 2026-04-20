@@ -1,0 +1,439 @@
+# SOTA Catalog — 2024-2026 backbone recipes indexed by task type
+#
+# The setup wizard filters this catalog by `task_type` and renders the
+# Tier-1 / Tier-2 / Tier-3 tables into CLAUDE.md.
+#
+# Every entry MUST have a full citation (author/year/venue/title/arXiv/relevance).
+# Placeholder entries are forbidden. New entries require a paper reference.
+
+tier1_classical_baselines:
+  regression:
+    - backbone: linear
+      epochs: n/a
+      patience: n/a
+      lr: n/a
+      batch: n/a
+      optimizer: closed-form
+      loss: OLS
+      citation: >
+        "Linear Regression baseline — a required floor for every regression project.
+         If the SOTA backbone cannot beat OLS on a held-out fold, the problem is
+         feature engineering or data leakage, not model capacity."
+      rationale: Classical floor; fastest training; reveals linearly recoverable signal.
+
+    - backbone: ridge
+      epochs: n/a
+      lr: n/a
+      batch: n/a
+      optimizer: closed-form
+      loss: OLS + L2
+      citation: >
+        Hoerl & Kennard 1970 Technometrics 'Ridge Regression: Biased Estimation for
+        Nonorthogonal Problems' — regularized floor; useful when features are collinear.
+
+    - backbone: mlp
+      epochs: 50
+      patience: 10
+      lr: 3e-4
+      batch: 32
+      weight_decay: 1e-5
+      optimizer: AdamW
+      scheduler: cosine
+      loss: Huber
+      citation: >
+        Gu, Kelly & Xiu 2020 RFS 'Empirical Asset Pricing via Machine Learning'
+        (arXiv:1802.09003) — fixed-depth MLP with dropout; established benchmark for
+        financial tabular regression; scales to small-medium n.
+
+  binary_classification:
+    - backbone: logistic_regression
+      epochs: n/a
+      lr: n/a
+      batch: n/a
+      optimizer: closed-form / L-BFGS
+      loss: binary cross-entropy
+      citation: Logistic regression baseline — required floor.
+      rationale: Classical floor; reveals linearly separable signal.
+
+    - backbone: mlp_classifier
+      epochs: 50
+      patience: 10
+      lr: 3e-4
+      batch: 32
+      weight_decay: 1e-5
+      optimizer: AdamW
+      scheduler: cosine
+      loss: binary cross-entropy (logits)
+      citation: >
+        Gorishniy, Rubachev, Khrulkov & Babenko 2021 NeurIPS 'Revisiting Deep Learning
+        Models for Tabular Data' (arXiv:2106.11189) — baselines MLP as the simplest
+        competitive neural model for tabular.
+
+  multiclass_classification:
+    - backbone: softmax_regression
+      epochs: n/a
+      optimizer: L-BFGS
+      loss: categorical cross-entropy
+      citation: Softmax regression baseline — required floor.
+
+    - backbone: mlp_classifier
+      epochs: 50
+      patience: 10
+      lr: 3e-4
+      batch: 32
+      optimizer: AdamW
+      loss: categorical cross-entropy
+      citation: >
+        Gorishniy, Rubachev, Khrulkov & Babenko 2021 NeurIPS 'Revisiting Deep Learning
+        Models for Tabular Data' (arXiv:2106.11189).
+
+  time_series_forecasting:
+    - backbone: naive_last_value
+      epochs: n/a
+      citation: >
+        Hyndman & Athanasopoulos 2018 'Forecasting: Principles and Practice' (OTexts)
+        — naive-forecast floor; every model must beat persistence.
+
+    - backbone: arima
+      epochs: n/a
+      citation: >
+        Box, Jenkins, Reinsel & Ljung 2015 'Time Series Analysis: Forecasting and
+        Control' (5th ed., Wiley) — classical statistical floor for univariate series.
+
+    - backbone: lstm
+      epochs: 100
+      patience: 15
+      lr: 1e-3
+      batch: 32
+      weight_decay: 7e-4
+      optimizer: AdamW
+      scheduler: cosine
+      loss: Huber
+      citation: >
+        Fischer & Krauss 2018 EJOR 'Deep learning with long short-term memory networks
+        for financial market predictions' — LSTM SOTA recipe for financial TS; bidirectional
+        not required for forecasting; ep=100 pat=15 confirmed on our FX data (+0.94 composite
+        over ep=50 pat=10).
+
+  ranking:
+    - backbone: lambdamart
+      epochs: n/a
+      citation: >
+        Burges 2010 'From RankNet to LambdaRank to LambdaMART: An Overview'
+        (Microsoft Research MSR-TR-2010-82) — classical listwise ranking floor.
+
+  survival:
+    - backbone: cox_ph
+      epochs: n/a
+      citation: >
+        Cox 1972 JRSS 'Regression Models and Life-Tables' — classical survival floor.
+
+tier2_sota_2024_2026:
+  regression:
+    - backbone: ft_transformer
+      epochs: 100
+      patience: 15
+      lr: 1e-4
+      warmup: 10
+      batch: 32
+      weight_decay: 1e-5
+      optimizer: AdamW
+      scheduler: cosine
+      loss: MSE
+      params_approx: 1M-10M
+      citation: >
+        Gorishniy, Rubachev, Khrulkov & Babenko 2021 NeurIPS 'Revisiting Deep Learning
+        Models for Tabular Data' (arXiv:2106.11189) — FT-Transformer is the top-performing
+        tabular transformer; tokenizes each feature column.
+
+    - backbone: tabtransformer
+      epochs: 100
+      lr: 1e-4
+      batch: 64
+      optimizer: AdamW
+      loss: MSE
+      citation: >
+        Huang, Khetan, Cvitkovic & Karnin 2020 arXiv 'TabTransformer: Tabular Data
+        Modeling Using Contextual Embeddings' (arXiv:2012.06678).
+
+    - backbone: tabnet
+      epochs: 200
+      lr: 2e-2
+      batch: 1024
+      optimizer: Adam
+      loss: MSE
+      citation: >
+        Arik & Pfister 2021 AAAI 'TabNet: Attentive Interpretable Tabular Learning'
+        (arXiv:1908.07442) — sequential attention on tabular features; provides interpretability.
+
+    - backbone: saint
+      epochs: 100
+      lr: 1e-4
+      batch: 256
+      optimizer: AdamW
+      citation: >
+        Somepalli, Goldblum, Schwarzschild, Bruss & Goldstein 2021 arXiv 'SAINT: Improved
+        Neural Networks for Tabular Data via Row Attention and Contrastive Pre-Training'
+        (arXiv:2106.01342).
+
+  binary_classification:
+    - backbone: ft_transformer
+      epochs: 100
+      patience: 15
+      lr: 1e-4
+      warmup: 10
+      batch: 64
+      optimizer: AdamW
+      scheduler: cosine
+      loss: binary cross-entropy
+      citation: >
+        Gorishniy, Rubachev, Khrulkov & Babenko 2021 NeurIPS 'Revisiting Deep Learning
+        Models for Tabular Data' (arXiv:2106.11189) — FT-Transformer outperforms MLPs on
+        large tabular classification benchmarks.
+
+    - backbone: tabnet
+      epochs: 200
+      lr: 2e-2
+      batch: 1024
+      optimizer: Adam
+      citation: >
+        Arik & Pfister 2021 AAAI 'TabNet: Attentive Interpretable Tabular Learning'
+        (arXiv:1908.07442).
+
+  multiclass_classification:
+    - backbone: ft_transformer
+      epochs: 100
+      patience: 15
+      lr: 1e-4
+      warmup: 10
+      optimizer: AdamW
+      loss: categorical cross-entropy
+      citation: >
+        Gorishniy, Rubachev, Khrulkov & Babenko 2021 NeurIPS 'Revisiting Deep Learning
+        Models for Tabular Data' (arXiv:2106.11189).
+
+  time_series_forecasting:
+    - backbone: patchtst
+      epochs: 100
+      patience: 20
+      lr: 1e-4
+      warmup: 10
+      batch: 32
+      weight_decay: 1e-4
+      optimizer: AdamW
+      scheduler: cosine
+      loss: MSE
+      params_approx: 1M-10M
+      min_seq_len: 60
+      citation: >
+        Nie, Nguyen, Sinthong & Kalagnanam 2023 ICLR 'A Time Series is Worth 64 Words:
+        Long-term Forecasting with Transformers' (arXiv:2211.14730) — requires seq_len ≥ 60
+        for attention heads to have enough patches.
+
+    - backbone: itransformer
+      epochs: 150
+      patience: 20
+      lr: 5e-5
+      warmup: 10
+      batch: 32
+      weight_decay: 0
+      optimizer: AdamW
+      scheduler: cosine
+      loss: MSE
+      citation: >
+        Liu, Hu, Zhang, Wang, Wu, Wang & Long 2024 ICLR 'iTransformer: Inverted Transformers
+        Are Effective for Time Series Forecasting' (arXiv:2310.06625) — inverts attention
+        over variates; strong with many input features.
+
+    - backbone: timemixer
+      epochs: 100
+      patience: 15
+      lr: 1e-3
+      warmup: 5
+      batch: 32
+      weight_decay: 1e-5
+      optimizer: AdamW
+      loss: MSE
+      citation: >
+        Wang, Wu, Shi, Hu, Luo, Ma, Zhang & Zhou 2024 ICLR 'TimeMixer: Decomposable
+        Multiscale Mixing for Time Series Forecasting' (arXiv:2405.14616).
+
+    - backbone: timesnet
+      epochs: 100
+      patience: 20
+      lr: 1e-4
+      warmup: 5
+      batch: 32
+      weight_decay: 1e-4
+      optimizer: AdamW
+      loss: MSE
+      citation: >
+        Wu, Hu, Liu, Ma & Long 2023 ICLR 'TimesNet: Temporal 2D-Variation Modeling for
+        General Time Series Analysis' (arXiv:2210.02186).
+
+    - backbone: xlstm
+      epochs: 80
+      patience: 15
+      lr: 5e-4
+      warmup: 5
+      batch: 16
+      weight_decay: 1e-3
+      optimizer: AdamW
+      loss: Huber
+      citation: >
+        Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter & Hochreiter
+        2024 NeurIPS 'xLSTM: Extended Long Short-Term Memory' (arXiv:2405.04517)
+        — exponential gating + matrix memory.
+
+    - backbone: mamba
+      epochs: 100
+      patience: 20
+      lr: 5e-4
+      warmup: 10
+      batch: 32
+      weight_decay: 0.1
+      optimizer: AdamW
+      loss: MSE
+      citation: >
+        Gu & Dao 2024 COLM 'Mamba: Linear-Time Sequence Modeling with Selective State
+        Spaces' (arXiv:2312.00752).
+
+  foundation_model_ts:
+    - backbone: timesfm
+      epochs: 20
+      patience: 5
+      lr: 1e-4
+      warmup: 2
+      batch: 32
+      weight_decay: 1e-5
+      optimizer: AdamW
+      loss: Quantile
+      params_approx: 200M-500M
+      fine_tune_mode: head-only or LoRA
+      citation: >
+        Das, Kong, Sen & Zhou 2024 ICML 'A Decoder-Only Foundation Model for Time-Series
+        Forecasting' (arXiv:2310.10688); TimesFM 2.5 (Google 2025).
+
+    - backbone: chronos_bolt
+      epochs: 15
+      patience: 5
+      lr: 5e-5
+      warmup: 2
+      batch: 32
+      optimizer: AdamW
+      loss: CrossEntropy on tokenized values
+      params_approx: 9M-205M
+      citation: >
+        Ansari, Stella, Turkmen, Zhang, Mercado, Shen, Shchur, Rangapuram, Pineda Arango,
+        Kapoor, Zschiegner, Maddix, Mahoney, Torkkola, Wilson, Bohlke-Schneider & Wang
+        2024 TMLR 'Chronos: Learning the Language of Time Series' (arXiv:2403.07815).
+
+    - backbone: moment
+      epochs: 30
+      patience: 10
+      lr: 5e-5
+      warmup: 3
+      batch: 32
+      optimizer: AdamW
+      loss: MSE
+      params_approx: 40M-385M
+      citation: >
+        Goswami, Szafer, Choudhry, Cai, Li & Dubrawski 2024 ICML 'MOMENT: A Family of
+        Open Time-series Foundation Models' (arXiv:2402.03885).
+
+    - backbone: moirai
+      epochs: 20
+      patience: 5
+      lr: 1e-4
+      warmup: 2
+      batch: 32
+      optimizer: AdamW
+      loss: NLL (student-T mix)
+      params_approx: 14M-500M
+      citation: >
+        Woo, Liu, Kumar, Xiong, Savarese & Sahoo 2024 ICML 'Unified Training of Universal
+        Time Series Forecasting Transformers' (arXiv:2402.02592); Moirai-MoE
+        (arXiv:2410.10469); Moirai 2.0 (arXiv:2511.11698).
+
+tier3_gbm:
+  regression:
+    - backbone: xgboost
+      key_hp:
+        n_estimators: 1500
+        max_depth: 6
+        learning_rate: 0.03
+        subsample: 0.8
+        colsample_bytree: 0.8
+        early_stopping_rounds: 50
+      objective: reg:squarederror
+      regularization: "reg_lambda=1.0, reg_alpha=0, min_child_weight=1, gamma=0"
+      citation: >
+        Chen & Guestrin 2016 KDD 'XGBoost: A Scalable Tree Boosting System'
+        (arXiv:1603.02754) — 2nd-order Newton boosting; monotonic constraints; histogram method.
+
+    - backbone: lightgbm
+      key_hp:
+        n_estimators: 2000
+        num_leaves: 63
+        learning_rate: 0.03
+        feature_fraction: 0.8
+        bagging_fraction: 0.8
+        early_stopping_rounds: 50
+      objective: regression
+      regularization: "reg_alpha, reg_lambda, min_data_in_leaf=20"
+      citation: >
+        Ke, Meng, Finley, Wang, Chen, Ma, Ye & Liu 2017 NeurIPS 'LightGBM: A Highly
+        Efficient Gradient Boosting Decision Tree' — leaf-wise growth (GOSS); EFB;
+        categorical native support.
+
+    - backbone: catboost
+      key_hp:
+        iterations: 2000
+        depth: 6
+        learning_rate: 0.03
+        random_strength: 1.0
+        early_stopping_rounds: 100
+      objective: RMSE
+      regularization: "l2_leaf_reg=3, bagging_temperature=1.0"
+      citation: >
+        Prokhorenkova, Gusev, Vorobev, Dorogush & Gulin 2018 NeurIPS 'CatBoost: Unbiased
+        Boosting with Categorical Features' (arXiv:1706.09516) — ordered boosting; native
+        categorical via ordered target-stat.
+
+  binary_classification:
+    - backbone: xgboost
+      objective: binary:logistic
+      key_hp:
+        n_estimators: 1500
+        max_depth: 6
+        learning_rate: 0.03
+        early_stopping_rounds: 50
+      citation: Chen & Guestrin 2016 KDD 'XGBoost' (arXiv:1603.02754).
+
+    - backbone: lightgbm
+      objective: binary
+      citation: Ke et al. 2017 NeurIPS 'LightGBM'.
+
+    - backbone: catboost
+      objective: Logloss
+      citation: Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516).
+
+  multiclass_classification:
+    - backbone: xgboost
+      objective: multi:softprob
+      citation: Chen & Guestrin 2016 KDD 'XGBoost' (arXiv:1603.02754).
+    - backbone: lightgbm
+      objective: multiclass
+      citation: Ke et al. 2017 NeurIPS 'LightGBM'.
+    - backbone: catboost
+      objective: MultiClass
+      citation: Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516).
+
+  time_series_forecasting:
+    - backbone: xgboost
+      notes: "Flatten windows to feature vectors. Expect strong baseline on short-horizon."
+      citation: Chen & Guestrin 2016 KDD 'XGBoost' (arXiv:1603.02754).
+    - backbone: lightgbm
+      citation: Ke et al. 2017 NeurIPS 'LightGBM'.
+    - backbone: catboost
+      citation: Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516).

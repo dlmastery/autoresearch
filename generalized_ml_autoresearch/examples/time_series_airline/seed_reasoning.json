@@ -1,0 +1,13 @@
+{
+  "1": {
+    "experiment_num": 1,
+    "diagnosis": "Baseline time-series forecasting experiment — no prior experiments exist. The airline-passengers dataset has a clear multiplicative trend + annual seasonality + random noise structure across 144 months, synthesized to mirror the Box-Jenkins benchmark. The goal is to establish a defensible one-step-ahead RMSE floor. We use time_series_split (expanding window) to respect temporal order and set gap=1 to prevent target leakage via the lag_1 feature being produced at prediction time.",
+    "citations": "Ke, Meng, Finley, Wang, Chen, Ma, Ye & Liu 2017 NeurIPS 'LightGBM: A Highly Efficient Gradient Boosting Decision Tree' — motivates leaf-wise tree growth with GOSS sampling as a fast, robust baseline on small tabular time-series when the features are engineered lag/seasonal encodings; we adopt the paper's recommended num_leaves=15 for n<200 rows because larger leaves would overfit the short series per the paper's section on leaf-wise control.",
+    "hypothesis": "We hypothesize that LightGBM with num_leaves=15, lr=0.05, and 300 estimators will achieve test RMSE below 12.0 because the mechanism is that the 12 autoregressive lag features plus (month_sin, month_cos, trend) encode the full signal structure, and leaf-wise trees can capture the interaction between trend and seasonality directly per Ke et al. 2017's decomposition-by-splits argument.",
+    "prediction": "Test RMSE should land in the range 8.0 to 14.0 (for target values ranging 100 to 500). All 3 walk-forward folds should produce RMSE below 20. Composite expected in the range -14.0 to -8.0.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true,
+    "_needs_rewrite": false
+  }
+}

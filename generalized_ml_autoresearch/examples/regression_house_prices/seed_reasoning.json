@@ -1,0 +1,13 @@
+{
+  "1": {
+    "experiment_num": 1,
+    "diagnosis": "This is the first experiment for the California Housing regression example — no prior experiments exist, so diagnosis is scope-setting rather than champion-weakness analysis. The California Housing dataset has 20640 rows and 8 features (MedInc, HouseAge, AveRooms, AveBedrms, Population, AveOccup, Latitude, Longitude) with a continuous target (median house value in units of 100k USD). The goal is to beat a naive mean-predictor baseline and establish a defensible RMSE floor so downstream experiments can demonstrate meaningful improvement. Prior domain literature from Gu, Kelly & Xiu 2020 suggests a small MLP with dropout is the right starting point for tabular regression of this size and correlation structure.",
+    "citations": "Gu, Kelly & Xiu 2020 RFS 'Empirical Asset Pricing via Machine Learning' (arXiv:1802.09003) — motivates the 3-layer MLP with dropout 0.2 baseline on tabular features; we adapt the head-only training recipe as the baseline for the California Housing dataset, trimming hidden widths to [64,32] because the paper's full-scale network (512+ hidden units) would overfit at n=20640 without stronger regularization than the default dropout.",
+    "hypothesis": "We hypothesize that a 2-layer MLP (64-32) with dropout 0.1 and AdamW (lr=3e-4, wd=1e-5) will achieve test RMSE below 0.65 because the mechanism is ReLU-segment approximation of the nonlinear income-to-house-value mapping per Gu, Kelly & Xiu 2020 — the MLP learns feature interactions (MedInc x AveRooms, Latitude x Longitude) that a linear model cannot capture directly.",
+    "prediction": "Test RMSE should land in the range 0.55 to 0.75, with all 3 CV folds above the -10.0 composite floor. Val RMSE expected near 0.58. Composite (higher-is-better internal form since we flip for RMSE) should be in the range -0.75 to -0.55.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true,
+    "_needs_rewrite": false
+  }
+}

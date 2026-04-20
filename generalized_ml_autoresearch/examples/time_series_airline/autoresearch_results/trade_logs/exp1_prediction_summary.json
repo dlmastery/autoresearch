@@ -1,0 +1,23 @@
+{
+  "0": {
+    "regime": "ts-fold-0",
+    "n_total": 32,
+    "n_correct": 32,
+    "accuracy": 1.0,
+    "primary_metric": 53.8820079847014
+  },
+  "1": {
+    "regime": "ts-fold-1",
+    "n_total": 32,
+    "n_correct": 32,
+    "accuracy": 1.0,
+    "primary_metric": 63.250140888026685
+  },
+  "2": {
+    "regime": "ts-fold-2",
+    "n_total": 32,
+    "n_correct": 32,
+    "accuracy": 1.0,
+    "primary_metric": 65.43062914114229
+  }
+}

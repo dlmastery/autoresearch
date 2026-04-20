@@ -1,0 +1,48 @@
+{
+  "experiment_num": 1,
+  "backbone": "lightgbm",
+  "composite": -60.8542593379568,
+  "test_primary": 60.8542593379568,
+  "val_primary": 17.782889294619746,
+  "config": {
+    "paths": {
+      "results_dir": "C:/Users/evija/autoresearch/generalized_ml_autoresearch/examples/time_series_airline/autoresearch_results"
+    },
+    "task_type": "time_series_forecasting",
+    "primary_metric": "rmse",
+    "backbone": "lightgbm",
+    "backbone_config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "learning_rate": 0.05,
+      "feature_fraction": 0.9,
+      "bagging_fraction": 0.9,
+      "min_data_in_leaf": 5,
+      "reg_lambda": 1.0,
+      "seed": 0,
+      "early_stopping_rounds": 30
+    },
+    "data": {
+      "format": "csv",
+      "path": "C:/Users/evija/autoresearch/generalized_ml_autoresearch/examples/time_series_airline/airline_features.csv",
+      "target_columns": [
+        "target"
+      ],
+      "feature_columns": null
+    },
+    "split": {
+      "name": "time_series_split",
+      "n_splits": 3,
+      "val_fraction_of_train": 0.1,
+      "gap": 1
+    },
+    "composite": {
+      "higher_is_better": false,
+      "penalty_weight": 0.5,
+      "below_threshold": -100.0
+    },
+    "description": "LightGBM baseline on airline-passengers time-series",
+    "seed": 0
+  },
+  "timestamp": "2026-04-19T22:45:32"
+}
