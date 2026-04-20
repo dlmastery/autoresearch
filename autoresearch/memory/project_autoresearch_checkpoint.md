@@ -9,13 +9,26 @@ type: project
 - Champion preserved: LSTM Exp35 (bs=16 wd=7e-4 seed=42) composite +6.4242
 - **Mamba phase STARTED** — Exp1/50 complete, exceeded first-experiment prediction
 
-## Mamba Phase — Experiments so far
-**Exp1 (JSONL 152) vanilla — composite +5.2714** (test Sharpe +5.37, val Sharpe +6.30)
-- Test 6/7 positive (fold 2 at −0.98); Val 7/7 positive; Val fold 2 = +1.37 (LSTM ≈ 0 — SSM breakthrough)
-- Config: d_model=128, d_state=16, expand=2, 2-layer, lr=5e-4, bs=32, wd=0.1, warmup=10, ep=100, pat=20, seed=42
-- Runtime 359s (naive O(L) scan)
+## Mamba Phase — Experiments so far (6/50)
 
-**Exp2 (JSONL 153) s_mamba — NULL EXPERIMENT.** Bit-identical composite +5.2714 because the s_mamba branch in SelectiveSSM was a no-op placeholder at the time of the run. FIXED in backbone.py after the fact (added _forward_s_mamba implementing proper variate-axis scan per Liu 2024 arXiv:2403.11144). Re-running s_mamba next.
+| # | Variant | d_state | Composite | Test Sharpe | Notes |
+|---|---------|---------|-----------|-------------|-------|
+| 1 | vanilla | 16 | +5.2714 | +5.37 | Val fold 2 +1.37 — SSM breakthrough |
+| 2 | s_mamba (placeholder) | 16 | +5.2714 | +5.37 | NULL; my no-op bug |
+| 3 | s_mamba (real) | 16 | +5.1861 | +5.29 | variate-axis hurt; closed |
+| **4** | **dmamba** | **16** | **+5.3641** | **+5.56** | **MAMBA FAMILY CHAMP** — test fold 2 lifted |
+| 5 | dmamba | 32 | +4.1995 | +4.50 | over-capacity; closed |
+| 6 | dmamba | 8 | +4.5319 | +4.63 | under-capacity; closed |
+
+**d_state axis fully explored: 16 confirmed optimal**
+
+**Next axes:**
+- expand ∈ {1, 4} (Exp7, Exp8)
+- num_layers ∈ {1, 3} (Exp9, Exp10)
+- bs ∈ {16, 64} (Exp11, Exp12) — try Keskar 2017 trick that helped LSTM
+- lr ∈ {1e-3, 3e-4} (Exp13, Exp14)
+- multi-seed variance on dmamba (Exp15-19)
+- ensemble (vanilla, dmamba) (Exp20+)
 
 ## Checkpoint Discipline (user-requested 2026-04-19 session)
 - **Checkpoint every 10 minutes minimum** during active work
