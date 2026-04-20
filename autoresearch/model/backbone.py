@@ -169,11 +169,15 @@ class CurrencyMLP(nn.Module):
 # ---------------------------------------------------------------------------
 class CurrencyLSTM(nn.Module):
     def __init__(self, n_input_features: int, hidden_size: int = 128, num_layers: int = 2,
-                 head_dropout: float = 0.1, het_loss: bool = True, bidirectional: bool = True):
+                 head_dropout: float = 0.1, het_loss: bool = True, bidirectional: bool = True,
+                 cell: str = "lstm", input_layernorm: bool = False):
         super().__init__()
         self.het_loss = het_loss
         self.bidirectional = bidirectional
-        self.lstm = nn.LSTM(
+        self.cell = cell
+        self.input_ln = nn.LayerNorm(n_input_features) if input_layernorm else None
+        rnn_cls = nn.GRU if cell == "gru" else nn.LSTM
+        self.lstm = rnn_cls(
             input_size=n_input_features,
             hidden_size=hidden_size,
             num_layers=num_layers,
@@ -185,6 +189,8 @@ class CurrencyLSTM(nn.Module):
         self.heads = _make_heads(out_features, dropout=head_dropout, het_loss=het_loss)
 
     def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
+        if self.input_ln is not None:
+            x = self.input_ln(x)
         lstm_out, _ = self.lstm(x)
         hidden = lstm_out[:, -1, :]
         return _forward_heads(self.heads, hidden, self.het_loss)
@@ -474,6 +480,9 @@ def create_model(
     het_loss: bool = True,
     hidden_size: int | None = None,
     bidirectional: bool | None = None,
+    num_layers: int | None = None,
+    rnn_cell: str | None = None,
+    input_layernorm: bool = False,
 ) -> nn.Module | GBMWrapper:
     """Create a model by backbone name.
 
@@ -496,6 +505,12 @@ def create_model(
             kwargs["hidden_size"] = hidden_size
         if bidirectional is not None:
             kwargs["bidirectional"] = bidirectional
+        if num_layers is not None:
+            kwargs["num_layers"] = num_layers
+        if rnn_cell is not None:
+            kwargs["cell"] = rnn_cell
+        if input_layernorm:
+            kwargs["input_layernorm"] = True
         return CurrencyLSTM(n_input_features, **kwargs)
     elif backbone == "lfm2-350m":
         return CurrencyLFM(

@@ -121,6 +121,10 @@
     <button class="close-btn" onclick="closeDetail()">Close</button>
   </div>
   <div class="detail-config" id="detail-config"></div>
+  <div id="detail-reasoning" style="background:#0d1117;border-left:3px solid #58a6ff;border-radius:4px;padding:12px;margin-bottom:12px;font-size:0.85em;color:#c9d1d9;line-height:1.5;display:none">
+    <div style="font-weight:600;color:#58a6ff;margin-bottom:6px;font-size:0.85em;letter-spacing:0.5px">DIAGNOSIS · CITATIONS · HYPOTHESIS · PREDICTION · VERDICT</div>
+    <div id="detail-reasoning-body"></div>
+  </div>
   <div style="margin-bottom:10px">
     <button class="close-btn" id="tab-test" onclick="switchTab('test')" style="background:#1a2332;color:#58a6ff">Test</button>
     <button class="close-btn" id="tab-val" onclick="switchTab('val')">Validation</button>
@@ -336,7 +340,31 @@ function showDetail(idx) {
   document.getElementById('detail-title').textContent = `Exp ${e.experiment_num}: ${e.description}`;
   const c = e.config || {};
   document.getElementById('detail-config').textContent =
-    `lr=${c.lr}  bs=${c.batch_size}  seq=${c.seq_len}  wd=${c.weight_decay}  pat=${c.patience}  ep=${c.epochs}  |  Status: ${e.status}  |  ValLoss: ${e.val_loss}`;
+    `lr=${c.lr}  bs=${c.batch_size}  seq=${c.seq_len}  wd=${c.weight_decay}  pat=${c.patience}  ep=${c.epochs}  hd=${c.head_dropout}  huber=${c.huber_delta}  |  Status: ${e.status}  |  ValLoss: ${e.val_loss}`;
+  // Reasoning panel (arxiv cites, diagnosis, hypothesis, verdict)
+  const ra = (window._reasoningAnnotations || {})[String(e.experiment_num)];
+  const reasoningBox = document.getElementById('detail-reasoning');
+  const body = document.getElementById('detail-reasoning-body');
+  if (ra) {
+    const parts = [];
+    if (ra.diagnosis) parts.push(`<div style="margin-bottom:8px"><strong style="color:#d29922">Diagnosis:</strong> ${ra.diagnosis}</div>`);
+    if (ra.citations) parts.push(`<div style="margin-bottom:8px"><strong style="color:#3fb950">Citations:</strong> ${ra.citations}</div>`);
+    if (ra.hypothesis) parts.push(`<div style="margin-bottom:8px"><strong style="color:#58a6ff">Hypothesis:</strong> ${ra.hypothesis}</div>`);
+    if (ra.prediction) parts.push(`<div style="margin-bottom:8px"><strong style="color:#a371f7">Prediction:</strong> ${ra.prediction}</div>`);
+    if (ra.verdict) parts.push(`<div style="margin-bottom:8px"><strong style="color:${ra.verdict.startsWith('KEEP') || ra.verdict.includes('CHAMP') ? '#3fb950' : '#f85149'}">Verdict:</strong> ${ra.verdict}</div>`);
+    if (ra.learning) parts.push(`<div><strong style="color:#c9d1d9">Learning:</strong> ${ra.learning}</div>`);
+    body.innerHTML = parts.join('');
+    reasoningBox.style.display = 'block';
+  } else {
+    // Fallback: extract citations from description parentheses
+    const citeMatch = (e.description || '').match(/\(([^)]+)\)/);
+    if (citeMatch) {
+      body.innerHTML = `<div><strong style="color:#3fb950">Referenced:</strong> ${citeMatch[1]}</div><div style="margin-top:4px;color:#8b949e;font-size:0.9em">No detailed annotation yet. Run <code>backfill_reasoning.py</code> to extract full reasoning from research_journal.md.</div>`;
+      reasoningBox.style.display = 'block';
+    } else {
+      reasoningBox.style.display = 'none';
+    }
+  }
   updateDetailWindows();
   document.querySelectorAll('#exp-body tr').forEach((r,i) => r.classList.toggle('selected', i === idx));
 }
@@ -508,6 +536,21 @@ async function refresh() {
   try {
     const logText = await fetchText(LOG_PATH);
     allEntries = logText.trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
+  } catch(e) {
+    if (e.message !== '404') {
+      // ignored
+    }
+  }
+
+  // Load reasoning annotations (citations + thought process per experiment)
+  try {
+    const raText = await fetchText('reasoning_annotations.json');
+    window._reasoningAnnotations = JSON.parse(raText);
+  } catch(e) {
+    window._reasoningAnnotations = {};
+  }
+  try {
+    const _ = null; // block marker for compatibility
   } catch(e) {
     if (e.message !== '404') {
       document.getElementById('error').textContent = 'Log: ' + e.message;

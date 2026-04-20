@@ -344,7 +344,10 @@ def _run_experiment_inner(backbone, config, description):
                              head_dropout=config.get("head_dropout", 0.1),
                              het_loss=config.get("het_loss", False),
                              hidden_size=config.get("hidden_size"),
-                             bidirectional=config.get("bidirectional")).to(device)
+                             bidirectional=config.get("bidirectional"),
+                             num_layers=config.get("num_layers"),
+                             rnn_cell=config.get("rnn_cell"),
+                             input_layernorm=config.get("input_layernorm", False)).to(device)
         result = train_one_fold(
             model, train_feat, train_tgt, val_feat, val_tgt,
             scaler=scaler, epochs=config["epochs"], seq_len=seq_len,
@@ -435,13 +438,16 @@ def _run_experiment_inner(backbone, config, description):
 
     # Update best if improved
     best_path = RESULTS_DIR / "best_config.json"
+    # best_config.json tracks GLOBAL champion across all backbones (per CLAUDE.md Winner Definition)
     prev_best = -999.0
+    prev_best_backbone = None
     if best_path.exists():
         with open(best_path) as f:
             saved = json.load(f)
-        if saved.get("backbone") == backbone:
-            prev_best = saved.get("composite", -999.0)
+        prev_best = saved.get("composite", -999.0)
+        prev_best_backbone = saved.get("backbone")
 
+    # KEEP status = beat global best
     entry["status"] = "KEEP" if composite > prev_best else "DISCARD"
 
     # Write trade-level CSV (per CLAUDE.md Trade-Level Win/Loss Logging)
@@ -507,9 +513,9 @@ def _run_experiment_inner(backbone, config, description):
                 "target_columns": list(train_tgt.columns),
                 "experiment_num": entry["experiment_num"],
             }, weights_path)
-            print(f"\n  >>> NEW BEST for {backbone}: {composite:+.4f} (was {prev_best:+.4f})  [weights+scaler saved to {weights_path}]")
+            print(f"\n  >>> NEW GLOBAL CHAMPION ({backbone}): {composite:+.4f} (previous: {prev_best:+.4f} on {prev_best_backbone})  [weights+scaler saved to {weights_path}]")
     else:
-        print(f"\n  >>> composite={composite:+.4f} vs best={prev_best:+.4f} — not improved")
+        print(f"\n  >>> composite={composite:+.4f} vs global best={prev_best:+.4f} ({prev_best_backbone}) — not improved")
 
     return entry
 
@@ -529,6 +535,9 @@ def main():
     parser.add_argument("--head-dropout", type=float, default=0.1)
     parser.add_argument("--hidden-size", type=int, default=None, help="Hidden size for MLP/LSTM backbone")
     parser.add_argument("--unidirectional", action="store_true", help="LSTM only: use unidirectional instead of default bidirectional")
+    parser.add_argument("--num-layers", type=int, default=None, help="LSTM only: number of stacked LSTM layers (default 2)")
+    parser.add_argument("--rnn-cell", type=str, default=None, choices=["lstm","gru"], help="LSTM backbone: use 'lstm' (default) or 'gru' cell")
+    parser.add_argument("--input-layernorm", action="store_true", help="LSTM backbone: apply LayerNorm over input features per timestep (Ba 2016)")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
     parser.add_argument("--het-loss", action="store_true", default=False, help="Use heteroscedastic loss (default: plain Huber)")
     parser.add_argument("--description", required=True)
@@ -553,6 +562,12 @@ def main():
         config["hidden_size"] = args.hidden_size
     if args.unidirectional:
         config["bidirectional"] = False
+    if args.num_layers is not None:
+        config["num_layers"] = args.num_layers
+    if args.rnn_cell is not None:
+        config["rnn_cell"] = args.rnn_cell
+    if args.input_layernorm:
+        config["input_layernorm"] = True
     config["het_loss"] = args.het_loss
 
     run_single_experiment(backbone, config, args.description)

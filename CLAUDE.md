@@ -226,6 +226,30 @@ code_versions/
 
 Rule: never modify `backbone.py` code specific to backbone X while experiments on backbone Y are in progress. Finish one backbone's 50 experiments, snapshot, then move on.
 
+### Per-Backbone 50-Experiment Mandate (MANDATORY, not optional)
+
+**Every backbone gets a full 50-experiment exploration.** Do not stop early because "axes look exhausted." The mandate:
+
+1. **50 experiments per backbone** — no fewer. If standard HP sweeps plateau, explore:
+   - Architectural variants from arXiv literature through 2026 (see per-backbone table below)
+   - Cross-variant combinations (e.g., attention-LSTM × dropout tuning)
+   - Feature engineering changes (input projections, feature selection)
+   - Multi-seed studies on the champion to characterize variance
+   - Regularization beyond weight decay (label smoothing, mixup, stochastic depth)
+
+2. **Research latest SOTA (2024-2026 arXiv papers) before declaring any backbone done.** For each backbone category, the literature evolves yearly:
+   - **LSTM/RNN**: xLSTM (Beck et al. 2024), Mamba (Gu & Dao 2024), Retentive Networks (Sun et al. 2023), DA-RNN with attention (Qin 2017), LayerNorm-LSTM (Ba 2016), AWD-LSTM (Merity 2018), GRU comparison (Cho 2014), stacked multi-layer (Graves 2013)
+   - **Transformer TS**: PatchTST (Nie 2023), iTransformer (Liu 2024), TimesNet (Wu 2023), Informer (Zhou 2021), FEDformer (Zhou 2022), Crossformer (Zhang 2023), Autoformer (Wu 2021)
+   - **MLP TS**: TSMixer (Chen 2023), N-HiTS (Challu 2023), N-BEATS (Oreshkin 2020), DLinear (Zeng 2023) — "Are Transformers Effective for TS?"
+   - **Foundation**: TimesFM (Das 2024), Chronos (Ansari 2024), Moment (Goswami 2024), LFM2 (Liquid 2024)
+   - **GBM**: XGBoost, LightGBM, CatBoost — tune n_estimators, max_depth, learning_rate, regularization
+
+3. **Each experiment must cite its paper/source** — no "let me try X". Per CLAUDE.md rule 4.
+
+4. **Document all 50 in research_journal.md** — even DISCARDs. Negative results are informative.
+
+5. **Only after 50 experiments** may a backbone be declared "done" and progression to the next backbone resume.
+
 ### Per-Backbone SOTA Training Recipes (starting points for Experiment 1/50)
 
 Always start a new backbone with the literature-recommended SOTA config. Then iterate. **Epoch and patience counts are backbone-specific — do NOT reuse MLP's ep=50 for LSTM/Transformer/PatchTST.**

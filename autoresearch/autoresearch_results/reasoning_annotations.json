@@ -1,0 +1,977 @@
+{
+  "1": {
+    "diagnosis": "? experiment #1: lr=1e-4 baseline",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 1e-4",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite -1.264)",
+    "learning": "Result: composite -1.2637, test Sharpe +1.2466. Status: KEEP."
+  },
+  "3": {
+    "diagnosis": "Early LR sweep on LFM2 (frozen backbone + head fine-tuning).",
+    "citations": "Devlin et al. 2019 (BERT fine-tuning LR conventions); Hu et al. 2022 (LoRA \u2014 low LR for adapters).",
+    "hypothesis": "Lower LR than default 1e-4 improves head-only fine-tuning stability on small financial data.",
+    "prediction": "Composite > +1.0.",
+    "verdict": "KEEP \u2014 pre-residual era champion (+1.61).",
+    "learning": "lr=3e-5 is the sweet spot for plain-Huber LFM2 head fine-tuning.",
+    "_manual": true
+  },
+  "20": {
+    "diagnosis": "Fine-grained LR search around 3e-5 champion.",
+    "citations": "Loshchilov & Hutter 2019 (AdamW); Smith 2017 (LR range tests).",
+    "hypothesis": "lr=2e-5 slightly lower may better fit regime transitions.",
+    "prediction": "Small improvement in composite.",
+    "verdict": "KEEP-but-unreproducible: single-seed +1.77 yielded champion; multi-seed median ~+0.11.",
+    "learning": "Seed variance dominates single-run results on LFM2. Established need for multi-seed protocol for future champions.",
+    "_manual": true
+  },
+  "66": {
+    "diagnosis": "First residual skip-connection MLP experiment.",
+    "citations": "He et al. 2016 (Deep Residual Learning / ResNet).",
+    "hypothesis": "A linear shortcut + nonlinear residual branch dominates on small financial data; the linear path anchors a regime-agnostic baseline, letting the nonlinear branch learn corrections.",
+    "prediction": "Composite > +2.0.",
+    "verdict": "BREAKTHROUGH +4.67 \u2014 4-line code change jumped composite from +0.78 to +4.67.",
+    "learning": "Architectural changes dominate HP tuning on low-SNR financial data. One skip connection beat 47 prior MLP HP experiments combined.",
+    "_manual": true
+  },
+  "96": {
+    "diagnosis": "MLP residual champion reproduction with enhanced metrics (precision/recall/F1/MCC + trade-level CSVs).",
+    "citations": "He et al. 2016 (architecture); Srivastava et al. 2014 (hd=0.15).",
+    "hypothesis": "Reproducible exact match with champion Exp32 config.",
+    "prediction": "Composite +5.499, test Sharpe +6.2113.",
+    "verdict": "KEEP \u2014 pre-LSTM global champion, exact reproduction.",
+    "learning": "Deterministic seed=0 reproduces MLP champion to 4 decimal places.",
+    "_manual": true
+  },
+  "108": {
+    "diagnosis": "First LSTM autoresearch baseline run (previous LSTM data from ablation only, 5-epoch non-SOTA).",
+    "citations": "Fischer & Krauss 2018 EJOR (canonical financial LSTM, SOTA lr=1e-3, stacked 2-layer, bidirectional).",
+    "hypothesis": "Classical financial-LSTM recipe with our proven training discipline (ep=50, pat=10, hd=0.15) should give +0.5 to +2.5 baseline.",
+    "prediction": "Composite +0.5 to +2.5.",
+    "verdict": "KEEP \u2014 LSTM backbone baseline +4.12 (exceeded expectations).",
+    "learning": "LSTM's temporal inductive bias is strong for FX returns even at seq=10.",
+    "_manual": true
+  },
+  "110": {
+    "diagnosis": "LSTM with proper SOTA epoch count per Fischer & Krauss.",
+    "citations": "Fischer & Krauss 2018 EJOR \u2014 their experiments ran 100+ epochs with patience 15.",
+    "hypothesis": "Exp108's early-stop at epoch 25 was premature; more patience may find better minimum.",
+    "prediction": "Composite +4.5 to +5.5.",
+    "verdict": "KEEP \u2014 LSTM improved to +5.06 via epoch bump alone.",
+    "learning": "Per-backbone epoch counts matter: MLP 50 != LSTM 100. Literature SOTA epoch is backbone-specific.",
+    "_manual": true
+  },
+  "111": {
+    "diagnosis": "LSTM with higher head dropout \u2014 regularizing prediction head while keeping recurrent capacity.",
+    "citations": "Srivastava et al. 2014 JMLR (Dropout) \u2014 recommends 0.2-0.5 for dense layers.",
+    "hypothesis": "hd=0.25 breaks the val/test tradeoff seen in MLP (regularizing heads fixes fold 2 without hurting other folds).",
+    "prediction": "Composite > +5.06.",
+    "verdict": "GLOBAL CHAMPION (+6.07) \u2014 beat MLP residual (+5.499).",
+    "learning": "LSTM recurrent bias + head dropout combine synergistically (not redundantly). Fixed fold 2 test -1.75 -> +1.66 WITHOUT sacrificing fold 7.",
+    "_manual": true
+  },
+  "113": {
+    "diagnosis": "LSTM with 10x stronger weight decay on top of champion.",
+    "citations": "Zaremba et al. 2014 (Recurrent NN Regularization \u2014 L2 for LSTMs).",
+    "hypothesis": "Slight L2 bump smooths the optimization landscape further without changing capacity.",
+    "prediction": "Composite > +6.07.",
+    "verdict": "GLOBAL CHAMPION (+6.10) \u2014 current global best, fold 5 test improved +10.31 -> +10.53.",
+    "learning": "Marginal improvement confirms we are at a local Pareto optimum; wd=1e-4 locked in.",
+    "_manual": true
+  },
+  "114": {
+    "diagnosis": "Half the LR for flatter minima seeking.",
+    "citations": "Lewkowycz et al. 2020 ICML (The Large Learning Rate Phase) \u2014 lower LR finds flatter basins that generalize better.",
+    "hypothesis": "lr=5e-4 finds flatter basin -> improved val fold 2 (the consistent weakness).",
+    "prediction": "Val fold 2 > 0.",
+    "verdict": "DISCARD \u2014 composite +4.95; val fully 7/7 positive (+6.88 best ever) but test dropped to 5/7.",
+    "learning": "Flat minima help val metrics but can hurt test when val/test regimes diverge. Lewkowycz framework doesn't apply cleanly to regime-shifted financial time series.",
+    "_manual": true
+  },
+  "115": {
+    "diagnosis": "Unidirectional (causal) LSTM \u2014 process only past->present.",
+    "citations": "Qin et al. 2017 (DA-RNN dual-stage attention); Graves & Schmidhuber 2005 (original bidirectional context).",
+    "hypothesis": "Causal matches live-trading direction and may reduce overfit to within-window future-to-past correlations.",
+    "prediction": "Better val fold 2; test uncertain.",
+    "verdict": "DISCARD \u2014 composite +5.00; val fold 2 hit best-ever +2.02, but test lost fold 2.",
+    "learning": "Bidirectional LSTM wins on test; unidirectional wins on val. Classic val/test split \u2014 bidirectional captures more context.",
+    "_manual": true
+  },
+  "116": {
+    "diagnosis": "Longer sequence for more temporal context.",
+    "citations": "Bao et al. 2017 (Financial Time Series Prediction with seq=20).",
+    "hypothesis": "Fold 2 (post-crash recovery) benefits from longer memory of pre-crash patterns.",
+    "prediction": "Test fold 2 > 0.",
+    "verdict": "DISCARD \u2014 composite +4.25; longer context hurt overall (loses training windows).",
+    "learning": "seq=10 optimal for our n=2738; Bao's seq=20 requires substantially larger dataset.",
+    "_manual": true
+  },
+  "117": {
+    "diagnosis": "First PatchTST SOTA baseline (transformer-based time series).",
+    "citations": "Nie et al. 2023 ICLR (PatchTST).",
+    "hypothesis": "SOTA config (lr=1e-4, ep=100, pat=20, hd=0.15) gives reasonable baseline.",
+    "prediction": "Composite +1 to +4.",
+    "verdict": "DISCARD \u2014 composite -1.72; transformer attention under-scaled at seq=10.",
+    "learning": "At patch_length=5 and seq=10, only 2 attention tokens \u2014 far below the 4+ tokens Nie et al. report as minimum. Need seq>=60 for PatchTST to shine.",
+    "_manual": true
+  },
+  "118": {
+    "diagnosis": "Stacked 3-layer bidirectional LSTM for multi-scale temporal modeling.",
+    "citations": "Graves et al. 2013 (Speech Recognition with Deep RNNs).",
+    "hypothesis": "Depth captures multi-scale temporal patterns not accessible to 2-layer.",
+    "prediction": "Composite > +6.10.",
+    "verdict": "DISCARD \u2014 composite +1.64; depth + small data mismatch.",
+    "learning": "3 layers overfits on n=2738. 2-layer champion confirmed optimal for our data size. Graves's depth advantage emerges only at larger n.",
+    "_manual": true
+  },
+  "119": {
+    "diagnosis": "GRU cell comparison \u2014 2 gates vs LSTM's 3.",
+    "citations": "Cho et al. 2014 (GRU); Chung et al. 2014 (empirical gated RNN evaluation).",
+    "hypothesis": "GRU's simpler gating has fewer params, may reduce overfit on small data.",
+    "prediction": "Composite near LSTM champion (~+6.10).",
+    "verdict": "DISCARD \u2014 composite +4.59; GRU achieved 7/7 test positive but weaker Sharpe.",
+    "learning": "LSTM's 3-gate architecture retains more signal at n=2738. GRU's parameter savings don't translate to gains here.",
+    "_manual": true
+  },
+  "2": {
+    "diagnosis": "? experiment #2: lr=5e-5 conservative",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 5e-5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +0.131)",
+    "learning": "Result: composite +0.1311, test Sharpe +0.4311. Status: KEEP."
+  },
+  "4": {
+    "diagnosis": "? experiment #4: lr=2e-4 moderate",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 2e-4",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.152 did not beat then-current best",
+    "learning": "Result: composite +0.1518, test Sharpe +0.8518. Status: DISCARD."
+  },
+  "5": {
+    "diagnosis": "? experiment #5: lr=3e-4 aggressive",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-4",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.483 did not beat then-current best",
+    "learning": "Result: composite +0.4828, test Sharpe +1.1702. Status: DISCARD."
+  },
+  "6": {
+    "diagnosis": "? experiment #6: lr=5e-6 minimal",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 5e-6",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.707 did not beat then-current best",
+    "learning": "Result: composite +0.7074, test Sharpe +0.8074. Status: DISCARD."
+  },
+  "7": {
+    "diagnosis": "? experiment #7: bs=16 more gradient noise",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Batch size = 16",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.336 did not beat then-current best",
+    "learning": "Result: composite -0.3363, test Sharpe +0.1637. Status: DISCARD."
+  },
+  "8": {
+    "diagnosis": "lfm2-350m experiment #8: bs=16 at best lr=3e-5: smaller batch = more gradient noise = implicit regularization for 2738 training samples",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-5; Batch size = 16",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.785 did not beat then-current best",
+    "learning": "Result: composite -0.7855, test Sharpe +1.4165. Status: DISCARD."
+  },
+  "9": {
+    "diagnosis": "lfm2-350m experiment #9: seq=40 at lr=3e-5: shorter window = more training samples + less stale context, FX autocorrelation decays in 5-10d",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-5; Sequence length = 40",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.221 did not beat then-current best",
+    "learning": "Result: composite -0.2209, test Sharpe +1.9513. Status: DISCARD."
+  },
+  "10": {
+    "diagnosis": "lfm2-350m experiment #10: wd=1e-4 at best: 10x stronger L2 to prevent head overfitting to majority regime patterns (Lopez de Prado 2018)",
+    "citations": "Lopez de Prado 2018 (Advances in Financial ML) \u2014 purged CV, regime shifts",
+    "hypothesis": "Weight decay = 1e-4",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.213 did not beat then-current best",
+    "learning": "Result: composite -0.2134, test Sharpe +1.0224. Status: DISCARD."
+  },
+  "11": {
+    "diagnosis": "lfm2-350m experiment #11: wd=5e-5: halfway between 1e-5(best) and 1e-4(kills fold5/7). Interpolating to find L2 sweet spot",
+    "citations": "best; kills fold5/7",
+    "hypothesis": "Weight decay = 5e-5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.811 did not beat then-current best",
+    "learning": "Result: composite +0.8106, test Sharpe +1.4696. Status: DISCARD."
+  },
+  "12": {
+    "diagnosis": "lfm2-350m experiment #12: epochs=30 patience=7: let model converge more, best lr=3e-5. Prior best stopped at epoch 8-12, more runway may stabilize fold 7",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-5.; Epochs = 30",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.573 did not beat then-current best",
+    "learning": "Result: composite +0.5729, test Sharpe +1.7404. Status: DISCARD."
+  },
+  "13": {
+    "diagnosis": "lfm2-350m experiment #13: warmup=3 at winner lr=3e-5/wd=1e-5: Devlin(2019)+Hu(2022) show warmup stabilises adapter layers. Targeting fold7 test variance (std=1.94, IC positive 10/12 but Sharpe unstable). Projection layer receives 1% lr for 3 epochs before full strength. Prediction: fold7 test improves toward +1.0-2.0, composite beats +1.61",
+    "citations": "2019; 2022; std=1.94, IC positive 10/12 but Sharpe unstable",
+    "hypothesis": "Learning rate = 3e-5; Weight decay = 1e-5; With LR warmup",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.645 did not beat then-current best",
+    "learning": "Result: composite -0.6451, test Sharpe -0.0451. Status: DISCARD."
+  },
+  "14": {
+    "diagnosis": "lfm2-350m experiment #14: Exp14: huber_delta=0.5. delta=1.0 puts all FX returns in MSE zone (vol~60bps). delta=0.5=1sigma makes loss robust to fold2 fat tails. Cite: Huber1964",
+    "citations": "Huber 1964 \u2014 robust loss for fat tails",
+    "hypothesis": "huber_delta=0.5. delta=1.0 puts all FX returns in MSE zone (vol~60bps). delta=0.5=1sigma makes loss robust to fold2 fat tails. Cite: Huber1964",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +1.333 did not beat then-current best",
+    "learning": "Result: composite +1.3326, test Sharpe +1.5704. Status: DISCARD."
+  },
+  "15": {
+    "diagnosis": "lfm2-350m experiment #15: Exp15: head_dropout=0.2 (was 0.1). 636K params on 1382 samples. Cite: Srivastava2014 recommends 0.2-0.5 for small datasets, Hu2022 LoRA uses 0.05-0.2 for adapters",
+    "citations": "Hu et al. 2022 (LoRA) \u2014 adapter fine-tuning; Srivastava et al. 2014 JMLR (Dropout) \u2014 0.2-0.5 for dense layers",
+    "hypothesis": "head_dropout=0.2 (was 0.1). 636K params on 1382 samples. Cite: Srivastava2014 recommends 0.2-0.5 for small datasets, Hu2022 LoRA uses 0.05-0.2 for adapters",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.828 did not beat then-current best",
+    "learning": "Result: composite -0.8279, test Sharpe +0.1181. Status: DISCARD."
+  },
+  "16": {
+    "diagnosis": "lfm2-350m experiment #16: huber_delta=0.75 compromise",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "huber_delta=0.75 compromise",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.272 did not beat then-current best",
+    "learning": "Result: composite -0.2721, test Sharpe +0.2279. Status: DISCARD."
+  },
+  "17": {
+    "diagnosis": "lfm2-350m experiment #17: seq_len=90 longer context",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Sequence length = 90",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.378 did not beat then-current best",
+    "learning": "Result: composite -0.3775, test Sharpe +1.2595. Status: DISCARD."
+  },
+  "18": {
+    "diagnosis": "lfm2-350m experiment #18: grad_clip=0.5 tighter clipping",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "grad_clip=0.5 tighter clipping",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.648 did not beat then-current best",
+    "learning": "Result: composite -0.6484, test Sharpe +0.4615. Status: DISCARD."
+  },
+  "19": {
+    "diagnosis": "lfm2-350m experiment #19: epochs=30 patience=8 (now wired)",
+    "citations": "now wired",
+    "hypothesis": "Epochs = 30",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.754 did not beat then-current best",
+    "learning": "Result: composite +0.7538, test Sharpe +1.7050. Status: DISCARD."
+  },
+  "21": {
+    "diagnosis": "lfm2-350m experiment #21: uncertainty-aware champion re-train",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "uncertainty-aware champion re-train",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.420 did not beat then-current best",
+    "learning": "Result: composite +0.4204, test Sharpe +1.5276. Status: DISCARD."
+  },
+  "22": {
+    "diagnosis": "lfm2-350m experiment #22: lr=2e-5 fine-grained search",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 2e-5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.526 did not beat then-current best",
+    "learning": "Result: composite -1.5259, test Sharpe +1.2047. Status: DISCARD."
+  },
+  "23": {
+    "diagnosis": "lfm2-350m experiment #23: H-Exp1: lr=2e-5 heteroscedastic baseline",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 2e-5; Heteroscedastic loss (Kendall & Gal)",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.938 did not beat then-current best",
+    "learning": "Result: composite -0.9382, test Sharpe -0.4382. Status: DISCARD."
+  },
+  "24": {
+    "diagnosis": "lfm2-350m experiment #24: H-Exp2: lr=1e-5 slower for het-loss",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 1e-5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.446 did not beat then-current best",
+    "learning": "Result: composite -1.4465, test Sharpe -0.2464. Status: DISCARD."
+  },
+  "25": {
+    "diagnosis": "lfm2-350m experiment #25: H-Exp3: lr=3e-5 stronger mean signal",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.249 did not beat then-current best",
+    "learning": "Result: composite -0.2489, test Sharpe +0.2511. Status: DISCARD."
+  },
+  "26": {
+    "diagnosis": "lfm2-350m experiment #26: H-Exp4: lr=5e-5 push mean harder",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 5e-5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.821 did not beat then-current best",
+    "learning": "Result: composite -0.8214, test Sharpe +0.0636. Status: DISCARD."
+  },
+  "27": {
+    "diagnosis": "lfm2-350m experiment #27: H-Exp5: lr=3e-5 epochs=30 longer training",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-5; Epochs = 30",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.023 did not beat then-current best",
+    "learning": "Result: composite +0.0226, test Sharpe +1.8513. Status: DISCARD."
+  },
+  "28": {
+    "diagnosis": "lfm2-350m experiment #28: H-Exp6: lr=3e-5 epochs=25 sweet spot",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-5; Epochs = 25",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.432 did not beat then-current best",
+    "learning": "Result: composite -0.4319, test Sharpe +0.1681. Status: DISCARD."
+  },
+  "29": {
+    "diagnosis": "lfm2-350m experiment #29: H-Exp7: lr=3e-5 epochs=35 push further",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-5; Epochs = 35",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.978 did not beat then-current best",
+    "learning": "Result: composite -0.9775, test Sharpe -0.0775. Status: DISCARD."
+  },
+  "30": {
+    "diagnosis": "lfm2-350m experiment #30: H-Exp8: wd=5e-5 regularize het-heads",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Weight decay = 5e-5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.774 did not beat then-current best",
+    "learning": "Result: composite -1.7737, test Sharpe +0.3711. Status: DISCARD."
+  },
+  "31": {
+    "diagnosis": "lfm2-350m experiment #31: H-Exp9: hd=0.15 regularize wider het-heads",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Head dropout = 0.15",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.103 did not beat then-current best",
+    "learning": "Result: composite -1.1028, test Sharpe -0.0576. Status: DISCARD."
+  },
+  "32": {
+    "diagnosis": "lfm2-350m experiment #32: H-Exp10: lr=4e-5 ep=30 higher peak LR",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 4e-5; Epochs = 30",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.466 did not beat then-current best",
+    "learning": "Result: composite -0.4658, test Sharpe +0.1342. Status: DISCARD."
+  },
+  "33": {
+    "diagnosis": "lfm2-350m experiment #33: H-Exp11: logvar clamp [-6,2] Stirn2023 fix",
+    "citations": "Stirn et al. 2023 (Faithful Heteroscedastic Regression) \u2014 log-var clamping",
+    "hypothesis": "logvar clamp [-6,2] Stirn2023 fix",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.313 did not beat then-current best",
+    "learning": "Result: composite -0.3128, test Sharpe +0.2278. Status: DISCARD."
+  },
+  "34": {
+    "diagnosis": "lfm2-350m experiment #34: H-Exp12: reproduce H-Exp5 (same config)",
+    "citations": "same config",
+    "hypothesis": "Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.071 did not beat then-current best",
+    "learning": "Result: composite +0.0706, test Sharpe +1.0650. Status: DISCARD."
+  },
+  "35": {
+    "diagnosis": "lfm2-350m experiment #35: lfm2: H-Exp13 warmup=3 stabilize het-init",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "With LR warmup",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +1.601 did not beat then-current best",
+    "learning": "Result: composite +1.6005, test Sharpe +1.8005. Status: DISCARD."
+  },
+  "36": {
+    "diagnosis": "lfm2-350m experiment #36: lfm2: H-Exp14 warmup=5 more stabilization",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "With LR warmup",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.320 did not beat then-current best",
+    "learning": "Result: composite +0.3197, test Sharpe +1.0045. Status: DISCARD."
+  },
+  "37": {
+    "diagnosis": "lfm2-350m experiment #37: lfm2: H-Exp15 warmup=1 minimal stabilization",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "With LR warmup",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.875 did not beat then-current best",
+    "learning": "Result: composite -0.8750, test Sharpe +0.3525. Status: DISCARD."
+  },
+  "38": {
+    "diagnosis": "lfm2-350m experiment #38: lfm2: H-Exp16 huber=0.5 robust to GFC tails",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Huber delta = 0.5",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.397 did not beat then-current best",
+    "learning": "Result: composite -0.3973, test Sharpe +0.1027. Status: DISCARD."
+  },
+  "39": {
+    "diagnosis": "lfm2-350m experiment #39: lfm2: H-Exp17 seq=45 more training samples",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Sequence length = 45",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.271 did not beat then-current best",
+    "learning": "Result: composite -0.2707, test Sharpe +0.1293. Status: DISCARD."
+  },
+  "40": {
+    "diagnosis": "lfm2-350m experiment #40: lfm2: H-Exp18 bs=64 smoother het-gradients",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Batch size = 64",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.395 did not beat then-current best",
+    "learning": "Result: composite -0.3951, test Sharpe +0.4652. Status: DISCARD."
+  },
+  "41": {
+    "diagnosis": "lfm2-350m experiment #41: lfm2: H-Exp19 ep=40 more convergence time",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Epochs = 40",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.100 did not beat then-current best",
+    "learning": "Result: composite -1.0998, test Sharpe -0.4998. Status: DISCARD."
+  },
+  "42": {
+    "diagnosis": "lfm2-350m experiment #42: lfm2: H-Exp20 wd=3e-5 moderate L2 with warmup",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Weight decay = 3e-5; With LR warmup",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.701 did not beat then-current best",
+    "learning": "Result: composite -0.7012, test Sharpe +1.5751. Status: DISCARD."
+  },
+  "43": {
+    "diagnosis": "lfm2-350m experiment #43: lfm2: H-Exp21 REPRODUCE champion run 1/3",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.099 did not beat then-current best",
+    "learning": "Result: composite -1.0989, test Sharpe +0.0085. Status: DISCARD."
+  },
+  "44": {
+    "diagnosis": "lfm2-350m experiment #44: lfm2: H-Exp22 REPRODUCE champion run 2/3",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.536 did not beat then-current best",
+    "learning": "Result: composite -0.5365, test Sharpe +0.0635. Status: DISCARD."
+  },
+  "45": {
+    "diagnosis": "lfm2-350m experiment #45: lfm2: H-Exp23 champion seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Seed = 42",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.085 did not beat then-current best",
+    "learning": "Result: composite -1.0849, test Sharpe -0.2849. Status: DISCARD."
+  },
+  "46": {
+    "diagnosis": "lfm2-350m experiment #46: lfm2: H-Exp24 champion seed=123",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Seed = 123",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.144 did not beat then-current best",
+    "learning": "Result: composite -1.1439, test Sharpe +0.0177. Status: DISCARD."
+  },
+  "47": {
+    "diagnosis": "lfm2-350m experiment #47: lfm2: H-Exp25 plain-Huber seed=42 (proven config)",
+    "citations": "proven config",
+    "hypothesis": "Seed = 42",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.524 did not beat then-current best",
+    "learning": "Result: composite -1.5241, test Sharpe -0.7241. Status: DISCARD."
+  },
+  "48": {
+    "diagnosis": "lfm2-350m experiment #48: lfm2: H-Exp26 plain-Huber seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +1.134 did not beat then-current best",
+    "learning": "Result: composite +1.1338, test Sharpe +1.7430. Status: DISCARD."
+  },
+  "49": {
+    "diagnosis": "lfm2-350m experiment #49: lfm2: H-Exp27 plain-Huber seed=7 variance study",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Seed = 7",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.111 did not beat then-current best",
+    "learning": "Result: composite +0.1114, test Sharpe +0.5114. Status: DISCARD."
+  },
+  "50": {
+    "diagnosis": "lfm2-350m experiment #50: lfm2: H-Exp28 plain-Huber seed=99 (final seed)",
+    "citations": "final seed",
+    "hypothesis": "Seed = 99",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.678 did not beat then-current best",
+    "learning": "Result: composite +0.6779, test Sharpe +1.3962. Status: DISCARD."
+  },
+  "51": {
+    "diagnosis": "mlp experiment #51: mlp: Exp1 baseline lr=3e-4 seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 3e-4; Seed = 42",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "KEEP \u2014 within-backbone best at time of run (composite -0.509)",
+    "learning": "Result: composite -0.5088, test Sharpe +0.9254. Status: KEEP."
+  },
+  "52": {
+    "diagnosis": "mlp experiment #52: mlp: lr=1e-4 seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 1e-4; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "KEEP \u2014 within-backbone best at time of run (composite +0.507)",
+    "learning": "Result: composite +0.5070, test Sharpe +0.9117. Status: KEEP."
+  },
+  "53": {
+    "diagnosis": "mlp experiment #53: mlp: lr=1e-4 seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 1e-4; Seed = 42",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.500 did not beat then-current best",
+    "learning": "Result: composite -0.4997, test Sharpe +0.1003. Status: DISCARD."
+  },
+  "54": {
+    "diagnosis": "mlp experiment #54: mlp: lr=1e-4 seed=99",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 1e-4; Seed = 99",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.184 did not beat then-current best",
+    "learning": "Result: composite -1.1839, test Sharpe +0.6165. Status: DISCARD."
+  },
+  "55": {
+    "diagnosis": "mlp experiment #55: mlp: lr=5e-5 seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 5e-5; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.865 did not beat then-current best",
+    "learning": "Result: composite -0.8646, test Sharpe +0.2265. Status: DISCARD."
+  },
+  "56": {
+    "diagnosis": "mlp experiment #56: mlp: lr=5e-5 seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 5e-5; Seed = 42",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.466 did not beat then-current best",
+    "learning": "Result: composite -0.4664, test Sharpe +0.0336. Status: DISCARD."
+  },
+  "57": {
+    "diagnosis": "mlp experiment #57: mlp: lr=5e-5 seed=99",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 5e-5; Seed = 99",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.743 did not beat then-current best",
+    "learning": "Result: composite -0.7432, test Sharpe +0.1149. Status: DISCARD."
+  },
+  "58": {
+    "diagnosis": "mlp experiment #58: mlp: Exp2 lr=1e-4 reduce overfit (gap=2.37 at 3e-4)",
+    "citations": "gap=2.37 at 3e-4",
+    "hypothesis": "Learning rate = 1e-4",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.500 did not beat then-current best",
+    "learning": "Result: composite -0.4997, test Sharpe +0.1003. Status: DISCARD."
+  },
+  "59": {
+    "diagnosis": "mlp experiment #59: mlp: Exp3 128h/64head ep=50 pat=10 seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Epochs = 50; Seed = 42",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.138 did not beat then-current best",
+    "learning": "Result: composite +0.1382, test Sharpe +0.8201. Status: DISCARD."
+  },
+  "60": {
+    "diagnosis": "mlp experiment #60: mlp: Exp4 wd=1e-3 strong L2 reg (Gu2020)",
+    "citations": "Gu, Kelly & Xiu 2020 RFS (Empirical Asset Pricing via ML) \u2014 financial MLP/LSTM recipes",
+    "hypothesis": "Weight decay = 1e-3",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.138 did not beat then-current best",
+    "learning": "Result: composite +0.1382, test Sharpe +0.8201. Status: DISCARD."
+  },
+  "61": {
+    "diagnosis": "mlp experiment #61: mlp: Exp5 champion config seed=0 (variance check)",
+    "citations": "variance check",
+    "hypothesis": "Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "KEEP \u2014 within-backbone best at time of run (composite +0.776)",
+    "learning": "Result: composite +0.7757, test Sharpe +1.4838. Status: KEEP."
+  },
+  "62": {
+    "diagnosis": "mlp experiment #62: mlp: Exp6 champion seed=99 (variance)",
+    "citations": "variance",
+    "hypothesis": "Seed = 99",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -0.474 did not beat then-current best",
+    "learning": "Result: composite -0.4738, test Sharpe +0.4689. Status: DISCARD."
+  },
+  "63": {
+    "diagnosis": "mlp experiment #63: mlp: Exp7 lr=1e-4 ep=100 flat minima (Lewkowycz2020)",
+    "citations": "Lewkowycz et al. 2020 ICML (Large LR Phase) \u2014 flat minima generalize",
+    "hypothesis": "Learning rate = 1e-4; Epochs = 100",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.411 did not beat then-current best",
+    "learning": "Result: composite +0.4111, test Sharpe +0.7111. Status: DISCARD."
+  },
+  "64": {
+    "diagnosis": "mlp experiment #64: mlp: Exp8 hd=0.2 reduce head overfit (Srivastava2014) seed=0",
+    "citations": "Srivastava et al. 2014 JMLR (Dropout) \u2014 0.2-0.5 for dense layers",
+    "hypothesis": "Head dropout = 0.2; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +0.385 did not beat then-current best",
+    "learning": "Result: composite +0.3846, test Sharpe +0.9804. Status: DISCARD."
+  },
+  "65": {
+    "diagnosis": "mlp experiment #65: mlp: Exp9 BN+dropout=0.2 code change seed=0 (Ioffe2015)",
+    "citations": "Ioffe & Szegedy 2015 (Batch Normalization)",
+    "hypothesis": "Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite -1.312 did not beat then-current best",
+    "learning": "Result: composite -1.3117, test Sharpe -0.6117. Status: DISCARD."
+  },
+  "67": {
+    "diagnosis": "mlp experiment #67: mlp: Exp11 residual MLP REPRODUCE seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Seed = 42; Residual skip-connection architecture; Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +3.761 did not beat then-current best",
+    "learning": "Result: composite +3.7609, test Sharpe +4.2360. Status: DISCARD."
+  },
+  "68": {
+    "diagnosis": "mlp experiment #68: mlp: Exp12 residual MLP REPRODUCE seed=99",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Seed = 99; Residual skip-connection architecture; Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +3.171 did not beat then-current best",
+    "learning": "Result: composite +3.1712, test Sharpe +3.4712. Status: DISCARD."
+  },
+  "69": {
+    "diagnosis": "mlp experiment #69: mlp: Exp13 residual hd=0.15 fold1 robustness seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Head dropout = 0.15; Seed = 0; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.130)",
+    "learning": "Result: composite +5.1305, test Sharpe +5.2305. Status: KEEP."
+  },
+  "70": {
+    "diagnosis": "mlp experiment #70: mlp: Exp14 residual hd=0.15 REPRODUCE seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Head dropout = 0.15; Seed = 42; Residual skip-connection architecture; Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.318 did not beat then-current best",
+    "learning": "Result: composite +4.3181, test Sharpe +4.4181. Status: DISCARD."
+  },
+  "71": {
+    "diagnosis": "mlp experiment #71: mlp: Exp15 residual hd=0.15 REPRODUCE seed=99",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Head dropout = 0.15; Seed = 99; Residual skip-connection architecture; Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +3.732 did not beat then-current best",
+    "learning": "Result: composite +3.7325, test Sharpe +3.9325. Status: DISCARD."
+  },
+  "72": {
+    "diagnosis": "mlp experiment #72: mlp: Exp16 residual hd=0.15 RERUN seed=0 (verify)",
+    "citations": "verify",
+    "hypothesis": "Head dropout = 0.15; Seed = 0; Residual skip-connection architecture; Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.130)",
+    "learning": "Result: composite +5.1305, test Sharpe +5.2305. Status: KEEP."
+  },
+  "73": {
+    "diagnosis": "mlp experiment #73: mlp: Exp17 residual lr=5e-4 higher LR (He2016) seed=0",
+    "citations": "He et al. 2016 (Deep Residual Learning / ResNet) \u2014 skip connections for small-data generalization",
+    "hypothesis": "Learning rate = 5e-4; Seed = 0; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.402)",
+    "learning": "Result: composite +5.4022, test Sharpe +6.1205. Status: KEEP."
+  },
+  "74": {
+    "diagnosis": "mlp experiment #74: mlp: Exp18 residual lr=5e-4 hd=0.15 REPRODUCE seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 5e-4; Head dropout = 0.15; Seed = 42; Residual skip-connection architecture; Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.407 did not beat then-current best",
+    "learning": "Result: composite +4.4068, test Sharpe +4.7068. Status: DISCARD."
+  },
+  "75": {
+    "diagnosis": "mlp experiment #75: mlp: Exp19 residual lr=5e-4 hd=0.15 seed=99",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Learning rate = 5e-4; Head dropout = 0.15; Seed = 99; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.404 did not beat then-current best",
+    "learning": "Result: composite +4.4045, test Sharpe +4.7045. Status: DISCARD."
+  },
+  "76": {
+    "diagnosis": "mlp experiment #76: mlp: Exp20 residual lr=7e-4 push higher (Smith2018) seed=0",
+    "citations": "Smith et al. 2018 (Don't Decay LR, Increase BS) \u2014 smoother grads",
+    "hypothesis": "Learning rate = 7e-4; Seed = 0; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.820 did not beat then-current best",
+    "learning": "Result: composite +4.8198, test Sharpe +4.9909. Status: DISCARD."
+  },
+  "77": {
+    "diagnosis": "mlp experiment #77: mlp: Exp21 residual seq=15 3wk context (Mosquera2020) seed=0",
+    "citations": "Mosquera2020",
+    "hypothesis": "Sequence length = 15; Seed = 0; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.370 did not beat then-current best",
+    "learning": "Result: composite +4.3705, test Sharpe +4.5705. Status: DISCARD."
+  },
+  "78": {
+    "diagnosis": "mlp experiment #78: mlp: Exp22 residual ep=75 pat=15 more convergence seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Epochs = 75; Seed = 0; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.650 did not beat then-current best",
+    "learning": "Result: composite +4.6504, test Sharpe +4.7504. Status: DISCARD."
+  },
+  "79": {
+    "diagnosis": "mlp experiment #79: mlp: Exp23 residual lr=1e-3 aggressive (Smith2018) seed=0",
+    "citations": "Smith et al. 2018 (Don't Decay LR, Increase BS) \u2014 smoother grads",
+    "hypothesis": "Learning rate = 1e-3; Seed = 0; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +5.174 did not beat then-current best",
+    "learning": "Result: composite +5.1738, test Sharpe +5.2738. Status: DISCARD."
+  },
+  "80": {
+    "diagnosis": "mlp experiment #80: mlp: Exp24 champion config seed=7 variance",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Seed = 7",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.239 did not beat then-current best",
+    "learning": "Result: composite +4.2386, test Sharpe +4.4386. Status: DISCARD."
+  },
+  "81": {
+    "diagnosis": "mlp experiment #81: mlp: Exp25 3-layer residual (Telgarsky2016) seed=0",
+    "citations": "Telgarsky2016",
+    "hypothesis": "Seed = 0; Residual skip-connection architecture; Stacked multi-layer RNN",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +3.836 did not beat then-current best",
+    "learning": "Result: composite +3.8364, test Sharpe +3.9738. Status: DISCARD."
+  },
+  "82": {
+    "diagnosis": "mlp experiment #82: mlp: Exp26 residual hidden=64 smaller model seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Hidden size = 64; Seed = 0; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.402)",
+    "learning": "Result: composite +5.4022, test Sharpe +6.1205. Status: KEEP."
+  },
+  "83": {
+    "diagnosis": "mlp experiment #83: mlp: Exp27 hidden=64 properly wired seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Hidden size = 64; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +3.700 did not beat then-current best",
+    "learning": "Result: composite +3.7003, test Sharpe +3.9003. Status: DISCARD."
+  },
+  "84": {
+    "diagnosis": "mlp experiment #84: mlp: Exp28 champion seed=2024",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Seed = 2024",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.260 did not beat then-current best",
+    "learning": "Result: composite +4.2596, test Sharpe +4.5620. Status: DISCARD."
+  },
+  "85": {
+    "diagnosis": "mlp experiment #85: mlp: Exp29 residual huber=0.5 robust to tails seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Huber delta = 0.5; Seed = 0; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.499)",
+    "learning": "Result: composite +5.4990, test Sharpe +6.2113. Status: KEEP."
+  },
+  "86": {
+    "diagnosis": "mlp experiment #86: mlp: Exp30 residual huber=0.5 REPRODUCE seed=42",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Huber delta = 0.5; Seed = 42; Residual skip-connection architecture; Reproduction check of prior champion at different seed",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.453 did not beat then-current best",
+    "learning": "Result: composite +4.4532, test Sharpe +4.6908. Status: DISCARD."
+  },
+  "87": {
+    "diagnosis": "mlp experiment #87: mlp: Exp31 residual huber=0.5 seed=99",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Huber delta = 0.5; Seed = 99; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.455 did not beat then-current best",
+    "learning": "Result: composite +4.4552, test Sharpe +4.7552. Status: DISCARD."
+  },
+  "88": {
+    "diagnosis": "mlp experiment #88: mlp: Exp32 VERIFY champion seed=0 (must match Exp29)",
+    "citations": "must match Exp29",
+    "hypothesis": "Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.499)",
+    "learning": "Result: composite +5.4990, test Sharpe +6.2113. Status: KEEP."
+  },
+  "89": {
+    "diagnosis": "mlp experiment #89: mlp: Exp33 seq=20 monthly context (Bao2017) seed=0",
+    "citations": "Bao et al. 2017 (Financial TS Prediction) \u2014 seq=20",
+    "hypothesis": "Sequence length = 20; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +2.485 did not beat then-current best",
+    "learning": "Result: composite +2.4851, test Sharpe +2.5851. Status: DISCARD."
+  },
+  "90": {
+    "diagnosis": "mlp experiment #90: mlp: Exp34 ep=100 pat=15 longer cosine (Loshchilov2016) seed=0",
+    "citations": "Loshchilov2016",
+    "hypothesis": "Epochs = 100; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +5.169 did not beat then-current best",
+    "learning": "Result: composite +5.1690, test Sharpe +5.1690. Status: DISCARD."
+  },
+  "91": {
+    "diagnosis": "mlp experiment #91: mlp: Exp35 bs=16 gradient noise reg (Smith2018) seed=0",
+    "citations": "Smith et al. 2018 (Don't Decay LR, Increase BS) \u2014 smoother grads",
+    "hypothesis": "Batch size = 16; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +5.399 did not beat then-current best",
+    "learning": "Result: composite +5.3995, test Sharpe +6.3617. Status: DISCARD."
+  },
+  "92": {
+    "diagnosis": "mlp experiment #92: mlp: Exp36 POST-BIOS verify champion must be +6.21",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Exp36 POST-BIOS verify champion must be +6.21",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.499)",
+    "learning": "Result: composite +5.4990, test Sharpe +6.2113. Status: KEEP."
+  },
+  "93": {
+    "diagnosis": "mlp experiment #93: mlp: Exp37 bs=64 larger batch smoother gradients seed=0",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Batch size = 64; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.090 did not beat then-current best",
+    "learning": "Result: composite +4.0901, test Sharpe +4.1901. Status: DISCARD."
+  },
+  "94": {
+    "diagnosis": "mlp experiment #94: mlp: Exp38 warmup=3 stabilize high-LR (Goyal2017) seed=0",
+    "citations": "Goyal et al. 2017 (Accurate Large Minibatch SGD) \u2014 warmup stabilization",
+    "hypothesis": "Seed = 0; With LR warmup",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.894 did not beat then-current best",
+    "learning": "Result: composite +4.8940, test Sharpe +4.9940. Status: DISCARD."
+  },
+  "95": {
+    "diagnosis": "mlp experiment #95: mlp: Exp39 smoke-test new metrics + trade CSV",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Exp39 smoke-test new metrics + trade CSV",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +1.354 did not beat then-current best",
+    "learning": "Result: composite +1.3540, test Sharpe +1.6540. Status: DISCARD."
+  },
+  "97": {
+    "diagnosis": "mlp experiment #97: mlp: Exp41 RESAVE champion with scaler for portability",
+    "citations": "(no explicit citation \u2014 starting-point or ad hoc)",
+    "hypothesis": "Exp41 RESAVE champion with scaler for portability",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.499)",
+    "learning": "Result: composite +5.4990, test Sharpe +6.2113. Status: KEEP."
+  },
+  "98": {
+    "diagnosis": "mlp experiment #98: mlp: Exp42 POST-CRASH safe-cores verify Exp41 (must match composite=5.499 tsh=6.2113)",
+    "citations": "must match composite=5.499 tsh=6.2113",
+    "hypothesis": "Exp42 POST-CRASH safe-cores verify Exp41 (must match composite=5.499 tsh=6.2113)",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.499)",
+    "learning": "Result: composite +5.4990, test Sharpe +6.2113. Status: KEEP."
+  },
+  "99": {
+    "diagnosis": "mlp experiment #99: mlp: POST-CRASH-2 60pct-CPU verify champion (must match composite=5.499 tsh=6.2113)",
+    "citations": "must match composite=5.499 tsh=6.2113",
+    "hypothesis": "POST-CRASH-2 60pct-CPU verify champion (must match composite=5.499 tsh=6.2113)",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "GLOBAL CHAMPION (composite +5.499)",
+    "learning": "Result: composite +5.4990, test Sharpe +6.2113. Status: KEEP."
+  },
+  "100": {
+    "diagnosis": "mlp experiment #100: mlp: Exp43 bs=64 smoother grads for crisis regimes (Smith2018) seed=0",
+    "citations": "Smith et al. 2018 (Don't Decay LR, Increase BS) \u2014 smoother grads",
+    "hypothesis": "Batch size = 64; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.090 did not beat then-current best",
+    "learning": "Result: composite +4.0901, test Sharpe +4.1901. Status: DISCARD."
+  },
+  "101": {
+    "diagnosis": "mlp experiment #101: mlp: Exp44 warmup=3 stabilize residual-MLP early training (Goyal2017) seed=0",
+    "citations": "Goyal et al. 2017 (Accurate Large Minibatch SGD) \u2014 warmup stabilization",
+    "hypothesis": "Seed = 0; With LR warmup; Residual skip-connection architecture",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.894 did not beat then-current best",
+    "learning": "Result: composite +4.8940, test Sharpe +4.9940. Status: DISCARD."
+  },
+  "102": {
+    "diagnosis": "mlp experiment #102: mlp: Exp45 huber=0.3 more robust to crisis fat tails (Huber1964) seed=0",
+    "citations": "Huber 1964 \u2014 robust loss for fat tails",
+    "hypothesis": "Huber delta = 0.3; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +5.218 did not beat then-current best",
+    "learning": "Result: composite +5.2180, test Sharpe +6.2170. Status: DISCARD."
+  },
+  "103": {
+    "diagnosis": "mlp experiment #103: mlp: Exp46 hd=0.10 less head reg explore capacity (Srivastava2014) seed=0",
+    "citations": "Srivastava et al. 2014 JMLR (Dropout) \u2014 0.2-0.5 for dense layers",
+    "hypothesis": "Head dropout = 0.10; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.155 did not beat then-current best",
+    "learning": "Result: composite +4.1546, test Sharpe +4.1546. Status: DISCARD."
+  },
+  "104": {
+    "diagnosis": "mlp experiment #104: mlp: Exp47 hidden=192 more capacity break trade-off (Tan2019 width scaling) seed=0",
+    "citations": "Tan & Le 2019 EfficientNet \u2014 width scaling",
+    "hypothesis": "Hidden size = 192; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.589 did not beat then-current best",
+    "learning": "Result: composite +4.5891, test Sharpe +4.6891. Status: DISCARD."
+  },
+  "105": {
+    "diagnosis": "lstm experiment #105: lstm: Exp1 SOTA baseline lr=1e-3 (Fischer&Krauss2018) seed=0",
+    "citations": "Fischer & Krauss 2018 EJOR (financial LSTM, SOTA lr=1e-3, ep=100, pat=15)",
+    "hypothesis": "Learning rate = 1e-3; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "KEEP \u2014 within-backbone best at time of run (composite +4.120)",
+    "learning": "Result: composite +4.1198, test Sharpe +4.3198. Status: KEEP."
+  },
+  "106": {
+    "diagnosis": "lstm experiment #106: lstm: Exp2 GPU huber=0.5 robust fat tails (Huber1964) seed=0",
+    "citations": "Huber 1964 \u2014 robust loss for fat tails",
+    "hypothesis": "Huber delta = 0.5; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +3.985 did not beat then-current best",
+    "learning": "Result: composite +3.9847, test Sharpe +4.1847. Status: DISCARD."
+  },
+  "107": {
+    "diagnosis": "lstm experiment #107: lstm: Exp3 SOTA ep=100 pat=15 (Fischer&Krauss2018 proper) seed=0",
+    "citations": "Fischer & Krauss 2018 EJOR (financial LSTM, SOTA lr=1e-3, ep=100, pat=15); Fischer & Krauss 2018 EJOR \u2014 full SOTA recipe (ep=100+, patience 15+)",
+    "hypothesis": "Epochs = 100; Seed = 0",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "KEEP \u2014 within-backbone best at time of run (composite +5.057)",
+    "learning": "Result: composite +5.0568, test Sharpe +5.8052. Status: KEEP."
+  },
+  "109": {
+    "diagnosis": "lstm experiment #109: lstm: Exp5 hd=0.30 push dropout further (Srivastava2014)",
+    "citations": "Srivastava et al. 2014 JMLR (Dropout) \u2014 0.2-0.5 for dense layers",
+    "hypothesis": "Head dropout = 0.30",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +6.022 did not beat then-current best",
+    "learning": "Result: composite +6.0221, test Sharpe +6.1221. Status: DISCARD."
+  },
+  "112": {
+    "diagnosis": "lstm experiment #112: lstm: Exp8 bs=64 smoother grads (Zaremba2014)",
+    "citations": "Zaremba et al. 2014 (Recurrent NN Regularization) \u2014 LSTM L2/dropout",
+    "hypothesis": "Batch size = 64",
+    "prediction": "(auto-backfilled: specific prediction not recorded)",
+    "verdict": "DISCARD \u2014 composite +4.304 did not beat then-current best",
+    "learning": "Result: composite +4.3043, test Sharpe +4.5043. Status: DISCARD."
+  },
+  "120": {
+    "diagnosis": "Upcoming: LayerNorm on LSTM input (post-standardization features).",
+    "citations": "Ba et al. 2016 (Layer Normalization).",
+    "hypothesis": "Normalizing feature statistics per-timestep may stabilize LSTM gate activations.",
+    "prediction": "Small positive or neutral effect.",
+    "verdict": "(pending)",
+    "learning": "(pending)",
+    "_manual": true
+  }
+}
