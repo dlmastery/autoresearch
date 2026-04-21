@@ -101,15 +101,53 @@ for b in bundles:
 print(f"\nGrouped {len(bundles)} pickles by seq_len: "
       f"{', '.join(f'seq={sl}:{len(bs)}' for sl, bs in groups.items())}")
 
-# Pick the group with the most members (if tied, the one with best individual)
-ensemble_group = max(groups.values(),
-                      key=lambda bs: (len(bs), max(b.get('composite') or 0 for b in bs)))
-print(f"Ensembling the seq_len={ensemble_group[0]['seq_len']} group "
-      f"({len(ensemble_group)} bundles).")
+# Run ensembling for EVERY seq_len group with 2+ members, so we don't
+# miss the higher-composite minority group.
+print(f"\nGroups to ensemble: "
+      f"{', '.join(f'seq={sl}({len(bs)})' for sl, bs in sorted(groups.items()) if len(bs) >= 2)}")
+
+
+def ensemble_group_report(ensemble_group, label):
+    print(f"\n--- seq_len={label} group ({len(ensemble_group)} bundles) ---")
+    per_bb = [predict_fold_windows(b, test_feat, test_tgt, FOLDS) for b in ensemble_group]
+    # Individual sharpes
+    for b, pf in zip(ensemble_group, per_bb):
+        ret = np.concatenate([np.sign(f["preds"]) * f["actuals"] for f in pf])
+        rpt = trading_report(ret)
+        ic = information_coefficient(
+            np.concatenate([f["preds"] for f in pf]),
+            np.concatenate([f["actuals"] for f in pf]))
+        print(f"  [{b['backbone']:<8}] {b['_path'].parent.name[:38]:<38}  "
+              f"Sharpe={sharpe_ratio(ret):+.4f}  "
+              f"Ret={rpt['total_return_pct']:+.2f}%  IC={ic['ic_spearman']:+.3f}")
+    # Ensemble three ways
+    ensembled = [{"actuals": f["actuals"]} for f in per_bb[0]]
+    for fi in range(len(ensembled)):
+        raw = np.column_stack([pf[fi]["preds"] for pf in per_bb])
+        ensembled[fi]["simple"] = raw.mean(axis=1)
+        z = np.column_stack([(pf[fi]["preds"] - pf[fi]["preds"].mean()) / (pf[fi]["preds"].std() + 1e-12) for pf in per_bb])
+        ensembled[fi]["zscore"] = z.mean(axis=1)
+        r = np.column_stack([rankdata(pf[fi]["preds"]) for pf in per_bb])
+        ensembled[fi]["rank"] = r.mean(axis=1) - (len(raw) + 1) / 2
+    for key in ("simple", "zscore", "rank"):
+        rets = np.concatenate([np.sign(f[key]) * f["actuals"] for f in ensembled])
+        rpt = trading_report(rets)
+        ic = information_coefficient(
+            np.concatenate([f[key] for f in ensembled]),
+            np.concatenate([f["actuals"] for f in ensembled]))
+        sh = sharpe_ratio(rets)
+        print(f"  ENSEMBLE {key:<7} Sharpe={sh:+.4f}  Ret={rpt['total_return_pct']:+.2f}%  "
+              f"IC={ic['ic_spearman']:+.3f}  Hit={ic['hit_rate']:.1f}%")
+
+
+for sl in sorted(groups.keys()):
+    if len(groups[sl]) >= 2:
+        ensemble_group_report(groups[sl], sl)
+sys.exit(0)  # skip the legacy code below
 
 # --- Per-backbone fold predictions ---
-per_backbone = [predict_fold_windows(b, test_feat, test_tgt, FOLDS) for b in ensemble_group]
-bundles = ensemble_group  # for downstream printing
+per_backbone = [predict_fold_windows(b, test_feat, test_tgt, FOLDS) for b in list(groups.values())[0]]
+bundles = list(groups.values())[0]
 
 # --- Ensemble strategies ---
 def composite_metric(per_fold):

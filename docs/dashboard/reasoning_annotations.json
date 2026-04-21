@@ -2045,5 +2045,25 @@
     "learning": "Test Sharpe +8.0134 | Val Sharpe +8.2221 | Train Sharpe +8.7442 | Return +1852.70% | Val loss 0.000000",
     "_manual": false,
     "_needs_rewrite": true
+  },
+  "235": {
+    "diagnosis": "TODO-REWRITE: lightgbm experiment #235. Description tag: lgbm: Exp16 seq=60 (ensemble matching). Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.0003; batch_size=32; seq_len=60; epochs=20; weight_decay=1e-05; patience=5; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite +9.0501, test Sharpe +9.2501 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +9.2501 | Val Sharpe +9.4060 | Train Sharpe +9.9710 | Return +539.65% | Val loss 0.000000",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "236": {
+    "diagnosis": "TODO-REWRITE: catboost experiment #236. Description tag: catboost: Exp16 seq=60 (ensemble matching). Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.0003; batch_size=32; seq_len=60; epochs=20; weight_decay=1e-05; patience=5; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite +8.8750, test Sharpe +9.7031 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +9.7031 | Val Sharpe +9.0750 | Train Sharpe +9.7504 | Return +583.97% | Val loss 0.000000",
+    "_manual": false,
+    "_needs_rewrite": true
   }
 }

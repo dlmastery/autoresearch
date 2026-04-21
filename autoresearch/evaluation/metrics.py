@@ -63,10 +63,15 @@ def probabilistic_sharpe_ratio(
     skew = float(np.mean(z ** 3))
     kurt = float(np.mean(z ** 4)) - 3.0  # excess kurtosis
 
-    # Standard error of the Sharpe ratio (Lo, 2002 + skew/kurtosis correction)
-    se = math.sqrt(
-        (1.0 - skew * sr_daily + (kurt / 4.0) * sr_daily ** 2) / max(n - 1, 1)
-    )
+    # Standard error of the Sharpe ratio (Lo, 2002 + skew/kurtosis correction).
+    # The bracketed term can go negative at extreme skew/kurt combinations
+    # (e.g. nearly-deterministic strategies on short windows) -- clamp to
+    # zero to avoid sqrt domain errors. PSR returned as 1.0 if the strategy
+    # dominates under the Lo/BLP framework (se collapses to 0).
+    bracket = 1.0 - skew * sr_daily + (kurt / 4.0) * sr_daily ** 2
+    if bracket <= 0.0:
+        return 1.0 if sr_daily > sr_bench_daily else 0.0
+    se = math.sqrt(bracket / max(n - 1, 1))
     if se < 1e-12:
         return 0.0
 
