@@ -368,7 +368,22 @@ Each row links to the paper Claude must re-read before starting the backbone. Th
 
 **Bonus Tier 2.5 candidates (add if budget allows):** DLinear/NLinear (Zeng et al. 2023 AAAI arXiv:2205.13504), N-HiTS (Challu et al. 2023 AAAI arXiv:2201.12886), TFT (Lim et al. 2021 IJF arXiv:1912.09363), Crossformer (Zhang & Yan 2023 ICLR), Autoformer (Wu et al. 2021 NeurIPS arXiv:2106.13008), N-BEATS (Oreshkin et al. 2020 ICLR arXiv:1905.10437), EMTSF ensemble (arXiv:2510.23396 2025). These are well-studied but less likely to beat Tier-2 foundation models at our n.
 
-#### Tier 3 — gradient boosted machines (each is its OWN backbone, run independently)
+#### Tier 3 — gradient boosted machines (50 experiments TOTAL across the three, split 20/15/15)
+
+**Per user instruction 2026-04-20: the *Boost family as a whole gets a 50-experiment budget, split by architectural distinctness rather than 50-each.** XGBoost receives the largest share because (a) it produced the global champion on Exp1 (+7.1686 composite), so the HP landscape around that champion is most valuable to map; (b) XGBoost's 2nd-order Newton boosting is the most-studied variant and has the richest HP surface (n_estimators × max_depth × lr × subsample × colsample × reg_alpha × reg_lambda × min_child_weight × gamma). LightGBM and CatBoost each get 15 experiments to cover their distinctive mechanisms without diluting the family-level exploration budget.
+
+**Budget allocation:**
+
+| Backbone | Exps | Focus |
+|---|---:|---|
+| **xgboost** | **20** | 1 baseline (done, champion +7.17) + 6 HP axes (depth, lr, subsample, colsample, reg_lambda, min_child_weight) + 5 variance seeds + 3 monotone-constraint experiments + 5 cross-axis refinements |
+| **lightgbm** | **15** | 1 baseline + 4 HP axes (num_leaves, min_data_in_leaf, feature_fraction, bagging_fraction) + 5 variance seeds + 5 GOSS vs standard sampling ablations |
+| **catboost** | **15** | 1 baseline + 4 HP axes (iterations, depth, l2_leaf_reg, bootstrap_type) + 5 variance seeds + 5 ordered-boosting ablations |
+| **TOTAL** | **50** | |
+
+Each is its OWN backbone — run independently with its own 50-mandate share, its own winner archive, its own reasoning annotations. **Do NOT bundle xgboost/lightgbm/catboost as "the GBM backbone"** — they are three separate architectures with different splitting algorithms, different regularisation mechanisms, and different category handling.
+
+#### Tier 3 recipe reference (each variant's starting-point SOTA config)
 
 GBMs are fundamentally different from neural nets: no epochs, no LR schedule, no batch. Iterations are tree-count. Each GBM has its own paper, its own hyperparameter language, its own 50-experiment exploration budget. **Do NOT bundle xgboost/lightgbm/catboost as "the GBM backbone" — they are three separate architectures with different splitting algorithms, different regularization mechanisms, and different category handling.** Explore each fully.
 
