@@ -138,6 +138,11 @@
       <div style="font-size:0.75em;color:#8b949e" id="chart-legend">
         <span style="color:#3fb950">— Strategy</span> &nbsp;
         <span style="color:#8b949e">— $1000 flat investment</span>
+        &nbsp;&nbsp;
+        <a id="chart-excel-link" href="autoresearch_equity.xlsx" download
+           style="background:#238636;color:#fff;text-decoration:none;padding:3px 8px;border-radius:4px;font-weight:600">
+          📥 Excel (all experiments + charts)
+        </a>
       </div>
     </div>
     <svg id="detail-chart" width="100%" height="220" viewBox="0 0 900 220" preserveAspectRatio="none" style="display:block"></svg>
@@ -335,7 +340,7 @@ function updateDetailWindows() {
     accuracy: e[pfx+'accuracy'] != null ? e[pfx+'accuracy'] : null,
   };
   renderWindows(windows, 'window-body', agg);
-  renderEquityChart(windows, activeTab, e);
+  renderEquityChart(windows, activeTab, e, selectedIdx);
   const psr = activeTab === 'test' ? fmt(e.psr) : '--';
   const eqStr = eq != null ? '$' + fmt(eq, 0) : '--';
   document.getElementById('tab-summary').innerHTML =
@@ -344,82 +349,215 @@ function updateDetailWindows() {
     `IC=${fmtSign(ic,3)}  Hit=${hit != null ? fmt(hit,1)+'%' : '--'}  PSR=${psr}  ${eqStr}`;
 }
 
+// Hardcoded fold date ranges (from data/splits.py FOLDS)
+const FOLD_DATES = {
+  test: [
+    {name:'fold_1', range:'2008-01/06', regime:'Pre-crisis+GFC'},
+    {name:'fold_2', range:'2010-01/06', regime:'Post-crash'},
+    {name:'fold_3', range:'2013-01/06', regime:'Eurozone debt'},
+    {name:'fold_4', range:'2015-04/12', regime:'Strong USD'},
+    {name:'fold_5', range:'2019-01/09', regime:'Low-vol'},
+    {name:'fold_6', range:'2022-01/09', regime:'EUR crisis'},
+    {name:'fold_7', range:'2025-01/09', regime:'Recent mixed'},
+  ],
+  val: [
+    {name:'fold_1', range:'2007-04/09', regime:'Pre-crisis'},
+    {name:'fold_2', range:'2009-04/09', regime:'Post-crash recovery'},
+    {name:'fold_3', range:'2012-04/09', regime:'Eurozone'},
+    {name:'fold_4', range:'2014-07/12', regime:'Strong USD'},
+    {name:'fold_5', range:'2018-04/09', regime:'Low-vol'},
+    {name:'fold_6', range:'2021-04/09', regime:'EUR crisis'},
+    {name:'fold_7', range:'2024-04/09', regime:'Recent'},
+  ],
+  train: [{name:'all_train', range:'2005-2023 (hole-punched)', regime:'Training'}],
+};
+
+// Parse CSV text to rows of {date, cumulative_return, fold}
+function parseTradesCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const hdr = lines[0].split(',');
+  const iDate = hdr.indexOf('date'), iFold = hdr.indexOf('fold'),
+        iCum = hdr.indexOf('cumulative_return'), iStrat = hdr.indexOf('strategy_return');
+  const out = [];
+  for (let i = 1; i < lines.length; i++) {
+    const p = lines[i].split(',');
+    if (p.length < 5) continue;
+    out.push({
+      date: p[iDate], fold: p[iFold],
+      cum: parseFloat(p[iCum]), strat: parseFloat(p[iStrat]),
+    });
+  }
+  return out;
+}
+
+// Compute daily equity across all folds, compounding forward through fold boundaries
+function computeDailyEquity(trades, startCapital) {
+  if (!trades || trades.length === 0) return { series: [], boundaries: [] };
+  // Group by fold, compound within then carry forward
+  let eq = startCapital;
+  const series = [{date: 'start', fold: 'start', eq: startCapital, idx: 0}];
+  const boundaries = [];
+  let curFold = null;
+  let foldStartIdx = 0;
+  trades.forEach((t, i) => {
+    if (t.fold !== curFold) {
+      if (curFold !== null) {
+        boundaries.push({fold: curFold, startIdx: foldStartIdx, endIdx: i});
+      }
+      curFold = t.fold;
+      foldStartIdx = i + 1;  // +1 because we add the "start" point
+    }
+    eq *= (1 + (t.strat || 0));
+    series.push({date: t.date, fold: t.fold, eq, idx: i + 1});
+  });
+  if (curFold !== null) {
+    boundaries.push({fold: curFold, startIdx: foldStartIdx, endIdx: trades.length});
+  }
+  return { series, boundaries };
+}
+
 // --- Equity-curve chart: strategy vs flat investment baseline across folds ---
-function renderEquityChart(windows, tab, expEntry) {
+async function renderEquityChart(windows, tab, expEntry, rowIdx) {
   const svg = document.getElementById('detail-chart');
   if (!svg) return;
-  // Filter out skipped/zero-fold entries
   const folds = (windows || []).filter(w => w && !w.skipped && w.return_pct != null);
   if (folds.length === 0) {
     svg.innerHTML = '<text x="450" y="110" text-anchor="middle" fill="#8b949e" font-size="14">No fold data to plot</text>';
     return;
   }
-  // Compound strategy equity across folds starting at $1000
   const startCapital = 1000;
-  const equitySeries = [startCapital];
-  const foldLabels = ['start'];
-  let cur = startCapital;
-  folds.forEach((w, i) => {
-    cur = cur * (1 + (w.return_pct || 0) / 100);
-    equitySeries.push(cur);
-    foldLabels.push(`fold_${i+1}`);
-  });
-  const maxE = Math.max(...equitySeries, startCapital * 1.05);
-  const minE = Math.min(...equitySeries, startCapital * 0.95);
-  const viewW = 900, viewH = 220;
-  const padL = 60, padR = 20, padT = 18, padB = 30;
+  const expNum = expEntry && expEntry.experiment_num;
+  let daily = null;
+
+  // Try to fetch per-trade CSV for daily-resolution curve (test tab only;
+  // trade_logs are only emitted for the test split)
+  if (tab === 'test' && expNum != null) {
+    try {
+      const r = await fetch(`trade_logs/exp${expNum}_trades.csv?t=${Date.now()}`);
+      if (r.ok) {
+        const csvText = await r.text();
+        const trades = parseTradesCSV(csvText);
+        if (trades.length > 0) daily = computeDailyEquity(trades, startCapital);
+      }
+    } catch (err) { /* fall back */ }
+  }
+
+  const viewW = 900, viewH = 240;
+  const padL = 60, padR = 20, padT = 18, padB = 52;  // more bottom for fold labels
   const plotW = viewW - padL - padR;
   const plotH = viewH - padT - padB;
-  const n = equitySeries.length;
-  const x = i => padL + (i / (n - 1)) * plotW;
-  const y = v => padT + plotH - ((v - minE) / (maxE - minE || 1)) * plotH;
-  // Build strategy polyline
-  const stratPts = equitySeries.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  // Investment baseline: flat $1000 line
-  const baselinePts = [[x(0), y(startCapital)], [x(n-1), y(startCapital)]]
-    .map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  // Y-axis ticks (4 levels)
-  const yTicks = [];
-  for (let k = 0; k < 4; k++) {
-    const v = minE + (k / 3) * (maxE - minE);
-    yTicks.push({ v, y: y(v) });
+
+  // Build series
+  let points, foldMeta, n;
+  if (daily && daily.series.length > 1) {
+    // Daily-resolution mode: one point per trading day, keep fold boundaries
+    points = daily.series.map(s => s.eq);
+    foldMeta = daily.boundaries;  // [{fold, startIdx, endIdx}]
+    n = points.length;
+  } else {
+    // Stepped per-fold fallback
+    points = [startCapital];
+    let cur = startCapital;
+    folds.forEach(w => {
+      cur *= (1 + (w.return_pct || 0) / 100);
+      points.push(cur);
+    });
+    foldMeta = folds.map((w, i) => ({
+      fold: `fold_${i+1}`, startIdx: i + 1, endIdx: i + 1,
+    }));
+    n = points.length;
   }
-  // X-axis labels
-  const xLabels = foldLabels.map((lbl, i) => ({ lbl, x: x(i) }));
-  // Build SVG innerHTML
+
+  const maxE = Math.max(...points, startCapital * 1.05);
+  const minE = Math.min(...points, startCapital * 0.95);
+  const useLog = maxE / Math.max(minE, 1) > 4;  // log-scale if dynamic range > 4x
+  const toY = v => {
+    const frac = useLog
+      ? (Math.log(v) - Math.log(minE)) / (Math.log(maxE) - Math.log(minE) || 1)
+      : (v - minE) / (maxE - minE || 1);
+    return padT + plotH - frac * plotH;
+  };
+  const toX = i => padL + (i / Math.max(n - 1, 1)) * plotW;
+
+  // Build SVG
   let svgHtml = '';
-  // grid
-  yTicks.forEach(t => {
-    svgHtml += `<line x1="${padL}" y1="${t.y.toFixed(1)}" x2="${viewW-padR}" y2="${t.y.toFixed(1)}" stroke="#30363d" stroke-width="0.5" stroke-dasharray="3,3"/>`;
-    svgHtml += `<text x="${padL-8}" y="${(t.y+4).toFixed(1)}" text-anchor="end" fill="#8b949e" font-size="10">$${t.v >= 10000 ? (t.v/1000).toFixed(1)+'k' : t.v.toFixed(0)}</text>`;
-  });
-  // baseline (flat $1000 investment)
-  svgHtml += `<polyline points="${baselinePts}" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="6,4"/>`;
-  // strategy line
-  svgHtml += `<polyline points="${stratPts}" fill="none" stroke="#3fb950" stroke-width="2.5"/>`;
-  // strategy points
-  equitySeries.forEach((v, i) => {
-    const cx = x(i).toFixed(1), cy = y(v).toFixed(1);
-    const col = v >= startCapital ? '#3fb950' : '#f85149';
-    svgHtml += `<circle cx="${cx}" cy="${cy}" r="3" fill="${col}" stroke="#0d1117" stroke-width="1"/>`;
-    if (i > 0) {
-      const ret = ((v / equitySeries[i-1] - 1) * 100).toFixed(2);
-      const sign = ret >= 0 ? '+' : '';
-      svgHtml += `<title>${foldLabels[i]}: $${v.toFixed(0)} (${sign}${ret}% this fold)</title>`;
+
+  // Horizontal gridlines + Y-axis ticks
+  const numTicks = 5;
+  for (let k = 0; k < numTicks; k++) {
+    const frac = k / (numTicks - 1);
+    const v = useLog
+      ? Math.exp(Math.log(minE) + frac * (Math.log(maxE) - Math.log(minE)))
+      : minE + frac * (maxE - minE);
+    const y0 = toY(v);
+    svgHtml += `<line x1="${padL}" y1="${y0.toFixed(1)}" x2="${viewW - padR}" y2="${y0.toFixed(1)}" stroke="#30363d" stroke-width="0.5" stroke-dasharray="3,3"/>`;
+    const lbl = v >= 10000 ? (v/1000).toFixed(1)+'k' : v.toFixed(0);
+    svgHtml += `<text x="${padL - 8}" y="${(y0 + 4).toFixed(1)}" text-anchor="end" fill="#8b949e" font-size="10">$${lbl}</text>`;
+  }
+
+  // Fold boundary shading (alternating bands) + labels with date ranges
+  const foldRanges = FOLD_DATES[tab] || FOLD_DATES.test;
+  foldMeta.forEach((fm, fi) => {
+    const x1 = toX(Math.max(fm.startIdx, 0));
+    const x2 = toX(Math.min(fm.endIdx, n - 1));
+    if (fi % 2 === 0) {
+      svgHtml += `<rect x="${x1.toFixed(1)}" y="${padT}" width="${(x2 - x1).toFixed(1)}" height="${plotH}" fill="#161b22" opacity="0.4"/>`;
+    }
+    // Mid-fold label with date range
+    const mid = (x1 + x2) / 2;
+    const meta = foldRanges[fi] || {name: fm.fold, range: '', regime: ''};
+    svgHtml += `<text x="${mid.toFixed(1)}" y="${(viewH - 28).toFixed(1)}" text-anchor="middle" fill="#c9d1d9" font-size="10" font-weight="600">${meta.name}</text>`;
+    svgHtml += `<text x="${mid.toFixed(1)}" y="${(viewH - 16).toFixed(1)}" text-anchor="middle" fill="#8b949e" font-size="9">${meta.range}</text>`;
+    svgHtml += `<text x="${mid.toFixed(1)}" y="${(viewH - 5).toFixed(1)}" text-anchor="middle" fill="#484f58" font-size="8">${meta.regime}</text>`;
+    // Thin vertical fold boundary marker
+    if (fi > 0) {
+      svgHtml += `<line x1="${x1.toFixed(1)}" y1="${padT}" x2="${x1.toFixed(1)}" y2="${(padT + plotH).toFixed(1)}" stroke="#484f58" stroke-width="0.5" stroke-dasharray="2,2"/>`;
     }
   });
-  // x-axis labels
-  xLabels.forEach(xl => {
-    svgHtml += `<text x="${xl.x.toFixed(1)}" y="${viewH - 8}" text-anchor="middle" fill="#8b949e" font-size="10">${xl.lbl}</text>`;
-  });
+
+  // Investment baseline ($1000)
+  const y1000 = toY(startCapital);
+  svgHtml += `<line x1="${padL}" y1="${y1000.toFixed(1)}" x2="${(viewW - padR).toFixed(1)}" y2="${y1000.toFixed(1)}" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="6,4"/>`;
+  svgHtml += `<text x="${(padL + 4).toFixed(1)}" y="${(y1000 - 4).toFixed(1)}" fill="#8b949e" font-size="9">$1000 investment baseline</text>`;
+
+  // Strategy equity polyline
+  const stratPts = points.map((v, i) => `${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
+  svgHtml += `<polyline points="${stratPts}" fill="none" stroke="#3fb950" stroke-width="2"/>`;
+
+  // Mark fold-END points only (not every daily point — keeps chart readable)
+  if (daily) {
+    foldMeta.forEach(fm => {
+      const i = Math.min(fm.endIdx, n - 1);
+      const v = points[i];
+      const cx = toX(i).toFixed(1), cy = toY(v).toFixed(1);
+      const col = v >= startCapital ? '#3fb950' : '#f85149';
+      svgHtml += `<circle cx="${cx}" cy="${cy}" r="3" fill="${col}" stroke="#0d1117" stroke-width="1"/>`;
+      svgHtml += `<title>${fm.fold} end: $${v.toFixed(0)}</title>`;
+    });
+  } else {
+    points.forEach((v, i) => {
+      const col = v >= startCapital ? '#3fb950' : '#f85149';
+      svgHtml += `<circle cx="${toX(i).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="3" fill="${col}" stroke="#0d1117" stroke-width="1"/>`;
+    });
+  }
+
   // Final equity annotation at right
-  const finalEq = equitySeries[equitySeries.length - 1];
+  const finalEq = points[n - 1];
   const finalRet = ((finalEq / startCapital - 1) * 100);
   const finalCol = finalEq >= startCapital ? '#3fb950' : '#f85149';
-  svgHtml += `<text x="${(viewW-padR-4).toFixed(1)}" y="${(y(finalEq)-8).toFixed(1)}" text-anchor="end" fill="${finalCol}" font-size="12" font-weight="600">$${finalEq.toFixed(0)} (${finalRet >= 0 ? '+' : ''}${finalRet.toFixed(1)}%)</text>`;
-  // Tab indicator
-  svgHtml += `<text x="${padL}" y="12" fill="#58a6ff" font-size="10" font-weight="600">${tab.toUpperCase()}</text>`;
+  svgHtml += `<text x="${(viewW - padR - 4).toFixed(1)}" y="${(toY(finalEq) - 8).toFixed(1)}" text-anchor="end" fill="${finalCol}" font-size="12" font-weight="600">$${finalEq.toFixed(0)} (${finalRet >= 0 ? '+' : ''}${finalRet.toFixed(1)}%)</text>`;
+
+  // Header label (tab + mode + scale)
+  const modeLbl = daily ? 'DAILY (from trade log)' : 'STEPPED (per-fold)';
+  const scaleLbl = useLog ? 'log-scale' : 'linear';
+  svgHtml += `<text x="${padL}" y="12" fill="#58a6ff" font-size="10" font-weight="600">${tab.toUpperCase()} · ${modeLbl} · ${scaleLbl} Y</text>`;
+
   svg.innerHTML = svgHtml;
+
+  // Update download link
+  const dl = document.getElementById('chart-excel-link');
+  if (dl) dl.href = `autoresearch_equity.xlsx?t=${Date.now()}`;
 }
 
 function showDetail(idx) {

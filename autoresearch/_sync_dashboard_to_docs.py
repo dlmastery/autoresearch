@@ -37,6 +37,18 @@ for name in OPTIONAL:
     if src.exists():
         shutil.copy2(src, DST / name)
 
+# Copy trade_logs/ so the dashboard can fetch per-trade daily data for
+# real equity curves (not just stepped per-fold endpoints).
+trade_src = SRC / "trade_logs"
+trade_dst = DST / "trade_logs"
+if trade_src.exists():
+    trade_dst.mkdir(exist_ok=True)
+    n_copied = 0
+    for csv in trade_src.glob("exp*_trades.csv"):
+        shutil.copy2(csv, trade_dst / csv.name)
+        n_copied += 1
+    print(f"  [trade_logs] copied {n_copied} per-trade CSV files")
+
 # Add / refresh a lightweight landing pointer at docs/index.md so the
 # github.io home surfaces the dashboard
 index = ROOT / "docs" / "index.md"
@@ -53,6 +65,18 @@ if index.exists():
         )
         index.write_text(content + addition, encoding="utf-8")
 
-total = sum(f.stat().st_size for f in DST.iterdir() if f.is_file())
-print(f"Synced {len(list(DST.iterdir()))} files to docs/dashboard/ "
+# Regenerate the all-experiments Excel download (with embedded chart)
+try:
+    import subprocess
+    subprocess.run([
+        "python",
+        str(Path(__file__).parent / "_export_equity_excel.py")
+    ], check=True, capture_output=True)
+    print("  [excel] autoresearch_equity.xlsx refreshed")
+except Exception as e:
+    print(f"  [excel] WARN: failed to regenerate xlsx: {e}")
+
+total = sum(f.stat().st_size for f in DST.rglob("*") if f.is_file())
+n_files = sum(1 for f in DST.rglob("*") if f.is_file())
+print(f"Synced {n_files} files to docs/dashboard/ "
       f"({total / 1024 / 1024:.2f} MB). Ready for git commit + push.")
