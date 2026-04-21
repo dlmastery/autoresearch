@@ -93,8 +93,23 @@ if len(bundles) < 2:
     print("Need at least 2 GBM champions to ensemble. Exiting.")
     sys.exit(0)
 
+# --- Group bundles by seq_len (ensemble requires matching prediction lengths) ---
+from collections import defaultdict
+groups = defaultdict(list)
+for b in bundles:
+    groups[b["seq_len"]].append(b)
+print(f"\nGrouped {len(bundles)} pickles by seq_len: "
+      f"{', '.join(f'seq={sl}:{len(bs)}' for sl, bs in groups.items())}")
+
+# Pick the group with the most members (if tied, the one with best individual)
+ensemble_group = max(groups.values(),
+                      key=lambda bs: (len(bs), max(b.get('composite') or 0 for b in bs)))
+print(f"Ensembling the seq_len={ensemble_group[0]['seq_len']} group "
+      f"({len(ensemble_group)} bundles).")
+
 # --- Per-backbone fold predictions ---
-per_backbone = [predict_fold_windows(b, test_feat, test_tgt, FOLDS) for b in bundles]
+per_backbone = [predict_fold_windows(b, test_feat, test_tgt, FOLDS) for b in ensemble_group]
+bundles = ensemble_group  # for downstream printing
 
 # --- Ensemble strategies ---
 def composite_metric(per_fold):
