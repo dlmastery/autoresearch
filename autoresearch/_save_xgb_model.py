@@ -1,6 +1,6 @@
-"""Retrain + serialise the XGBoost champion to the winner archive (pickle).
-The runner's best_model.pt save path is torch-only; GBMs need a separate
-serialisation. Runs the champion config and dumps the fitted GBMWrapper."""
+"""Retrain + serialise the CURRENT XGBoost champion to the winner archive.
+Updated 2026-04-20 for Exp6: depth=4 lr=0.01 (composite +7.7601).
+"""
 import pickle
 import sys
 sys.path.insert(0, "C:/Users/evija/autoresearch")
@@ -37,27 +37,26 @@ for seg_start, seg_end in find_contiguous_segments(train_feat.index):
 
 X = np.concatenate(X_parts); y = np.concatenate(y_parts)
 model = GBMWrapper("xgboost", n_targets=2, hp_overrides={
-    "n_estimators": 1500, "max_depth": 6, "learning_rate": 0.03,
+    "n_estimators": 1500, "max_depth": 4, "learning_rate": 0.01,
     "subsample": 0.8, "colsample_bytree": 0.8,
     "min_child_weight": 1, "gamma": 0, "reg_alpha": 0, "reg_lambda": 1.0,
-    "tree_method": "hist",
+    "tree_method": "hist", "random_state": 42,
 })
 model.fit(X, y)
 
-# Save the fitted GBMWrapper + scaler + feature columns + provenance
 bundle = {
     "gbm_wrapper": model,
-    "scaler_mean": scaler.mean_,
-    "scaler_scale": scaler.scale_,
+    "scaler_mean": scaler.mean_, "scaler_scale": scaler.scale_,
     "feature_columns": list(train_feat.columns),
     "target_columns": list(train_tgt.columns),
-    "seq_len": seq_len,
-    "backbone": "xgboost",
-    "composite": 7.1686,
-    "notes": "XGBoost SOTA recipe champion. See winners/xgboost_exp1_sota_seed42/README.md",
+    "seq_len": seq_len, "backbone": "xgboost",
+    "composite": 7.7601,
+    "recipe": "depth=4 lr=0.01 (XGBoost Exp6, champion 2026-04-20)",
 }
 
-out = "C:/Users/evija/autoresearch/autoresearch/autoresearch_results/winners/xgboost_exp1_sota_seed42/xgboost_model.pkl"
+out = "C:/Users/evija/autoresearch/autoresearch/autoresearch_results/winners/xgboost_exp6_depth4_lr0p01/xgboost_model.pkl"
+from pathlib import Path
+Path(out).parent.mkdir(parents=True, exist_ok=True)
 with open(out, "wb") as f:
     pickle.dump(bundle, f)
 import os

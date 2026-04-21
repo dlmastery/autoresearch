@@ -456,17 +456,27 @@ async function renderEquityChart(windows, tab, expEntry, rowIdx) {
     foldMeta = daily.boundaries;  // [{fold, startIdx, endIdx}]
     n = points.length;
   } else {
-    // Stepped per-fold fallback
+    // Stepped per-fold fallback (used for train/val + any test run without trade_log)
     points = [startCapital];
     let cur = startCapital;
     folds.forEach(w => {
       cur *= (1 + (w.return_pct || 0) / 100);
       points.push(cur);
     });
+    // Segment i occupies points [i .. i+1] so shaded band + label cover the fold
     foldMeta = folds.map((w, i) => ({
-      fold: `fold_${i+1}`, startIdx: i + 1, endIdx: i + 1,
+      fold: w.fold || `fold_${i+1}`,
+      startIdx: i,
+      endIdx: i + 1,
     }));
     n = points.length;
+  }
+
+  // For "train" tab with a single aggregated row, synthesise a minimal 2-point
+  // curve so the chart still renders meaningfully (single segment).
+  if (n < 2) {
+    svg.innerHTML = '<text x="450" y="110" text-anchor="middle" fill="#8b949e" font-size="14">Not enough fold data to plot (n < 2)</text>';
+    return;
   }
 
   const maxE = Math.max(...points, startCapital * 1.05);
