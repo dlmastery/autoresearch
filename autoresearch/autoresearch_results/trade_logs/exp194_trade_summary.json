@@ -1,0 +1,79 @@
+{
+  "exp": 194,
+  "total_trades": 973,
+  "wins": 764,
+  "losses": 209,
+  "total_pnl_bps": 29721.755110840604,
+  "per_fold": {
+    "fold_1": {
+      "n": 103,
+      "wins": 54,
+      "losses": 49,
+      "avg_win_bps": 60.23,
+      "avg_loss_bps": -67.01,
+      "max_win_bps": 686.52,
+      "max_loss_bps": -754.26,
+      "win_rate": 52.43
+    },
+    "fold_2": {
+      "n": 107,
+      "wins": 62,
+      "losses": 45,
+      "avg_win_bps": 59.69,
+      "avg_loss_bps": -53.95,
+      "max_win_bps": 172.78,
+      "max_loss_bps": -176.11,
+      "win_rate": 57.94
+    },
+    "fold_3": {
+      "n": 106,
+      "wins": 89,
+      "losses": 17,
+      "avg_win_bps": 46.59,
+      "avg_loss_bps": -22.13,
+      "max_win_bps": 127.17,
+      "max_loss_bps": -91.93,
+      "win_rate": 83.96
+    },
+    "fold_4": {
+      "n": 168,
+      "wins": 150,
+      "losses": 18,
+      "avg_win_bps": 58.72,
+      "avg_loss_bps": -25.4,
+      "max_win_bps": 285.45,
+      "max_loss_bps": -181.16,
+      "win_rate": 89.29
+    },
+    "fold_5": {
+      "n": 162,
+      "wins": 135,
+      "losses": 27,
+      "avg_win_bps": 28.3,
+      "avg_loss_bps": -6.93,
+      "max_win_bps": 122.22,
+      "max_loss_bps": -17.75,
+      "win_rate": 83.33
+    },
+    "fold_6": {
+      "n": 165,
+      "wins": 135,
+      "losses": 30,
+      "avg_win_bps": 54.25,
+      "avg_loss_bps": -15.75,
+      "max_win_bps": 173.78,
+      "max_loss_bps": -43.11,
+      "win_rate": 81.82
+    },
+    "fold_7": {
+      "n": 162,
+      "wins": 139,
+      "losses": 23,
+      "avg_win_bps": 46.52,
+      "avg_loss_bps": -25.78,
+      "max_win_bps": 279.19,
+      "max_loss_bps": -158.04,
+      "win_rate": 85.8
+    }
+  }
+}
