@@ -35,6 +35,10 @@ BACKBONE_REGISTRY: dict[str, str] = {
     "patchtst": "PatchTST — Patch Time Series Transformer (Nie et al., ICLR 2023)",
     "patchtsmixer": "PatchTSMixer — MLP-Mixer for time series (Google, NeurIPS 2023)",
     "mamba": "Mamba — Selective State Space Model (Gu & Dao 2024, arXiv:2312.00752). Variants via --mamba-variant {vanilla, s_mamba, dmamba, mambats}",
+    "dlinear": "DLinear — Decomposition + Linear (Zeng et al., AAAI 2023, arXiv:2205.13504)",
+    "nbeats": "N-BEATS — Neural Basis Expansion (Oreshkin et al., ICLR 2020, arXiv:1905.10437)",
+    "itransformer": "iTransformer — Inverted Transformer (Liu et al., ICLR 2024, arXiv:2310.06625)",
+    "xlstm": "xLSTM — Extended LSTM with exponential gating (Beck et al., NeurIPS 2024, arXiv:2405.04517)",
     "xgboost": "XGBoost gradient boosting (Chen & Guestrin, 2016)",
     "lightgbm": "LightGBM gradient boosting (Ke et al., NeurIPS 2017)",
     "catboost": "CatBoost gradient boosting (Prokhorenkova et al., NeurIPS 2018)",
@@ -357,6 +361,193 @@ class CurrencyMamba(nn.Module):
         else:
             hidden = h[:, -1, :]
 
+        return _forward_heads(self.heads, hidden, self.het_loss)
+
+
+# ---------------------------------------------------------------------------
+# DLinear — Decomposition-Linear (Zeng et al. AAAI 2023, arXiv:2205.13504)
+# "Are Transformers Effective for Time Series Forecasting?"
+# Splits the input into trend (moving average) + seasonal residual, applies
+# a linear layer to each, sums the result. Despite being trivially simple,
+# it beats many transformer TS baselines.
+# ---------------------------------------------------------------------------
+class CurrencyDLinear(nn.Module):
+    def __init__(self, n_input_features: int, seq_len: int = 10,
+                 kernel_size: int = 25, hidden_size: int = 128,
+                 head_dropout: float = 0.1, het_loss: bool = True):
+        super().__init__()
+        self.het_loss = het_loss
+        self.seq_len = seq_len
+        # Moving-average pooling for trend component; odd kernel for symmetric padding
+        k = min(kernel_size, seq_len) if seq_len >= 3 else max(3, seq_len)
+        if k % 2 == 0:
+            k -= 1
+        self.kernel = k
+        self.pool = nn.AvgPool1d(kernel_size=k, stride=1, padding=(k - 1) // 2)
+        flat = seq_len * n_input_features
+        self.trend_lin = nn.Linear(flat, hidden_size)
+        self.seasonal_lin = nn.Linear(flat, hidden_size)
+        self.heads = _make_heads(hidden_size, dropout=head_dropout, het_loss=het_loss)
+
+    def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
+        # x: [B, L, D]
+        x_t = x.transpose(1, 2)               # [B, D, L]
+        trend = self.pool(x_t).transpose(1, 2)  # [B, L, D]
+        seasonal = x - trend
+        B = x.size(0)
+        h = self.trend_lin(trend.reshape(B, -1)) + self.seasonal_lin(seasonal.reshape(B, -1))
+        h = F.gelu(h)
+        return _forward_heads(self.heads, h, self.het_loss)
+
+
+# ---------------------------------------------------------------------------
+# N-BEATS — Neural Basis Expansion (Oreshkin et al. ICLR 2020, arXiv:1905.10437)
+# Stack of MLP blocks that jointly predict a backcast (reconstructing the
+# input) + forecast; each block subtracts its backcast from the residual so
+# subsequent blocks refine the remainder. Here we use a generic (not
+# trend/seasonality-interpretable) version for regression.
+# ---------------------------------------------------------------------------
+class NBeatsBlock(nn.Module):
+    def __init__(self, input_dim: int, hidden: int, theta_b: int, theta_f: int,
+                 n_layers: int = 4):
+        super().__init__()
+        layers = []
+        d = input_dim
+        for _ in range(n_layers):
+            layers += [nn.Linear(d, hidden), nn.ReLU()]
+            d = hidden
+        self.trunk = nn.Sequential(*layers)
+        self.b_proj = nn.Linear(hidden, theta_b)
+        self.f_proj = nn.Linear(hidden, theta_f)
+
+    def forward(self, x):
+        h = self.trunk(x)
+        return self.b_proj(h), self.f_proj(h)
+
+
+class CurrencyNBeats(nn.Module):
+    def __init__(self, n_input_features: int, seq_len: int = 10,
+                 n_stacks: int = 3, blocks_per_stack: int = 3, hidden: int = 256,
+                 head_dropout: float = 0.1, het_loss: bool = True):
+        super().__init__()
+        self.het_loss = het_loss
+        self.input_dim = seq_len * n_input_features
+        self.blocks = nn.ModuleList()
+        for _ in range(n_stacks):
+            for _ in range(blocks_per_stack):
+                self.blocks.append(NBeatsBlock(
+                    self.input_dim, hidden,
+                    theta_b=self.input_dim, theta_f=hidden,
+                ))
+        self.heads = _make_heads(hidden, dropout=head_dropout, het_loss=het_loss)
+
+    def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
+        B = x.size(0)
+        res = x.reshape(B, -1)  # [B, seq_len*n_features]
+        forecast = torch.zeros(B, self.blocks[0].f_proj.out_features,
+                                device=x.device, dtype=x.dtype)
+        for blk in self.blocks:
+            b, f = blk(res)
+            res = res - b
+            forecast = forecast + f
+        return _forward_heads(self.heads, forecast, self.het_loss)
+
+
+# ---------------------------------------------------------------------------
+# iTransformer — Inverted Transformer (Liu et al. ICLR 2024, arXiv:2310.06625)
+# Inverts the attention: treats each FEATURE as a token (not each timestep).
+# For multivariate with many variates, variate-attention captures cross-feature
+# structure that temporal attention misses. Our 104 features × 10+ timesteps
+# is exactly the regime this paper targets.
+# ---------------------------------------------------------------------------
+class CurrencyITransformer(nn.Module):
+    def __init__(self, n_input_features: int, seq_len: int = 10,
+                 hidden_size: int = 128, num_heads: int = 4, num_layers: int = 2,
+                 head_dropout: float = 0.1, het_loss: bool = True):
+        super().__init__()
+        self.het_loss = het_loss
+        # Each feature becomes a token; its "embedding" is its seq_len-long
+        # history (linear projection: seq_len -> hidden_size).
+        self.feat_embed = nn.Linear(seq_len, hidden_size)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=hidden_size, nhead=num_heads,
+            dim_feedforward=hidden_size * 2,
+            dropout=0.1, batch_first=True, activation="gelu",
+        )
+        self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        # Pool over features then predict
+        self.heads = _make_heads(hidden_size, dropout=head_dropout, het_loss=het_loss)
+
+    def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
+        # x: [B, L, D] -> invert to [B, D, L] so each feature is a token
+        x_t = x.transpose(1, 2)                # [B, D, L]
+        tokens = self.feat_embed(x_t)          # [B, D, hidden]
+        enc = self.encoder(tokens)             # [B, D, hidden]
+        pooled = enc.mean(dim=1)               # [B, hidden]  — mean over variates
+        return _forward_heads(self.heads, pooled, self.het_loss)
+
+
+# ---------------------------------------------------------------------------
+# xLSTM — Extended LSTM (Beck et al. NeurIPS 2024, arXiv:2405.04517)
+# Replaces sigmoid gates with exponential gates; adds a normalizer state
+# n_t = f_t · n_{t-1} + i_t so output is c_t / max(|n_t|, 1). This is the
+# sLSTM variant (scalar state). mLSTM (matrix state) is heavier; our input
+# is small enough that sLSTM is the right choice.
+# ---------------------------------------------------------------------------
+class sLSTMCell(nn.Module):
+    """Single scalar-state xLSTM cell (Beck 2024 Section 2, Eq 6-9)."""
+
+    def __init__(self, input_size: int, hidden_size: int):
+        super().__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        # Standard 4 gates + normaliser (5 projections per direction)
+        self.W = nn.Linear(input_size, 5 * hidden_size, bias=True)
+        self.U = nn.Linear(hidden_size, 5 * hidden_size, bias=False)
+
+    def forward(self, x_seq):
+        # x_seq: [B, L, input_size]
+        B, L, _ = x_seq.shape
+        H = self.hidden_size
+        h = torch.zeros(B, H, device=x_seq.device, dtype=x_seq.dtype)
+        c = torch.zeros(B, H, device=x_seq.device, dtype=x_seq.dtype)
+        n = torch.ones(B, H, device=x_seq.device, dtype=x_seq.dtype)  # normaliser
+        m = torch.zeros(B, H, device=x_seq.device, dtype=x_seq.dtype)  # stabilizer
+        outputs = []
+        for t in range(L):
+            gates = self.W(x_seq[:, t]) + self.U(h)
+            i, f, z, o, _unused = gates.chunk(5, dim=-1)
+            # Exponential gating (Beck 2024 Eq 7)
+            m_new = torch.maximum(f + m, i)
+            i_g = torch.exp(i - m_new)
+            f_g = torch.exp(f + m - m_new)
+            c = f_g * c + i_g * torch.tanh(z)
+            n = f_g * n + i_g
+            h = torch.sigmoid(o) * (c / torch.clamp(torch.abs(n), min=1.0))
+            m = m_new
+            outputs.append(h)
+        return torch.stack(outputs, dim=1)  # [B, L, H]
+
+
+class CurrencyxLSTM(nn.Module):
+    def __init__(self, n_input_features: int, hidden_size: int = 128,
+                 num_layers: int = 2, head_dropout: float = 0.1,
+                 het_loss: bool = True):
+        super().__init__()
+        self.het_loss = het_loss
+        self.cells_fwd = nn.ModuleList()
+        in_dim = n_input_features
+        for _ in range(num_layers):
+            self.cells_fwd.append(sLSTMCell(in_dim, hidden_size))
+            in_dim = hidden_size
+        self.norm = nn.LayerNorm(hidden_size)
+        self.heads = _make_heads(hidden_size, dropout=head_dropout, het_loss=het_loss)
+
+    def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
+        h = x
+        for cell in self.cells_fwd:
+            h = cell(h)
+        hidden = self.norm(h[:, -1, :])
         return _forward_heads(self.heads, hidden, self.het_loss)
 
 
@@ -760,6 +951,28 @@ def create_model(
         if mamba_expand is not None:
             kwargs["expand"] = mamba_expand
         return CurrencyMamba(n_input_features, **kwargs)
+    elif backbone == "dlinear":
+        kwargs = dict(seq_len=seq_len, head_dropout=head_dropout, het_loss=het_loss)
+        if hidden_size is not None:
+            kwargs["hidden_size"] = hidden_size
+        return CurrencyDLinear(n_input_features, **kwargs)
+    elif backbone == "nbeats":
+        kwargs = dict(seq_len=seq_len, head_dropout=head_dropout, het_loss=het_loss)
+        return CurrencyNBeats(n_input_features, **kwargs)
+    elif backbone == "itransformer":
+        kwargs = dict(seq_len=seq_len, head_dropout=head_dropout, het_loss=het_loss)
+        if hidden_size is not None:
+            kwargs["hidden_size"] = hidden_size
+        if num_layers is not None:
+            kwargs["num_layers"] = num_layers
+        return CurrencyITransformer(n_input_features, **kwargs)
+    elif backbone == "xlstm":
+        kwargs = dict(head_dropout=head_dropout, het_loss=het_loss)
+        if hidden_size is not None:
+            kwargs["hidden_size"] = hidden_size
+        if num_layers is not None:
+            kwargs["num_layers"] = num_layers
+        return CurrencyxLSTM(n_input_features, **kwargs)
     elif backbone in GBM_BACKBONES:
         return GBMWrapper(backbone, n_targets=2, hp_overrides=gbm_hp_overrides)
     else:

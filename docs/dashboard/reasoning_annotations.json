@@ -2065,5 +2065,155 @@
     "learning": "Test Sharpe +9.7031 | Val Sharpe +9.0750 | Train Sharpe +9.7504 | Return +583.97% | Val loss 0.000000",
     "_manual": false,
     "_needs_rewrite": true
+  },
+  "237": {
+    "diagnosis": "TODO-REWRITE: dlinear experiment #237. Description tag: dlinear: Exp1 SOTA baseline seq=10. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=10; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.15; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite +3.1580, test Sharpe +3.2580 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +3.2580 | Val Sharpe +3.3043 | Train Sharpe +6.3472 | Return +271.92% | Val loss 0.000051",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "238": {
+    "diagnosis": "TODO-REWRITE: dlinear experiment #238. Description tag: dlinear: Exp2 seq=60 (GBM-winning). Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.15; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.2546, test Sharpe +1.1245 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +1.1245 | Val Sharpe +0.0454 | Train Sharpe +4.0544 | Return +28.53% | Val loss 0.000109",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "239": {
+    "diagnosis": "TODO-REWRITE: dlinear experiment #239. Description tag: dlinear: Exp3 seq=30. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=30; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.15; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite +0.9379, test Sharpe +1.0379 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +1.0379 | Val Sharpe +1.2919 | Train Sharpe +6.5865 | Return +37.21% | Val loss 0.000067",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "240": {
+    "diagnosis": "TODO-REWRITE: dlinear experiment #240. Description tag: dlinear: Exp4 lr=3e-4 slower. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.0003; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.15; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.6308, test Sharpe +0.0692 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +0.0692 | Val Sharpe +0.2568 | Train Sharpe +5.6136 | Return +0.51% | Val loss 0.000124",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "241": {
+    "diagnosis": "TODO-REWRITE: dlinear experiment #241. Description tag: dlinear: Exp5 hidden=256. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.15; warmup_epochs=0; hidden_size=256; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.4016, test Sharpe +0.7713 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +0.7713 | Val Sharpe +0.1984 | Train Sharpe +8.4148 | Return +18.40% | Val loss 0.000142",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "242": {
+    "diagnosis": "TODO-REWRITE: dlinear experiment #242. Description tag: dlinear: Exp6 seed=0. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.15; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.9142, test Sharpe -0.3142 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe -0.3142 | Val Sharpe +0.5589 | Train Sharpe +6.2162 | Return -8.10% | Val loss 0.000098",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "243": {
+    "diagnosis": "TODO-REWRITE: nbeats experiment #243. Description tag: nbeats: Exp1 baseline seq=10. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=10; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.1521, test Sharpe +0.3479 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +0.3479 | Val Sharpe +1.6492 | Train Sharpe +0.7957 | Return +13.08% | Val loss 0.000038",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "244": {
+    "diagnosis": "TODO-REWRITE: nbeats experiment #244. Description tag: nbeats: Exp2 seq=60 (GBM-winning). Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.9695, test Sharpe -0.4695 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe -0.4695 | Val Sharpe +0.5363 | Train Sharpe +0.3601 | Return -11.37% | Val loss 0.000039",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "245": {
+    "diagnosis": "TODO-REWRITE: nbeats experiment #245. Description tag: nbeats: Exp3 seq=30. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=30; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.9505, test Sharpe -0.1505 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe -0.1505 | Val Sharpe +0.3146 | Train Sharpe +1.0875 | Return -6.18% | Val loss 0.000041",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "246": {
+    "diagnosis": "TODO-REWRITE: nbeats experiment #246. Description tag: nbeats: Exp4 lr=5e-4. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.0005; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.7606, test Sharpe -0.0606 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe -0.0606 | Val Sharpe +0.7942 | Train Sharpe +0.5080 | Return -2.49% | Val loss 0.000043",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "247": {
+    "diagnosis": "TODO-REWRITE: nbeats experiment #247. Description tag: nbeats: Exp5 head_dropout=0.25. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.25; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -0.4269, test Sharpe +0.9498 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +0.9498 | Val Sharpe +0.0731 | Train Sharpe +0.4409 | Return +23.42% | Val loss 0.000031",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "248": {
+    "diagnosis": "TODO-REWRITE: nbeats experiment #248. Description tag: nbeats: Exp6 wd=1e-3. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -1.1430, test Sharpe -0.3430 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe -0.3430 | Val Sharpe -0.1723 | Train Sharpe +1.0628 | Return -8.71% | Val loss 0.000034",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "249": {
+    "diagnosis": "TODO-REWRITE: nbeats experiment #249. Description tag: nbeats: Exp7 seed=0. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -1.9516, test Sharpe -1.0516 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe -1.0516 | Val Sharpe +0.5405 | Train Sharpe +0.3601 | Return -22.60% | Val loss 0.000032",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "250": {
+    "diagnosis": "TODO-REWRITE: nbeats experiment #250. Description tag: nbeats: Exp8 seed=13 variance. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.1; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite -1.9549, test Sharpe -0.9549 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe -0.9549 | Val Sharpe -0.2093 | Train Sharpe +0.4451 | Return -20.84% | Val loss 0.000033",
+    "_manual": false,
+    "_needs_rewrite": true
+  },
+  "251": {
+    "diagnosis": "TODO-REWRITE: dlinear experiment #251. Description tag: dlinear: Exp7 seq=60 hd=0.25. Claude must replace this with: why THIS experiment now (champion weakness, weakest fold, regime, uncertainty profile, what prior experiments ruled out).",
+    "citations": "TODO-REWRITE: Insert full author(s) + year + venue + arXiv ID for every paper motivating this experiment. Parenthetical-only tags are insufficient.",
+    "hypothesis": "TODO-REWRITE: mechanistic hypothesis. Config delta on this run: lr=0.001; batch_size=32; seq_len=60; epochs=100; weight_decay=0.0001; patience=20; grad_clip=1.0; huber_delta=1.0; head_dropout=0.25; warmup_epochs=0; het_loss=False. Claude must explain the MECHANISM from the cited paper that justifies this change.",
+    "prediction": "TODO-REWRITE: numeric prediction range (composite, per-fold Sharpe, uncertainty) authored BEFORE running. Placeholder here means the 7-step process was skipped.",
+    "verdict": "DISCARD \u2014 composite +0.9227, test Sharpe +1.1227 (global best remains +9.1860 on xgboost)",
+    "learning": "Test Sharpe +1.1227 | Val Sharpe +1.2592 | Train Sharpe +4.2884 | Return +28.47% | Val loss 0.000076",
+    "_manual": false,
+    "_needs_rewrite": true
   }
 }
