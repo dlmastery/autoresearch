@@ -83,7 +83,8 @@
 
 <div class="section-title">Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for per-window breakdown, click header to sort)</span></div>
 <div id="backbone-tabs" style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap"></div>
-<div id="exp-table-scroll" style="max-height:480px;overflow-y:auto;border:1px solid #30363d;border-radius:6px;position:relative">
+<div style="color:#8b949e;font-size:0.85em;margin:6px 0 4px 0" id="exp-count-hint">Scroll inside the table below to browse every experiment — <span id="exp-visible-count">?</span> shown.</div>
+<div id="exp-table-scroll" style="max-height:75vh;overflow-y:auto;border:1px solid #30363d;border-radius:6px;position:relative">
 <table id="exp-table" style="margin-bottom:0">
   <thead>
     <tr>
@@ -710,6 +711,11 @@ function renderExpTable() {
   const bestComposite = validEntries.length ? Math.max(...validEntries.map(e => e.composite)) : -999;
   const sorted = applySortToEntries(filteredEntries);
   const tbody = document.getElementById('exp-body');
+  // Surface the row count so users see all past experiments are loaded
+  const cnt = document.getElementById('exp-visible-count');
+  if (cnt) cnt.textContent = activeBackbone === 'all'
+    ? `${filteredEntries.length} experiments (all backbones)`
+    : `${filteredEntries.length} ${activeBackbone} experiments (of ${allEntries.length} total — click ALL to see every backbone)`;
   tbody.innerHTML = sorted.map(e => {
     const origIdx = allEntries.indexOf(e);
     const isBest = e.composite != null && e.composite === bestComposite;
