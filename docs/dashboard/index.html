@@ -716,6 +716,13 @@ function renderExpTable() {
   if (cnt) cnt.textContent = activeBackbone === 'all'
     ? `${filteredEntries.length} experiments (all backbones)`
     : `${filteredEntries.length} ${activeBackbone} experiments (of ${allEntries.length} total — click ALL to see every backbone)`;
+  if (sorted.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="22" style="padding:24px;text-align:center;color:#8b949e">
+      No experiments to display. allEntries.length=${allEntries.length}, activeBackbone=${activeBackbone}.
+      If allEntries=0 the JSONL fetch failed — check browser DevTools console.
+    </td></tr>`;
+    return;
+  }
   tbody.innerHTML = sorted.map(e => {
     const origIdx = allEntries.indexOf(e);
     const isBest = e.composite != null && e.composite === bestComposite;
@@ -780,11 +787,24 @@ async function refresh() {
 
   try {
     const logText = await fetchText(LOG_PATH);
-    allEntries = logText.trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
-  } catch(e) {
-    if (e.message !== '404') {
-      // ignored
+    // Split on either LF or CRLF; surface parse failures so a single bad line
+    // doesn't wipe the whole table.
+    const rawLines = logText.split(/\r?\n/).filter(l => l.trim());
+    allEntries = [];
+    let parseErrors = 0;
+    for (const line of rawLines) {
+      try { allEntries.push(JSON.parse(line)); }
+      catch (err) { parseErrors++; }
     }
+    console.log(`[AutoResearch dashboard] loaded ${allEntries.length} experiments from ${LOG_PATH}, ${parseErrors} parse errors`);
+    if (parseErrors > 0) {
+      const err = document.getElementById('error');
+      if (err) { err.textContent = `Warning: ${parseErrors} JSONL lines failed to parse (showing ${allEntries.length} valid)`; err.style.display = 'block'; }
+    }
+  } catch(e) {
+    const err = document.getElementById('error');
+    if (err) { err.textContent = `Failed to load experiment log from ${LOG_PATH}: ${e.message}`; err.style.display = 'block'; }
+    console.error('[AutoResearch dashboard] fetchText failed:', e);
   }
 
   // Load reasoning annotations (citations + thought process per experiment)
