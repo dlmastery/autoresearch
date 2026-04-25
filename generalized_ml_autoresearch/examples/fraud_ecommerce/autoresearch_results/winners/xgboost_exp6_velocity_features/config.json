@@ -1,0 +1,61 @@
+{
+  "paths": {
+    "results_dir": "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results"
+  },
+  "task_type": "binary_classification",
+  "primary_metric": "auc_roc",
+  "backbone": "xgboost",
+  "backbone_config": {
+    "n_estimators": 600,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "subsample": 0.85,
+    "colsample_bytree": 0.85,
+    "reg_lambda": 1.0,
+    "min_child_weight": 5,
+    "seed": 0,
+    "early_stopping_rounds": 40,
+    "n_jobs": 4
+  },
+  "data": {
+    "format": "csv",
+    "path": "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/data/features_velocity.csv",
+    "target_columns": [
+      "class"
+    ],
+    "feature_columns": [
+      "purchase_value",
+      "device_id",
+      "source",
+      "browser",
+      "age",
+      "ip_address",
+      "country",
+      "time_since_signup",
+      "purchase_hour",
+      "purchase_dayofweek",
+      "signup_hour",
+      "device_id_freq",
+      "ip_address_freq",
+      "country_freq",
+      "source_freq",
+      "browser_freq",
+      "device_fraud_rate_train",
+      "country_fraud_rate_train"
+    ]
+  },
+  "split": {
+    "name": "holdout",
+    "order": "time",
+    "test_fraction": 0.2,
+    "val_fraction": 0.1,
+    "seed": 0
+  },
+  "composite": {
+    "higher_is_better": true,
+    "penalty_weight": 0.05,
+    "below_threshold": 0.55
+  },
+  "description": "Exp 6 \u2014 XGBoost + velocity features (LEAKAGE FIXED: 70/10/20 alignment) on chronological holdout",
+  "seed": 0
+}
