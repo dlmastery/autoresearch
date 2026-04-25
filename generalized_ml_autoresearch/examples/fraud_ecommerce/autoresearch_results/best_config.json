@@ -1,103 +1,71 @@
 {
-  "champions": {
-    "chronological_holdout": {
-      "experiment_num": 20,
-      "backbone": "xgboost",
-      "composite": 0.604494106945408,
-      "test_auc": 0.616919169041594,
-      "val_auc": 0.604494106945408,
-      "config": {
-        "paths": {
-          "results_dir": "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results"
-        },
-        "task_type": "binary_classification",
-        "primary_metric": "auc_roc",
-        "backbone": "xgboost",
-        "backbone_config": {
-          "n_estimators": 600,
-          "max_depth": 6,
-          "learning_rate": 0.05,
-          "subsample": 0.85,
-          "colsample_bytree": 0.85,
-          "reg_lambda": 1.0,
-          "min_child_weight": 5,
-          "scale_pos_weight": 1.0,
-          "seed": 0,
-          "early_stopping_rounds": 40,
-          "n_jobs": 4
-        },
-        "data": {
-          "format": "csv",
-          "path": "generalized_ml_autoresearch/examples/fraud_ecommerce/data/features_recent_2mo.csv",
-          "target_columns": [
-            "class"
-          ],
-          "feature_columns": [
-            "purchase_value",
-            "device_id",
-            "source",
-            "browser",
-            "age",
-            "ip_address",
-            "country",
-            "time_since_signup",
-            "purchase_hour",
-            "purchase_dayofweek",
-            "signup_hour",
-            "device_id_freq",
-            "ip_address_freq",
-            "country_freq",
-            "source_freq",
-            "browser_freq",
-            "device_fraud_rate_train",
-            "country_fraud_rate_train"
-          ]
-        },
-        "split": {
-          "name": "holdout",
-          "order": "time",
-          "test_fraction": 0.1799973818562639,
-          "val_fraction": 0.13090718680455557,
-          "seed": 0
-        },
-        "composite": {
-          "higher_is_better": true,
-          "penalty_weight": 0.05,
-          "below_threshold": 0.5
-        },
-        "description": "STRICT Exp 20 \u2014 XGBoost rolling 2-month training (Sep-Nov)",
-        "seed": 0
-      },
-      "description": "STRICT Exp 20 \u2014 XGBoost rolling 2-month training (Sep-Nov)"
+  "experiment_num": 19,
+  "backbone": "xgboost",
+  "composite": 0.5282993071718554,
+  "test_primary": 0.5282993071718554,
+  "val_primary": 0.5388853357836266,
+  "config": {
+    "paths": {
+      "results_dir": "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results"
     },
-    "walk_forward_cv": {
-      "experiment_num": 18,
-      "backbone": "xgboost",
-      "composite": 0.6938459335477911,
-      "test_auc": 0.6938459335477911,
-      "val_auc": 0.8040397636656831
-    }
+    "task_type": "binary_classification",
+    "primary_metric": "auc_roc",
+    "backbone": "xgboost",
+    "backbone_config": {
+      "n_estimators": 600,
+      "max_depth": 6,
+      "learning_rate": 0.05,
+      "subsample": 0.85,
+      "colsample_bytree": 0.85,
+      "reg_lambda": 1.0,
+      "min_child_weight": 5,
+      "scale_pos_weight": 1.0,
+      "seed": 0,
+      "early_stopping_rounds": 40,
+      "n_jobs": 4
+    },
+    "data": {
+      "format": "csv",
+      "path": "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/data/features_velocity.csv",
+      "target_columns": [
+        "class"
+      ],
+      "feature_columns": [
+        "purchase_value",
+        "device_id",
+        "source",
+        "browser",
+        "age",
+        "ip_address",
+        "country",
+        "time_since_signup",
+        "purchase_hour",
+        "purchase_dayofweek",
+        "signup_hour",
+        "device_id_freq",
+        "ip_address_freq",
+        "country_freq",
+        "source_freq",
+        "browser_freq",
+        "device_fraud_rate_train",
+        "country_fraud_rate_train"
+      ]
+    },
+    "split": {
+      "name": "holdout",
+      "order": "time",
+      "test_fraction": 0.2,
+      "val_fraction": 0.1,
+      "seed": 0,
+      "min_train_idx": 60000
+    },
+    "composite": {
+      "higher_is_better": true,
+      "penalty_weight": 0.05,
+      "below_threshold": 0.5
+    },
+    "description": "STRICT Exp 19 \u2014 XGBoost with min_train_idx=60000 (legitimate recency, same FDB test set)",
+    "seed": 0
   },
-  "fdb_baselines": {
-    "afd_tfi": 0.636,
-    "autogluon": 0.522,
-    "h2o": 0.518,
-    "auto_sklearn": 0.515
-  },
-  "vs_fdb": {
-    "beats_autogluon_by": 0.09491916904159403,
-    "beats_h2o_by": 0.09891916904159404,
-    "beats_auto_sklearn_by": 0.10191916904159404,
-    "gap_to_afd_tfi": 0.01908083095840596
-  },
-  "key_findings": [
-    "Recency of training data is the highest-leverage variable: 2-month rolling window gains +0.075 AUC vs full-history training.",
-    "Walk-forward CV reveals concept drift: pre-Sep 2015 has different fraud distribution than Sep+ 2015.",
-    "GBM family plateaus around 0.54 with full-history training but reaches 0.62 with 2-month recency.",
-    "Rolling-window velocity features did NOT help when combined with recency (Exp 23) \u2014 they double-count temporal information.",
-    "Class re-weighting (scale_pos_weight) and undersampling did NOT help on this dataset \u2014 the binding constraint is feature signal, not class balance."
-  ],
-  "floor": 0.5,
-  "total_experiments": 22,
-  "passing_count": 20
+  "timestamp": "2026-04-25T12:13:26"
 }
