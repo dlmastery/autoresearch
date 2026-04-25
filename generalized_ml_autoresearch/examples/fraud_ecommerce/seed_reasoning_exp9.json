@@ -1,0 +1,13 @@
+{
+  "9": {
+    "experiment_num": 9,
+    "diagnosis": "Per the CLAUDE.md Per-Backbone Mandate, after exhausting the Tier-3 GBM trio (XGBoost in Exp 6, LightGBM in Exp 7, CatBoost in Exp 8) we must move to Tier-1 neural backbones. MLP is the standard tabular neural baseline because it has no inductive bias toward any particular feature interaction structure and can in principle approximate any function the GBMs find, but with different optimization dynamics (gradient descent on a continuous objective vs greedy tree induction). On fraudecom the question is whether dropout-regularized MLP can match GBM accuracy on chronological holdout — if it cannot, the dataset's signal is genuinely shallow-tree-friendly; if it can, neural-net architecture choices like attention over high-cardinality embeddings become viable for higher experiments.",
+    "citations": "Gu, Kelly & Xiu 2020 RFS 'Empirical Asset Pricing via Machine Learning' (arXiv:1802.09003) — motivates the 3-layer MLP-with-dropout recipe (hidden 128-64, dropout 0.3, AdamW lr=1e-3) as a strong tabular-classification baseline because it documents that this exact architecture matches or beats GBMs on tabular financial-prediction tasks of similar size when class imbalance is moderate.;\nLoshchilov & Hutter 2019 ICLR 'Decoupled Weight Decay Regularization' (arXiv:1711.05101) — motivates AdamW with weight_decay=1e-4 because decoupled weight decay yields better generalization than vanilla Adam on tabular tasks where the loss surface has many shallow flat minima, which is the regime our 0.51-AUC-per-feature dataset places us in.",
+    "hypothesis": "We hypothesize that MLP with hidden=[128,64], dropout=0.3, AdamW lr=1e-3, batch=256, 30 epochs with patience=8 will achieve test AUC in the 0.50 to 0.56 range because the mechanism per Gu/Kelly/Xiu 2020 is that the dense interactions across 18 features get learned by the hidden layer's affine projection and ReLU non-linearity, but on a dataset where most features are individually near-random (~0.51 AUC) the MLP cannot find narrow tree-like decision boundaries, so it should under-perform GBMs unless the velocity features provide enough monotonic signal to be picked up by gradient descent.",
+    "prediction": "Test AUC-ROC should land in the range 0.50 to 0.56. If MLP beats 0.55, neural baselines are competitive on fraudecom and warrant further architectural exploration (TabTransformer, FT-Transformer); if MLP collapses to 0.50-0.52, the dataset is genuinely shallow-tree-friendly and neural-net depth offers no benefit, closing the neural axis for this benchmark.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true,
+    "_needs_rewrite": false
+  }
+}

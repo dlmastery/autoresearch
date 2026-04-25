@@ -1,0 +1,13 @@
+{
+  "1": {
+    "experiment_num": 1,
+    "diagnosis": "Baseline experiment on the Amazon Science Fraud Dataset Benchmark (FDB) `fraudecom` task — the most unsaturated dataset in the benchmark, with the best published AUC of only 0.636 from AFD TFI per Grover et al. 2023, while AutoGluon, H2O, and Auto-sklearn all hover near random at 0.515 to 0.522. No prior experiments exist for this project, so the diagnosis is scope-setting: the dataset has 151,112 transactions with 9.36% fraud rate, only 6 raw features (purchase_value, device_id, source, browser, age, ip_address) plus engineered time_since_signup and country, so high-cardinality categorical handling and the time-since-signup signal are the levers most likely to break the 0.52 random-baseline ceiling.",
+    "citations": "Chen & Guestrin 2016 KDD 'XGBoost: A Scalable Tree Boosting System' (arXiv:1603.02754) — motivates XGBoost histogram-method as a strong tabular-classification baseline because its 2nd-order Newton boosting plus explicit L2 regularization handles the 9.4% class imbalance robustly without resampling.;\nGrover, Xu, Tittelfitz, Cheng, Li, Zablocki, Liu & Zhou 2023 arXiv 'Fraud Dataset Benchmark and Applications' (arXiv:2208.14417) — establishes the AFD TFI ceiling of AUC=0.636 on fraudecom and reports that all other AutoML pipelines fail to clear 0.522, so we treat 0.55 as the composite threshold above which the model has demonstrably learned non-trivial fraud signal.",
+    "hypothesis": "We hypothesize that XGBoost with n_estimators=600, max_depth=6, lr=0.05, subsample=0.85, min_child_weight=5 will achieve test AUC-ROC above 0.62 because the mechanism per Chen & Guestrin 2016 is that the histogram-binning split-finder discovers the time_since_signup discontinuity around fraud accounts (which transact within seconds of signup) while the L2 leaf-weight regularization prevents memorization of the highest-cardinality device_id codes that dominate the leaf splits in shallower trees.",
+    "prediction": "Test AUC-ROC should land in the range 0.60 to 0.66, with all 3 stratified folds above the 0.55 composite floor. Val AUC expected near 0.62. Composite should be in the range 0.58 to 0.65 since penalty likely zero (all folds should clear 0.55) and it will at minimum match AutoGluon's 0.522 baseline and likely approach AFD TFI's 0.636 ceiling.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true,
+    "_needs_rewrite": false
+  }
+}

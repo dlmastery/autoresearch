@@ -1,0 +1,13 @@
+{
+  "2": {
+    "experiment_num": 2,
+    "diagnosis": "Exp 1 (stratified 3-fold CV) achieved test AUC=0.7738, far above the FDB published 0.636 ceiling. Audit revealed the discrepancy is methodological: the leakage check found 6.6% device_id overlap and 1.5% IP overlap across stratified-CV folds, but the dominant signal is `time_since_signup` which alone gives AUC=0.7665. FDB's BasePreProcessor.train_test_split() at preprocessing.py:245 sorts by purchase_time and takes the last 20% chronologically as test — out-of-time evaluation. To produce a number directly comparable to FDB's 0.636, this experiment switches split.name to `holdout` with `order: time` while keeping all other XGBoost hyperparameters identical to Exp 1.",
+    "citations": "Bergmeir, Hyndman & Koo 2018 IJF 'A note on the validity of cross-validation for evaluating autoregressive time series prediction' (arXiv:1905.11744) — establishes that stratified or random CV on time-ordered data systematically overstates model performance because future information leaks via temporally correlated features and entity reuse, motivating the chronological holdout protocol used by FDB Grover et al. 2023 arXiv:2208.14417 and adopted here.;\nGrover, Xu, Tittelfitz, Cheng, Li, Zablocki, Liu & Zhou 2023 arXiv 'Fraud Dataset Benchmark and Applications' (arXiv:2208.14417) — defines the canonical 80/20 chronological train_test_split for fraudecom (preprocessing.py:245) which sorts by purchase_time before slicing, so this experiment matches the protocol exactly to enable apples-to-apples comparison against the published AUC=0.636 AFD TFI ceiling.",
+    "hypothesis": "We hypothesize that switching from stratified 3-fold CV to chronological 80/20 holdout will drop test AUC from 0.7738 (Exp 1) into the 0.60 to 0.70 range because the mechanism per Bergmeir et al. 2018 is that out-of-time evaluation removes the entity-reuse leakage (6.6% device_id, 1.5% IP overlap measured in audit) and exposes any temporal drift in fraud patterns, where late-period fraudsters may exhibit different time_since_signup or device_id distributions than the training period.",
+    "prediction": "Test AUC-ROC should land in the range 0.60 to 0.70, with single-fold (holdout) primary metric reported. If AUC stays above 0.70, the gap with FDB's 0.636 likely reflects FDB's specific feature-set (AFD TFI may not use time_since_signup as we do); if AUC drops to 0.60-0.66, we have replicated FDB's ceiling and confirmed the in-distribution-vs-out-of-time gap as the explanation.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true,
+    "_needs_rewrite": false
+  }
+}

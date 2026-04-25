@@ -1,0 +1,13 @@
+{
+  "8": {
+    "experiment_num": 8,
+    "diagnosis": "Continuing the Tier-3 GBM trio per CLAUDE.md's Per-Backbone Mandate. Exp 6 (XGBoost) gave test AUC=0.5414, Exp 7 (LightGBM) result will be in the log by the time this experiment runs. CatBoost is the third member of the GBM family and uses fundamentally different mechanisms: ordered boosting prevents prediction shift by using only previously-seen examples to estimate target statistics for each row, and symmetric oblivious trees with native categorical handling avoid the high-cardinality device_id encoding bottleneck that constrains XGBoost and LightGBM. On fraudecom this matters because the dataset has 137,956 unique device IDs across 151,112 rows; CatBoost's ordered target encoding may extract more signal from device_id than the manual frequency encoding we built.",
+    "citations": "Prokhorenkova, Gusev, Vorobev, Dorogush & Gulin 2018 NeurIPS 'CatBoost: Unbiased Boosting with Categorical Features' (arXiv:1706.09516) — motivates CatBoost's ordered boosting + ordered target encoding because they specifically address the prediction shift that occurs when using full-train target encoding for categoricals (Micci-Barreca 2001), and our dataset's 91% unique device-ID rate is exactly the regime where prediction shift is most damaging; CatBoost computes target stats incrementally so each row's encoding uses only earlier rows' labels, avoiding the leakage that would otherwise inflate train fit while degrading test performance.",
+    "hypothesis": "We hypothesize that CatBoost with iterations=1000, depth=6, l2_leaf_reg=3, bootstrap_type=Bernoulli will achieve test AUC in the 0.54 to 0.60 range because the mechanism per Prokhorenkova et al. 2018 is ordered target encoding of high-cardinality categoricals (device_id, ip_address) — these features alone have 0.51 single-feature AUC under simple label encoding but CatBoost's ordered approach effectively builds a per-row 'history' feature that encodes how this device behaved up to but not including the current row, which is genuinely drift-robust signal that XGBoost cannot synthesize.",
+    "prediction": "Test AUC-ROC should land in the range 0.54 to 0.60. If CatBoost reaches 0.58 or above, ordered target encoding is the missing piece for fraudecom and we have closed most of the gap to FDB AFD-TFI's 0.636; if it stays in the 0.53-0.55 range, all three GBM variants plateau here and the 0.10 gap to AFD-TFI must be closed with rolling time-windowed velocity features or a fundamentally different model class.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true,
+    "_needs_rewrite": false
+  }
+}

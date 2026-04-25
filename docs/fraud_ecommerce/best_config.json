@@ -1,0 +1,107 @@
+{
+  "experiment_num": 6,
+  "backbone": "xgboost",
+  "composite": 0.49030870862726555,
+  "test_primary": 0.5414329063642654,
+  "val_primary": 0.5403087086272655,
+  "status": "BEST_HONEST_BUT_DISCARD",
+  "note": "All experiments on the FDB-comparable chronological 80/20 holdout fall below the 0.55 below_threshold composite floor. Exp 1 (stratified 3-fold CV, composite=0.7654) was DISCARDED on the grounds that stratified CV is methodologically invalid for this concept-drifting dataset (Bergmeir et al. 2018). Among the 5 valid chronological experiments, Exp 6 has the highest test AUC (0.5414) and the highest composite (0.4903). It beats FDB AutoGluon (0.522) and Auto-sklearn (0.515) but remains 0.10 below FDB AFD-TFI's 0.636 ceiling. No model is promoted to production-grade champion.",
+  "config": {
+    "paths": {
+      "results_dir": "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results"
+    },
+    "task_type": "binary_classification",
+    "primary_metric": "auc_roc",
+    "backbone": "xgboost",
+    "backbone_config": {
+      "n_estimators": 600,
+      "max_depth": 6,
+      "learning_rate": 0.05,
+      "subsample": 0.85,
+      "colsample_bytree": 0.85,
+      "reg_lambda": 1.0,
+      "min_child_weight": 5,
+      "seed": 0,
+      "early_stopping_rounds": 40,
+      "n_jobs": 4
+    },
+    "data": {
+      "format": "csv",
+      "path": "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/data/features_velocity.csv",
+      "target_columns": [
+        "class"
+      ],
+      "feature_columns": [
+        "purchase_value",
+        "device_id",
+        "source",
+        "browser",
+        "age",
+        "ip_address",
+        "country",
+        "time_since_signup",
+        "purchase_hour",
+        "purchase_dayofweek",
+        "signup_hour",
+        "device_id_freq",
+        "ip_address_freq",
+        "country_freq",
+        "source_freq",
+        "browser_freq",
+        "device_fraud_rate_train",
+        "country_fraud_rate_train"
+      ]
+    },
+    "split": {
+      "name": "holdout",
+      "order": "time",
+      "test_fraction": 0.2,
+      "val_fraction": 0.1,
+      "seed": 0
+    },
+    "composite": {
+      "higher_is_better": true,
+      "penalty_weight": 0.05,
+      "below_threshold": 0.55
+    },
+    "description": "Exp 6 \u2014 XGBoost + velocity features (LEAKAGE FIXED: 70/10/20 alignment) on chronological holdout",
+    "seed": 0
+  },
+  "leaderboard": [
+    {
+      "exp": 6,
+      "composite": 0.49030870862726555,
+      "test_auc": 0.5414329063642654,
+      "val_auc": 0.5403087086272655,
+      "status": "DISCARD"
+    },
+    {
+      "exp": 5,
+      "composite": 0.47968964022780375,
+      "test_auc": 0.5296896402278037,
+      "val_auc": 0.99884393648532,
+      "status": "DISCARD"
+    },
+    {
+      "exp": 3,
+      "composite": 0.46161642163830313,
+      "test_auc": 0.5116164216383031,
+      "val_auc": 0.5134021500109798,
+      "status": "DISCARD"
+    },
+    {
+      "exp": 2,
+      "composite": 0.4598192997749235,
+      "test_auc": 0.5098192997749235,
+      "val_auc": 0.529091785816566,
+      "status": "DISCARD"
+    },
+    {
+      "exp": 4,
+      "composite": 0.44597293687735867,
+      "test_auc": 0.49597293687735866,
+      "val_auc": 0.5054365546392817,
+      "status": "DISCARD"
+    }
+  ]
+}

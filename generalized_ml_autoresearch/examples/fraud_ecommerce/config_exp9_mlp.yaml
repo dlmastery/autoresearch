@@ -1,0 +1,41 @@
+# Exp 9: MLP on chronological holdout + velocity features (Tier-1 neural backbone)
+paths:
+  results_dir: "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results"
+
+task_type: binary_classification
+primary_metric: auc_roc
+
+backbone: mlp
+backbone_config:
+  hidden: [128, 64]
+  dropout: 0.3
+  epochs: 30
+  patience: 8
+  lr: 1.0e-3
+  batch_size: 256
+  weight_decay: 1.0e-4
+  seed: 0
+
+data:
+  format: csv
+  path: "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/data/features_velocity.csv"
+  target_columns: [class]
+  feature_columns: [purchase_value, device_id, source, browser, age, ip_address, country,
+                    time_since_signup, purchase_hour, purchase_dayofweek, signup_hour,
+                    device_id_freq, ip_address_freq, country_freq, source_freq, browser_freq,
+                    device_fraud_rate_train, country_fraud_rate_train]
+
+split:
+  name: holdout
+  order: time
+  test_fraction: 0.2
+  val_fraction: 0.1
+  seed: 0
+
+composite:
+  higher_is_better: true
+  penalty_weight: 0.05
+  below_threshold: 0.55
+
+description: "Exp 9 — MLP (Gu/Kelly/Xiu 2020) chronological + velocity features"
+seed: 0

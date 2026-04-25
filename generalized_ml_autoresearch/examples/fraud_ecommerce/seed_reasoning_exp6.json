@@ -1,0 +1,13 @@
+{
+  "6": {
+    "experiment_num": 6,
+    "diagnosis": "Exp 5 produced a leakage-tainted result: test AUC=0.5297 was the best chronological number we have, but val AUC=0.9988 exposed that add_velocity_features.py used n_train=80% of rows when the runner's chronological holdout actually slices first 70% as train and next 10% as val — so val rows fed into their own velocity counts, inflating val AUC and corrupting the early-stopping signal. The bug has been fixed (n_train recomputed as n - n_test - n_val = 70%). This experiment re-runs the same XGBoost config + same velocity feature design on the corrected features_velocity.csv to obtain an honest measurement of what entity-aggregation features alone deliver under the strict chronological protocol that mirrors FDB's evaluation.",
+    "citations": "Kaufman, Rosset, Perlich & Stitelman 2012 ACM-TKDD 'Leakage in data mining: Formulation, detection, and avoidance' (DOI:10.1145/2382577.2382579) — formalizes the type of leakage exposed in Exp 5 (validation rows participating in the computation of their own predictor values) as one of the three canonical leakage patterns and argues the fix is strict temporal alignment between the period used to compute aggregations and the period available at training time.;\nPozzolo, Boracchi, Caelen, Alippi & Bontempi 2018 IEEE-TNNLS 'Credit Card Fraud Detection: A Realistic Modeling and a Novel Learning Strategy' (arXiv:1709.05927) — re-cited because the entity-aggregation hypothesis from Exp 5 still holds; the prediction range is recalibrated downward because val-AUC inflation was effectively boosting test AUC slightly via better-fit early stopping that we now lose.",
+    "hypothesis": "We hypothesize that the corrected velocity features (computed strictly on first 70% of rows) will produce val AUC in the 0.55-0.65 range and test AUC in the 0.52-0.58 range because the mechanism per Kaufman et al. 2012 is that removing the val-period leakage will deflate val AUC from the bogus 0.9988 toward a realistic value while keeping the legitimate signal that pushed test AUC to 0.5297 in Exp 5; some of that 0.5297 may have come from the leak indirectly via early stopping, so test AUC may settle slightly lower.",
+    "prediction": "Test AUC-ROC should land in the range 0.52 to 0.58, with val AUC in the 0.55 to 0.65 range (a reasonable train-period generalization gap). If test AUC stays at or above 0.53, velocity features are confirmed as the strongest drift-robust signal in this dataset; if test AUC collapses below 0.51 once the leak is fixed, the entire 0.5297 of Exp 5 was a leakage artifact and we have no real signal beyond random.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true,
+    "_needs_rewrite": false
+  }
+}
