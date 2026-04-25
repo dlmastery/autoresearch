@@ -1,9 +1,9 @@
 {
-  "experiment_num": 19,
+  "experiment_num": 23,
   "backbone": "xgboost",
-  "composite": 0.5282993071718554,
-  "test_primary": 0.5282993071718554,
-  "val_primary": 0.5388853357836266,
+  "composite": 0.5299880285089472,
+  "test_primary": 0.530167204769493,
+  "val_primary": 0.5299880285089472,
   "config": {
     "paths": {
       "results_dir": "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results"
@@ -37,18 +37,15 @@
         "browser",
         "age",
         "ip_address",
-        "country",
         "time_since_signup",
         "purchase_hour",
         "purchase_dayofweek",
         "signup_hour",
         "device_id_freq",
         "ip_address_freq",
-        "country_freq",
         "source_freq",
         "browser_freq",
-        "device_fraud_rate_train",
-        "country_fraud_rate_train"
+        "device_fraud_rate_train"
       ]
     },
     "split": {
@@ -56,16 +53,15 @@
       "order": "time",
       "test_fraction": 0.2,
       "val_fraction": 0.1,
-      "seed": 0,
-      "min_train_idx": 60000
+      "seed": 0
     },
     "composite": {
       "higher_is_better": true,
       "penalty_weight": 0.05,
       "below_threshold": 0.5
     },
-    "description": "STRICT Exp 19 \u2014 XGBoost with min_train_idx=60000 (legitimate recency, same FDB test set)",
+    "description": "STRICT Exp 23 - FDB-compliance ablation: drop country features",
     "seed": 0
   },
-  "timestamp": "2026-04-25T12:13:26"
+  "timestamp": "2026-04-25T12:55:30"
 }
