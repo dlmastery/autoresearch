@@ -1,0 +1,30 @@
+{
+  "3": {
+    "regime": "walk-forward-3",
+    "n_total": 10000,
+    "n_correct": 9909,
+    "accuracy": 0.9909,
+    "primary_metric": 0.9989872685185185
+  },
+  "2": {
+    "regime": "walk-forward-2",
+    "n_total": 10000,
+    "n_correct": 9558,
+    "accuracy": 0.9558,
+    "primary_metric": 0.5933236389617663
+  },
+  "1": {
+    "regime": "walk-forward-1",
+    "n_total": 10000,
+    "n_correct": 9519,
+    "accuracy": 0.9519,
+    "primary_metric": 0.5970489758403361
+  },
+  "0": {
+    "regime": "walk-forward-0",
+    "n_total": 10000,
+    "n_correct": 9556,
+    "accuracy": 0.9556,
+    "primary_metric": 0.586023850870544
+  }
+}
