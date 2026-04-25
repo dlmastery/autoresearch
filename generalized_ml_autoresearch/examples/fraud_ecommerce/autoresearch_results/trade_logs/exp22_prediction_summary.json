@@ -1,0 +1,9 @@
+{
+  "0": {
+    "regime": "holdout",
+    "n_total": 11000,
+    "n_correct": 10504,
+    "accuracy": 0.9549090909090909,
+    "primary_metric": 0.6053537784377072
+  }
+}
