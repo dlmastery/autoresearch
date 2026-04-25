@@ -92,6 +92,7 @@ class XGBoostBackbone(Backbone):
             "reg_alpha": float(config.get("reg_alpha", 0.0)),
             "min_child_weight": float(config.get("min_child_weight", 1.0)),
             "gamma": float(config.get("gamma", 0.0)),
+            "scale_pos_weight": float(config.get("scale_pos_weight", 1.0)),
             "random_state": int(config.get("seed", 0)),
             "tree_method": config.get("tree_method", "hist"),
             "n_jobs": int(config.get("n_jobs", 4)),
