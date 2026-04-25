@@ -1,171 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>ML AutoResearch Dashboard</title>
+<meta charset="UTF-8">
+<title>AutoResearch Dashboard — FDB fraudecom</title>
 <style>
-  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-         margin: 0; padding: 0; background: #0b0f14; color: #d8e2ec; }
-  header { padding: 12px 20px; background: #101820; border-bottom: 1px solid #223; }
-  header h1 { margin: 0; font-size: 18px; }
-  header small { color: #8aa; }
-  #tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 20px; background: #0f1620; }
-  .tab { padding: 6px 14px; border: 1px solid #334; border-radius: 20px; cursor: pointer;
-         color: #9bb; user-select: none; }
-  .tab.active { background: #1e88e5; color: white; border-color: #1e88e5; }
-  #layout { display: grid; grid-template-columns: 2fr 3fr; gap: 12px; padding: 12px; height: calc(100vh - 140px); }
-  #experiments { overflow: auto; background: #0f1620; border: 1px solid #223; border-radius: 6px; }
-  #details { overflow: auto; background: #0f1620; border: 1px solid #223; border-radius: 6px; padding: 14px; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 6px 10px; text-align: left; font-size: 13px; border-bottom: 1px solid #1a2330; }
-  th { background: #121a24; position: sticky; top: 0; }
-  tr { cursor: pointer; }
-  tr:hover { background: #152030; }
-  tr.selected { background: #17335a; }
-  .keep { color: #6bd99b; }
-  .discard { color: #d98c6b; }
-  .near-miss { color: #d9cb6b; }
-  h2 { margin-top: 18px; font-size: 14px; color: #9ac; border-bottom: 1px solid #223; padding-bottom: 4px; }
-  pre { background: #050810; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
-  .empty { color: #668; font-style: italic; }
-  .warn { color: #d96b6b; }
-  .ok { color: #6bd99b; }
-  .stat { display: inline-block; padding: 4px 10px; border-radius: 4px; margin: 2px;
-          background: #152030; font-size: 12px; }
-  .field-label { color: #9ac; font-weight: bold; margin-top: 8px; }
-  .field-body { white-space: pre-wrap; font-size: 13px; line-height: 1.4; }
-  a { color: #69aaff; text-decoration: none; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
+  h1 { color: #58a6ff; margin-bottom: 4px; font-size: 1.6em; }
+  .subtitle { color: #8b949e; margin-bottom: 12px; font-size: 0.9em; }
+  .links-bar { color: #8b949e; font-size: 0.82em; margin-bottom: 16px; }
+  .links-bar a { color: #58a6ff; text-decoration: none; margin-right: 14px; }
+  .links-bar a:hover { text-decoration: underline; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px; }
+  .card .label { color: #8b949e; font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .value { font-size: 1.6em; font-weight: 700; margin-top: 4px; }
+  .positive { color: #3fb950; }
+  .negative { color: #f85149; }
+  .neutral { color: #58a6ff; }
+  .warning { color: #d29922; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.84em; }
+  th { background: #161b22; color: #8b949e; text-align: left; padding: 8px 10px; border-bottom: 2px solid #30363d; font-weight: 600; text-transform: uppercase; font-size: 0.72em; letter-spacing: 0.5px; cursor: pointer; user-select: none; }
+  th:hover { background: #1c2128; color: #c9d1d9; }
+  th.sort-active { color: #58a6ff; }
+  td { padding: 7px 10px; border-bottom: 1px solid #21262d; }
+  tr:hover { background: #1c2128; }
+  tr.keep { border-left: 3px solid #3fb950; }
+  tr.discard { border-left: 3px solid #f85149; }
+  tr.clickable { cursor: pointer; }
+  tr.selected { background: #1a2332 !important; border-left: 3px solid #58a6ff !important; }
+  tr.best-row { background: #0d2818 !important; border-left: 4px solid #00d26a !important; }
+  tr.best-row td { font-weight: 600; }
+  .winner-box { background: #0d2818; border: 2px solid #3fb950; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+  .winner-box.warn { background: #2d2308; border-color: #d29922; }
+  .winner-box .label { color: #3fb950; font-size: 0.72em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .winner-box.warn .label { color: #d29922; }
+  .winner-box .main { font-size: 1.05em; color: #c9d1d9; margin-bottom: 8px; }
+  .winner-box .metrics { font-family: monospace; font-size: 0.82em; color: #8b949e; white-space: pre-wrap; }
+  .section-title { color: #58a6ff; font-size: 1.05em; margin: 18px 0 10px 0; font-weight: 600; }
+  .ceiling-bar { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 14px; margin-bottom: 18px; }
+  .ceiling-bar .row { display: flex; align-items: center; gap: 12px; margin: 5px 0; font-size: 0.82em; }
+  .ceiling-bar .name { width: 240px; color: #8b949e; }
+  .ceiling-bar .meter { flex: 1; height: 16px; background: #0d1117; border-radius: 3px; overflow: hidden; }
+  .ceiling-bar .fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+  .ceiling-bar .val { width: 70px; text-align: right; font-family: monospace; font-weight: 600; }
+  .filter-tabs, .backbone-tabs { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+  .filter-tabs button, .backbone-tabs button { background: #161b22; color: #8b949e; border: 1px solid #30363d; border-radius: 4px; padding: 5px 12px; cursor: pointer; font-size: 0.78em; }
+  .filter-tabs button:hover, .backbone-tabs button:hover { background: #1c2128; color: #c9d1d9; }
+  .filter-tabs button.active, .backbone-tabs button.active { background: #1a2332; color: #58a6ff; border-color: #58a6ff; }
+  .detail-panel { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 20px; display: none; }
+  .detail-panel.visible { display: block; }
+  .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .detail-header h3 { color: #58a6ff; font-size: 1em; }
+  .detail-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+  .detail-tabs button { background: #161b22; border: 1px solid #30363d; color: #8b949e; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78em; }
+  .detail-tabs button.active { background: #1a2332; color: #58a6ff; border-color: #58a6ff; }
+  .close-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78em; }
+  .close-btn:hover { background: #30363d; color: #c9d1d9; }
+  .reasoning-block { background: #0d1117; border-left: 3px solid #58a6ff; border-radius: 4px; padding: 12px; margin-bottom: 12px; font-size: 0.83em; line-height: 1.5; }
+  .reasoning-block .field-label { font-weight: 600; color: #58a6ff; text-transform: uppercase; font-size: 0.72em; letter-spacing: 0.5px; margin-top: 8px; margin-bottom: 4px; }
+  .reasoning-block .field-label:first-child { margin-top: 0; }
+  .reasoning-block .field-value { color: #c9d1d9; white-space: pre-wrap; }
+  .config-box { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.76em; white-space: pre-wrap; color: #8b949e; max-height: 300px; overflow-y: auto; }
+  .mini-bar { display: inline-block; height: 12px; vertical-align: middle; margin-left: 4px; border-radius: 2px; }
+  #error { color: #f85149; padding: 10px; display: none; }
+  .footer { color: #484f58; font-size: 0.74em; margin-top: 32px; padding-top: 16px; border-top: 1px solid #21262d; }
+  .footer a { color: #58a6ff; text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3fb950; vertical-align: middle; margin-right: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .toolbar label { color: #8b949e; font-size: 0.82em; }
+  .toolbar input { background: #161b22; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px; padding: 5px 8px; font-size: 0.82em; }
 </style>
 </head>
 <body>
-<header>
-  <h1>ML AutoResearch Dashboard</h1>
-  <small id="meta">Loading experiment_log.jsonl + reasoning_annotations.json…</small>
-</header>
-<div id="tabs"></div>
-<div id="layout">
-  <div id="experiments">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th><th>Backbone</th><th>Description</th><th>Composite</th><th>Test</th><th>Val</th><th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+
+<h1>AutoResearch Dashboard — FDB <code>fraudecom</code></h1>
+<div class="subtitle">
+  <span class="status-dot"></span> Live  ·  Most-unsaturated benchmark in Amazon Science FDB
+  ·  Last update: <span id="last-update">…</span>
+  ·  <span id="status-text">connecting…</span>
+</div>
+<div class="links-bar">
+  <a href="experiment_summary.md">📋 Experiment Summary</a>
+  <a href="research_journal.md">📔 Research Journal</a>
+  <a href="reasoning_annotations.json">🧠 Reasoning JSON</a>
+  <a href="best_config.json">🏆 Best Config</a>
+  <a href="winners/xgboost_exp6_velocity_features/">🥇 Winner Archive</a>
+  <a href="winners/xgboost_exp6_velocity_features/audit_report.md">🔍 Audit Report</a>
+  <a href="winners/xgboost_exp6_velocity_features/colab_train_and_infer.ipynb">📒 Colab</a>
+</div>
+
+<div id="error"></div>
+
+<div class="grid" id="summary-cards"></div>
+
+<div class="section-title">Comparison vs FDB Published Baselines (chronological 80/20)</div>
+<div class="ceiling-bar" id="ceiling-bar"></div>
+
+<div class="section-title">Champion</div>
+<div id="winner-section"></div>
+
+<div class="section-title">
+  Experiment Log
+  <span style="color:#484f58;font-size:0.7em;font-weight:400">
+    (click row for full reasoning + per-fold breakdown · click header to sort · use filters to narrow)
+  </span>
+</div>
+
+<div class="toolbar">
+  <label>Filter status:</label>
+  <div class="filter-tabs" id="filter-tabs"></div>
+  <label style="margin-left:16px">Filter backbone:</label>
+  <div class="backbone-tabs" id="backbone-tabs"></div>
+  <label style="margin-left:16px">Search:</label>
+  <input id="search-box" type="text" placeholder="description / backbone / exp #" oninput="render()">
+</div>
+
+<div id="exp-table-scroll" style="max-height:60vh;overflow-y:auto;border:1px solid #30363d;border-radius:6px">
+<table id="exp-table" style="margin-bottom:0">
+  <thead>
+    <tr>
+      <th data-sort="experiment_num">#</th>
+      <th data-sort="backbone">Backbone</th>
+      <th data-sort="status">Status</th>
+      <th data-sort="description">Description</th>
+      <th data-sort="split">Split</th>
+      <th data-sort="composite">Composite</th>
+      <th data-sort="test_primary">Test AUC</th>
+      <th data-sort="val_primary">Val AUC</th>
+      <th data-sort="auc_pr">AUPRC</th>
+      <th data-sort="precision">Prec</th>
+      <th data-sort="recall">Rec</th>
+      <th data-sort="f1">F1</th>
+      <th data-sort="mcc">MCC</th>
+      <th data-sort="accuracy">Acc</th>
+      <th data-sort="seconds_elapsed">Time</th>
+      <th data-sort="timestamp">When</th>
+    </tr>
+  </thead>
+  <tbody id="exp-body"></tbody>
+</table>
+</div>
+
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <h3 id="detail-title">Experiment Detail</h3>
+    <button class="close-btn" onclick="closeDetail()">Close</button>
   </div>
-  <div id="details"><em class="empty">Click an experiment row to see its reasoning annotation.</em></div>
+  <div class="detail-tabs">
+    <button id="dtab-reasoning" class="active" onclick="setDetailTab('reasoning')">Reasoning</button>
+    <button id="dtab-metrics" onclick="setDetailTab('metrics')">Metrics</button>
+    <button id="dtab-perfold" onclick="setDetailTab('perfold')">Per-Fold</button>
+    <button id="dtab-config" onclick="setDetailTab('config')">Config</button>
+  </div>
+  <div id="detail-body"></div>
+</div>
+
+<div class="footer">
+  Data sources (live):
+  <a href="experiment_log.jsonl">experiment_log.jsonl</a> ·
+  <a href="reasoning_annotations.json">reasoning_annotations.json</a> ·
+  <a href="best_config.json">best_config.json</a>
+  <br>
+  Project: <a href="https://github.com/dlmastery/autoresearch">dlmastery/autoresearch</a> ·
+  Branch: <code>fraud-ecommerce-autoresearch</code> ·
+  Dataset: <a href="https://github.com/amazon-science/fraud-dataset-benchmark">FDB fraudecom</a> ·
+  Pages: <a href="https://dlmastery.github.io/autoresearch/fraud_ecommerce/">https://dlmastery.github.io/autoresearch/fraud_ecommerce/</a>
 </div>
 
 <script>
-const LOG_URL = "./experiment_log.jsonl";
-const REASON_URL = "./reasoning_annotations.json";
+const LOG_PATH = 'experiment_log.jsonl';
+const REASONING_PATH = 'reasoning_annotations.json';
+const BEST_PATH = 'best_config.json';
+const REFRESH_MS = 30000;
 
-let experiments = [];
-let annotations = {};
-let activeBackbone = "ALL";
+const FDB_BASELINES = [
+  { name: 'AFD-TFI (FDB ceiling, proprietary)', auc: 0.636, color: '#d29922' },
+  { name: 'AutoGluon',     auc: 0.522, color: '#8b949e' },
+  { name: 'H2O',           auc: 0.518, color: '#8b949e' },
+  { name: 'Auto-sklearn',  auc: 0.515, color: '#8b949e' },
+];
 
-async function loadAll() {
-  const logText = await fetch(LOG_URL).then(r => r.ok ? r.text() : "").catch(() => "");
-  experiments = logText.split("\n").filter(s => s.trim()).map(s => {
-    try { return JSON.parse(s); } catch (e) { return null; }
-  }).filter(Boolean);
+let allEntries = [];
+let allReasoning = {};
+let bestConfig = null;
+let selectedExpNum = null;
+let sortField = 'experiment_num';
+let sortDesc = false;
+let activeBackbone = 'ALL';
+let activeStatus = 'ALL';
+let activeDetailTab = 'reasoning';
+
+function fmt(v, d=4) { return v != null && !isNaN(v) ? Number(v).toFixed(d) : '—'; }
+function aucColor(v) {
+  if (v == null) return '';
+  if (v >= 0.7) return '#3fb950';
+  if (v >= 0.6) return '#d29922';
+  if (v >= 0.55) return '#58a6ff';
+  if (v >= 0.5) return '#8b949e';
+  return '#f85149';
+}
+function loadJsonl(text) {
+  return text.split('\n').filter(l => l.trim()).map(l => JSON.parse(l));
+}
+
+async function refresh() {
   try {
-    annotations = await fetch(REASON_URL).then(r => r.ok ? r.json() : {}).catch(() => ({}));
-  } catch (e) { annotations = {}; }
-  renderTabs();
-  renderRows();
-  document.getElementById("meta").textContent =
-    `${experiments.length} experiments loaded; ${Object.keys(annotations).length} reasoning entries.`;
-}
-
-function renderTabs() {
-  const backbones = ["ALL", ...Array.from(new Set(experiments.map(e => e.backbone))).sort()];
-  const tabs = document.getElementById("tabs");
-  tabs.innerHTML = "";
-  for (const b of backbones) {
-    const div = document.createElement("div");
-    div.className = "tab" + (b === activeBackbone ? " active" : "");
-    div.textContent = b + (b !== "ALL" ? ` (${experiments.filter(e => e.backbone === b).length})` : ` (${experiments.length})`);
-    div.onclick = () => { activeBackbone = b; renderTabs(); renderRows(); };
-    tabs.appendChild(div);
+    const ts = Date.now();
+    const [logResp, reasoningResp, bestResp] = await Promise.all([
+      fetch(`${LOG_PATH}?_=${ts}`),
+      fetch(`${REASONING_PATH}?_=${ts}`),
+      fetch(`${BEST_PATH}?_=${ts}`).catch(() => null),
+    ]);
+    if (!logResp.ok) throw new Error(`log fetch ${logResp.status}`);
+    allEntries = loadJsonl(await logResp.text());
+    if (reasoningResp.ok) allReasoning = await reasoningResp.json();
+    if (bestResp && bestResp.ok) bestConfig = await bestResp.json();
+    document.getElementById('last-update').textContent = new Date().toLocaleString();
+    document.getElementById('status-text').textContent = `${allEntries.length} experiments loaded`;
+    document.getElementById('error').style.display = 'none';
+    render();
+  } catch (e) {
+    document.getElementById('error').textContent = `Error loading data: ${e.message}`;
+    document.getElementById('error').style.display = 'block';
   }
 }
 
-function renderRows() {
-  const tbody = document.getElementById("rows");
-  tbody.innerHTML = "";
-  const filtered = activeBackbone === "ALL" ? experiments : experiments.filter(e => e.backbone === activeBackbone);
-  for (const e of filtered.sort((a, b) => b.experiment_num - a.experiment_num)) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${e.experiment_num}</td>
-      <td>${e.backbone}</td>
-      <td title="${(e.description||"").replace(/"/g,"'")}">${(e.description||"").slice(0,60)}</td>
-      <td>${(e.composite||0).toFixed(4)}</td>
-      <td>${(e.test_primary||0).toFixed(4)}</td>
-      <td>${(e.val_primary||0).toFixed(4)}</td>
-      <td class="${statusClass(e.status)}">${e.status}</td>`;
-    tr.onclick = () => selectRow(tr, e);
-    tbody.appendChild(tr);
-  }
+function render() {
+  renderSummaryCards();
+  renderCeilingBar();
+  renderWinnerBox();
+  renderFilterTabs();
+  renderBackboneTabs();
+  renderTable();
+  if (selectedExpNum != null) renderDetail(selectedExpNum);
 }
 
-function statusClass(s) {
-  if (s === "KEEP") return "keep";
-  if (s === "DISCARD") return "discard";
-  return "near-miss";
+function renderSummaryCards() {
+  const total = allEntries.length;
+  const bestTest = total ? Math.max(...allEntries.map(e => e.test_primary || 0)) : null;
+  const bestComposite = total ? Math.max(...allEntries.map(e => e.composite || 0)) : null;
+  const passing = allEntries.filter(e => e.status === 'KEEP').length;
+  const fdbCeiling = 0.636;
+  const gap = bestTest != null ? (fdbCeiling - bestTest) : null;
+  const backbones = [...new Set(allEntries.map(e => e.backbone))];
+
+  const cards = [
+    { label: 'Total Experiments', value: total, cls: 'neutral' },
+    { label: 'Backbones', value: backbones.length, cls: 'neutral' },
+    { label: 'Passing (KEEP)', value: passing, cls: passing > 0 ? 'positive' : 'warning' },
+    { label: 'Best Test AUC', value: fmt(bestTest, 4), cls: aucColor(bestTest) === '#3fb950' ? 'positive' : 'neutral' },
+    { label: 'Best Composite', value: fmt(bestComposite, 4), cls: bestComposite >= 0.55 ? 'positive' : 'warning' },
+    { label: 'Gap to FDB Ceiling', value: gap != null ? fmt(gap, 4) : '—', cls: gap <= 0 ? 'positive' : 'warning' },
+  ];
+  document.getElementById('summary-cards').innerHTML = cards.map(c =>
+    `<div class="card"><div class="label">${c.label}</div><div class="value ${c.cls}">${c.value}</div></div>`
+  ).join('');
 }
 
-function selectRow(tr, e) {
-  document.querySelectorAll("#rows tr.selected").forEach(r => r.classList.remove("selected"));
-  tr.classList.add("selected");
-  renderDetails(e);
-}
-
-function renderDetails(e) {
-  const d = document.getElementById("details");
-  const ann = annotations[String(e.experiment_num)] || {};
-  const needsRewrite = ann._needs_rewrite === true || (ann.diagnosis || "").includes("TODO-REWRITE");
-  const perFold = Array.isArray(e.per_fold_test) ? e.per_fold_test : [];
-  const secondary = e.secondary_metrics || {};
-
-  const foldHTML = perFold.map((v, i) => `<span class="stat">F${i+1}: ${Number(v).toFixed(4)}</span>`).join("");
-  const secondaryHTML = Object.entries(secondary)
-    .filter(([k,v]) => typeof v === "number")
-    .map(([k,v]) => `<span class="stat">${k}: ${Number(v).toFixed(4)}</span>`).join("");
-
-  const fieldBlock = (label, val) =>
-    `<div class="field-label">${label}</div><div class="field-body">${val || '<span class="empty">(empty)</span>'}</div>`;
-
-  d.innerHTML = `
-    <h2>Exp ${e.experiment_num} — ${e.backbone}</h2>
-    <div>${(e.description || "")}</div>
-    <div style="margin:8px 0">
-      <span class="stat ${statusClass(e.status)}">Status: ${e.status}</span>
-      <span class="stat">Composite: ${(e.composite||0).toFixed(4)}</span>
-      <span class="stat">Test: ${(e.test_primary||0).toFixed(4)}</span>
-      <span class="stat">Val: ${(e.val_primary||0).toFixed(4)}</span>
-      <span class="stat">Elapsed: ${(e.seconds_elapsed||0).toFixed(1)}s</span>
+function renderCeilingBar() {
+  const bar = document.getElementById('ceiling-bar');
+  const ours = allEntries.length ? allEntries.reduce((a,b) => (a.test_primary||0) > (b.test_primary||0) ? a : b) : null;
+  const maxVal = 0.7;
+  const rows = [...FDB_BASELINES];
+  if (ours) rows.unshift({
+    name: `OUR BEST (Exp ${ours.experiment_num} / ${ours.backbone})`,
+    auc: ours.test_primary,
+    color: aucColor(ours.test_primary),
+    bold: true,
+  });
+  bar.innerHTML = rows.map(r => `
+    <div class="row" style="${r.bold ? 'font-weight:600' : ''}">
+      <div class="name">${r.name}</div>
+      <div class="meter"><div class="fill" style="width:${(r.auc/maxVal)*100}%;background:${r.color}"></div></div>
+      <div class="val" style="color:${r.color}">${fmt(r.auc, 4)}</div>
     </div>
-    <h2>Per-fold test primary</h2>
-    <div>${foldHTML || '<em class="empty">no per-fold data</em>'}</div>
-    <h2>Secondary metrics</h2>
-    <div>${secondaryHTML || '<em class="empty">none logged</em>'}</div>
-    ${needsRewrite ? '<h2 class="warn">Reasoning annotation needs rewrite</h2><div class="warn">TODO-REWRITE sentinel present — author diagnosis/citations/hypothesis/prediction in reasoning_annotations.json before the next experiment.</div>' : ''}
-    <h2>Reasoning annotation</h2>
-    ${fieldBlock("Diagnosis", ann.diagnosis)}
-    ${fieldBlock("Citations", ann.citations)}
-    ${fieldBlock("Hypothesis", ann.hypothesis)}
-    ${fieldBlock("Prediction", ann.prediction)}
-    ${fieldBlock("Verdict", ann.verdict)}
-    ${fieldBlock("Learning", ann.learning)}
-    <h2>Config (full)</h2>
-    <pre>${JSON.stringify(e.config || {}, null, 2)}</pre>
+  `).join('');
+}
+
+function renderWinnerBox() {
+  if (!allEntries.length) {
+    document.getElementById('winner-section').innerHTML = '<div style="color:#8b949e">No experiments yet.</div>';
+    return;
+  }
+  const best = allEntries.reduce((a,b) => (a.composite||0) > (b.composite||0) ? a : b);
+  const floor = best.config?.composite?.below_threshold || 0.50;
+  const passes = best.composite >= floor;
+  const cls = passes ? '' : 'warn';
+  const label = passes ? 'CHAMPION' : 'BEST RESULT (composite below floor)';
+  document.getElementById('winner-section').innerHTML = `
+    <div class="winner-box ${cls}">
+      <div class="label">${label}</div>
+      <div class="main">Exp ${best.experiment_num} (${best.backbone}) — ${best.description || ''}</div>
+      <div class="metrics">composite=${fmt(best.composite,4)}  |  test_auc=${fmt(best.test_primary,4)}  |  val_auc=${fmt(best.val_primary,4)}  |  status=${best.status}
+floor=${fmt(floor,2)}  |  gap to FDB-TFI=${fmt(0.636-best.test_primary,4)}  |  beats AutoGluon by ${fmt(best.test_primary-0.522,4)}</div>
+    </div>
   `;
 }
 
-loadAll();
+function renderFilterTabs() {
+  const tabs = document.getElementById('filter-tabs');
+  const counts = {ALL: allEntries.length,
+                  KEEP: allEntries.filter(e => e.status === 'KEEP').length,
+                  DISCARD: allEntries.filter(e => e.status === 'DISCARD').length};
+  tabs.innerHTML = ['ALL','KEEP','DISCARD'].map(s =>
+    `<button class="${activeStatus===s?'active':''}" onclick="setStatus('${s}')">${s} (${counts[s]||0})</button>`
+  ).join('');
+}
+
+function renderBackboneTabs() {
+  const tabs = document.getElementById('backbone-tabs');
+  const backbones = ['ALL', ...new Set(allEntries.map(e => e.backbone))].sort();
+  tabs.innerHTML = backbones.map(b => {
+    const n = b === 'ALL' ? allEntries.length : allEntries.filter(e => e.backbone === b).length;
+    return `<button class="${activeBackbone === b ? 'active' : ''}" onclick="setBackbone('${b}')">${b} (${n})</button>`;
+  }).join('');
+}
+
+function setBackbone(b) { activeBackbone = b; render(); }
+function setStatus(s) { activeStatus = s; render(); }
+
+function renderTable() {
+  const tbody = document.getElementById('exp-body');
+  let rows = [...allEntries];
+  if (activeBackbone !== 'ALL') rows = rows.filter(e => e.backbone === activeBackbone);
+  if (activeStatus !== 'ALL') rows = rows.filter(e => e.status === activeStatus);
+  const q = (document.getElementById('search-box').value || '').toLowerCase();
+  if (q) rows = rows.filter(e => (
+    String(e.experiment_num).includes(q) ||
+    (e.backbone||'').toLowerCase().includes(q) ||
+    (e.description||'').toLowerCase().includes(q)
+  ));
+  rows.sort((a,b) => {
+    const va = a[sortField] ?? a.secondary_metrics?.[sortField] ?? '';
+    const vb = b[sortField] ?? b.secondary_metrics?.[sortField] ?? '';
+    if (typeof va === 'number' && typeof vb === 'number') return sortDesc ? vb - va : va - vb;
+    return sortDesc ? String(vb).localeCompare(String(va)) : String(va).localeCompare(String(vb));
+  });
+
+  const bestExpNum = allEntries.length ? allEntries.reduce((a,b) => (a.composite||0) > (b.composite||0) ? a : b).experiment_num : -1;
+
+  tbody.innerHTML = rows.map(e => {
+    const sec = e.secondary_metrics || {};
+    const sp = e.config?.split || {};
+    const split = sp.name === 'holdout'
+      ? `chrono ${Math.round((1-(sp.test_fraction||0.2)-(sp.val_fraction||0.1))*100)}/${Math.round((sp.val_fraction||0.1)*100)}/${Math.round((sp.test_fraction||0.2)*100)}${sp.min_train_idx?` (>=${sp.min_train_idx})`:''}`
+      : (sp.name || '?');
+    const cls = (e.experiment_num === bestExpNum ? 'best-row ' : '') +
+                (e.status === 'KEEP' ? 'keep ' : 'discard ') + 'clickable';
+    return `<tr class="${cls}" data-exp="${e.experiment_num}" onclick="selectExp(${e.experiment_num})">
+      <td>${e.experiment_num}</td>
+      <td><b>${e.backbone}</b></td>
+      <td>${e.status}</td>
+      <td>${(e.description||'').slice(0,55)}</td>
+      <td style="font-size:0.74em;color:#8b949e">${split}</td>
+      <td style="color:${e.composite >= 0.55 ? '#3fb950' : (e.composite >= 0.50 ? '#d29922' : '#f85149')}">${fmt(e.composite,4)}</td>
+      <td style="color:${aucColor(e.test_primary)}">${fmt(e.test_primary,4)}</td>
+      <td style="color:${aucColor(e.val_primary)}">${fmt(e.val_primary,4)}</td>
+      <td>${fmt(sec.auc_pr,3)}</td>
+      <td>${fmt(sec.precision,3)}</td>
+      <td>${fmt(sec.recall,3)}</td>
+      <td>${fmt(sec.f1,3)}</td>
+      <td>${fmt(sec.mcc,3)}</td>
+      <td>${fmt(sec.accuracy,3)}</td>
+      <td>${fmt(e.seconds_elapsed,1)}s</td>
+      <td style="font-size:0.74em">${(e.timestamp||'').slice(5,16).replace('T',' ')}</td>
+    </tr>`;
+  }).join('');
+
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.classList.toggle('sort-active', th.getAttribute('data-sort') === sortField);
+    th.onclick = () => {
+      const f = th.getAttribute('data-sort');
+      if (sortField === f) sortDesc = !sortDesc;
+      else { sortField = f; sortDesc = ['composite','test_primary','val_primary','f1','mcc','auc_pr','accuracy'].includes(f); }
+      render();
+    };
+  });
+}
+
+function selectExp(n) {
+  selectedExpNum = n;
+  document.querySelectorAll('#exp-body tr').forEach(tr => tr.classList.toggle('selected', tr.getAttribute('data-exp') == n));
+  renderDetail(n);
+}
+
+function closeDetail() {
+  selectedExpNum = null;
+  document.querySelectorAll('#exp-body tr').forEach(tr => tr.classList.remove('selected'));
+  document.getElementById('detail-panel').classList.remove('visible');
+}
+
+function setDetailTab(t) {
+  activeDetailTab = t;
+  document.querySelectorAll('.detail-tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('dtab-' + t).classList.add('active');
+  if (selectedExpNum != null) renderDetail(selectedExpNum);
+}
+
+function renderDetail(n) {
+  const entry = allEntries.find(e => e.experiment_num == n);
+  if (!entry) return;
+  const r = allReasoning[String(n)] || {};
+  const panel = document.getElementById('detail-panel');
+  panel.classList.add('visible');
+  document.getElementById('detail-title').textContent =
+    `Exp ${n} — ${entry.backbone} — ${entry.status} — ${entry.description||''}`;
+
+  const sec = entry.secondary_metrics || {};
+  let body = '';
+
+  if (activeDetailTab === 'reasoning') {
+    body = `<div class="reasoning-block">
+      <div class="field-label">Diagnosis</div>
+      <div class="field-value">${r.diagnosis || '—'}</div>
+      <div class="field-label">Citations</div>
+      <div class="field-value">${(r.citations || '—').replace(/;\s*\n/g, ';<br><br>')}</div>
+      <div class="field-label">Hypothesis</div>
+      <div class="field-value">${r.hypothesis || '—'}</div>
+      <div class="field-label">Prediction</div>
+      <div class="field-value">${r.prediction || '—'}</div>
+      <div class="field-label">Verdict</div>
+      <div class="field-value">${r.verdict || '<i style="color:#8b949e">(empty)</i>'}</div>
+      <div class="field-label">Learning</div>
+      <div class="field-value">${r.learning || '<i style="color:#8b949e">(empty)</i>'}</div>
+    </div>`;
+  } else if (activeDetailTab === 'metrics') {
+    body = `<table style="margin-bottom:12px">
+      <tr><th>Metric</th><th>Value</th><th>Metric</th><th>Value</th></tr>
+      <tr><td>Composite</td><td><b style="color:${entry.composite>=0.50?'#3fb950':'#f85149'}">${fmt(entry.composite,4)}</b></td><td>Status</td><td>${entry.status}</td></tr>
+      <tr><td>Test AUC-ROC</td><td style="color:${aucColor(entry.test_primary)}"><b>${fmt(entry.test_primary,4)}</b></td><td>Val AUC-ROC</td><td style="color:${aucColor(entry.val_primary)}">${fmt(entry.val_primary,4)}</td></tr>
+      <tr><td>AUC-PR</td><td>${fmt(sec.auc_pr,4)}</td><td>Log Loss</td><td>${fmt(sec.log_loss,4)}</td></tr>
+      <tr><td>Precision</td><td>${fmt(sec.precision,4)}</td><td>Recall</td><td>${fmt(sec.recall,4)}</td></tr>
+      <tr><td>F1</td><td>${fmt(sec.f1,4)}</td><td>F2</td><td>${fmt(sec.f2,4)}</td></tr>
+      <tr><td>MCC</td><td>${fmt(sec.mcc,4)}</td><td>Accuracy</td><td>${fmt(sec.accuracy,4)}</td></tr>
+      <tr><td>TP</td><td>${Math.round(sec.tp||0)}</td><td>FP</td><td>${Math.round(sec.fp||0)}</td></tr>
+      <tr><td>TN</td><td>${Math.round(sec.tn||0)}</td><td>FN</td><td>${Math.round(sec.fn||0)}</td></tr>
+    </table>`;
+  } else if (activeDetailTab === 'perfold') {
+    if (entry.per_fold_test_reports?.length) {
+      const rows = entry.per_fold_test_reports.map(r => `<tr>
+        <td>${r.fold_id}</td>
+        <td>${r.regime}</td>
+        <td style="color:${aucColor(r.auc_roc)}">${fmt(r.auc_roc,4)}<span class="mini-bar" style="width:${Math.max(0,(r.auc_roc-0.5)*200)}px;background:${aucColor(r.auc_roc)}"></span></td>
+        <td>${fmt(r.auc_pr,4)}</td>
+        <td>${fmt(r.f1,4)}</td>
+        <td>${fmt(r.mcc,4)}</td>
+        <td>${fmt(r.accuracy,4)}</td>
+        <td>${r.n||'—'}</td>
+      </tr>`).join('');
+      body = `<table style="margin-bottom:12px">
+        <tr><th>Fold</th><th>Regime</th><th>AUC-ROC</th><th>AUC-PR</th><th>F1</th><th>MCC</th><th>Acc</th><th>n</th></tr>
+        ${rows}
+      </table>`;
+    } else {
+      body = `<div style="color:#8b949e">No per-fold data (single fold or synthetic ensemble entry).</div>`;
+    }
+  } else if (activeDetailTab === 'config') {
+    const cfg = entry.config || {};
+    body = `<div class="config-box">${JSON.stringify({
+      backbone: cfg.backbone,
+      task_type: cfg.task_type,
+      primary_metric: cfg.primary_metric,
+      backbone_config: cfg.backbone_config,
+      split: cfg.split,
+      composite: cfg.composite,
+      data: cfg.data ? { format: cfg.data.format, target_columns: cfg.data.target_columns,
+                          n_features: cfg.data.feature_columns?.length || 'auto' } : undefined,
+    }, null, 2)}</div>`;
+  }
+  document.getElementById('detail-body').innerHTML = body;
+}
+
+refresh();
+setInterval(refresh, REFRESH_MS);
 </script>
 </body>
 </html>
