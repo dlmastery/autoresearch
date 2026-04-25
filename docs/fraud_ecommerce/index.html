@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>ML AutoResearch Dashboard</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+         margin: 0; padding: 0; background: #0b0f14; color: #d8e2ec; }
+  header { padding: 12px 20px; background: #101820; border-bottom: 1px solid #223; }
+  header h1 { margin: 0; font-size: 18px; }
+  header small { color: #8aa; }
+  #tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 20px; background: #0f1620; }
+  .tab { padding: 6px 14px; border: 1px solid #334; border-radius: 20px; cursor: pointer;
+         color: #9bb; user-select: none; }
+  .tab.active { background: #1e88e5; color: white; border-color: #1e88e5; }
+  #layout { display: grid; grid-template-columns: 2fr 3fr; gap: 12px; padding: 12px; height: calc(100vh - 140px); }
+  #experiments { overflow: auto; background: #0f1620; border: 1px solid #223; border-radius: 6px; }
+  #details { overflow: auto; background: #0f1620; border: 1px solid #223; border-radius: 6px; padding: 14px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 6px 10px; text-align: left; font-size: 13px; border-bottom: 1px solid #1a2330; }
+  th { background: #121a24; position: sticky; top: 0; }
+  tr { cursor: pointer; }
+  tr:hover { background: #152030; }
+  tr.selected { background: #17335a; }
+  .keep { color: #6bd99b; }
+  .discard { color: #d98c6b; }
+  .near-miss { color: #d9cb6b; }
+  h2 { margin-top: 18px; font-size: 14px; color: #9ac; border-bottom: 1px solid #223; padding-bottom: 4px; }
+  pre { background: #050810; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+  .empty { color: #668; font-style: italic; }
+  .warn { color: #d96b6b; }
+  .ok { color: #6bd99b; }
+  .stat { display: inline-block; padding: 4px 10px; border-radius: 4px; margin: 2px;
+          background: #152030; font-size: 12px; }
+  .field-label { color: #9ac; font-weight: bold; margin-top: 8px; }
+  .field-body { white-space: pre-wrap; font-size: 13px; line-height: 1.4; }
+  a { color: #69aaff; text-decoration: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ML AutoResearch Dashboard</h1>
+  <small id="meta">Loading experiment_log.jsonl + reasoning_annotations.json…</small>
+</header>
+<div id="tabs"></div>
+<div id="layout">
+  <div id="experiments">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Backbone</th><th>Description</th><th>Composite</th><th>Test</th><th>Val</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div id="details"><em class="empty">Click an experiment row to see its reasoning annotation.</em></div>
+</div>
+
+<script>
+const LOG_URL = "./experiment_log.jsonl";
+const REASON_URL = "./reasoning_annotations.json";
+
+let experiments = [];
+let annotations = {};
+let activeBackbone = "ALL";
+
+async function loadAll() {
+  const logText = await fetch(LOG_URL).then(r => r.ok ? r.text() : "").catch(() => "");
+  experiments = logText.split("\n").filter(s => s.trim()).map(s => {
+    try { return JSON.parse(s); } catch (e) { return null; }
+  }).filter(Boolean);
+  try {
+    annotations = await fetch(REASON_URL).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  } catch (e) { annotations = {}; }
+  renderTabs();
+  renderRows();
+  document.getElementById("meta").textContent =
+    `${experiments.length} experiments loaded; ${Object.keys(annotations).length} reasoning entries.`;
+}
+
+function renderTabs() {
+  const backbones = ["ALL", ...Array.from(new Set(experiments.map(e => e.backbone))).sort()];
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  for (const b of backbones) {
+    const div = document.createElement("div");
+    div.className = "tab" + (b === activeBackbone ? " active" : "");
+    div.textContent = b + (b !== "ALL" ? ` (${experiments.filter(e => e.backbone === b).length})` : ` (${experiments.length})`);
+    div.onclick = () => { activeBackbone = b; renderTabs(); renderRows(); };
+    tabs.appendChild(div);
+  }
+}
+
+function renderRows() {
+  const tbody = document.getElementById("rows");
+  tbody.innerHTML = "";
+  const filtered = activeBackbone === "ALL" ? experiments : experiments.filter(e => e.backbone === activeBackbone);
+  for (const e of filtered.sort((a, b) => b.experiment_num - a.experiment_num)) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${e.experiment_num}</td>
+      <td>${e.backbone}</td>
+      <td title="${(e.description||"").replace(/"/g,"'")}">${(e.description||"").slice(0,60)}</td>
+      <td>${(e.composite||0).toFixed(4)}</td>
+      <td>${(e.test_primary||0).toFixed(4)}</td>
+      <td>${(e.val_primary||0).toFixed(4)}</td>
+      <td class="${statusClass(e.status)}">${e.status}</td>`;
+    tr.onclick = () => selectRow(tr, e);
+    tbody.appendChild(tr);
+  }
+}
+
+function statusClass(s) {
+  if (s === "KEEP") return "keep";
+  if (s === "DISCARD") return "discard";
+  return "near-miss";
+}
+
+function selectRow(tr, e) {
+  document.querySelectorAll("#rows tr.selected").forEach(r => r.classList.remove("selected"));
+  tr.classList.add("selected");
+  renderDetails(e);
+}
+
+function renderDetails(e) {
+  const d = document.getElementById("details");
+  const ann = annotations[String(e.experiment_num)] || {};
+  const needsRewrite = ann._needs_rewrite === true || (ann.diagnosis || "").includes("TODO-REWRITE");
+  const perFold = Array.isArray(e.per_fold_test) ? e.per_fold_test : [];
+  const secondary = e.secondary_metrics || {};
+
+  const foldHTML = perFold.map((v, i) => `<span class="stat">F${i+1}: ${Number(v).toFixed(4)}</span>`).join("");
+  const secondaryHTML = Object.entries(secondary)
+    .filter(([k,v]) => typeof v === "number")
+    .map(([k,v]) => `<span class="stat">${k}: ${Number(v).toFixed(4)}</span>`).join("");
+
+  const fieldBlock = (label, val) =>
+    `<div class="field-label">${label}</div><div class="field-body">${val || '<span class="empty">(empty)</span>'}</div>`;
+
+  d.innerHTML = `
+    <h2>Exp ${e.experiment_num} — ${e.backbone}</h2>
+    <div>${(e.description || "")}</div>
+    <div style="margin:8px 0">
+      <span class="stat ${statusClass(e.status)}">Status: ${e.status}</span>
+      <span class="stat">Composite: ${(e.composite||0).toFixed(4)}</span>
+      <span class="stat">Test: ${(e.test_primary||0).toFixed(4)}</span>
+      <span class="stat">Val: ${(e.val_primary||0).toFixed(4)}</span>
+      <span class="stat">Elapsed: ${(e.seconds_elapsed||0).toFixed(1)}s</span>
+    </div>
+    <h2>Per-fold test primary</h2>
+    <div>${foldHTML || '<em class="empty">no per-fold data</em>'}</div>
+    <h2>Secondary metrics</h2>
+    <div>${secondaryHTML || '<em class="empty">none logged</em>'}</div>
+    ${needsRewrite ? '<h2 class="warn">Reasoning annotation needs rewrite</h2><div class="warn">TODO-REWRITE sentinel present — author diagnosis/citations/hypothesis/prediction in reasoning_annotations.json before the next experiment.</div>' : ''}
+    <h2>Reasoning annotation</h2>
+    ${fieldBlock("Diagnosis", ann.diagnosis)}
+    ${fieldBlock("Citations", ann.citations)}
+    ${fieldBlock("Hypothesis", ann.hypothesis)}
+    ${fieldBlock("Prediction", ann.prediction)}
+    ${fieldBlock("Verdict", ann.verdict)}
+    ${fieldBlock("Learning", ann.learning)}
+    <h2>Config (full)</h2>
+    <pre>${JSON.stringify(e.config || {}, null, 2)}</pre>
+  `;
+}
+
+loadAll();
+</script>
+</body>
+</html>

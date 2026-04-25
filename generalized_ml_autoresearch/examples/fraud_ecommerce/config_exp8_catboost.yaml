@@ -1,0 +1,44 @@
+# Exp 8: CatBoost on chronological holdout + velocity features (Tier-3 backbone #3)
+paths:
+  results_dir: "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results"
+
+task_type: binary_classification
+primary_metric: auc_roc
+
+backbone: catboost
+backbone_config:
+  iterations: 1000
+  depth: 6
+  learning_rate: 0.04
+  l2_leaf_reg: 3.0
+  bootstrap_type: Bernoulli
+  subsample: 0.85
+  random_strength: 1.0
+  random_state: 0
+  early_stopping_rounds: 50
+  thread_count: 4
+  verbose: 0
+
+data:
+  format: csv
+  path: "C:/Users/abhir/clauderesearch/autoresearch/generalized_ml_autoresearch/examples/fraud_ecommerce/data/features_velocity.csv"
+  target_columns: [class]
+  feature_columns: [purchase_value, device_id, source, browser, age, ip_address, country,
+                    time_since_signup, purchase_hour, purchase_dayofweek, signup_hour,
+                    device_id_freq, ip_address_freq, country_freq, source_freq, browser_freq,
+                    device_fraud_rate_train, country_fraud_rate_train]
+
+split:
+  name: holdout
+  order: time
+  test_fraction: 0.2
+  val_fraction: 0.1
+  seed: 0
+
+composite:
+  higher_is_better: true
+  penalty_weight: 0.05
+  below_threshold: 0.55
+
+description: "Exp 8 — CatBoost (Prokhorenkova 2018 NeurIPS) chronological + velocity features"
+seed: 0

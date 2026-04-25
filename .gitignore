@@ -12,3 +12,13 @@ autoresearch/.data_cache/
 autoresearch/autoresearch_results/best_model.pt
 autoresearch/autoresearch_results/running.json
 autoresearch/.claude/
+
+# fraud_ecommerce: large CSVs sourced from public mirrors — re-buildable via prepare_data.py + add_velocity_features.py
+generalized_ml_autoresearch/examples/fraud_ecommerce/data/raw_train.csv
+generalized_ml_autoresearch/examples/fraud_ecommerce/data/raw_test.csv
+generalized_ml_autoresearch/examples/fraud_ecommerce/data/features.csv
+generalized_ml_autoresearch/examples/fraud_ecommerce/data/features_velocity.csv
+# Local-only artifacts (canonical copies live in docs/fraud_ecommerce for Pages)
+generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results/_quarantined_exp1/
+generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results/trade_logs/*.csv
+generalized_ml_autoresearch/examples/fraud_ecommerce/autoresearch_results/best_model.pt
