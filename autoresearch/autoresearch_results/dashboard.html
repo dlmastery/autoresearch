@@ -200,7 +200,7 @@ let allEntries = [];
 let selectedIdx = -1;
 let activeTab = 'test';
 // Set of experiment numbers that have a per-day trade CSV in trade_logs/.
-// Populated from trade_logs/_manifest.json on each refresh.
+// Populated from trade_logs/manifest.json on each refresh.
 let tradeLogsManifest = new Set();
 let ensembleTradeLogs = [];
 
@@ -860,7 +860,7 @@ async function refresh() {
   // Load trade_logs manifest so the Trades column knows which experiments
   // have a per-day CSV available.
   try {
-    const manText = await fetchText('trade_logs/_manifest.json');
+    const manText = await fetchText('trade_logs/manifest.json');
     const man = JSON.parse(manText);
     tradeLogsManifest = new Set((man.experiments || []).map(Number));
     ensembleTradeLogs = man.ensembles || [];
@@ -870,7 +870,7 @@ async function refresh() {
     tradeLogsManifest = new Set();
     ensembleTradeLogs = [];
     renderEnsembleLinks();
-    console.warn('[AutoResearch dashboard] trade_logs/_manifest.json not found — Trades column will show -- for all rows');
+    console.warn('[AutoResearch dashboard] trade_logs/manifest.json not found — Trades column will show -- for all rows');
   }
   try {
     const _ = null; // block marker for compatibility

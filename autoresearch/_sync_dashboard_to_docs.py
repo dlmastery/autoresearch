@@ -115,7 +115,7 @@ if trade_src.exists():
     # and to the docs mirror (so GitHub Pages serves it).
     for target_dir in (trade_src, trade_dst):
         target_dir.mkdir(parents=True, exist_ok=True)
-        (target_dir / "_manifest.json").write_text(
+        (target_dir / "manifest.json").write_text(
             json.dumps(manifest, indent=2), encoding="utf-8"
         )
     print(f"  [trade_logs] copied {n_csv} per-experiment CSVs, "
