@@ -74,6 +74,13 @@ def _is_gbm(backbone: str) -> bool:
 
 
 def _next_experiment_num() -> int:
+    """Read the JSONL and return next experiment_num.
+
+    Note: this is a best-effort read; the AUTHORITATIVE assignment happens
+    inside ``_atomic_jsonl_append`` under a file lock. Two concurrent
+    runners can both see the same `n + 1` here; whichever holds the lock
+    first gets it, the other reads the JSONL again and bumps.
+    """
     if not LOG_PATH.exists():
         return 1
     n = 0
@@ -86,6 +93,57 @@ def _next_experiment_num() -> int:
         except Exception:
             continue
     return n + 1
+
+
+def _atomic_jsonl_append(entry: dict) -> int:
+    """Write one experiment entry to the JSONL under a Windows file lock.
+
+    Race-condition fix for parallel runs (CPU GBM + GPU neural). The lock
+    file `experiment_log.jsonl.lock` is created exclusively; if it already
+    exists we wait + retry. Inside the lock we re-read the JSONL to get
+    the AUTHORITATIVE max `experiment_num`, set the entry to max+1, append,
+    fsync, and release the lock.
+
+    Returns the assigned experiment_num.
+    """
+    import time as _t
+    lock = LOG_PATH.with_suffix(".jsonl.lock")
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    deadline = _t.time() + 30.0
+    while _t.time() < deadline:
+        try:
+            # Atomic: O_CREAT | O_EXCL fails if file exists.
+            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.close(fd)
+            break
+        except FileExistsError:
+            _t.sleep(0.05)
+    else:
+        raise TimeoutError(f"could not acquire {lock} within 30s")
+    try:
+        # Re-read JSONL inside the lock for authoritative max(experiment_num)
+        n = 0
+        if LOG_PATH.exists():
+            for line in LOG_PATH.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    n = max(n, int(json.loads(line).get("experiment_num", 0)))
+                except Exception:
+                    continue
+        assigned = n + 1
+        entry["experiment_num"] = assigned
+        with LOG_PATH.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+        return assigned
+    finally:
+        try:
+            lock.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def _flatten_window(features: pd.DataFrame, seq_len: int) -> np.ndarray:
@@ -482,7 +540,8 @@ def main() -> None:
         "test_excess_sharpe_A": test_eval["A_excess_sharpe"],
         "per_fold": fold_summary,
     }
-    _write_trade_csv(exp_num, test_eval["trade_rows"], summary)
+    # NOTE: trade-CSV write deferred to AFTER the JSONL lock so the
+    # filename uses the AUTHORITATIVE experiment_num (race-condition fix).
 
     # 7. JSONL entry --------------------------------------------------------
     elapsed = round(time.time() - t0, 1)
@@ -530,9 +589,13 @@ def main() -> None:
         "per_window_val":   val_eval["per_window"],
     }
 
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with LOG_PATH.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    # Atomic write under a file lock so parallel CPU+GPU runs do not
+    # collide on experiment_num. The function reassigns entry["experiment_num"]
+    # to the authoritative next value and returns it.
+    assigned = _atomic_jsonl_append(entry)
+    exp_num = assigned
+    summary["exp"] = assigned
+    _write_trade_csv(assigned, test_eval["trade_rows"], summary)
 
     # 8. Champion check ----------------------------------------------------
     is_champion = False
