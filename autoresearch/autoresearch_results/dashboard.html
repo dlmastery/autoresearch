@@ -83,7 +83,8 @@
 
 <div class="section-title">Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for per-window breakdown, click header to sort)</span></div>
 <div id="backbone-tabs" style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap"></div>
-<div style="color:#8b949e;font-size:0.85em;margin:6px 0 4px 0" id="exp-count-hint">Scroll inside the table below to browse every experiment — <span id="exp-visible-count">?</span> shown.</div>
+<div id="ensemble-trade-links" style="margin:6px 0;display:none"></div>
+<div style="color:#8b949e;font-size:0.85em;margin:6px 0 4px 0" id="exp-count-hint">Scroll inside the table below to browse every experiment — <span id="exp-visible-count">?</span> shown. Click <strong style="color:#58a6ff">&#128202; CSV</strong> in the rightmost column to download that experiment&#39;s daily win/loss spreadsheet.</div>
 <div id="exp-table-scroll" style="max-height:75vh;overflow-y:auto;border:1px solid #30363d;border-radius:6px;position:relative">
 <table id="exp-table" style="margin-bottom:0">
   <thead>
@@ -110,6 +111,7 @@
       <th>T+/V+</th>
       <th data-sort="elapsed_sec" style="cursor:pointer">Time</th>
       <th data-sort="timestamp" style="cursor:pointer">When</th>
+      <th title="Per-day win/loss CSV (trade_logs/expN_trades.csv)">Trades</th>
     </tr>
   </thead>
   <tbody id="exp-body"></tbody>
@@ -197,6 +199,45 @@ const REFRESH_MS = 300000; // 5 minutes
 let allEntries = [];
 let selectedIdx = -1;
 let activeTab = 'test';
+// Set of experiment numbers that have a per-day trade CSV in trade_logs/.
+// Populated from trade_logs/_manifest.json on each refresh.
+let tradeLogsManifest = new Set();
+let ensembleTradeLogs = [];
+
+function tradeLink(n) {
+  // Render a download link to the per-day trade CSV if it exists for this
+  // experiment, otherwise a dim placeholder. Click is intercepted so the
+  // surrounding row's showDetail() does not fire.
+  if (n == null || !tradeLogsManifest.has(Number(n))) {
+    return '<span style="color:#484f58" title="No trade_logs/exp' + (n||'?') + '_trades.csv on disk">--</span>';
+  }
+  return '<a href="trade_logs/exp' + n + '_trades.csv" download '
+       + 'onclick="event.stopPropagation()" '
+       + 'style="color:#58a6ff;text-decoration:none;font-weight:600" '
+       + 'title="Download daily win/loss CSV (date, fold, regime, prediction, '
+       + 'pred_direction, actual_return, strategy_return, correct, pnl_bps)">'
+       + '&#128202; CSV</a>';
+}
+
+function renderEnsembleLinks() {
+  const wrap = document.getElementById('ensemble-trade-links');
+  if (!wrap) return;
+  if (!ensembleTradeLogs || ensembleTradeLogs.length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  wrap.innerHTML = '<span style="color:#8b949e;font-size:0.8em;margin-right:8px">Ensemble winner trade logs:</span>'
+    + ensembleTradeLogs.map(e =>
+        '<a href="trade_logs/' + e.file + '" download '
+      + 'style="color:#58a6ff;text-decoration:none;font-weight:600;'
+      + 'background:#0d1117;border:1px solid #30363d;border-radius:4px;'
+      + 'padding:3px 8px;margin-right:6px;font-size:0.8em" '
+      + 'title="' + (e.label || e.name) + ' — Sharpe ' + (e.sharpe||'?') + ', ' + (e.rows||'?') + ' daily rows">'
+      + '&#128202; ' + (e.label || e.name) + ' CSV (Sharpe '
+      + (e.sharpe != null ? (e.sharpe >= 0 ? '+' : '') + Number(e.sharpe).toFixed(4) : '?')
+      + ')</a>').join('');
+}
 
 function fmt(v, d=4) { return v != null ? Number(v).toFixed(d) : '--'; }
 function fmtSign(v, d=4) { if (v == null) return '--'; let s = Number(v).toFixed(d); return v >= 0 ? '+' + s : s; }
@@ -717,7 +758,7 @@ function renderExpTable() {
     ? `${filteredEntries.length} experiments (all backbones)`
     : `${filteredEntries.length} ${activeBackbone} experiments (of ${allEntries.length} total — click ALL to see every backbone)`;
   if (sorted.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="22" style="padding:24px;text-align:center;color:#8b949e">
+    tbody.innerHTML = `<tr><td colspan="23" style="padding:24px;text-align:center;color:#8b949e">
       No experiments to display. allEntries.length=${allEntries.length}, activeBackbone=${activeBackbone}.
       If allEntries=0 the JSONL fetch failed — check browser DevTools console.
     </td></tr>`;
@@ -751,6 +792,7 @@ function renderExpTable() {
       <td>${e.test_pos_folds||'?'}/${e.val_pos_folds||'?'}</td>
       <td>${e.elapsed_sec || 0}s</td>
       <td class="timestamp">${e.timestamp || ''}</td>
+      <td>${tradeLink(e.experiment_num)}</td>
     </tr>`;
   }).join('');
 }
@@ -813,6 +855,22 @@ async function refresh() {
     window._reasoningAnnotations = JSON.parse(raText);
   } catch(e) {
     window._reasoningAnnotations = {};
+  }
+
+  // Load trade_logs manifest so the Trades column knows which experiments
+  // have a per-day CSV available.
+  try {
+    const manText = await fetchText('trade_logs/_manifest.json');
+    const man = JSON.parse(manText);
+    tradeLogsManifest = new Set((man.experiments || []).map(Number));
+    ensembleTradeLogs = man.ensembles || [];
+    renderEnsembleLinks();
+    console.log(`[AutoResearch dashboard] trade_logs manifest: ${tradeLogsManifest.size} experiments + ${ensembleTradeLogs.length} ensemble winners`);
+  } catch(e) {
+    tradeLogsManifest = new Set();
+    ensembleTradeLogs = [];
+    renderEnsembleLinks();
+    console.warn('[AutoResearch dashboard] trade_logs/_manifest.json not found — Trades column will show -- for all rows');
   }
   try {
     const _ = null; // block marker for compatibility
