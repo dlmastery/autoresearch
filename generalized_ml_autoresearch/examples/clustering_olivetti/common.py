@@ -250,8 +250,17 @@ def log_experiment(*, exp_num: int, backbone: str, description: str, config: dic
                                      "n": int(len(y_true))}],
         "composite_fingerprint": f"clustering-ari-floor{floor}",
     }
+    # Coerce NaN/Inf to None so the JSONL is valid RFC 8259 JSON (browsers can't parse "NaN").
+    def _no_nan(o):
+        if isinstance(o, float):
+            return None if (o != o or o == float("inf") or o == float("-inf")) else o
+        if isinstance(o, dict):
+            return {k: _no_nan(v) for k, v in o.items()}
+        if isinstance(o, (list, tuple)):
+            return [_no_nan(v) for v in o]
+        return o
     with open(LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(record, default=str) + "\n")
+        f.write(json.dumps(_no_nan(record), default=str, allow_nan=False) + "\n")
 
     # Per-prediction trade log (cluster assignments)
     pred_csv = RESULTS / "trade_logs" / f"exp{exp_num}_predictions.csv"
