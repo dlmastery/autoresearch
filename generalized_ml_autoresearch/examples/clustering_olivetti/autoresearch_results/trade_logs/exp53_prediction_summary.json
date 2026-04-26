@@ -1,0 +1,7 @@
+{
+  "backbone": "spectral_hc_nearest_neighbors_k20",
+  "ari": 0.5277549222162093,
+  "nmi": 0.8058748636201438,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

@@ -1,13 +1,13 @@
 # Crash-Recovery Checkpoint — Olivetti Faces Clustering
 
-_Last update: 2026-04-25T23:56:17_
+_Last update: 2026-04-26T00:00:12_
 
 ## Current champion
-- **Exp:** 33 (dinov2_vits14_spectral_cos)
-- **ARI:** 0.6963
-- **NMI:** 0.8974
-- **Silhouette:** 0.0890
-- **Description:** DINOv2 dinov2_vits14 + Spectral cosine affinity
+- **Exp:** 71 (spectral_hc_cosine_seed99_(variance_c)
+- **ARI:** 0.7195
+- **NMI:** 0.9004
+- **Silhouette:** 0.0927
+- **Description:** Spectral hill-climb: cosine seed=99 (variance check) on DINOv2 ViT-S/14
 
 ## Experiment history
 
@@ -62,6 +62,31 @@ _Last update: 2026-04-25T23:56:17_
 | 44 | dinov2_vits14_seed1 | 0.5561 | 0.8301 | KEEP |
 | 45 | dinov2_vits14_seed2 | 0.5144 | 0.8110 | KEEP |
 | 46 | dinov2_vits14_seed7 | 0.5387 | 0.8175 | KEEP |
+| 47 | spectral_hc_cosine_+_assignkmeans_(ch | 0.6963 | 0.8974 | KEEP |
+| 48 | spectral_hc_cosine_+_assigncluster_qr | 0.4708 | 0.7628 | KEEP |
+| 49 | spectral_hc_cosine_+_L2-normalized_fe | 0.6963 | 0.8974 | KEEP |
+| 50 | spectral_hc_nearest_neighbors_k5 | 0.6042 | 0.8577 | KEEP |
+| 51 | spectral_hc_nearest_neighbors_k7 | 0.6246 | 0.8538 | KEEP |
+| 52 | spectral_hc_nearest_neighbors_k15 | 0.5888 | 0.8358 | KEEP |
+| 53 | spectral_hc_nearest_neighbors_k20 | 0.5278 | 0.8059 | KEEP |
+| 54 | spectral_hc_nearest_neighbors_k30 | 0.4553 | 0.7806 | KEEP |
+| 55 | spectral_hc_RBF_gamma0.0001 | 0.7170 | 0.9102 | KEEP |
+| 56 | spectral_hc_RBF_gamma0.0005 | 0.6961 | 0.9001 | KEEP |
+| 57 | spectral_hc_RBF_gamma0.005 | 0.2628 | 0.7973 | DISCARD |
+| 58 | spectral_hc_RBF_gamma0.05 | 0.0503 | 0.5965 | DISCARD |
+| 59 | spectral_hc_RBF_gamma0.5 | 0.0000 | 0.0297 | DISCARD |
+| 60 | spectral_hc_ViT-B/14_+_cosine | 0.6552 | 0.8805 | KEEP |
+| 61 | spectral_hc_ViT-B/14_+_cluster_qr_+_c | 0.4317 | 0.7495 | KEEP |
+| 62 | spectral_hc_ViT-B/14_+_L2-norm_+_cosi | 0.6552 | 0.8805 | KEEP |
+| 63 | spectral_hc_ViT-B/14_+_kNN_k10 | 0.5489 | 0.8215 | KEEP |
+| 64 | spectral_hc_cosine_+_n_init1 | 0.7064 | 0.9014 | KEEP |
+| 65 | spectral_hc_cosine_+_n_init5 | 0.6742 | 0.8829 | KEEP |
+| 66 | spectral_hc_cosine_+_n_init25 | 0.6963 | 0.8974 | KEEP |
+| 67 | spectral_hc_cosine_+_n_init50 | 0.6666 | 0.8900 | KEEP |
+| 68 | spectral_hc_cosine_seed1_(variance_ch | 0.7154 | 0.9051 | KEEP |
+| 69 | spectral_hc_cosine_seed7_(variance_ch | 0.6596 | 0.8710 | KEEP |
+| 70 | spectral_hc_cosine_seed42_(variance_c | 0.6127 | 0.8609 | KEEP |
+| 71 | spectral_hc_cosine_seed99_(variance_c | 0.7195 | 0.9004 | KEEP |
 
 ## Next experiment
 

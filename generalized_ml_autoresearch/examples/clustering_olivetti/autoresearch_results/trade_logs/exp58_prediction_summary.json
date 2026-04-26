@@ -1,0 +1,7 @@
+{
+  "backbone": "spectral_hc_RBF_gamma0.05",
+  "ari": 0.050343047509586084,
+  "nmi": 0.596502037128776,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

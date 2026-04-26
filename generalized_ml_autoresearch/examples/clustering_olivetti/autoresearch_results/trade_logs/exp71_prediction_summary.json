@@ -1,0 +1,7 @@
+{
+  "backbone": "spectral_hc_cosine_seed99_(variance_c",
+  "ari": 0.7194765610712617,
+  "nmi": 0.9003553824322281,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

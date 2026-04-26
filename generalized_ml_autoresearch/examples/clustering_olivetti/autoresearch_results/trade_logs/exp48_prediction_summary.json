@@ -1,0 +1,7 @@
+{
+  "backbone": "spectral_hc_cosine_+_assigncluster_qr",
+  "ari": 0.470808576066999,
+  "nmi": 0.7628395798060833,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

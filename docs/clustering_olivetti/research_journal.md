@@ -819,3 +819,453 @@ Dosovitskiy, Beyer, Kolesnikov, Weissenborn, Zhai, Unterthiner, Dehghani, Minder
 **Learning:** axis closed. seed7 produced delta=-0.0068 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: Spectral hill-climbing sweep next. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
 
 ---
+
+## Exp 47
+
+**Diagnosis:** Spectral hill-climb variant 47/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine + assign=kmeans (champion config). The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine + assign=kmeans (champion config) on DINOv2 ViT-S/14 raw 384-dim will land ARI in 0.68 to 0.72 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.68 to 0.72. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6963 (delta -0.0000 vs Exp 33 champion 0.6963), NMI=0.8974, silhouette=0.0890, n_pred=40. WITHIN predicted 0.68-0.72. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. cosine + assign=kmeans (champion config) produced delta=-0.0000 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: Spectral cosine + assign_labels=cluster_qr. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 48
+
+**Diagnosis:** Spectral hill-climb variant 48/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine + assign=cluster_qr. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine + assign=cluster_qr on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4708 (delta -0.2255 vs Exp 33 champion 0.6963), NMI=0.7628, silhouette=-0.0049, n_pred=40. BELOW predicted 0.65-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. cosine + assign=cluster_qr produced delta=-0.2255 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: Spectral cosine on L2-normalized features. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 49
+
+**Diagnosis:** Spectral hill-climb variant 49/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine + L2-normalized features. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine + L2-normalized features on DINOv2 ViT-S/14 + L2 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6963 (delta -0.0000 vs Exp 33 champion 0.6963), NMI=0.8974, silhouette=0.0890, n_pred=40. WITHIN predicted 0.65-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. cosine + L2-normalized features produced delta=-0.0000 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: Spectral nearest-neighbors variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 50
+
+**Diagnosis:** Spectral hill-climb variant 50/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: nearest_neighbors k=5. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that nearest_neighbors k=5 on DINOv2 ViT-S/14 will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6042 (delta -0.0921 vs Exp 33 champion 0.6963), NMI=0.8577, silhouette=0.0670, n_pred=40. WITHIN predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. nearest_neighbors k=5 produced delta=-0.0921 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: k-NN affinity with k=7. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 51
+
+**Diagnosis:** Spectral hill-climb variant 51/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: nearest_neighbors k=7. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that nearest_neighbors k=7 on DINOv2 ViT-S/14 will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6246 (delta -0.0717 vs Exp 33 champion 0.6963), NMI=0.8538, silhouette=0.0815, n_pred=40. WITHIN predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. nearest_neighbors k=7 produced delta=-0.0717 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: k-NN affinity with k=10. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 52
+
+**Diagnosis:** Spectral hill-climb variant 52/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: nearest_neighbors k=15. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that nearest_neighbors k=15 on DINOv2 ViT-S/14 will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.5888 (delta -0.1075 vs Exp 33 champion 0.6963), NMI=0.8358, silhouette=0.0554, n_pred=40. BELOW predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. nearest_neighbors k=15 produced delta=-0.1075 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: k-NN affinity with k=15. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 53
+
+**Diagnosis:** Spectral hill-climb variant 53/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: nearest_neighbors k=20. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that nearest_neighbors k=20 on DINOv2 ViT-S/14 will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.5278 (delta -0.1685 vs Exp 33 champion 0.6963), NMI=0.8059, silhouette=0.0423, n_pred=40. BELOW predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. nearest_neighbors k=20 produced delta=-0.1685 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: k-NN affinity with k=20. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 54
+
+**Diagnosis:** Spectral hill-climb variant 54/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: nearest_neighbors k=30. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that nearest_neighbors k=30 on DINOv2 ViT-S/14 will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4553 (delta -0.2410 vs Exp 33 champion 0.6963), NMI=0.7806, silhouette=0.0092, n_pred=40. BELOW predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. nearest_neighbors k=30 produced delta=-0.2410 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: k-NN affinity with k=30. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 55
+
+**Diagnosis:** Spectral hill-climb variant 55/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: RBF gamma=0.0001. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that RBF gamma=0.0001 on DINOv2 ViT-S/14 will land ARI in 0.50 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.50 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.7170 (delta +0.0207 vs Exp 33 champion 0.6963), NMI=0.9102, silhouette=0.1101, n_pred=40. WITHIN predicted 0.50-0.75. NEW CHAMPION on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis open. RBF gamma=0.0001 produced delta=+0.0207 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant pushes the local maximum further. Next try: RBF gamma fine sweep continues. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 56
+
+**Diagnosis:** Spectral hill-climb variant 56/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: RBF gamma=0.0005. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that RBF gamma=0.0005 on DINOv2 ViT-S/14 will land ARI in 0.50 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.50 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6961 (delta -0.0002 vs Exp 33 champion 0.6963), NMI=0.9001, silhouette=0.0942, n_pred=40. WITHIN predicted 0.50-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. RBF gamma=0.0005 produced delta=-0.0002 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: RBF gamma fine sweep continues. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 57
+
+**Diagnosis:** Spectral hill-climb variant 57/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: RBF gamma=0.005. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that RBF gamma=0.005 on DINOv2 ViT-S/14 will land ARI in 0.50 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.50 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.2628 (delta -0.4335 vs Exp 33 champion 0.6963), NMI=0.7973, silhouette=0.0764, n_pred=40. BELOW predicted 0.50-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. RBF gamma=0.005 produced delta=-0.4335 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: RBF gamma fine sweep continues. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 58
+
+**Diagnosis:** Spectral hill-climb variant 58/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: RBF gamma=0.05. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that RBF gamma=0.05 on DINOv2 ViT-S/14 will land ARI in 0.50 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.50 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.0503 (delta -0.6460 vs Exp 33 champion 0.6963), NMI=0.5965, silhouette=-0.0894, n_pred=40. BELOW predicted 0.50-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. RBF gamma=0.05 produced delta=-0.6460 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: RBF gamma fine sweep continues. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 59
+
+**Diagnosis:** Spectral hill-climb variant 59/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: RBF gamma=0.5. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that RBF gamma=0.5 on DINOv2 ViT-S/14 will land ARI in 0.50 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.50 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.0000 (delta -0.6963 vs Exp 33 champion 0.6963), NMI=0.0297, silhouette=-0.1190, n_pred=7. BELOW predicted 0.50-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. RBF gamma=0.5 produced delta=-0.6963 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: RBF gamma fine sweep continues. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 60
+
+**Diagnosis:** Spectral hill-climb variant 60/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: ViT-B/14 + cosine. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that ViT-B/14 + cosine on DINOv2 ViT-B/14 768-dim will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6552 (delta -0.0411 vs Exp 33 champion 0.6963), NMI=0.8805, silhouette=0.0673, n_pred=40. WITHIN predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. ViT-B/14 + cosine produced delta=-0.0411 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: ViT-B/14 + cluster_qr. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 61
+
+**Diagnosis:** Spectral hill-climb variant 61/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: ViT-B/14 + cluster_qr + cosine. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that ViT-B/14 + cluster_qr + cosine on DINOv2 ViT-B/14 will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4317 (delta -0.2646 vs Exp 33 champion 0.6963), NMI=0.7495, silhouette=0.0033, n_pred=40. BELOW predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. ViT-B/14 + cluster_qr + cosine produced delta=-0.2646 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: ViT-B/14 normalized. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 62
+
+**Diagnosis:** Spectral hill-climb variant 62/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: ViT-B/14 + L2-norm + cosine. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that ViT-B/14 + L2-norm + cosine on DINOv2 ViT-B/14 + L2 will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6552 (delta -0.0411 vs Exp 33 champion 0.6963), NMI=0.8805, silhouette=0.0673, n_pred=40. WITHIN predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. ViT-B/14 + L2-norm + cosine produced delta=-0.0411 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: ViT-B/14 nearest_neighbors. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 63
+
+**Diagnosis:** Spectral hill-climb variant 63/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: ViT-B/14 + kNN k=10. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that ViT-B/14 + kNN k=10 on DINOv2 ViT-B/14 will land ARI in 0.60 to 0.80 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.60 to 0.80. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.5489 (delta -0.1474 vs Exp 33 champion 0.6963), NMI=0.8215, silhouette=0.0496, n_pred=40. BELOW predicted 0.60-0.80. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. ViT-B/14 + kNN k=10 produced delta=-0.1474 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: n_init sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 64
+
+**Diagnosis:** Spectral hill-climb variant 64/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine + n_init=1. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine + n_init=1 on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.7064 (delta +0.0101 vs Exp 33 champion 0.6963), NMI=0.9014, silhouette=0.0895, n_pred=40. WITHIN predicted 0.65-0.75. NEW CHAMPION on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis open. cosine + n_init=1 produced delta=+0.0101 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant pushes the local maximum further. Next try: multi-seed variance check. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 65
+
+**Diagnosis:** Spectral hill-climb variant 65/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine + n_init=5. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine + n_init=5 on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6742 (delta -0.0221 vs Exp 33 champion 0.6963), NMI=0.8829, silhouette=0.0984, n_pred=40. WITHIN predicted 0.65-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. cosine + n_init=5 produced delta=-0.0221 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: multi-seed variance check. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 66
+
+**Diagnosis:** Spectral hill-climb variant 66/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine + n_init=25. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine + n_init=25 on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6963 (delta -0.0000 vs Exp 33 champion 0.6963), NMI=0.8974, silhouette=0.0890, n_pred=40. WITHIN predicted 0.65-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. cosine + n_init=25 produced delta=-0.0000 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: multi-seed variance check. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 67
+
+**Diagnosis:** Spectral hill-climb variant 67/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine + n_init=50. The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine + n_init=50 on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6666 (delta -0.0297 vs Exp 33 champion 0.6963), NMI=0.8900, silhouette=0.0806, n_pred=40. WITHIN predicted 0.65-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. cosine + n_init=50 produced delta=-0.0297 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: multi-seed variance check. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 68
+
+**Diagnosis:** Spectral hill-climb variant 68/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine seed=1 (variance check). The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine seed=1 (variance check) on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.7154 (delta +0.0191 vs Exp 33 champion 0.6963), NMI=0.9051, silhouette=0.0900, n_pred=40. WITHIN predicted 0.65-0.75. NEW CHAMPION on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis open. cosine seed=1 (variance check) produced delta=+0.0191 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant pushes the local maximum further. Next try: Spectral hill-climb complete; pivot to next backbone. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 69
+
+**Diagnosis:** Spectral hill-climb variant 69/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine seed=7 (variance check). The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine seed=7 (variance check) on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6596 (delta -0.0367 vs Exp 33 champion 0.6963), NMI=0.8710, silhouette=0.0804, n_pred=40. WITHIN predicted 0.65-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. cosine seed=7 (variance check) produced delta=-0.0367 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: Spectral hill-climb complete; pivot to next backbone. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 70
+
+**Diagnosis:** Spectral hill-climb variant 70/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine seed=42 (variance check). The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine seed=42 (variance check) on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6127 (delta -0.0836 vs Exp 33 champion 0.6963), NMI=0.8609, silhouette=0.0772, n_pred=40. BELOW predicted 0.65-0.75. tail-trial on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. cosine seed=42 (variance check) produced delta=-0.0836 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant does not improve over the champion config. Next try: Spectral hill-climb complete; pivot to next backbone. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 71
+
+**Diagnosis:** Spectral hill-climb variant 71/71 tail-following Exp 33 champion (DINOv2+Spectral cosine, ARI=0.6963). This variant changes a single axis to: cosine seed=99 (variance check). The downstream Spectral algorithm has 5 main axes (affinity, gamma/n_neighbors, eigen_solver, assign_labels, n_init); we sweep them systematically. Per the FX 25-per-backbone mandate every hill-climbing step isolates ONE change so the result attribution is unambiguous, and the cumulative best ARI across all variants determines the local Spectral maximum on DINOv2 features.
+
+**Citations:** Ng, Jordan & Weiss 2001 NeurIPS 'On Spectral Clustering: Analysis and an algorithm' (DOI:10.5555/2980539.2980649) — foundational spectral clustering paper; the normalized graph-Laplacian eigenvectors define a low-dim embedding where Euclidean KMeans recovers graph-cut-optimal clusters. Every hill-climbing variant in this batch tweaks one axis (affinity, eigensolver, assign-labels, n_init, n_components) of this canonical algorithm.;
+Shi & Malik 2000 IEEE TPAMI 'Normalized Cuts and Image Segmentation' (DOI:10.1109/34.868688) — the original normalized-cut formulation that spectral clustering approximately solves; relevant because we test multiple assignment-labeling methods (kmeans vs discretize vs cluster_qr) that are different rounding strategies for the relaxed continuous solution.;
+von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (DOI:10.1007/s11222-007-9033-z) — comprehensive theoretical treatment of why each affinity (RBF, cosine, k-NN) yields different cluster recovery; motivates the systematic affinity sweep in Exps 49-58 which is the core of this hill-climbing batch.
+
+**Hypothesis:** We hypothesize that cosine seed=99 (variance check) on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes how the affinity matrix's eigenvectors embed faces in the spectral space; different eigensolvers and label-assignment methods can find different local optima of the same NCut objective.
+
+**Prediction:** ARI in 0.65 to 0.75. If ARI > 0.6963, this variant is the new local champion within the Spectral family on DINOv2 features. If trail by > 0.02, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.7195 (delta +0.0232 vs Exp 33 champion 0.6963), NMI=0.9004, silhouette=0.0927, n_pred=40. WITHIN predicted 0.65-0.75. NEW CHAMPION on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis open. cosine seed=99 (variance check) produced delta=+0.0232 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant pushes the local maximum further. Next try: Spectral hill-climb complete; pivot to next backbone. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---

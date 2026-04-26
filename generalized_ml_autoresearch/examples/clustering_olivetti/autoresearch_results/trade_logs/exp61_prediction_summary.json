@@ -1,0 +1,7 @@
+{
+  "backbone": "spectral_hc_ViT-B/14_+_cluster_qr_+_c",
+  "ari": 0.43172540840589824,
+  "nmi": 0.7494848986408607,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

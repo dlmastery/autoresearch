@@ -1,0 +1,5 @@
+{
+  "backbone": "spectral_hill_climb",
+  "axis": "cosine seed=99 (variance check)",
+  "model": "DINOv2 ViT-S/14"
+}

@@ -1,0 +1,7 @@
+{
+  "backbone": "spectral_hc_cosine_+_L2-normalized_fe",
+  "ari": 0.6962579726807369,
+  "nmi": 0.897406840732261,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

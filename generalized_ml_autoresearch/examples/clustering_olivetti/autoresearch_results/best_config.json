@@ -1,26 +1,26 @@
 {
-  "experiment_num": 33,
-  "backbone": "dinov2_vits14_spectral_cos",
-  "composite": 0.6962579726807369,
-  "test_primary": 0.6962579726807369,
-  "val_primary": 0.08901702612638474,
+  "experiment_num": 71,
+  "backbone": "spectral_hc_cosine_seed99_(variance_c",
+  "composite": 0.7194765610712617,
+  "test_primary": 0.7194765610712617,
+  "val_primary": 0.09272102266550064,
   "config": {
-    "backbone": "dinov2+spectral_cos",
-    "model": "dinov2_vits14",
-    "downstream": "Spectral cosine affinity"
+    "backbone": "spectral_hill_climb",
+    "axis": "cosine seed=99 (variance check)",
+    "model": "DINOv2 ViT-S/14"
   },
-  "description": "DINOv2 dinov2_vits14 + Spectral cosine affinity",
+  "description": "Spectral hill-climb: cosine seed=99 (variance check) on DINOv2 ViT-S/14",
   "secondary_metrics": {
-    "ari": 0.6962579726807369,
-    "nmi": 0.897406840732261,
-    "fmi": 0.7063671196545162,
-    "homogeneity": 0.8871911591046284,
-    "completeness": 0.9078605225179307,
-    "v_measure": 0.8974068407322608,
-    "silhouette": 0.08901702612638474,
+    "ari": 0.7194765610712617,
+    "nmi": 0.9003553824322281,
+    "fmi": 0.7270355432739835,
+    "homogeneity": 0.8945303504532298,
+    "completeness": 0.9062567749254509,
+    "v_measure": 0.9003553824322281,
+    "silhouette": 0.09272102266550064,
     "n_pred_clusters": 40,
     "n_noise": 0,
     "n_true_clusters": 40
   },
-  "timestamp": "2026-04-25T23:55:35"
+  "timestamp": "2026-04-25T23:59:47"
 }

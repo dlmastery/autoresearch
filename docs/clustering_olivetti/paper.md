@@ -61,16 +61,16 @@ Per experiment: diagnose → cite → hypothesize → predict → run → analyz
 
 | Rank | Exp | Backbone | ARI | NMI | Silhouette |
 |---|---|---|---|---|---|
-| 1 | 33 | dinov2_vits14_spectral_cos | 0.6963 | 0.8974 | 0.0890 |
-| 2 | 34 | dinov2_vits14_spectral_knn10 | 0.6389 | 0.8584 | 0.0796 |
-| 3 | 27 | dinov2_vits14_agg_ward | 0.6371 | 0.8706 | 0.0834 |
-| 4 | 35 | dinov2_vits14_birch | 0.6371 | 0.8706 | 0.0834 |
-| 5 | 41 | dinov2_vits14_umap2_km | 0.6100 | 0.8455 | 0.0678 |
-| 6 | 40 | dinov2_vits14_umap10_km | 0.5982 | 0.8465 | 0.0592 |
-| 7 | 31 | dinov2_vits14_spectral_g001 | 0.5852 | 0.8533 | 0.0872 |
-| 8 | 25 | dinov2_vits14_kmeans_n50 | 0.5852 | 0.8456 | 0.0891 |
-| 9 | 26 | dinov2_vits14_spherical | 0.5602 | 0.8259 | 0.0467 |
-| 10 | 22 | dinov2_vits14_minibatch_kmeans | 0.5596 | 0.8393 | 0.0596 |
+| 1 | 71 | spectral_hc_cosine_seed99_(variance_c | 0.7195 | 0.9004 | 0.0927 |
+| 2 | 55 | spectral_hc_RBF_gamma0.0001 | 0.7170 | 0.9102 | 0.1101 |
+| 3 | 68 | spectral_hc_cosine_seed1_(variance_ch | 0.7154 | 0.9051 | 0.0900 |
+| 4 | 64 | spectral_hc_cosine_+_n_init1 | 0.7064 | 0.9014 | 0.0895 |
+| 5 | 33 | dinov2_vits14_spectral_cos | 0.6963 | 0.8974 | 0.0890 |
+| 6 | 47 | spectral_hc_cosine_+_assignkmeans_(ch | 0.6963 | 0.8974 | 0.0890 |
+| 7 | 49 | spectral_hc_cosine_+_L2-normalized_fe | 0.6963 | 0.8974 | 0.0890 |
+| 8 | 66 | spectral_hc_cosine_+_n_init25 | 0.6963 | 0.8974 | 0.0890 |
+| 9 | 56 | spectral_hc_RBF_gamma0.0005 | 0.6961 | 0.9001 | 0.0942 |
+| 10 | 65 | spectral_hc_cosine_+_n_init5 | 0.6742 | 0.8829 | 0.0984 |
 
 ### 4.2 Why deep methods underperform on Olivetti
 
