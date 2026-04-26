@@ -401,6 +401,104 @@ The local dashboard reads the same JSONL / annotations / best_config files the r
 
 ---
 
+## AutoResearch Report Structure (MANDATORY — must mirror FX `autoresearch_report.md`)
+
+**The clustering `autoresearch_report.md` MUST follow the exact 12-section + appendix structure of the FX-project report at `C:/Users/abhir/clauderesearch/autoresearch/autoresearch/autoresearch_results/autoresearch_report.md`.** Earlier versions of the clustering report had a flat structure (executive summary → backbone scoreboard → champion progression → hill-climb summaries → 3 findings → checklist sections) that lacked the FX-style narrative depth. Diffing against the FX template revealed the gaps; this section codifies the required structure so future regenerations don't drift.
+
+### Required sections (in order)
+
+1. **Header** — date, total experiments, backbone(s), target, evaluation protocol, primary metric, composite fingerprint, champion summary line.
+2. **§1 Executive Summary** — open with the *single most important finding* (for clustering: the seed-variance crisis). Quantify it in a one-paragraph "headline reality check". Then list secondary findings with effect sizes. End with the "honest headline" (5-seed median, not point estimate).
+3. **§2 Phase 1: Classical Baselines** — sub-sections:
+   - 2.1 PCA dimensionality sweep with effect-size table (Exp # | param | ARI | NMI | silhouette | verdict)
+   - 2.2 Direct clustering algorithms (KMeans, GMM, Ward, Birch, HDBSCAN, MeanShift, AffProp, Spherical) with effect-size table
+   - 2.3 Deep features and contrastive (Conv-AE, ResNet18, DEC, SimCLR, CSPA) with effect-size table
+   - 2.4 Reproducibility bug found and fixed (if any in this phase)
+   - 2.5 **Per-true-subject analysis of best Tier-1 config** — easy/medium/hard subject counts and recovery rates
+4. **§3 Phase 2: DINOv2 Self-Supervised Features** — sub-sections:
+   - 3.1 The DINOv2 jump (champion progression rows)
+   - 3.2 Backbone scale sweep (ViT-S vs ViT-B vs ViT-L)
+   - 3.3 The head matters as much as the backbone (KMeans vs Ward vs Spectral on same features)
+   - 3.4 KMeans configuration sweep (n_init, init type)
+   - 3.5 Per-true-subject analysis of best Tier-2 config
+5. **§4 Phase 3: Hill-Climb on Champion Backbone** — for the champion family, sub-sections:
+   - 4.1 The most-important-axis sweep with effect-size table (Exp # | axis | param | ARI | NMI | silhouette | verdict)
+   - 4.2 Secondary-axis sweeps (e.g. assign_labels, n_init)
+   - 4.3 Trick discoveries (e.g. "RBF tiny gamma trick" for Spectral)
+   - 4.4 **The Variance Problem** with three sub-sub-sections:
+     - 4.4.1 Evidence (5-seed table)
+     - 4.4.2 Root Cause (samples-per-cluster math)
+     - 4.4.3 Implications (which axes were noise)
+6. **§5 Phase 4: Other Hill-Climbs** — one sub-section per non-champion backbone family. Each must include:
+   - The HP-sweep effect-size table
+   - The "what plateaued / what failed" mechanism explanation
+   - Practitioner rule (e.g. "do not sweep Birch threshold below n ≈ 10 000")
+7. **§6 Bug Fixes Found and Applied** — one sub-section per non-trivial bug discovered during the project. For each:
+   - Symptom (what the user saw)
+   - Cause (what was actually wrong)
+   - Fix (what changed in code, both retroactive and prospective)
+   - Lesson codified in CLAUDE.md (so the bug is impossible to reintroduce)
+8. **§7 What Actually Worked** — three sub-sections in order:
+   - 7.1 **High-Confidence Findings (signal >> noise)** — table with Finding | Evidence | Effect Size
+   - 7.2 **Uncertain Findings (signal ~ noise)** — table with Finding | Evidence | Uncertainty
+   - 7.3 **What Definitely Didn't Work** — table with Approach | Why It Failed
+9. **§8 Recommendations** — three sub-sections by time horizon:
+   - 8.1 **Immediate (Next Session)** — 2-3 concrete experiments to run *next*
+   - 8.2 **Medium Term** — 2-3 directions worth exploring
+   - 8.3 **Goal Alignment** — connect recommendations back to the user's stated goal
+10. **§9 Validator-Enforced Reasoning Discipline** — table of word-count floors + the per-experiment pass rate
+11. **§10 Reproduction** — bash command to re-run champion + expected output
+12. **§11 Quarantines** — bullet list of excluded experiments + why
+13. **§12 Pointers** — bullet list of all artifact URLs / paths
+14. **Appendix: Complete Experiment Index** — markdown table with one row per experiment: `| # | Phase | Backbone | ARI | Status | Description |`. **`**WIN**` marker** on rows that set a new global champion at the time of the run. Non-negotiable: every experiment in the JSONL must appear in this table.
+
+### What earlier versions got wrong (Apr 26 lesson — don't repeat)
+
+- **Hill-climb summaries were single-paragraph** — must be sub-section deep-dives with effect-size tables.
+- **No three-tier "What Actually Worked" categorization** — must split signal>>noise / signal~noise / definite-fail.
+- **No three-horizon recommendations** — must split immediate / medium / goal-alignment.
+- **No bug-fix subsections** — every project hits bugs; document them so future agents know what *not* to do.
+- **No per-true-subject confusion analysis** of the champion — clustering's equivalent of FX's "per-fold breakdown of best config".
+- **No experiment index appendix** — readers cannot navigate 149 experiments without a one-row-per-experiment table.
+- **No "Key insight:" bold callouts** — the FX report uses these to anchor the reader on the load-bearing finding per section.
+- **Tone too compliance-heavy** — sections that read like a checklist (e.g. "Validator-enforced reasoning discipline") must be integrated into the narrative, not stand alone as compliance pages.
+
+### Effect-size tables: required format
+
+Every HP sweep gets a table of the form:
+
+```
+| Exp | Axis | Param | ARI | NMI | Silhouette | Verdict |
+|-----|------|-------|-----|-----|-----------|---------|
+```
+
+The Verdict column says either:
+- "Champion config" / "NEW CHAMPION (+0.X delta)"
+- "Approaching champion" / "Within seed-variance band"
+- "DISCARD — [mechanism]"
+
+Single-number summaries ("RBF gamma matters") without the table are insufficient.
+
+### Word-count target
+
+The clustering `autoresearch_report.md` should be **at least 7 000 words** (FX is 2 600 but covers only 48 experiments; clustering covers 149). Target: ~50 words per experiment of structured analysis (table row + commentary), plus the cross-cutting Variance Problem / Bug Fixes / What Worked / Recommendations sections. Current state: 8 037 words / 644 lines.
+
+### Verification checklist before declaring the report complete
+
+Before pushing any regenerated `autoresearch_report.md`, confirm:
+
+- [ ] Header has date, experiment count, backbone summary, champion line
+- [ ] Executive summary opens with single-most-important finding (seed variance for clustering, training variance for FX)
+- [ ] Each phase has its own sub-section with at least one effect-size table
+- [ ] Section "The Variance Problem" exists with Evidence / Root Cause / Implications sub-sub-sections
+- [ ] Section "Bug Fixes Found and Applied" documents every non-trivial bug
+- [ ] Section "What Actually Worked" has three sub-sections (signal>>noise / signal~noise / fail)
+- [ ] Section "Recommendations" has three sub-sections (immediate / medium / goal alignment)
+- [ ] Appendix table has one row per experiment number (no skipped numbers)
+- [ ] Word count ≥ 7 000
+
+---
+
 ## Dashboard Files Update Mandate (MANDATORY — every experiment, zero exceptions)
 
 **Every experiment updates ALL the following files. If any file is stale after an experiment completes, that's a regression — stop and fix before moving on.**
