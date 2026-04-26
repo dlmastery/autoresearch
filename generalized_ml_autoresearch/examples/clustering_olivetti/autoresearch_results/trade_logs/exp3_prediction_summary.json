@@ -1,0 +1,7 @@
+{
+  "backbone": "kmeans_pca100",
+  "ari": 0.46330760749724365,
+  "nmi": 0.7856063747599703,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

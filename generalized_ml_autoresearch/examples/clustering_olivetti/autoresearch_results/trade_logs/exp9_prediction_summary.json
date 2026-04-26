@@ -1,0 +1,7 @@
+{
+  "backbone": "hdbscan",
+  "ari": 0.3438352877665477,
+  "nmi": 0.8142179487744733,
+  "n_pred_clusters": 41,
+  "n_noise": 79
+}

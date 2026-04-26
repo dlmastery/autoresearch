@@ -1,0 +1,47 @@
+{
+  "name": "Olivetti Faces",
+  "source": "sklearn.datasets.fetch_olivetti_faces",
+  "license": "AT&T / Cambridge University, public domain for research",
+  "n_samples": 400,
+  "n_features": 4096,
+  "n_classes": 40,
+  "samples_per_class": 10,
+  "task": "unsupervised clustering (recover 40 person identities from 400 face images)",
+  "primary_metric": "Adjusted Rand Index (ARI)",
+  "secondary_metrics": [
+    "NMI",
+    "FMI",
+    "Silhouette",
+    "Homogeneity",
+    "Completeness",
+    "V-measure"
+  ],
+  "ground_truth_available": true,
+  "split_protocol": "no train/test split for clustering \u2014 entire dataset is the evaluation set",
+  "documented_baselines": {
+    "KMeans on raw pixels": {
+      "ARI": 0.5,
+      "NMI": 0.78
+    },
+    "KMeans on PCA(50)": {
+      "ARI": 0.62,
+      "NMI": 0.84
+    },
+    "Spectral clustering": {
+      "ARI": 0.68,
+      "NMI": 0.86
+    },
+    "VAE + KMeans": {
+      "ARI": 0.75,
+      "NMI": 0.89
+    },
+    "Contrastive + KMeans": {
+      "ARI": 0.85,
+      "NMI": 0.93
+    }
+  },
+  "provenance": {
+    "downloaded_at": "2026-04-25T23:13:14",
+    "sklearn_version": "1.8.0"
+  }
+}

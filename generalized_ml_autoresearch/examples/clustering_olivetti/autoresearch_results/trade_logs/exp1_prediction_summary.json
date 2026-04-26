@@ -1,0 +1,7 @@
+{
+  "backbone": "kmeans_raw_pixels",
+  "ari": 0.40565597278730076,
+  "nmi": 0.7584875079072988,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

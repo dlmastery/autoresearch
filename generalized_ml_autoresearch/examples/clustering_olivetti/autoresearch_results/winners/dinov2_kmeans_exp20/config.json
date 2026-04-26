@@ -1,0 +1,6 @@
+{
+  "backbone": "dinov2+kmeans",
+  "model": "facebookresearch/dinov2_vits14",
+  "feature_dim": 384,
+  "n_clusters": 40
+}

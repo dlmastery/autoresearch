@@ -1,0 +1,7 @@
+{
+  "backbone": "conv_ae_kmeans",
+  "ari": 0.4790179177925038,
+  "nmi": 0.7933760294320524,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

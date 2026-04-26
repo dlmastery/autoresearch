@@ -1,0 +1,7 @@
+{
+  "backbone": "umap_kmeans",
+  "ari": 0.5001112534353257,
+  "nmi": 0.8003449444274221,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

@@ -1,0 +1,7 @@
+{
+  "backbone": "resnet18_kmeans",
+  "ari": 0.44444164609882636,
+  "nmi": 0.7916213177506571,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

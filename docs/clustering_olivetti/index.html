@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AutoResearch — Olivetti Clustering</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
+h1 { color: #58a6ff; margin-bottom: 4px; font-size: 1.6em; }
+.subtitle { color: #8b949e; margin-bottom: 12px; font-size: 0.9em; }
+.links-bar { color: #8b949e; font-size: 0.82em; margin-bottom: 16px; }
+.links-bar a { color: #58a6ff; text-decoration: none; margin-right: 14px; }
+.links-bar a:hover { text-decoration: underline; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px; }
+.card .label { color: #8b949e; font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.5px; }
+.card .value { font-size: 1.6em; font-weight: 700; margin-top: 4px; }
+.positive { color: #3fb950; } .negative { color: #f85149; } .neutral { color: #58a6ff; } .warning { color: #d29922; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.84em; }
+th { background: #161b22; color: #8b949e; text-align: left; padding: 8px 10px; border-bottom: 2px solid #30363d; font-weight: 600; text-transform: uppercase; font-size: 0.72em; letter-spacing: 0.5px; cursor: pointer; user-select: none; }
+th:hover { background: #1c2128; color: #c9d1d9; }
+th.sort-active { color: #58a6ff; }
+td { padding: 7px 10px; border-bottom: 1px solid #21262d; }
+tr:hover { background: #1c2128; }
+tr.keep { border-left: 3px solid #3fb950; }
+tr.discard { border-left: 3px solid #f85149; }
+tr.clickable { cursor: pointer; }
+tr.selected { background: #1a2332 !important; border-left: 3px solid #58a6ff !important; }
+tr.best-row { background: #0d2818 !important; border-left: 4px solid #00d26a !important; }
+tr.best-row td { font-weight: 600; }
+.winner-box { background: #0d2818; border: 2px solid #3fb950; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+.winner-box .label { color: #3fb950; font-size: 0.72em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.winner-box .main { font-size: 1.05em; color: #c9d1d9; margin-bottom: 8px; }
+.winner-box .metrics { font-family: monospace; font-size: 0.82em; color: #8b949e; white-space: pre-wrap; }
+.section-title { color: #58a6ff; font-size: 1.05em; margin: 18px 0 10px 0; font-weight: 600; }
+.ceiling-bar { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 14px; margin-bottom: 18px; }
+.ceiling-bar .row { display: flex; align-items: center; gap: 12px; margin: 5px 0; font-size: 0.82em; }
+.ceiling-bar .name { width: 280px; color: #8b949e; }
+.ceiling-bar .meter { flex: 1; height: 16px; background: #0d1117; border-radius: 3px; overflow: hidden; }
+.ceiling-bar .fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.ceiling-bar .val { width: 70px; text-align: right; font-family: monospace; font-weight: 600; }
+.filter-tabs, .backbone-tabs { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.filter-tabs button, .backbone-tabs button { background: #161b22; color: #8b949e; border: 1px solid #30363d; border-radius: 4px; padding: 5px 12px; cursor: pointer; font-size: 0.78em; }
+.filter-tabs button:hover, .backbone-tabs button:hover { background: #1c2128; color: #c9d1d9; }
+.filter-tabs button.active, .backbone-tabs button.active { background: #1a2332; color: #58a6ff; border-color: #58a6ff; }
+.detail-panel { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 20px; display: none; }
+.detail-panel.visible { display: block; }
+.detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.detail-header h3 { color: #58a6ff; font-size: 1em; }
+.detail-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.detail-tabs button { background: #161b22; border: 1px solid #30363d; color: #8b949e; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78em; }
+.detail-tabs button.active { background: #1a2332; color: #58a6ff; border-color: #58a6ff; }
+.close-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78em; }
+.close-btn:hover { background: #30363d; color: #c9d1d9; }
+.reasoning-block { background: #0d1117; border-left: 3px solid #58a6ff; border-radius: 4px; padding: 12px; margin-bottom: 12px; font-size: 0.83em; line-height: 1.5; }
+.reasoning-block .field-label { font-weight: 600; color: #58a6ff; text-transform: uppercase; font-size: 0.72em; letter-spacing: 0.5px; margin-top: 8px; margin-bottom: 4px; }
+.reasoning-block .field-label:first-child { margin-top: 0; }
+.reasoning-block .field-value { color: #c9d1d9; white-space: pre-wrap; }
+.config-box { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.76em; white-space: pre-wrap; color: #8b949e; max-height: 300px; overflow-y: auto; }
+#error { color: #f85149; padding: 10px; display: none; }
+.footer { color: #484f58; font-size: 0.74em; margin-top: 32px; padding-top: 16px; border-top: 1px solid #21262d; }
+.footer a { color: #58a6ff; text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3fb950; vertical-align: middle; margin-right: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.toolbar label { color: #8b949e; font-size: 0.82em; }
+.toolbar input { background: #161b22; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px; padding: 5px 8px; font-size: 0.82em; }
+</style>
+</head>
+<body>
+
+<h1>AutoResearch — Olivetti Faces Clustering</h1>
+<div class="subtitle">
+  <span class="status-dot"></span> Live · 400 face images, 40 subjects, unsupervised clustering · Last update: <span id="last-update">…</span> · <span id="status-text">connecting…</span>
+</div>
+<div class="links-bar">
+  <a href="medium_article.md">✍️ Medium</a>
+  <a href="autoresearch_report.md">📋 Report</a>
+  <a href="forensic_report.md">🔍 Forensic</a>
+  <a href="audit_report_third_party.md">🧪 Audit</a>
+  <a href="experiment_summary.md">📓 Summary</a>
+  <a href="research_journal.md">📔 Journal</a>
+  <a href="reasoning_annotations.json">🧠 Reasoning JSON</a>
+  <a href="best_config.json">🏆 Champion</a>
+</div>
+
+<div id="error"></div>
+<div class="grid" id="summary-cards"></div>
+
+<div class="section-title">Comparison vs Documented Olivetti Baselines</div>
+<div class="ceiling-bar" id="ceiling-bar"></div>
+
+<div class="section-title">Champion</div>
+<div id="winner-section"></div>
+
+<div class="section-title">
+  Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for full reasoning · click header to sort · use filters)</span>
+</div>
+<div class="toolbar">
+  <label>Status:</label><div class="filter-tabs" id="filter-tabs"></div>
+  <label style="margin-left:16px">Backbone:</label><div class="backbone-tabs" id="backbone-tabs"></div>
+  <label style="margin-left:16px">Search:</label><input id="search-box" type="text" placeholder="description / backbone / exp #" oninput="render()">
+</div>
+
+<div id="exp-table-scroll" style="max-height:60vh;overflow-y:auto;border:1px solid #30363d;border-radius:6px">
+<table id="exp-table" style="margin-bottom:0">
+  <thead><tr>
+    <th data-sort="experiment_num">#</th>
+    <th data-sort="backbone">Backbone</th>
+    <th data-sort="status">Status</th>
+    <th data-sort="description">Description</th>
+    <th data-sort="ari">ARI</th>
+    <th data-sort="nmi">NMI</th>
+    <th data-sort="fmi">FMI</th>
+    <th data-sort="silhouette">Silhouette</th>
+    <th data-sort="v_measure">V-meas</th>
+    <th data-sort="n_pred_clusters">K_pred</th>
+    <th data-sort="seconds_elapsed">Time</th>
+    <th data-sort="timestamp">When</th>
+  </tr></thead>
+  <tbody id="exp-body"></tbody>
+</table>
+</div>
+
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header"><h3 id="detail-title">Experiment Detail</h3>
+    <button class="close-btn" onclick="closeDetail()">Close</button>
+  </div>
+  <div class="detail-tabs">
+    <button id="dtab-reasoning" class="active" onclick="setDetailTab('reasoning')">Reasoning</button>
+    <button id="dtab-metrics" onclick="setDetailTab('metrics')">Metrics</button>
+    <button id="dtab-config" onclick="setDetailTab('config')">Config</button>
+  </div>
+  <div id="detail-body"></div>
+</div>
+
+<div class="footer">
+  Live data: <a href="experiment_log.jsonl">experiment_log.jsonl</a> · <a href="reasoning_annotations.json">reasoning_annotations.json</a> · <a href="best_config.json">best_config.json</a><br>
+  Project: <a href="https://github.com/dlmastery/autoresearch">dlmastery/autoresearch</a> · Pages: <a href="https://dlmastery.github.io/autoresearch/clustering_olivetti/">https://dlmastery.github.io/autoresearch/clustering_olivetti/</a>
+</div>
+
+<script>
+const LOG_PATH = 'experiment_log.jsonl';
+const REASONING_PATH = 'reasoning_annotations.json';
+const BEST_PATH = 'best_config.json';
+const REFRESH_MS = 30000;
+const DOCUMENTED_BASELINES = [
+  { name: 'Contrastive (SimCLR) + KMeans (typical SOTA on faces)', ari: 0.85, color: '#d29922' },
+  { name: 'VAE/AE + KMeans (typical)', ari: 0.75, color: '#d29922' },
+  { name: 'Spectral RBF (typical)', ari: 0.68, color: '#8b949e' },
+  { name: 'Agglomerative Ward (typical)', ari: 0.65, color: '#8b949e' },
+  { name: 'KMeans on PCA(50) (typical)', ari: 0.62, color: '#8b949e' },
+  { name: 'KMeans on raw pixels (typical)', ari: 0.50, color: '#8b949e' },
+];
+let allEntries = [], allReasoning = {}, bestConfig = null;
+let selectedExpNum = null, sortField = 'experiment_num', sortDesc = false;
+let activeBackbone = 'ALL', activeStatus = 'ALL', activeDetailTab = 'reasoning';
+function fmt(v, d=4) { return v != null && !isNaN(v) ? Number(v).toFixed(d) : '—'; }
+function ariColor(v) { if (v == null) return ''; if (v >= 0.80) return '#3fb950'; if (v >= 0.60) return '#d29922'; if (v >= 0.40) return '#58a6ff'; if (v >= 0.20) return '#8b949e'; return '#f85149'; }
+function loadJsonl(text) { return text.split('\n').filter(l => l.trim()).map(l => JSON.parse(l)); }
+async function refresh() {
+  try {
+    const ts = Date.now();
+    const [logResp, reasoningResp, bestResp] = await Promise.all([
+      fetch(`${LOG_PATH}?_=${ts}`), fetch(`${REASONING_PATH}?_=${ts}`),
+      fetch(`${BEST_PATH}?_=${ts}`).catch(()=>null),
+    ]);
+    if (!logResp.ok) throw new Error(`log fetch ${logResp.status}`);
+    allEntries = loadJsonl(await logResp.text());
+    if (reasoningResp.ok) allReasoning = await reasoningResp.json();
+    if (bestResp && bestResp.ok) bestConfig = await bestResp.json();
+    document.getElementById('last-update').textContent = new Date().toLocaleString();
+    document.getElementById('status-text').textContent = `${allEntries.length} experiments loaded`;
+    document.getElementById('error').style.display = 'none';
+    render();
+  } catch (e) {
+    document.getElementById('error').textContent = `Error: ${e.message}`;
+    document.getElementById('error').style.display = 'block';
+  }
+}
+function render() { renderSummaryCards(); renderCeilingBar(); renderWinnerBox(); renderFilterTabs(); renderBackboneTabs(); renderTable(); if (selectedExpNum != null) renderDetail(selectedExpNum); }
+function renderSummaryCards() {
+  const total = allEntries.length;
+  const bestAri = total ? Math.max(...allEntries.map(e => e.test_primary || 0)) : null;
+  const passing = allEntries.filter(e => e.status === 'KEEP').length;
+  const sotaCeiling = 0.85;
+  const gap = bestAri != null ? (sotaCeiling - bestAri) : null;
+  const backbones = [...new Set(allEntries.map(e => e.backbone))];
+  const cards = [
+    { label: 'Total Experiments', value: total, cls: 'neutral' },
+    { label: 'Backbones', value: backbones.length, cls: 'neutral' },
+    { label: 'Passing (ARI > 0.30)', value: passing, cls: passing > 0 ? 'positive' : 'warning' },
+    { label: 'Best ARI', value: fmt(bestAri, 4), cls: ariColor(bestAri) === '#3fb950' ? 'positive' : 'neutral' },
+    { label: 'Best NMI', value: fmt(allEntries.length ? Math.max(...allEntries.map(e => e.secondary_metrics?.nmi || 0)) : null, 4), cls: 'neutral' },
+    { label: 'Gap to SOTA Ceiling', value: gap != null ? fmt(gap, 4) : '—', cls: gap <= 0 ? 'positive' : 'warning' },
+  ];
+  document.getElementById('summary-cards').innerHTML = cards.map(c => `<div class="card"><div class="label">${c.label}</div><div class="value ${c.cls}">${c.value}</div></div>`).join('');
+}
+function renderCeilingBar() {
+  const bar = document.getElementById('ceiling-bar');
+  const ours = allEntries.length ? allEntries.reduce((a,b) => (a.test_primary||0) > (b.test_primary||0) ? a : b) : null;
+  const maxVal = 1.0;
+  const rows = [...DOCUMENTED_BASELINES];
+  if (ours) rows.unshift({ name: `OUR BEST (Exp ${ours.experiment_num} / ${ours.backbone})`, ari: ours.test_primary, color: ariColor(ours.test_primary), bold: true });
+  bar.innerHTML = rows.map(r => `<div class="row" style="${r.bold?'font-weight:600':''}"><div class="name">${r.name}</div><div class="meter"><div class="fill" style="width:${(r.ari/maxVal)*100}%;background:${r.color}"></div></div><div class="val" style="color:${r.color}">${fmt(r.ari, 4)}</div></div>`).join('');
+}
+function renderWinnerBox() {
+  if (!allEntries.length) { document.getElementById('winner-section').innerHTML = '<div style="color:#8b949e">No experiments yet.</div>'; return; }
+  const best = allEntries.reduce((a,b) => (a.test_primary||0) > (b.test_primary||0) ? a : b);
+  const passes = best.test_primary > 0.30;
+  document.getElementById('winner-section').innerHTML = `<div class="winner-box ${passes?'':'warn'}"><div class="label">${passes?'CHAMPION':'BEST RESULT (below floor)'}</div><div class="main">Exp ${best.experiment_num} (${best.backbone}) — ${best.description||''}</div><div class="metrics">ARI=${fmt(best.test_primary,4)} | NMI=${fmt(best.secondary_metrics?.nmi,4)} | silhouette=${fmt(best.secondary_metrics?.silhouette,4)} | n_pred=${best.secondary_metrics?.n_pred_clusters}
+gap to SOTA-ceiling 0.85 = ${fmt(0.85-best.test_primary,4)} | beats raw-pixel KMeans (Exp 1) by ${fmt(best.test_primary - 0.4057,4)}</div></div>`;
+}
+function renderFilterTabs() {
+  const tabs = document.getElementById('filter-tabs');
+  const counts = {ALL: allEntries.length, KEEP: allEntries.filter(e => e.status==='KEEP').length, DISCARD: allEntries.filter(e => e.status==='DISCARD').length};
+  tabs.innerHTML = ['ALL','KEEP','DISCARD'].map(s => `<button class="${activeStatus===s?'active':''}" onclick="setStatus('${s}')">${s} (${counts[s]||0})</button>`).join('');
+}
+function renderBackboneTabs() {
+  const tabs = document.getElementById('backbone-tabs');
+  const backbones = ['ALL', ...new Set(allEntries.map(e => e.backbone))].sort();
+  tabs.innerHTML = backbones.map(b => { const n = b==='ALL'?allEntries.length:allEntries.filter(e=>e.backbone===b).length; return `<button class="${activeBackbone===b?'active':''}" onclick="setBackbone('${b}')">${b} (${n})</button>`; }).join('');
+}
+function setBackbone(b) { activeBackbone=b; render(); }
+function setStatus(s) { activeStatus=s; render(); }
+function renderTable() {
+  const tbody = document.getElementById('exp-body');
+  let rows = [...allEntries];
+  if (activeBackbone!=='ALL') rows = rows.filter(e=>e.backbone===activeBackbone);
+  if (activeStatus!=='ALL') rows = rows.filter(e=>e.status===activeStatus);
+  const q = (document.getElementById('search-box').value||'').toLowerCase();
+  if (q) rows = rows.filter(e=>String(e.experiment_num).includes(q)||(e.backbone||'').toLowerCase().includes(q)||(e.description||'').toLowerCase().includes(q));
+  rows.sort((a,b) => {
+    const va = a[sortField] ?? a.secondary_metrics?.[sortField] ?? '';
+    const vb = b[sortField] ?? b.secondary_metrics?.[sortField] ?? '';
+    if (typeof va==='number' && typeof vb==='number') return sortDesc?vb-va:va-vb;
+    return sortDesc?String(vb).localeCompare(String(va)):String(va).localeCompare(String(vb));
+  });
+  const bestExpNum = allEntries.length ? allEntries.reduce((a,b)=>(a.test_primary||0)>(b.test_primary||0)?a:b).experiment_num : -1;
+  tbody.innerHTML = rows.map(e => {
+    const sec = e.secondary_metrics || {};
+    const cls = (e.experiment_num===bestExpNum?'best-row ':'')+(e.status==='KEEP'?'keep ':'discard ')+'clickable';
+    return `<tr class="${cls}" data-exp="${e.experiment_num}" onclick="selectExp(${e.experiment_num})">
+      <td>${e.experiment_num}</td>
+      <td><b>${e.backbone}</b></td>
+      <td>${e.status}</td>
+      <td>${(e.description||'').slice(0,55)}</td>
+      <td style="color:${ariColor(e.test_primary)}">${fmt(e.test_primary,4)}</td>
+      <td>${fmt(sec.nmi,4)}</td>
+      <td>${fmt(sec.fmi,4)}</td>
+      <td>${fmt(sec.silhouette,4)}</td>
+      <td>${fmt(sec.v_measure,4)}</td>
+      <td>${sec.n_pred_clusters||'—'}</td>
+      <td>${fmt(e.seconds_elapsed,1)}s</td>
+      <td style="font-size:0.74em">${(e.timestamp||'').slice(5,16).replace('T',' ')}</td>
+    </tr>`;
+  }).join('');
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.classList.toggle('sort-active', th.getAttribute('data-sort')===sortField);
+    th.onclick = () => { const f = th.getAttribute('data-sort'); if (sortField===f) sortDesc=!sortDesc; else { sortField=f; sortDesc=['ari','nmi','fmi','silhouette','v_measure','test_primary'].includes(f); } render(); };
+  });
+}
+function selectExp(n) { selectedExpNum=n; document.querySelectorAll('#exp-body tr').forEach(tr=>tr.classList.toggle('selected', tr.getAttribute('data-exp')==n)); renderDetail(n); }
+function closeDetail() { selectedExpNum=null; document.querySelectorAll('#exp-body tr').forEach(tr=>tr.classList.remove('selected')); document.getElementById('detail-panel').classList.remove('visible'); }
+function setDetailTab(t) { activeDetailTab=t; document.querySelectorAll('.detail-tabs button').forEach(b=>b.classList.remove('active')); document.getElementById('dtab-'+t).classList.add('active'); if (selectedExpNum!=null) renderDetail(selectedExpNum); }
+function renderDetail(n) {
+  const entry = allEntries.find(e=>e.experiment_num==n); if (!entry) return;
+  const r = allReasoning[String(n)] || {};
+  const panel = document.getElementById('detail-panel'); panel.classList.add('visible');
+  document.getElementById('detail-title').textContent = `Exp ${n} — ${entry.backbone} — ${entry.status} — ${entry.description||''}`;
+  const sec = entry.secondary_metrics || {};
+  let body = '';
+  if (activeDetailTab==='reasoning') {
+    body = `<div class="reasoning-block">
+      <div class="field-label">Diagnosis</div><div class="field-value">${r.diagnosis||'—'}</div>
+      <div class="field-label">Citations</div><div class="field-value">${(r.citations||'—').replace(/;\s*\n/g,';<br><br>')}</div>
+      <div class="field-label">Hypothesis</div><div class="field-value">${r.hypothesis||'—'}</div>
+      <div class="field-label">Prediction</div><div class="field-value">${r.prediction||'—'}</div>
+      <div class="field-label">Verdict</div><div class="field-value">${r.verdict||'<i style="color:#8b949e">(empty)</i>'}</div>
+      <div class="field-label">Learning</div><div class="field-value">${r.learning||'<i style="color:#8b949e">(empty)</i>'}</div>
+    </div>`;
+  } else if (activeDetailTab==='metrics') {
+    body = `<table style="margin-bottom:12px"><tr><th>Metric</th><th>Value</th><th>Metric</th><th>Value</th></tr>
+      <tr><td>ARI</td><td><b style="color:${ariColor(entry.test_primary)}">${fmt(entry.test_primary,4)}</b></td><td>NMI</td><td>${fmt(sec.nmi,4)}</td></tr>
+      <tr><td>FMI</td><td>${fmt(sec.fmi,4)}</td><td>Silhouette</td><td>${fmt(sec.silhouette,4)}</td></tr>
+      <tr><td>Homogeneity</td><td>${fmt(sec.homogeneity,4)}</td><td>Completeness</td><td>${fmt(sec.completeness,4)}</td></tr>
+      <tr><td>V-measure</td><td>${fmt(sec.v_measure,4)}</td><td>n_pred_clusters</td><td>${sec.n_pred_clusters}</td></tr>
+      <tr><td>n_noise</td><td>${sec.n_noise}</td><td>n_true_clusters</td><td>${sec.n_true_clusters}</td></tr></table>`;
+  } else if (activeDetailTab==='config') {
+    body = `<div class="config-box">${JSON.stringify(entry.config,null,2)}</div>`;
+  }
+  document.getElementById('detail-body').innerHTML = body;
+}
+refresh(); setInterval(refresh, REFRESH_MS);
+</script>
+</body>
+</html>

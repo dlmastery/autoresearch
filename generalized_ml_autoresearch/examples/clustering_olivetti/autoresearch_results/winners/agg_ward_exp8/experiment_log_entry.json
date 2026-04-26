@@ -1,0 +1,47 @@
+{
+  "experiment_num": 8,
+  "backbone": "agg_ward",
+  "description": "Agglomerative Ward on PCA(50) (Ward 1963)",
+  "config": {
+    "backbone": "agglomerative",
+    "linkage": "ward",
+    "n_clusters": 40,
+    "pca_dim": 50
+  },
+  "composite": 0.5159317404094375,
+  "val_primary": 0.16078919172286987,
+  "test_primary": 0.5159317404094375,
+  "per_fold_test": [
+    0.5159317404094375
+  ],
+  "per_fold_val": [
+    0.16078919172286987
+  ],
+  "status": "KEEP",
+  "seconds_elapsed": 0.25362157821655273,
+  "timestamp": "2026-04-25T23:34:32",
+  "secondary_metrics": {
+    "ari": 0.5159317404094375,
+    "nmi": 0.8201138995109474,
+    "fmi": 0.5323529411764706,
+    "homogeneity": 0.8064507705391477,
+    "completeness": 0.834247977028138,
+    "v_measure": 0.8201138995109474,
+    "silhouette": 0.16078919172286987,
+    "n_pred_clusters": 40,
+    "n_noise": 0,
+    "n_true_clusters": 40
+  },
+  "per_fold_test_reports": [
+    {
+      "fold_id": 0,
+      "regime": "full-dataset",
+      "ari": 0.5159317404094375,
+      "nmi": 0.8201138995109474,
+      "fmi": 0.5323529411764706,
+      "silhouette": 0.16078919172286987,
+      "n": 400
+    }
+  ],
+  "composite_fingerprint": "clustering-ari-floor0.3"
+}

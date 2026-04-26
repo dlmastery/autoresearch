@@ -1,0 +1,7 @@
+{
+  "backbone": "spectral_tuned",
+  "ari": 0.5251593950962972,
+  "nmi": 0.8227635252320076,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

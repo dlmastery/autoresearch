@@ -1,0 +1,7 @@
+{
+  "backbone": "gmm_pca_full",
+  "ari": 0.45450128812850704,
+  "nmi": 0.7735876089044104,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

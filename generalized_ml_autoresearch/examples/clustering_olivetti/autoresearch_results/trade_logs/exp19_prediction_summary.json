@@ -1,0 +1,7 @@
+{
+  "backbone": "meanshift",
+  "ari": 0.0,
+  "nmi": 0.0,
+  "n_pred_clusters": 1,
+  "n_noise": 0
+}

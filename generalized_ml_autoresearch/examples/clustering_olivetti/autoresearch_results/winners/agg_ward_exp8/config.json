@@ -1,0 +1,6 @@
+{
+  "backbone": "agglomerative",
+  "linkage": "ward",
+  "n_clusters": 40,
+  "pca_dim": 50
+}
