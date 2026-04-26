@@ -453,6 +453,18 @@ def main() -> None:
             "learning_rate": args.gbm_lr,
             "random_state": args.seed,
         }
+        # CatBoost uses ``depth`` + ``iterations`` while xgboost / lightgbm
+        # use ``max_depth`` + ``n_estimators``. Translate so the user's
+        # generic --max-depth / --n-estimators flags work for all three.
+        if args.backbone == "catboost":
+            if hp.get("max_depth") is not None:
+                hp["depth"] = hp.pop("max_depth")
+            else:
+                hp.pop("max_depth", None)
+            if hp.get("n_estimators") is not None:
+                hp["iterations"] = hp.pop("n_estimators")
+            else:
+                hp.pop("n_estimators", None)
         wrapper = GBMWrapper(
             gbm_type=args.backbone,
             n_targets=2,
