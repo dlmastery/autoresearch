@@ -1,0 +1,7 @@
+{
+  "backbone": "ward_hc_linkageaverage_on_DINOv2_L2-no",
+  "ari": 0.46307472375209013,
+  "nmi": 0.8233638282319615,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

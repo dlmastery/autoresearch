@@ -1,0 +1,7 @@
+{
+  "backbone": "umap_hc_UMAP(10)_+_Spectral_cosine_dow",
+  "ari": 0.19180532552925836,
+  "nmi": 0.6401028798076009,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

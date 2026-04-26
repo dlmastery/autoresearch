@@ -1,0 +1,7 @@
+{
+  "backbone": "ward_hc_linkageaverage_+_cosine_on_PCA",
+  "ari": 0.29825761606743184,
+  "nmi": 0.7443599011398334,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

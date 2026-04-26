@@ -1,0 +1,7 @@
+{
+  "backbone": "dec_hc_pretrain_epochs80_(2x_default)",
+  "ari": 0.5002064647020781,
+  "nmi": 0.8081118994821912,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

@@ -1,0 +1,7 @@
+{
+  "backbone": "birch_hc_default_Birch_on_PCA(50)",
+  "ari": 0.5286568492169416,
+  "nmi": 0.8253783657458292,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

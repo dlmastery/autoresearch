@@ -1,0 +1,7 @@
+{
+  "backbone": "ward_hc_Ward_init_+_KMeans_refine_on_D",
+  "ari": 0.6307830528664157,
+  "nmi": 0.8665422994735525,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

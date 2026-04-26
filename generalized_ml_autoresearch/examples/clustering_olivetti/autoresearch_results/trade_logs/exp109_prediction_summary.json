@@ -1,0 +1,7 @@
+{
+  "backbone": "birch_hc_default_Birch_on_DINOv2_L2-nor",
+  "ari": 0.2306209024296182,
+  "nmi": 0.6719482800782651,
+  "n_pred_clusters": 22,
+  "n_noise": 0
+}

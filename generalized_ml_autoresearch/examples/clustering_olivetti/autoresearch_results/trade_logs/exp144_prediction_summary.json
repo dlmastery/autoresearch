@@ -1,0 +1,7 @@
+{
+  "backbone": "dec_hc_mse_weight0.5",
+  "ari": 0.44352071043542873,
+  "nmi": 0.7827856764650588,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

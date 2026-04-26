@@ -1,0 +1,7 @@
+{
+  "backbone": "ward_hc_linkagesingle_+_cosine_distanc",
+  "ari": 0.14373671483680803,
+  "nmi": 0.6625297036014104,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

@@ -1,0 +1,7 @@
+{
+  "backbone": "ward_hc_Ward_+_connectivity_kNN(k5)_on",
+  "ari": 0.6207417284505956,
+  "nmi": 0.8637408581898733,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

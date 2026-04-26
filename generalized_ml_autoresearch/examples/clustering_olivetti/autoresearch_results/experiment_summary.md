@@ -1,6 +1,6 @@
 # Experiment Summary — Olivetti Faces Clustering Autoresearch
 
-_Generated 2026-04-26 00:00_
+_Generated 2026-04-26 01:37_
 
 ## Master leaderboard (sorted by ARI on full 400-row Olivetti dataset)
 
@@ -20,66 +20,141 @@ _Generated 2026-04-26 00:00_
 | 12 | 69 | spectral_hc_cosine_seed7_(variance_ch | 0.6596 | 0.8710 | 0.0804 | KEEP | Spectral hill-climb: cosine seed=7 (variance check) on  |
 | 13 | 60 | spectral_hc_ViT-B/14_+_cosine | 0.6552 | 0.8805 | 0.0673 | KEEP | Spectral hill-climb: ViT-B/14 + cosine on DINOv2 ViT-B/ |
 | 14 | 62 | spectral_hc_ViT-B/14_+_L2-norm_+_cosi | 0.6552 | 0.8805 | 0.0673 | KEEP | Spectral hill-climb: ViT-B/14 + L2-norm + cosine on DIN |
-| 15 | 34 | dinov2_vits14_spectral_knn10 | 0.6389 | 0.8584 | 0.0796 | KEEP | DINOv2 dinov2_vits14 + Spectral nearest-neighbors affin |
-| 16 | 27 | dinov2_vits14_agg_ward | 0.6371 | 0.8706 | 0.0834 | KEEP | DINOv2 dinov2_vits14 + Agglomerative Ward (variance-min |
-| 17 | 35 | dinov2_vits14_birch | 0.6371 | 0.8706 | 0.0834 | KEEP | DINOv2 dinov2_vits14 + Birch on DINOv2 features |
-| 18 | 51 | spectral_hc_nearest_neighbors_k7 | 0.6246 | 0.8538 | 0.0815 | KEEP | Spectral hill-climb: nearest_neighbors k=7 on DINOv2 Vi |
-| 19 | 70 | spectral_hc_cosine_seed42_(variance_c | 0.6127 | 0.8609 | 0.0772 | KEEP | Spectral hill-climb: cosine seed=42 (variance check) on |
-| 20 | 41 | dinov2_vits14_umap2_km | 0.6100 | 0.8455 | 0.0678 | KEEP | DINOv2 dinov2_vits14 + UMAP(2) on DINOv2 + KMeans (extr |
-| 21 | 50 | spectral_hc_nearest_neighbors_k5 | 0.6042 | 0.8577 | 0.0670 | KEEP | Spectral hill-climb: nearest_neighbors k=5 on DINOv2 Vi |
-| 22 | 40 | dinov2_vits14_umap10_km | 0.5982 | 0.8465 | 0.0592 | KEEP | DINOv2 dinov2_vits14 + UMAP(10) on DINOv2 + KMeans |
-| 23 | 52 | spectral_hc_nearest_neighbors_k15 | 0.5888 | 0.8358 | 0.0554 | KEEP | Spectral hill-climb: nearest_neighbors k=15 on DINOv2 V |
-| 24 | 31 | dinov2_vits14_spectral_g001 | 0.5852 | 0.8533 | 0.0872 | KEEP | DINOv2 dinov2_vits14 + Spectral RBF gamma=0.001 (small) |
-| 25 | 25 | dinov2_vits14_kmeans_n50 | 0.5852 | 0.8456 | 0.0891 | KEEP | DINOv2 dinov2_vits14 + KMeans n_init=50 (5x more random |
-| 26 | 26 | dinov2_vits14_spherical | 0.5602 | 0.8259 | 0.0467 | KEEP | DINOv2 dinov2_vits14 + L2-normalized features + KMeans  |
-| 27 | 22 | dinov2_vits14_minibatch_kmeans | 0.5596 | 0.8393 | 0.0596 | KEEP | DINOv2 dinov2_vits14 + MiniBatchKMeans (faster, may be  |
-| 28 | 44 | dinov2_vits14_seed1 | 0.5561 | 0.8301 | 0.0904 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=1 (variance check on |
-| 29 | 63 | spectral_hc_ViT-B/14_+_kNN_k10 | 0.5489 | 0.8215 | 0.0496 | KEEP | Spectral hill-climb: ViT-B/14 + kNN k=10 on DINOv2 ViT- |
-| 30 | 39 | dinov2_vits14_pca100_km | 0.5473 | 0.8278 | 0.0745 | KEEP | DINOv2 dinov2_vits14 + PCA(100) on DINOv2 + KMeans |
-| 31 | 20 | dinov2_kmeans | 0.5455 | 0.8201 | 0.0710 | KEEP | DINOv2 ViT-S/14 (Oquab 2024 Meta TMLR) features + KMean |
-| 32 | 42 | dinov2_vitb14_vitb_km | 0.5445 | 0.8243 | 0.0379 | KEEP | DINOv2 dinov2_vitb14 + ViT-B/14 features + KMeans (larg |
-| 33 | 43 | dinov2_vitb14_vitb_spherical | 0.5388 | 0.8119 | 0.0506 | KEEP | DINOv2 dinov2_vitb14 + ViT-B/14 + L2-norm + KMeans (Sph |
-| 34 | 46 | dinov2_vits14_seed7 | 0.5387 | 0.8175 | 0.0633 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=7 (variance check on |
-| 35 | 38 | dinov2_vits14_pca50_km | 0.5312 | 0.8184 | 0.0328 | KEEP | DINOv2 dinov2_vits14 + PCA(50) on DINOv2 + KMeans (deno |
-| 36 | 17 | birch | 0.5287 | 0.8254 | 0.1608 | KEEP | Birch (Zhang 1996) on PCA(50) |
-| 37 | 53 | spectral_hc_nearest_neighbors_k20 | 0.5278 | 0.8059 | 0.0423 | KEEP | Spectral hill-climb: nearest_neighbors k=20 on DINOv2 V |
-| 38 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 | KEEP | Spectral RBF with gamma sweep on PCA(50) |
-| 39 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 | KEEP | Spectral RBF with gamma sweep on PCA(50) |
-| 40 | 36 | dinov2_vits14_gmm_full | 0.5234 | 0.8133 | 0.0341 | KEEP | DINOv2 dinov2_vits14 + GMM full-covariance K=40 |
-| 41 | 37 | dinov2_vits14_gmm_diag | 0.5234 | 0.8133 | 0.0341 | KEEP | DINOv2 dinov2_vits14 + GMM diagonal-covariance |
-| 42 | 8 | agg_ward | 0.5159 | 0.8201 | 0.1608 | KEEP | Agglomerative Ward on PCA(50) (Ward 1963) |
-| 43 | 45 | dinov2_vits14_seed2 | 0.5144 | 0.8110 | 0.0712 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=2 (variance check on |
-| 44 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 | KEEP | UMAP(10) + KMeans (McInnes 2018) |
-| 45 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 | KEEP | UMAP(10) + KMeans (McInnes 2018) |
-| 46 | 24 | dinov2_vits14_kmeans_random | 0.5000 | 0.8091 | 0.0304 | KEEP | DINOv2 dinov2_vits14 + KMeans with random init (vs k-me |
-| 47 | 12 | dec | 0.4942 | 0.8036 | 0.1436 | KEEP | DEC: Deep Embedded Clustering (Xie 2016 ICML + Guo 2017 |
-| 48 | 21 | spherical_kmeans | 0.4816 | 0.7896 | 0.1266 | KEEP | Spherical KMeans (Dhillon 2001) on L2-norm PCA(50) |
-| 49 | 29 | dinov2_vits14_agg_complete | 0.4805 | 0.8071 | 0.0234 | KEEP | DINOv2 dinov2_vits14 + Agglomerative complete-linkage ( |
-| 50 | 10 | conv_ae_kmeans | 0.4790 | 0.7934 | 0.1469 | KEEP | Convolutional AE (Hinton 2006) + KMeans, latent=64 |
-| 51 | 2 | kmeans_pca50 | 0.4780 | 0.7951 | 0.1485 | KEEP | PCA(50) + KMeans (Pearson 1901 + Steinley 2006) |
-| 52 | 14 | consensus_top5 | 0.4767 | 0.8082 | 0.1530 | KEEP | CSPA consensus of top-5 methods: agg_ward, dec, conv_ae |
-| 53 | 18 | affinity_prop | 0.4757 | 0.8105 | 0.1737 | KEEP | Affinity Propagation (Frey 2007 Science) on PCA(50) |
-| 54 | 48 | spectral_hc_cosine_+_assigncluster_qr | 0.4708 | 0.7628 | -0.0049 | KEEP | Spectral hill-climb: cosine + assign=cluster_qr on DINO |
-| 55 | 28 | dinov2_vits14_agg_avg | 0.4703 | 0.8158 | 0.0226 | KEEP | DINOv2 dinov2_vits14 + Agglomerative average-linkage |
-| 56 | 3 | kmeans_pca100 | 0.4633 | 0.7856 | 0.1506 | KEEP | PCA(100) + KMeans |
-| 57 | 3 | kmeans_pca100 | 0.4633 | 0.7856 | 0.1506 | KEEP | PCA(100) + KMeans |
-| 58 | 54 | spectral_hc_nearest_neighbors_k30 | 0.4553 | 0.7806 | 0.0092 | KEEP | Spectral hill-climb: nearest_neighbors k=30 on DINOv2 V |
-| 59 | 7 | gmm_pca_full | 0.4545 | 0.7736 | 0.1394 | KEEP | GMM full-cov on PCA(50) (Bishop 2006 Ch.9) |
-| 60 | 30 | dinov2_vits14_agg_cosine_avg | 0.4490 | 0.8174 | 0.0134 | KEEP | DINOv2 dinov2_vits14 + Agglomerative cosine + average l |
-| 61 | 4 | kmeans_pca150 | 0.4484 | 0.7846 | 0.1456 | KEEP | PCA(150) + KMeans |
-| 62 | 11 | resnet18_kmeans | 0.4444 | 0.7916 | 0.0324 | KEEP | ResNet18-ImageNet (He 2016) penultimate features + KMea |
-| 63 | 23 | dinov2_vits14_bisecting_kmeans | 0.4437 | 0.7678 | 0.0277 | KEEP | DINOv2 dinov2_vits14 + BisectingKMeans hierarchical bis |
-| 64 | 61 | spectral_hc_ViT-B/14_+_cluster_qr_+_c | 0.4317 | 0.7495 | 0.0033 | KEEP | Spectral hill-climb: ViT-B/14 + cluster_qr + cosine on  |
-| 65 | 1 | kmeans_raw_pixels | 0.4057 | 0.7585 | 0.1479 | KEEP | KMeans K=40 on raw pixels — baseline (Lloyd 1982 + Arth |
-| 66 | 13 | simclr_kmeans | 0.3678 | 0.7502 | 0.0503 | KEEP | SimCLR (Chen 2020 ICML) + KMeans |
-| 67 | 5 | kmeans_pca_whitened | 0.3602 | 0.7508 | 0.0775 | KEEP | PCA(50) + whitening + KMeans |
-| 68 | 9 | hdbscan | 0.3438 | 0.8142 | 0.1807 | KEEP | HDBSCAN on PCA(50) (Campello 2013) |
-| 69 | 32 | dinov2_vits14_spectral_g01 | 0.2767 | 0.7672 | 0.0361 | DISCARD | DINOv2 dinov2_vits14 + Spectral RBF gamma=0.01 |
-| 70 | 57 | spectral_hc_RBF_gamma0.005 | 0.2628 | 0.7973 | 0.0764 | DISCARD | Spectral hill-climb: RBF gamma=0.005 on DINOv2 ViT-S/14 |
-| 71 | 6 | spectral_rbf | 0.0578 | 0.4560 | -0.1250 | DISCARD | Spectral clustering (RBF affinity) |
-| 72 | 58 | spectral_hc_RBF_gamma0.05 | 0.0503 | 0.5965 | -0.0894 | DISCARD | Spectral hill-climb: RBF gamma=0.05 on DINOv2 ViT-S/14 |
-| 73 | 59 | spectral_hc_RBF_gamma0.5 | 0.0000 | 0.0297 | -0.1190 | DISCARD | Spectral hill-climb: RBF gamma=0.5 on DINOv2 ViT-S/14 |
-| 74 | 19 | meanshift | 0.0000 | 0.0000 | nan | DISCARD | MeanShift (Comaniciu 2002) on PCA(50) |
+| 15 | 123 | umap_hc_n_neighbors=10_on_DINOv2 | 0.6488 | 0.8693 | 0.0813 | KEEP | UMAP HC: n_neighbors=10 on DINOv2 on DINOv2 ViT-S/14 |
+| 16 | 34 | dinov2_vits14_spectral_knn10 | 0.6389 | 0.8584 | 0.0796 | KEEP | DINOv2 dinov2_vits14 + Spectral nearest-neighbors affin |
+| 17 | 135 | umap_hc_metric=manhattan | 0.6371 | 0.8579 | 0.0621 | KEEP | UMAP HC: metric=manhattan on DINOv2 ViT-S/14 |
+| 18 | 27 | dinov2_vits14_agg_ward | 0.6371 | 0.8706 | 0.0834 | KEEP | DINOv2 dinov2_vits14 + Agglomerative Ward (variance-min |
+| 19 | 35 | dinov2_vits14_birch | 0.6371 | 0.8706 | 0.0834 | KEEP | DINOv2 dinov2_vits14 + Birch on DINOv2 features |
+| 20 | 72 | ward_hc_linkageward_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Ward hill-climb: linkage=ward on DINOv2 on DINOv2 384-d |
+| 21 | 91 | ward_hc_Ward_+_connectivity_kNN(k10)_o | 0.6371 | 0.8706 | 0.0834 | KEEP | Ward hill-climb: Ward + connectivity kNN(k=10) on DINOv |
+| 22 | 92 | ward_hc_Ward_+_connectivity_kNN(k20)_o | 0.6371 | 0.8706 | 0.0834 | KEEP | Ward hill-climb: Ward + connectivity kNN(k=20) on DINOv |
+| 23 | 97 | birch_hc_threshold0.05_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: threshold=0.05 on DINOv2 on DINOv2 Vi |
+| 24 | 98 | birch_hc_threshold0.1_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: threshold=0.1 on DINOv2 on DINOv2 ViT |
+| 25 | 99 | birch_hc_threshold0.2_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: threshold=0.2 on DINOv2 on DINOv2 ViT |
+| 26 | 100 | birch_hc_threshold0.3_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: threshold=0.3 on DINOv2 on DINOv2 ViT |
+| 27 | 101 | birch_hc_threshold0.5_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: threshold=0.5 on DINOv2 on DINOv2 ViT |
+| 28 | 102 | birch_hc_threshold0.7_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: threshold=0.7 on DINOv2 on DINOv2 ViT |
+| 29 | 103 | birch_hc_threshold1.0_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: threshold=1.0 on DINOv2 on DINOv2 ViT |
+| 30 | 104 | birch_hc_threshold1.5_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: threshold=1.5 on DINOv2 on DINOv2 ViT |
+| 31 | 105 | birch_hc_branching_factor10_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: branching_factor=10 on DINOv2 on DINO |
+| 32 | 106 | birch_hc_branching_factor25_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: branching_factor=25 on DINOv2 on DINO |
+| 33 | 107 | birch_hc_branching_factor100_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: branching_factor=100 on DINOv2 on DIN |
+| 34 | 108 | birch_hc_branching_factor200_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: branching_factor=200 on DINOv2 on DIN |
+| 35 | 117 | birch_hc_tight_threshold0.01_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: tight threshold=0.01 on DINOv2 on DIN |
+| 36 | 118 | birch_hc_tight_threshold0.02_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: tight threshold=0.02 on DINOv2 on DIN |
+| 37 | 119 | birch_hc_tight_threshold0.03_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: tight threshold=0.03 on DINOv2 on DIN |
+| 38 | 120 | birch_hc_tight_threshold0.04_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: tight threshold=0.04 on DINOv2 on DIN |
+| 39 | 121 | birch_hc_tight_threshold0.05_on_DINOv2 | 0.6371 | 0.8706 | 0.0834 | KEEP | Birch hill-climb: tight threshold=0.05 on DINOv2 on DIN |
+| 40 | 73 | ward_hc_linkageward_on_DINOv2_L2-norm | 0.6366 | 0.8721 | 0.0751 | KEEP | Ward hill-climb: linkage=ward on DINOv2 L2-norm on DINO |
+| 41 | 93 | ward_hc_Ward_init_+_KMeans_refine_on_D | 0.6308 | 0.8665 | 0.0802 | KEEP | Ward hill-climb: Ward init + KMeans refine on DINOv2 on |
+| 42 | 94 | ward_hc_Ward_init_+_KMeans_refine_on_D | 0.6303 | 0.8681 | 0.0719 | KEEP | Ward hill-climb: Ward init + KMeans refine on DINOv2 L2 |
+| 43 | 126 | umap_hc_min_dist=0.0_on_DINOv2 | 0.6247 | 0.8606 | 0.0741 | KEEP | UMAP HC: min_dist=0.0 on DINOv2 on DINOv2 ViT-S/14 |
+| 44 | 51 | spectral_hc_nearest_neighbors_k7 | 0.6246 | 0.8538 | 0.0815 | KEEP | Spectral hill-climb: nearest_neighbors k=7 on DINOv2 Vi |
+| 45 | 90 | ward_hc_Ward_+_connectivity_kNN(k5)_on | 0.6207 | 0.8637 | 0.0821 | KEEP | Ward hill-climb: Ward + connectivity kNN(k=5) on DINOv2 |
+| 46 | 130 | umap_hc_n_components=3_on_DINOv2 | 0.6177 | 0.8508 | 0.0449 | KEEP | UMAP HC: n_components=3 on DINOv2 on DINOv2 ViT-S/14 |
+| 47 | 128 | umap_hc_min_dist=0.5_on_DINOv2 | 0.6156 | 0.8514 | 0.0617 | KEEP | UMAP HC: min_dist=0.5 on DINOv2 on DINOv2 ViT-S/14 |
+| 48 | 70 | spectral_hc_cosine_seed42_(variance_c | 0.6127 | 0.8609 | 0.0772 | KEEP | Spectral hill-climb: cosine seed=42 (variance check) on |
+| 49 | 122 | umap_hc_n_neighbors=5_on_DINOv2 | 0.6109 | 0.8624 | 0.0756 | KEEP | UMAP HC: n_neighbors=5 on DINOv2 on DINOv2 ViT-S/14 |
+| 50 | 133 | umap_hc_n_components=50_on_DINOv2 | 0.6107 | 0.8453 | 0.0594 | KEEP | UMAP HC: n_components=50 on DINOv2 on DINOv2 ViT-S/14 |
+| 51 | 41 | dinov2_vits14_umap2_km | 0.6100 | 0.8455 | 0.0678 | KEEP | DINOv2 dinov2_vits14 + UMAP(2) on DINOv2 + KMeans (extr |
+| 52 | 50 | spectral_hc_nearest_neighbors_k5 | 0.6042 | 0.8577 | 0.0670 | KEEP | Spectral hill-climb: nearest_neighbors k=5 on DINOv2 Vi |
+| 53 | 134 | umap_hc_metric=cosine | 0.6000 | 0.8421 | 0.0677 | KEEP | UMAP HC: metric=cosine on DINOv2 ViT-S/14 |
+| 54 | 40 | dinov2_vits14_umap10_km | 0.5982 | 0.8465 | 0.0592 | KEEP | DINOv2 dinov2_vits14 + UMAP(10) on DINOv2 + KMeans |
+| 55 | 132 | umap_hc_n_components=30_on_DINOv2 | 0.5980 | 0.8495 | 0.0616 | KEEP | UMAP HC: n_components=30 on DINOv2 on DINOv2 ViT-S/14 |
+| 56 | 127 | umap_hc_min_dist=0.3_on_DINOv2 | 0.5949 | 0.8438 | 0.0439 | KEEP | UMAP HC: min_dist=0.3 on DINOv2 on DINOv2 ViT-S/14 |
+| 57 | 52 | spectral_hc_nearest_neighbors_k15 | 0.5888 | 0.8358 | 0.0554 | KEEP | Spectral hill-climb: nearest_neighbors k=15 on DINOv2 V |
+| 58 | 131 | umap_hc_n_components=5_on_DINOv2 | 0.5860 | 0.8412 | 0.0480 | KEEP | UMAP HC: n_components=5 on DINOv2 on DINOv2 ViT-S/14 |
+| 59 | 31 | dinov2_vits14_spectral_g001 | 0.5852 | 0.8533 | 0.0872 | KEEP | DINOv2 dinov2_vits14 + Spectral RBF gamma=0.001 (small) |
+| 60 | 25 | dinov2_vits14_kmeans_n50 | 0.5852 | 0.8456 | 0.0891 | KEEP | DINOv2 dinov2_vits14 + KMeans n_init=50 (5x more random |
+| 61 | 125 | umap_hc_n_neighbors=50_on_DINOv2 | 0.5690 | 0.8279 | 0.0513 | KEEP | UMAP HC: n_neighbors=50 on DINOv2 on DINOv2 ViT-S/14 |
+| 62 | 124 | umap_hc_n_neighbors=30_on_DINOv2 | 0.5680 | 0.8311 | 0.0317 | KEEP | UMAP HC: n_neighbors=30 on DINOv2 on DINOv2 ViT-S/14 |
+| 63 | 129 | umap_hc_min_dist=0.99_on_DINOv2 | 0.5665 | 0.8258 | 0.0673 | KEEP | UMAP HC: min_dist=0.99 on DINOv2 on DINOv2 ViT-S/14 |
+| 64 | 26 | dinov2_vits14_spherical | 0.5602 | 0.8259 | 0.0467 | KEEP | DINOv2 dinov2_vits14 + L2-normalized features + KMeans  |
+| 65 | 22 | dinov2_vits14_minibatch_kmeans | 0.5596 | 0.8393 | 0.0596 | KEEP | DINOv2 dinov2_vits14 + MiniBatchKMeans (faster, may be  |
+| 66 | 44 | dinov2_vits14_seed1 | 0.5561 | 0.8301 | 0.0904 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=1 (variance check on |
+| 67 | 63 | spectral_hc_ViT-B/14_+_kNN_k10 | 0.5489 | 0.8215 | 0.0496 | KEEP | Spectral hill-climb: ViT-B/14 + kNN k=10 on DINOv2 ViT- |
+| 68 | 39 | dinov2_vits14_pca100_km | 0.5473 | 0.8278 | 0.0745 | KEEP | DINOv2 dinov2_vits14 + PCA(100) on DINOv2 + KMeans |
+| 69 | 113 | birch_hc_Birch_leaves_+_KMeans_refine_o | 0.5461 | 0.8242 | 0.0492 | KEEP | Birch hill-climb: Birch leaves + KMeans refine on DINOv |
+| 70 | 20 | dinov2_kmeans | 0.5455 | 0.8201 | 0.0710 | KEEP | DINOv2 ViT-S/14 (Oquab 2024 Meta TMLR) features + KMean |
+| 71 | 42 | dinov2_vitb14_vitb_km | 0.5445 | 0.8243 | 0.0379 | KEEP | DINOv2 dinov2_vitb14 + ViT-B/14 features + KMeans (larg |
+| 72 | 43 | dinov2_vitb14_vitb_spherical | 0.5388 | 0.8119 | 0.0506 | KEEP | DINOv2 dinov2_vitb14 + ViT-B/14 + L2-norm + KMeans (Sph |
+| 73 | 46 | dinov2_vits14_seed7 | 0.5387 | 0.8175 | 0.0633 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=7 (variance check on |
+| 74 | 38 | dinov2_vits14_pca50_km | 0.5312 | 0.8184 | 0.0328 | KEEP | DINOv2 dinov2_vits14 + PCA(50) on DINOv2 + KMeans (deno |
+| 75 | 17 | birch | 0.5287 | 0.8254 | 0.1608 | KEEP | Birch (Zhang 1996) on PCA(50) |
+| 76 | 110 | birch_hc_default_Birch_on_PCA(50) | 0.5287 | 0.8254 | 0.1608 | KEEP | Birch hill-climb: default Birch on PCA(50) on PCA(50) |
+| 77 | 53 | spectral_hc_nearest_neighbors_k20 | 0.5278 | 0.8059 | 0.0423 | KEEP | Spectral hill-climb: nearest_neighbors k=20 on DINOv2 V |
+| 78 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 | KEEP | Spectral RBF with gamma sweep on PCA(50) |
+| 79 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 | KEEP | Spectral RBF with gamma sweep on PCA(50) |
+| 80 | 36 | dinov2_vits14_gmm_full | 0.5234 | 0.8133 | 0.0341 | KEEP | DINOv2 dinov2_vits14 + GMM full-covariance K=40 |
+| 81 | 37 | dinov2_vits14_gmm_diag | 0.5234 | 0.8133 | 0.0341 | KEEP | DINOv2 dinov2_vits14 + GMM diagonal-covariance |
+| 82 | 8 | agg_ward | 0.5159 | 0.8201 | 0.1608 | KEEP | Agglomerative Ward on PCA(50) (Ward 1963) |
+| 83 | 85 | ward_hc_linkageward_on_PCA(50) | 0.5159 | 0.8201 | 0.1608 | KEEP | Ward hill-climb: linkage=ward on PCA(50) on raw pixels  |
+| 84 | 45 | dinov2_vits14_seed2 | 0.5144 | 0.8110 | 0.0712 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=2 (variance check on |
+| 85 | 140 | dec_hc_alpha0.5 | 0.5104 | 0.8120 | 0.1493 | KEEP | DEC HC: alpha=0.5 |
+| 86 | 139 | dec_hc_latent_dim256 | 0.5091 | 0.8162 | 0.1421 | KEEP | DEC HC: latent_dim=256 |
+| 87 | 95 | ward_hc_Ward_init_+_KMeans_refine_on_P | 0.5013 | 0.8124 | 0.1639 | KEEP | Ward hill-climb: Ward init + KMeans refine on PCA(50) o |
+| 88 | 146 | dec_hc_pretrain_epochs80_(2x_default) | 0.5002 | 0.8081 | 0.1403 | KEEP | DEC HC: pretrain_epochs=80 (2x default) |
+| 89 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 | KEEP | UMAP(10) + KMeans (McInnes 2018) |
+| 90 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 | KEEP | UMAP(10) + KMeans (McInnes 2018) |
+| 91 | 24 | dinov2_vits14_kmeans_random | 0.5000 | 0.8091 | 0.0304 | KEEP | DINOv2 dinov2_vits14 + KMeans with random init (vs k-me |
+| 92 | 143 | dec_hc_mse_weight0.0 | 0.4973 | 0.8073 | 0.1431 | KEEP | DEC HC: mse_weight=0.0 |
+| 93 | 137 | dec_hc_latent_dim32 | 0.4955 | 0.7982 | 0.1448 | KEEP | DEC HC: latent_dim=32 |
+| 94 | 12 | dec | 0.4942 | 0.8036 | 0.1436 | KEEP | DEC: Deep Embedded Clustering (Xie 2016 ICML + Guo 2017 |
+| 95 | 77 | ward_hc_linkagecomplete_on_DINOv2_L2-n | 0.4926 | 0.8112 | 0.0306 | KEEP | Ward hill-climb: linkage=complete on DINOv2 L2-norm on  |
+| 96 | 81 | ward_hc_linkagecomplete_+_cosine_dista | 0.4926 | 0.8112 | 0.0306 | KEEP | Ward hill-climb: linkage=complete + cosine distance on  |
+| 97 | 145 | dec_hc_mse_weight1.0 | 0.4891 | 0.8118 | 0.1583 | KEEP | DEC HC: mse_weight=1.0 |
+| 98 | 141 | dec_hc_alpha2.0 | 0.4841 | 0.8060 | 0.1499 | KEEP | DEC HC: alpha=2.0 |
+| 99 | 21 | spherical_kmeans | 0.4816 | 0.7896 | 0.1266 | KEEP | Spherical KMeans (Dhillon 2001) on L2-norm PCA(50) |
+| 100 | 29 | dinov2_vits14_agg_complete | 0.4805 | 0.8071 | 0.0234 | KEEP | DINOv2 dinov2_vits14 + Agglomerative complete-linkage ( |
+| 101 | 76 | ward_hc_linkagecomplete_on_DINOv2 | 0.4805 | 0.8071 | 0.0234 | KEEP | Ward hill-climb: linkage=complete on DINOv2 on DINOv2 3 |
+| 102 | 10 | conv_ae_kmeans | 0.4790 | 0.7934 | 0.1469 | KEEP | Convolutional AE (Hinton 2006) + KMeans, latent=64 |
+| 103 | 138 | dec_hc_latent_dim128 | 0.4781 | 0.7994 | 0.1453 | KEEP | DEC HC: latent_dim=128 |
+| 104 | 2 | kmeans_pca50 | 0.4780 | 0.7951 | 0.1485 | KEEP | PCA(50) + KMeans (Pearson 1901 + Steinley 2006) |
+| 105 | 14 | consensus_top5 | 0.4767 | 0.8082 | 0.1530 | KEEP | CSPA consensus of top-5 methods: agg_ward, dec, conv_ae |
+| 106 | 18 | affinity_prop | 0.4757 | 0.8105 | 0.1737 | KEEP | Affinity Propagation (Frey 2007 Science) on PCA(50) |
+| 107 | 86 | ward_hc_linkageward_on_PCA(100) | 0.4737 | 0.8081 | 0.1656 | KEEP | Ward hill-climb: linkage=ward on PCA(100) on raw pixels |
+| 108 | 111 | birch_hc_default_Birch_on_PCA(100) | 0.4737 | 0.8081 | 0.1656 | KEEP | Birch hill-climb: default Birch on PCA(100) on PCA(100) |
+| 109 | 142 | dec_hc_alpha5.0 | 0.4727 | 0.7933 | 0.1478 | KEEP | DEC HC: alpha=5.0 |
+| 110 | 48 | spectral_hc_cosine_+_assigncluster_qr | 0.4708 | 0.7628 | -0.0049 | KEEP | Spectral hill-climb: cosine + assign=cluster_qr on DINO |
+| 111 | 28 | dinov2_vits14_agg_avg | 0.4703 | 0.8158 | 0.0226 | KEEP | DINOv2 dinov2_vits14 + Agglomerative average-linkage |
+| 112 | 74 | ward_hc_linkageaverage_on_DINOv2 | 0.4703 | 0.8158 | 0.0226 | KEEP | Ward hill-climb: linkage=average on DINOv2 on DINOv2 38 |
+| 113 | 3 | kmeans_pca100 | 0.4633 | 0.7856 | 0.1506 | KEEP | PCA(100) + KMeans |
+| 114 | 3 | kmeans_pca100 | 0.4633 | 0.7856 | 0.1506 | KEEP | PCA(100) + KMeans |
+| 115 | 75 | ward_hc_linkageaverage_on_DINOv2_L2-no | 0.4631 | 0.8234 | 0.0240 | KEEP | Ward hill-climb: linkage=average on DINOv2 L2-norm on D |
+| 116 | 96 | ward_hc_Ward_init_+_KMeans_refine_on_P | 0.4591 | 0.7993 | 0.1677 | KEEP | Ward hill-climb: Ward init + KMeans refine on PCA(100)  |
+| 117 | 54 | spectral_hc_nearest_neighbors_k30 | 0.4553 | 0.7806 | 0.0092 | KEEP | Spectral hill-climb: nearest_neighbors k=30 on DINOv2 V |
+| 118 | 7 | gmm_pca_full | 0.4545 | 0.7736 | 0.1394 | KEEP | GMM full-cov on PCA(50) (Bishop 2006 Ch.9) |
+| 119 | 83 | ward_hc_linkageaverage_+_manhattan_dis | 0.4540 | 0.8206 | 0.0129 | KEEP | Ward hill-climb: linkage=average + manhattan distance o |
+| 120 | 112 | birch_hc_default_Birch_on_PCA(20) | 0.4540 | 0.7949 | 0.1591 | KEEP | Birch hill-climb: default Birch on PCA(20) on PCA(20) |
+| 121 | 84 | ward_hc_linkageward_on_PCA(20) | 0.4508 | 0.7910 | 0.1581 | KEEP | Ward hill-climb: linkage=ward on PCA(20) on raw pixels  |
+| 122 | 30 | dinov2_vits14_agg_cosine_avg | 0.4490 | 0.8174 | 0.0134 | KEEP | DINOv2 dinov2_vits14 + Agglomerative cosine + average l |
+| 123 | 80 | ward_hc_linkageaverage_+_cosine_distan | 0.4490 | 0.8174 | 0.0134 | KEEP | Ward hill-climb: linkage=average + cosine distance on D |
+| 124 | 4 | kmeans_pca150 | 0.4484 | 0.7846 | 0.1456 | KEEP | PCA(150) + KMeans |
+| 125 | 11 | resnet18_kmeans | 0.4444 | 0.7916 | 0.0324 | KEEP | ResNet18-ImageNet (He 2016) penultimate features + KMea |
+| 126 | 23 | dinov2_vits14_bisecting_kmeans | 0.4437 | 0.7678 | 0.0277 | KEEP | DINOv2 dinov2_vits14 + BisectingKMeans hierarchical bis |
+| 127 | 144 | dec_hc_mse_weight0.5 | 0.4435 | 0.7828 | 0.1484 | KEEP | DEC HC: mse_weight=0.5 |
+| 128 | 115 | birch_hc_Birch_leaves_+_KMeans_refine_o | 0.4356 | 0.7685 | 0.1478 | KEEP | Birch hill-climb: Birch leaves + KMeans refine on PCA(5 |
+| 129 | 61 | spectral_hc_ViT-B/14_+_cluster_qr_+_c | 0.4317 | 0.7495 | 0.0033 | KEEP | Spectral hill-climb: ViT-B/14 + cluster_qr + cosine on  |
+| 130 | 116 | birch_hc_Birch_leaves_+_KMeans_refine_o | 0.4232 | 0.7685 | 0.1479 | KEEP | Birch hill-climb: Birch leaves + KMeans refine on PCA(1 |
+| 131 | 1 | kmeans_raw_pixels | 0.4057 | 0.7585 | 0.1479 | KEEP | KMeans K=40 on raw pixels — baseline (Lloyd 1982 + Arth |
+| 132 | 13 | simclr_kmeans | 0.3678 | 0.7502 | 0.0503 | KEEP | SimCLR (Chen 2020 ICML) + KMeans |
+| 133 | 5 | kmeans_pca_whitened | 0.3602 | 0.7508 | 0.0775 | KEEP | PCA(50) + whitening + KMeans |
+| 134 | 9 | hdbscan | 0.3438 | 0.8142 | 0.1807 | KEEP | HDBSCAN on PCA(50) (Campello 2013) |
+| 135 | 88 | ward_hc_linkageaverage_+_cosine_on_PCA | 0.3229 | 0.7547 | 0.0943 | KEEP | Ward hill-climb: linkage=average + cosine on PCA(50) on |
+| 136 | 87 | ward_hc_linkageaverage_+_cosine_on_PCA | 0.3223 | 0.7542 | 0.0925 | KEEP | Ward hill-climb: linkage=average + cosine on PCA(20) on |
+| 137 | 89 | ward_hc_linkageaverage_+_cosine_on_PCA | 0.2983 | 0.7444 | 0.0899 | DISCARD | Ward hill-climb: linkage=average + cosine on PCA(100) o |
+| 138 | 32 | dinov2_vits14_spectral_g01 | 0.2767 | 0.7672 | 0.0361 | DISCARD | DINOv2 dinov2_vits14 + Spectral RBF gamma=0.01 |
+| 139 | 57 | spectral_hc_RBF_gamma0.005 | 0.2628 | 0.7973 | 0.0764 | DISCARD | Spectral hill-climb: RBF gamma=0.005 on DINOv2 ViT-S/14 |
+| 140 | 109 | birch_hc_default_Birch_on_DINOv2_L2-nor | 0.2306 | 0.6719 | -0.0521 | DISCARD | Birch hill-climb: default Birch on DINOv2 L2-norm on DI |
+| 141 | 114 | birch_hc_Birch_leaves_+_KMeans_refine_o | 0.2306 | 0.6719 | -0.0521 | DISCARD | Birch hill-climb: Birch leaves + KMeans refine on DINOv |
+| 142 | 136 | umap_hc_UMAP(10)_+_Spectral_cosine_dow | 0.1918 | 0.6401 | -0.1080 | DISCARD | UMAP HC: UMAP(10) + Spectral cosine downstream on DINOv |
+| 143 | 78 | ward_hc_linkagesingle_on_DINOv2 | 0.1481 | 0.6689 | -0.1119 | DISCARD | Ward hill-climb: linkage=single on DINOv2 on DINOv2 384 |
+| 144 | 79 | ward_hc_linkagesingle_on_DINOv2_L2-nor | 0.1437 | 0.6625 | -0.1119 | DISCARD | Ward hill-climb: linkage=single on DINOv2 L2-norm on DI |
+| 145 | 82 | ward_hc_linkagesingle_+_cosine_distanc | 0.1437 | 0.6625 | -0.1119 | DISCARD | Ward hill-climb: linkage=single + cosine distance on DI |
+| 146 | 6 | spectral_rbf | 0.0578 | 0.4560 | -0.1250 | DISCARD | Spectral clustering (RBF affinity) |
+| 147 | 58 | spectral_hc_RBF_gamma0.05 | 0.0503 | 0.5965 | -0.0894 | DISCARD | Spectral hill-climb: RBF gamma=0.05 on DINOv2 ViT-S/14 |
+| 148 | 59 | spectral_hc_RBF_gamma0.5 | 0.0000 | 0.0297 | -0.1190 | DISCARD | Spectral hill-climb: RBF gamma=0.5 on DINOv2 ViT-S/14 |
+| 149 | 19 | meanshift | 0.0000 | 0.0000 | nan | DISCARD | MeanShift (Comaniciu 2002) on PCA(50) |
 
 ## Per-experiment detail
 
@@ -600,3 +675,528 @@ _Generated 2026-04-26 00:00_
 - **Hypothesis (first 200ch):** We hypothesize that cosine seed=99 (variance check) on DINOv2 ViT-S/14 will land ARI in 0.65 to 0.75 because the mechanism per Ng-Jordan-Weiss 2001 is that the chosen Spectral configuration changes ho...
 - **Verdict:** KEEP — ARI=0.7195 (delta +0.0232 vs Exp 33 champion 0.6963), NMI=0.9004, silhouette=0.0927, n_pred=40. WITHIN predicted 0.65-0.75. NEW CHAMPION on the Spectral hill-climb. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per t
 - **Learning:** axis open. cosine seed=99 (variance check) produced delta=+0.0232 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant pushes the local maximum further. Next try: Spectral hill-climb complete; pivot to next backbone. The cumulative best ARI across all ex
+
+### Exp 72: Ward hill-climb: linkage=ward on DINOv2 on DINOv2 384-dim
+- **Backbone:** `ward_hc_linkageward_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=ward on DINOv2 on DINOv2 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feat...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=ward on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 73: Ward hill-climb: linkage=ward on DINOv2 L2-norm on DINOv2 L2-norm 384-dim
+- **Backbone:** `ward_hc_linkageward_on_DINOv2_L2-norm` | **Status:** KEEP
+- **Result:** ARI 0.6366 | NMI 0.8721 | silhouette 0.0751 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=ward on DINOv2 L2-norm on DINOv2 L2-norm 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries ar...
+- **Verdict:** KEEP — ARI=0.6366 (delta -0.0829 vs Exp 71 champion 0.7195), NMI=0.8721, sil=0.0751, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=ward on DINOv2 L2-norm produced delta=-0.0829 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 74: Ward hill-climb: linkage=average on DINOv2 on DINOv2 384-dim
+- **Backbone:** `ward_hc_linkageaverage_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.4703 | NMI 0.8158 | silhouette 0.0226 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=average on DINOv2 on DINOv2 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in f...
+- **Verdict:** KEEP — ARI=0.4703 (delta -0.2492 vs Exp 71 champion 0.7195), NMI=0.8158, sil=0.0226, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=average on DINOv2 produced delta=-0.2492 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 75: Ward hill-climb: linkage=average on DINOv2 L2-norm on DINOv2 L2-norm 384-dim
+- **Backbone:** `ward_hc_linkageaverage_on_DINOv2_L2-no` | **Status:** KEEP
+- **Result:** ARI 0.4631 | NMI 0.8234 | silhouette 0.0240 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=average on DINOv2 L2-norm on DINOv2 L2-norm 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries...
+- **Verdict:** KEEP — ARI=0.4631 (delta -0.2564 vs Exp 71 champion 0.7195), NMI=0.8234, sil=0.0240, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=average on DINOv2 L2-norm produced delta=-0.2564 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 76: Ward hill-climb: linkage=complete on DINOv2 on DINOv2 384-dim
+- **Backbone:** `ward_hc_linkagecomplete_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.4805 | NMI 0.8071 | silhouette 0.0234 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=complete on DINOv2 on DINOv2 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in ...
+- **Verdict:** KEEP — ARI=0.4805 (delta -0.2390 vs Exp 71 champion 0.7195), NMI=0.8071, sil=0.0234, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=complete on DINOv2 produced delta=-0.2390 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 77: Ward hill-climb: linkage=complete on DINOv2 L2-norm on DINOv2 L2-norm 384-dim
+- **Backbone:** `ward_hc_linkagecomplete_on_DINOv2_L2-n` | **Status:** KEEP
+- **Result:** ARI 0.4926 | NMI 0.8112 | silhouette 0.0306 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=complete on DINOv2 L2-norm on DINOv2 L2-norm 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundarie...
+- **Verdict:** KEEP — ARI=0.4926 (delta -0.2269 vs Exp 71 champion 0.7195), NMI=0.8112, sil=0.0306, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=complete on DINOv2 L2-norm produced delta=-0.2269 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 78: Ward hill-climb: linkage=single on DINOv2 on DINOv2 384-dim
+- **Backbone:** `ward_hc_linkagesingle_on_DINOv2` | **Status:** DISCARD
+- **Result:** ARI 0.1481 | NMI 0.6689 | silhouette -0.1119 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=single on DINOv2 on DINOv2 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in fe...
+- **Verdict:** DISCARD — ARI=0.1481 (delta -0.5714 vs Exp 71 champion 0.7195), NMI=0.6689, sil=-0.1119, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.m
+- **Learning:** axis closed. linkage=single on DINOv2 produced delta=-0.5714 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 79: Ward hill-climb: linkage=single on DINOv2 L2-norm on DINOv2 L2-norm 384-dim
+- **Backbone:** `ward_hc_linkagesingle_on_DINOv2_L2-nor` | **Status:** DISCARD
+- **Result:** ARI 0.1437 | NMI 0.6625 | silhouette -0.1119 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=single on DINOv2 L2-norm on DINOv2 L2-norm 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries ...
+- **Verdict:** DISCARD — ARI=0.1437 (delta -0.5758 vs Exp 71 champion 0.7195), NMI=0.6625, sil=-0.1119, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.m
+- **Learning:** axis closed. linkage=single on DINOv2 L2-norm produced delta=-0.5758 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 80: Ward hill-climb: linkage=average + cosine distance on DINOv2 ViT-S/14
+- **Backbone:** `ward_hc_linkageaverage_+_cosine_distan` | **Status:** KEEP
+- **Result:** ARI 0.4490 | NMI 0.8174 | silhouette 0.0134 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=average + cosine distance on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are fo...
+- **Verdict:** KEEP — ARI=0.4490 (delta -0.2705 vs Exp 71 champion 0.7195), NMI=0.8174, sil=0.0134, n_pred=40. BELOW predicted 0.57-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=average + cosine distance produced delta=-0.2705 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: manhattan distance variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will pr
+
+### Exp 81: Ward hill-climb: linkage=complete + cosine distance on DINOv2 ViT-S/14
+- **Backbone:** `ward_hc_linkagecomplete_+_cosine_dista` | **Status:** KEEP
+- **Result:** ARI 0.4926 | NMI 0.8112 | silhouette 0.0306 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=complete + cosine distance on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are f...
+- **Verdict:** KEEP — ARI=0.4926 (delta -0.2269 vs Exp 71 champion 0.7195), NMI=0.8112, sil=0.0306, n_pred=40. BELOW predicted 0.57-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=complete + cosine distance produced delta=-0.2269 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: manhattan distance variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will p
+
+### Exp 82: Ward hill-climb: linkage=single + cosine distance on DINOv2 ViT-S/14
+- **Backbone:** `ward_hc_linkagesingle_+_cosine_distanc` | **Status:** DISCARD
+- **Result:** ARI 0.1437 | NMI 0.6625 | silhouette -0.1119 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=single + cosine distance on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are for...
+- **Verdict:** DISCARD — ARI=0.1437 (delta -0.5758 vs Exp 71 champion 0.7195), NMI=0.6625, sil=-0.1119, n_pred=40. BELOW predicted 0.57-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.m
+- **Learning:** axis closed. linkage=single + cosine distance produced delta=-0.5758 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: manhattan distance variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will pro
+
+### Exp 83: Ward hill-climb: linkage=average + manhattan distance on DINOv2 ViT-S/14
+- **Backbone:** `ward_hc_linkageaverage_+_manhattan_dis` | **Status:** KEEP
+- **Result:** ARI 0.4540 | NMI 0.8206 | silhouette 0.0129 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=average + manhattan distance on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are...
+- **Verdict:** KEEP — ARI=0.4540 (delta -0.2655 vs Exp 71 champion 0.7195), NMI=0.8206, sil=0.0129, n_pred=40. BELOW predicted 0.52-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=average + manhattan distance produced delta=-0.2655 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: PCA dimension sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 84: Ward hill-climb: linkage=ward on PCA(20) on raw pixels → PCA(20)
+- **Backbone:** `ward_hc_linkageward_on_PCA(20)` | **Status:** KEEP
+- **Result:** ARI 0.4508 | NMI 0.7910 | silhouette 0.1581 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=ward on PCA(20) on raw pixels → PCA(20) will land ARI in 0.42 to 0.62 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed ...
+- **Verdict:** KEEP — ARI=0.4508 (delta -0.2687 vs Exp 71 champion 0.7195), NMI=0.7910, sil=0.1581, n_pred=40. WITHIN predicted 0.42-0.62. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=ward on PCA(20) produced delta=-0.2687 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + PCA + cosine. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 85: Ward hill-climb: linkage=ward on PCA(50) on raw pixels → PCA(50)
+- **Backbone:** `ward_hc_linkageward_on_PCA(50)` | **Status:** KEEP
+- **Result:** ARI 0.5159 | NMI 0.8201 | silhouette 0.1608 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=ward on PCA(50) on raw pixels → PCA(50) will land ARI in 0.42 to 0.62 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed ...
+- **Verdict:** KEEP — ARI=0.5159 (delta -0.2036 vs Exp 71 champion 0.7195), NMI=0.8201, sil=0.1608, n_pred=40. WITHIN predicted 0.42-0.62. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=ward on PCA(50) produced delta=-0.2036 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + PCA + cosine. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 86: Ward hill-climb: linkage=ward on PCA(100) on raw pixels → PCA(100)
+- **Backbone:** `ward_hc_linkageward_on_PCA(100)` | **Status:** KEEP
+- **Result:** ARI 0.4737 | NMI 0.8081 | silhouette 0.1656 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=ward on PCA(100) on raw pixels → PCA(100) will land ARI in 0.42 to 0.62 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are forme...
+- **Verdict:** KEEP — ARI=0.4737 (delta -0.2458 vs Exp 71 champion 0.7195), NMI=0.8081, sil=0.1656, n_pred=40. WITHIN predicted 0.42-0.62. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=ward on PCA(100) produced delta=-0.2458 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + PCA + cosine. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 87: Ward hill-climb: linkage=average + cosine on PCA(20) on raw pixels → PCA(20)
+- **Backbone:** `ward_hc_linkageaverage_+_cosine_on_PCA` | **Status:** KEEP
+- **Result:** ARI 0.3223 | NMI 0.7542 | silhouette 0.0925 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=average + cosine on PCA(20) on raw pixels → PCA(20) will land ARI in 0.42 to 0.67 because the mechanism is that the chosen Ward configuration changes how cluster boundaries...
+- **Verdict:** KEEP — ARI=0.3223 (delta -0.3972 vs Exp 71 champion 0.7195), NMI=0.7542, sil=0.0925, n_pred=40. BELOW predicted 0.42-0.67. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=average + cosine on PCA(20) produced delta=-0.3972 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + connectivity constraints. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment 
+
+### Exp 88: Ward hill-climb: linkage=average + cosine on PCA(50) on raw pixels → PCA(50)
+- **Backbone:** `ward_hc_linkageaverage_+_cosine_on_PCA` | **Status:** KEEP
+- **Result:** ARI 0.3229 | NMI 0.7547 | silhouette 0.0943 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=average + cosine on PCA(50) on raw pixels → PCA(50) will land ARI in 0.42 to 0.67 because the mechanism is that the chosen Ward configuration changes how cluster boundaries...
+- **Verdict:** KEEP — ARI=0.3229 (delta -0.3966 vs Exp 71 champion 0.7195), NMI=0.7547, sil=0.0943, n_pred=40. BELOW predicted 0.42-0.67. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. linkage=average + cosine on PCA(50) produced delta=-0.3966 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + connectivity constraints. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment 
+
+### Exp 89: Ward hill-climb: linkage=average + cosine on PCA(100) on raw pixels → PCA(100)
+- **Backbone:** `ward_hc_linkageaverage_+_cosine_on_PCA` | **Status:** DISCARD
+- **Result:** ARI 0.2983 | NMI 0.7444 | silhouette 0.0899 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that linkage=average + cosine on PCA(100) on raw pixels → PCA(100) will land ARI in 0.42 to 0.67 because the mechanism is that the chosen Ward configuration changes how cluster boundari...
+- **Verdict:** DISCARD — ARI=0.2983 (delta -0.4212 vs Exp 71 champion 0.7195), NMI=0.7444, sil=0.0899, n_pred=40. BELOW predicted 0.42-0.67. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md
+- **Learning:** axis closed. linkage=average + cosine on PCA(100) produced delta=-0.4212 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + connectivity constraints. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment
+
+### Exp 90: Ward hill-climb: Ward + connectivity kNN(k=5) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph
+- **Backbone:** `ward_hc_Ward_+_connectivity_kNN(k5)_on` | **Status:** KEEP
+- **Result:** ARI 0.6207 | NMI 0.8637 | silhouette 0.0821 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Ward + connectivity kNN(k=5) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes...
+- **Verdict:** KEEP — ARI=0.6207 (delta -0.0988 vs Exp 71 champion 0.7195), NMI=0.8637, sil=0.0821, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Ward + connectivity kNN(k=5) on DINOv2 produced delta=-0.0988 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: post-Ward KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment w
+
+### Exp 91: Ward hill-climb: Ward + connectivity kNN(k=10) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph
+- **Backbone:** `ward_hc_Ward_+_connectivity_kNN(k10)_o` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Ward + connectivity kNN(k=10) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration change...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Ward + connectivity kNN(k=10) on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: post-Ward KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment 
+
+### Exp 92: Ward hill-climb: Ward + connectivity kNN(k=20) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph
+- **Backbone:** `ward_hc_Ward_+_connectivity_kNN(k20)_o` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Ward + connectivity kNN(k=20) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration change...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Ward + connectivity kNN(k=20) on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: post-Ward KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment 
+
+### Exp 93: Ward hill-climb: Ward init + KMeans refine on DINOv2 on DINOv2
+- **Backbone:** `ward_hc_Ward_init_+_KMeans_refine_on_D` | **Status:** KEEP
+- **Result:** ARI 0.6308 | NMI 0.8665 | silhouette 0.0802 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Ward init + KMeans refine on DINOv2 on DINOv2 will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in...
+- **Verdict:** KEEP — ARI=0.6308 (delta -0.0887 vs Exp 71 champion 0.7195), NMI=0.8665, sil=0.0802, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Ward init + KMeans refine on DINOv2 produced delta=-0.0887 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next family. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 94: Ward hill-climb: Ward init + KMeans refine on DINOv2 L2-norm on DINOv2 L2-norm
+- **Backbone:** `ward_hc_Ward_init_+_KMeans_refine_on_D` | **Status:** KEEP
+- **Result:** ARI 0.6303 | NMI 0.8681 | silhouette 0.0719 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Ward init + KMeans refine on DINOv2 L2-norm on DINOv2 L2-norm will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundari...
+- **Verdict:** KEEP — ARI=0.6303 (delta -0.0892 vs Exp 71 champion 0.7195), NMI=0.8681, sil=0.0719, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Ward init + KMeans refine on DINOv2 L2-norm produced delta=-0.0892 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next family. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 95: Ward hill-climb: Ward init + KMeans refine on PCA(50) on PCA(50)
+- **Backbone:** `ward_hc_Ward_init_+_KMeans_refine_on_P` | **Status:** KEEP
+- **Result:** ARI 0.5013 | NMI 0.8124 | silhouette 0.1639 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Ward init + KMeans refine on PCA(50) on PCA(50) will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed ...
+- **Verdict:** KEEP — ARI=0.5013 (delta -0.2182 vs Exp 71 champion 0.7195), NMI=0.8124, sil=0.1639, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Ward init + KMeans refine on PCA(50) produced delta=-0.2182 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next family. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 96: Ward hill-climb: Ward init + KMeans refine on PCA(100) on PCA(100)
+- **Backbone:** `ward_hc_Ward_init_+_KMeans_refine_on_P` | **Status:** KEEP
+- **Result:** ARI 0.4591 | NMI 0.7993 | silhouette 0.1677 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Ward init + KMeans refine on PCA(100) on PCA(100) will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are forme...
+- **Verdict:** KEEP — ARI=0.4591 (delta -0.2604 vs Exp 71 champion 0.7195), NMI=0.7993, sil=0.1677, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Ward init + KMeans refine on PCA(100) produced delta=-0.2604 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next family. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 97: Birch hill-climb: threshold=0.05 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_threshold0.05_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that threshold=0.05 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in ...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. threshold=0.05 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 98: Birch hill-climb: threshold=0.1 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_threshold0.1_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that threshold=0.1 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in f...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. threshold=0.1 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 99: Birch hill-climb: threshold=0.2 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_threshold0.2_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that threshold=0.2 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in f...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. threshold=0.2 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 100: Birch hill-climb: threshold=0.3 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_threshold0.3_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that threshold=0.3 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in f...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. threshold=0.3 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 101: Birch hill-climb: threshold=0.5 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_threshold0.5_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that threshold=0.5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in f...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. threshold=0.5 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 102: Birch hill-climb: threshold=0.7 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_threshold0.7_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that threshold=0.7 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in f...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. threshold=0.7 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 103: Birch hill-climb: threshold=1.0 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_threshold1.0_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that threshold=1.0 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in f...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. threshold=1.0 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 104: Birch hill-climb: threshold=1.5 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_threshold1.5_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that threshold=1.5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in f...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. threshold=1.5 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 105: Birch hill-climb: branching_factor=10 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_branching_factor10_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that branching_factor=10 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are forme...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. branching_factor=10 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch on different feature sources. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment wil
+
+### Exp 106: Birch hill-climb: branching_factor=25 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_branching_factor25_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that branching_factor=25 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are forme...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. branching_factor=25 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch on different feature sources. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment wil
+
+### Exp 107: Birch hill-climb: branching_factor=100 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_branching_factor100_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that branching_factor=100 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are form...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. branching_factor=100 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch on different feature sources. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment wi
+
+### Exp 108: Birch hill-climb: branching_factor=200 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_branching_factor200_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that branching_factor=200 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are form...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. branching_factor=200 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch on different feature sources. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment wi
+
+### Exp 109: Birch hill-climb: default Birch on DINOv2 L2-norm on DINOv2 L2-norm
+- **Backbone:** `birch_hc_default_Birch_on_DINOv2_L2-nor` | **Status:** DISCARD
+- **Result:** ARI 0.2306 | NMI 0.6719 | silhouette -0.0521 | n_pred_clusters 22
+- **Hypothesis (first 200ch):** We hypothesize that default Birch on DINOv2 L2-norm on DINOv2 L2-norm will land ARI in 0.42 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are form...
+- **Verdict:** DISCARD — ARI=0.2306 (delta -0.4889 vs Exp 71 champion 0.7195), NMI=0.6719, sil=-0.0521, n_pred=22. BELOW predicted 0.42-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.
+- **Learning:** axis closed. default Birch on DINOv2 L2-norm produced delta=-0.4889 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch + KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe
+
+### Exp 110: Birch hill-climb: default Birch on PCA(50) on PCA(50)
+- **Backbone:** `birch_hc_default_Birch_on_PCA(50)` | **Status:** KEEP
+- **Result:** ARI 0.5287 | NMI 0.8254 | silhouette 0.1608 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that default Birch on PCA(50) on PCA(50) will land ARI in 0.42 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature ...
+- **Verdict:** KEEP — ARI=0.5287 (delta -0.1908 vs Exp 71 champion 0.7195), NMI=0.8254, sil=0.1608, n_pred=40. WITHIN predicted 0.42-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. default Birch on PCA(50) produced delta=-0.1908 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch + KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 111: Birch hill-climb: default Birch on PCA(100) on PCA(100)
+- **Backbone:** `birch_hc_default_Birch_on_PCA(100)` | **Status:** KEEP
+- **Result:** ARI 0.4737 | NMI 0.8081 | silhouette 0.1656 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that default Birch on PCA(100) on PCA(100) will land ARI in 0.42 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in featur...
+- **Verdict:** KEEP — ARI=0.4737 (delta -0.2458 vs Exp 71 champion 0.7195), NMI=0.8081, sil=0.1656, n_pred=40. WITHIN predicted 0.42-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. default Birch on PCA(100) produced delta=-0.2458 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch + KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 112: Birch hill-climb: default Birch on PCA(20) on PCA(20)
+- **Backbone:** `birch_hc_default_Birch_on_PCA(20)` | **Status:** KEEP
+- **Result:** ARI 0.4540 | NMI 0.7949 | silhouette 0.1591 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that default Birch on PCA(20) on PCA(20) will land ARI in 0.42 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature ...
+- **Verdict:** KEEP — ARI=0.4540 (delta -0.2655 vs Exp 71 champion 0.7195), NMI=0.7949, sil=0.1591, n_pred=40. WITHIN predicted 0.42-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. default Birch on PCA(20) produced delta=-0.2655 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch + KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 113: Birch hill-climb: Birch leaves + KMeans refine on DINOv2 on DINOv2
+- **Backbone:** `birch_hc_Birch_leaves_+_KMeans_refine_o` | **Status:** KEEP
+- **Result:** ARI 0.5461 | NMI 0.8242 | silhouette 0.0492 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Birch leaves + KMeans refine on DINOv2 on DINOv2 will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are forme...
+- **Verdict:** KEEP — ARI=0.5461 (delta -0.1734 vs Exp 71 champion 0.7195), NMI=0.8242, sil=0.0492, n_pred=40. WITHIN predicted 0.52-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Birch leaves + KMeans refine on DINOv2 produced delta=-0.1734 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: tighter threshold variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment wi
+
+### Exp 114: Birch hill-climb: Birch leaves + KMeans refine on DINOv2 L2-norm on DINOv2 L2-norm
+- **Backbone:** `birch_hc_Birch_leaves_+_KMeans_refine_o` | **Status:** DISCARD
+- **Result:** ARI 0.2306 | NMI 0.6719 | silhouette -0.0521 | n_pred_clusters 22
+- **Hypothesis (first 200ch):** We hypothesize that Birch leaves + KMeans refine on DINOv2 L2-norm on DINOv2 L2-norm will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boun...
+- **Verdict:** DISCARD — ARI=0.2306 (delta -0.4889 vs Exp 71 champion 0.7195), NMI=0.6719, sil=-0.0521, n_pred=22. BELOW predicted 0.52-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.
+- **Learning:** axis closed. Birch leaves + KMeans refine on DINOv2 L2-norm produced delta=-0.4889 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: tighter threshold variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next exper
+
+### Exp 115: Birch hill-climb: Birch leaves + KMeans refine on PCA(50) on PCA(50)
+- **Backbone:** `birch_hc_Birch_leaves_+_KMeans_refine_o` | **Status:** KEEP
+- **Result:** ARI 0.4356 | NMI 0.7685 | silhouette 0.1478 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Birch leaves + KMeans refine on PCA(50) on PCA(50) will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are for...
+- **Verdict:** KEEP — ARI=0.4356 (delta -0.2839 vs Exp 71 champion 0.7195), NMI=0.7685, sil=0.1478, n_pred=40. BELOW predicted 0.52-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Birch leaves + KMeans refine on PCA(50) produced delta=-0.2839 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: tighter threshold variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment w
+
+### Exp 116: Birch hill-climb: Birch leaves + KMeans refine on PCA(100) on PCA(100)
+- **Backbone:** `birch_hc_Birch_leaves_+_KMeans_refine_o` | **Status:** KEEP
+- **Result:** ARI 0.4232 | NMI 0.7685 | silhouette 0.1479 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Birch leaves + KMeans refine on PCA(100) on PCA(100) will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are f...
+- **Verdict:** KEEP — ARI=0.4232 (delta -0.2963 vs Exp 71 champion 0.7195), NMI=0.7685, sil=0.1479, n_pred=40. BELOW predicted 0.52-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. Birch leaves + KMeans refine on PCA(100) produced delta=-0.2963 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: tighter threshold variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment 
+
+### Exp 117: Birch hill-climb: tight threshold=0.01 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_tight_threshold0.01_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that tight threshold=0.01 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are form...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. tight threshold=0.01 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: more Birch variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 118: Birch hill-climb: tight threshold=0.02 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_tight_threshold0.02_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that tight threshold=0.02 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are form...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. tight threshold=0.02 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: more Birch variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 119: Birch hill-climb: tight threshold=0.03 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_tight_threshold0.03_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that tight threshold=0.03 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are form...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. tight threshold=0.03 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: more Birch variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 120: Birch hill-climb: tight threshold=0.04 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_tight_threshold0.04_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that tight threshold=0.04 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are form...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. tight threshold=0.04 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: more Birch variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 121: Birch hill-climb: tight threshold=0.05 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `birch_hc_tight_threshold0.05_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that tight threshold=0.05 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are form...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. tight threshold=0.05 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next backbone family — UMAP. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will prob
+
+### Exp 122: UMAP HC: n_neighbors=5 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_n_neighbors=5_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6109 | NMI 0.8624 | silhouette 0.0756 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that n_neighbors=5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embeddi...
+- **Verdict:** KEEP — ARI=0.6109 (delta -0.1086 vs Exp 71 champion 0.7195), NMI=0.8624, sil=0.0756, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. n_neighbors=5 on DINOv2 produced delta=-0.1086 ARI vs Exp 71. does not improve over prior best. Next try: min_dist sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 123: UMAP HC: n_neighbors=10 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_n_neighbors=10_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6488 | NMI 0.8693 | silhouette 0.0813 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that n_neighbors=10 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedd...
+- **Verdict:** KEEP — ARI=0.6488 (delta -0.0707 vs Exp 71 champion 0.7195), NMI=0.8693, sil=0.0813, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. n_neighbors=10 on DINOv2 produced delta=-0.0707 ARI vs Exp 71. does not improve over prior best. Next try: min_dist sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 124: UMAP HC: n_neighbors=30 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_n_neighbors=30_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.5680 | NMI 0.8311 | silhouette 0.0317 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that n_neighbors=30 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedd...
+- **Verdict:** KEEP — ARI=0.5680 (delta -0.1515 vs Exp 71 champion 0.7195), NMI=0.8311, sil=0.0317, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. n_neighbors=30 on DINOv2 produced delta=-0.1515 ARI vs Exp 71. does not improve over prior best. Next try: min_dist sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 125: UMAP HC: n_neighbors=50 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_n_neighbors=50_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.5690 | NMI 0.8279 | silhouette 0.0513 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that n_neighbors=50 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedd...
+- **Verdict:** KEEP — ARI=0.5690 (delta -0.1505 vs Exp 71 champion 0.7195), NMI=0.8279, sil=0.0513, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. n_neighbors=50 on DINOv2 produced delta=-0.1505 ARI vs Exp 71. does not improve over prior best. Next try: min_dist sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 126: UMAP HC: min_dist=0.0 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_min_dist=0.0_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6247 | NMI 0.8606 | silhouette 0.0741 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that min_dist=0.0 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embeddin...
+- **Verdict:** KEEP — ARI=0.6247 (delta -0.0948 vs Exp 71 champion 0.7195), NMI=0.8606, sil=0.0741, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. min_dist=0.0 on DINOv2 produced delta=-0.0948 ARI vs Exp 71. does not improve over prior best. Next try: n_components sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 127: UMAP HC: min_dist=0.3 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_min_dist=0.3_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.5949 | NMI 0.8438 | silhouette 0.0439 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that min_dist=0.3 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embeddin...
+- **Verdict:** KEEP — ARI=0.5949 (delta -0.1246 vs Exp 71 champion 0.7195), NMI=0.8438, sil=0.0439, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. min_dist=0.3 on DINOv2 produced delta=-0.1246 ARI vs Exp 71. does not improve over prior best. Next try: n_components sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 128: UMAP HC: min_dist=0.5 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_min_dist=0.5_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6156 | NMI 0.8514 | silhouette 0.0617 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that min_dist=0.5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embeddin...
+- **Verdict:** KEEP — ARI=0.6156 (delta -0.1039 vs Exp 71 champion 0.7195), NMI=0.8514, sil=0.0617, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. min_dist=0.5 on DINOv2 produced delta=-0.1039 ARI vs Exp 71. does not improve over prior best. Next try: n_components sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 129: UMAP HC: min_dist=0.99 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_min_dist=0.99_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.5665 | NMI 0.8258 | silhouette 0.0673 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that min_dist=0.99 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embeddi...
+- **Verdict:** KEEP — ARI=0.5665 (delta -0.1530 vs Exp 71 champion 0.7195), NMI=0.8258, sil=0.0673, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. min_dist=0.99 on DINOv2 produced delta=-0.1530 ARI vs Exp 71. does not improve over prior best. Next try: n_components sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 130: UMAP HC: n_components=3 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_n_components=3_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6177 | NMI 0.8508 | silhouette 0.0449 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that n_components=3 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedd...
+- **Verdict:** KEEP — ARI=0.6177 (delta -0.1018 vs Exp 71 champion 0.7195), NMI=0.8508, sil=0.0449, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. n_components=3 on DINOv2 produced delta=-0.1018 ARI vs Exp 71. does not improve over prior best. Next try: metric sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 131: UMAP HC: n_components=5 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_n_components=5_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.5860 | NMI 0.8412 | silhouette 0.0480 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that n_components=5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedd...
+- **Verdict:** KEEP — ARI=0.5860 (delta -0.1335 vs Exp 71 champion 0.7195), NMI=0.8412, sil=0.0480, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. n_components=5 on DINOv2 produced delta=-0.1335 ARI vs Exp 71. does not improve over prior best. Next try: metric sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 132: UMAP HC: n_components=30 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_n_components=30_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.5980 | NMI 0.8495 | silhouette 0.0616 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that n_components=30 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embed...
+- **Verdict:** KEEP — ARI=0.5980 (delta -0.1215 vs Exp 71 champion 0.7195), NMI=0.8495, sil=0.0616, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. n_components=30 on DINOv2 produced delta=-0.1215 ARI vs Exp 71. does not improve over prior best. Next try: metric sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 133: UMAP HC: n_components=50 on DINOv2 on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_n_components=50_on_DINOv2` | **Status:** KEEP
+- **Result:** ARI 0.6107 | NMI 0.8453 | silhouette 0.0594 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that n_components=50 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embed...
+- **Verdict:** KEEP — ARI=0.6107 (delta -0.1088 vs Exp 71 champion 0.7195), NMI=0.8453, sil=0.0594, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. n_components=50 on DINOv2 produced delta=-0.1088 ARI vs Exp 71. does not improve over prior best. Next try: metric sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 134: UMAP HC: metric=cosine on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_metric=cosine` | **Status:** KEEP
+- **Result:** ARI 0.6000 | NMI 0.8421 | silhouette 0.0677 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that metric=cosine on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structu...
+- **Verdict:** KEEP — ARI=0.6000 (delta -0.1195 vs Exp 71 champion 0.7195), NMI=0.8421, sil=0.0677, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. metric=cosine produced delta=-0.1195 ARI vs Exp 71. does not improve over prior best. Next try: UMAP + Spectral cosine downstream. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 135: UMAP HC: metric=manhattan on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_metric=manhattan` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8579 | silhouette 0.0621 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that metric=manhattan on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding stru...
+- **Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8579, sil=0.0621, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. metric=manhattan produced delta=-0.0824 ARI vs Exp 71. does not improve over prior best. Next try: UMAP + Spectral cosine downstream. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 136: UMAP HC: UMAP(10) + Spectral cosine downstream on DINOv2 ViT-S/14
+- **Backbone:** `umap_hc_UMAP(10)_+_Spectral_cosine_dow` | **Status:** DISCARD
+- **Result:** ARI 0.1918 | NMI 0.6401 | silhouette -0.1080 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that UMAP(10) + Spectral cosine downstream on DINOv2 ViT-S/14 will land ARI in 0.62 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the ma...
+- **Verdict:** DISCARD — ARI=0.1918 (delta -0.5277 vs Exp 71 champion 0.7195), NMI=0.6401, sil=-0.1080, n_pred=40. BELOW predicted 0.62-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. UMAP(10) + Spectral cosine downstream produced delta=-0.5277 ARI vs Exp 71. does not improve over prior best. Next try: DEC hill-climb starts. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 137: DEC HC: latent_dim=32
+- **Backbone:** `dec_hc_latent_dim32` | **Status:** KEEP
+- **Result:** ARI 0.4955 | NMI 0.7982 | silhouette 0.1448 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that latent_dim=32 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness...
+- **Verdict:** KEEP — ARI=0.4955 (delta -0.2240 vs champion), NMI=0.7982, sil=0.1448, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. latent_dim=32 delta=-0.2240 vs champion. this DEC HP value does not improve over baseline. Next try: next latent variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 138: DEC HC: latent_dim=128
+- **Backbone:** `dec_hc_latent_dim128` | **Status:** KEEP
+- **Result:** ARI 0.4781 | NMI 0.7994 | silhouette 0.1453 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that latent_dim=128 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpnes...
+- **Verdict:** KEEP — ARI=0.4781 (delta -0.2414 vs champion), NMI=0.7994, sil=0.1453, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. latent_dim=128 delta=-0.2414 vs champion. this DEC HP value does not improve over baseline. Next try: next latent variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 139: DEC HC: latent_dim=256
+- **Backbone:** `dec_hc_latent_dim256` | **Status:** KEEP
+- **Result:** ARI 0.5091 | NMI 0.8162 | silhouette 0.1421 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that latent_dim=256 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpnes...
+- **Verdict:** KEEP — ARI=0.5091 (delta -0.2104 vs champion), NMI=0.8162, sil=0.1421, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. latent_dim=256 delta=-0.2104 vs champion. this DEC HP value does not improve over baseline. Next try: next latent variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 140: DEC HC: alpha=0.5
+- **Backbone:** `dec_hc_alpha0.5` | **Status:** KEEP
+- **Result:** ARI 0.5104 | NMI 0.8120 | silhouette 0.1493 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that alpha=0.5 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; th...
+- **Verdict:** KEEP — ARI=0.5104 (delta -0.2091 vs champion), NMI=0.8120, sil=0.1493, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. alpha=0.5 delta=-0.2091 vs champion. this DEC HP value does not improve over baseline. Next try: MSE weight sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 141: DEC HC: alpha=2.0
+- **Backbone:** `dec_hc_alpha2.0` | **Status:** KEEP
+- **Result:** ARI 0.4841 | NMI 0.8060 | silhouette 0.1499 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that alpha=2.0 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; th...
+- **Verdict:** KEEP — ARI=0.4841 (delta -0.2354 vs champion), NMI=0.8060, sil=0.1499, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. alpha=2.0 delta=-0.2354 vs champion. this DEC HP value does not improve over baseline. Next try: MSE weight sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 142: DEC HC: alpha=5.0
+- **Backbone:** `dec_hc_alpha5.0` | **Status:** KEEP
+- **Result:** ARI 0.4727 | NMI 0.7933 | silhouette 0.1478 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that alpha=5.0 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; th...
+- **Verdict:** KEEP — ARI=0.4727 (delta -0.2468 vs champion), NMI=0.7933, sil=0.1478, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. alpha=5.0 delta=-0.2468 vs champion. this DEC HP value does not improve over baseline. Next try: MSE weight sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 143: DEC HC: mse_weight=0.0
+- **Backbone:** `dec_hc_mse_weight0.0` | **Status:** KEEP
+- **Result:** ARI 0.4973 | NMI 0.8073 | silhouette 0.1431 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that mse_weight=0.0 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpnes...
+- **Verdict:** KEEP — ARI=0.4973 (delta -0.2222 vs champion), NMI=0.8073, sil=0.1431, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. mse_weight=0.0 delta=-0.2222 vs champion. this DEC HP value does not improve over baseline. Next try: more pretrain epochs. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 144: DEC HC: mse_weight=0.5
+- **Backbone:** `dec_hc_mse_weight0.5` | **Status:** KEEP
+- **Result:** ARI 0.4435 | NMI 0.7828 | silhouette 0.1484 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that mse_weight=0.5 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpnes...
+- **Verdict:** KEEP — ARI=0.4435 (delta -0.2760 vs champion), NMI=0.7828, sil=0.1484, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. mse_weight=0.5 delta=-0.2760 vs champion. this DEC HP value does not improve over baseline. Next try: more pretrain epochs. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 145: DEC HC: mse_weight=1.0
+- **Backbone:** `dec_hc_mse_weight1.0` | **Status:** KEEP
+- **Result:** ARI 0.4891 | NMI 0.8118 | silhouette 0.1583 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that mse_weight=1.0 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpnes...
+- **Verdict:** KEEP — ARI=0.4891 (delta -0.2304 vs champion), NMI=0.8118, sil=0.1583, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. mse_weight=1.0 delta=-0.2304 vs champion. this DEC HP value does not improve over baseline. Next try: more pretrain epochs. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 146: DEC HC: pretrain_epochs=80 (2x default)
+- **Backbone:** `dec_hc_pretrain_epochs80_(2x_default)` | **Status:** KEEP
+- **Result:** ARI 0.5002 | NMI 0.8081 | silhouette 0.1403 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that pretrain_epochs=80 (2x default) will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-as...
+- **Verdict:** KEEP — ARI=0.5002 (delta -0.2193 vs champion), NMI=0.8081, sil=0.1403, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+- **Learning:** axis closed. pretrain_epochs=80 (2x default) delta=-0.2193 vs champion. this DEC HP value does not improve over baseline. Next try: Hill-climb mandate complete. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.

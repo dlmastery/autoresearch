@@ -1,0 +1,7 @@
+{
+  "backbone": "ward_hc_linkagecomplete_+_cosine_dista",
+  "ari": 0.49255438897721643,
+  "nmi": 0.8111708824943628,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

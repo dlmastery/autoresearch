@@ -1,0 +1,7 @@
+{
+  "backbone": "umap_hc_n_neighbors=10_on_DINOv2",
+  "ari": 0.6488416602393807,
+  "nmi": 0.8693031441933706,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

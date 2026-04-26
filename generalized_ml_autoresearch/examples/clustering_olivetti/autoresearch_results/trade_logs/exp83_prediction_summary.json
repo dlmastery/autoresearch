@@ -1,0 +1,7 @@
+{
+  "backbone": "ward_hc_linkageaverage_+_manhattan_dis",
+  "ari": 0.4540464288999969,
+  "nmi": 0.8205974510198831,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

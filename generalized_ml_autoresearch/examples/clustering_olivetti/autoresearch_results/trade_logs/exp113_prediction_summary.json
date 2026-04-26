@@ -1,0 +1,7 @@
+{
+  "backbone": "birch_hc_Birch_leaves_+_KMeans_refine_o",
+  "ari": 0.5461020738203958,
+  "nmi": 0.8242031966387888,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

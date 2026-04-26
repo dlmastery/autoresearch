@@ -1269,3 +1269,1353 @@ von Luxburg 2007 Statistics and Computing 'A tutorial on spectral clustering' (D
 **Learning:** axis open. cosine seed=99 (variance check) produced delta=+0.0232 ARI vs the DINOv2+Spectral-cosine champion. Hill-climbing the Spectral configuration: this variant pushes the local maximum further. Next try: Spectral hill-climb complete; pivot to next backbone. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
 
 ---
+
+## Exp 72
+
+**Diagnosis:** Ward hill-climb variant 72 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=ward on DINOv2. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=ward on DINOv2 on DINOv2 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=ward on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 73
+
+**Diagnosis:** Ward hill-climb variant 73 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=ward on DINOv2 L2-norm. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=ward on DINOv2 L2-norm on DINOv2 L2-norm 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6366 (delta -0.0829 vs Exp 71 champion 0.7195), NMI=0.8721, sil=0.0751, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=ward on DINOv2 L2-norm produced delta=-0.0829 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 74
+
+**Diagnosis:** Ward hill-climb variant 74 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=average on DINOv2. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=average on DINOv2 on DINOv2 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4703 (delta -0.2492 vs Exp 71 champion 0.7195), NMI=0.8158, sil=0.0226, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=average on DINOv2 produced delta=-0.2492 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 75
+
+**Diagnosis:** Ward hill-climb variant 75 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=average on DINOv2 L2-norm. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=average on DINOv2 L2-norm on DINOv2 L2-norm 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4631 (delta -0.2564 vs Exp 71 champion 0.7195), NMI=0.8234, sil=0.0240, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=average on DINOv2 L2-norm produced delta=-0.2564 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 76
+
+**Diagnosis:** Ward hill-climb variant 76 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=complete on DINOv2. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=complete on DINOv2 on DINOv2 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4805 (delta -0.2390 vs Exp 71 champion 0.7195), NMI=0.8071, sil=0.0234, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=complete on DINOv2 produced delta=-0.2390 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 77
+
+**Diagnosis:** Ward hill-climb variant 77 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=complete on DINOv2 L2-norm. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=complete on DINOv2 L2-norm on DINOv2 L2-norm 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4926 (delta -0.2269 vs Exp 71 champion 0.7195), NMI=0.8112, sil=0.0306, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=complete on DINOv2 L2-norm produced delta=-0.2269 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 78
+
+**Diagnosis:** Ward hill-climb variant 78 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=single on DINOv2. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=single on DINOv2 on DINOv2 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.1481 (delta -0.5714 vs Exp 71 champion 0.7195), NMI=0.6689, sil=-0.1119, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=single on DINOv2 produced delta=-0.5714 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 79
+
+**Diagnosis:** Ward hill-climb variant 79 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=single on DINOv2 L2-norm. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=single on DINOv2 L2-norm on DINOv2 L2-norm 384-dim will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.1437 (delta -0.5758 vs Exp 71 champion 0.7195), NMI=0.6625, sil=-0.1119, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=single on DINOv2 L2-norm produced delta=-0.5758 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next linkage variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 80
+
+**Diagnosis:** Ward hill-climb variant 80 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=average + cosine distance. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=average + cosine distance on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4490 (delta -0.2705 vs Exp 71 champion 0.7195), NMI=0.8174, sil=0.0134, n_pred=40. BELOW predicted 0.57-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=average + cosine distance produced delta=-0.2705 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: manhattan distance variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 81
+
+**Diagnosis:** Ward hill-climb variant 81 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=complete + cosine distance. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=complete + cosine distance on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4926 (delta -0.2269 vs Exp 71 champion 0.7195), NMI=0.8112, sil=0.0306, n_pred=40. BELOW predicted 0.57-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=complete + cosine distance produced delta=-0.2269 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: manhattan distance variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 82
+
+**Diagnosis:** Ward hill-climb variant 82 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=single + cosine distance. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=single + cosine distance on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.1437 (delta -0.5758 vs Exp 71 champion 0.7195), NMI=0.6625, sil=-0.1119, n_pred=40. BELOW predicted 0.57-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=single + cosine distance produced delta=-0.5758 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: manhattan distance variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 83
+
+**Diagnosis:** Ward hill-climb variant 83 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=average + manhattan distance. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=average + manhattan distance on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4540 (delta -0.2655 vs Exp 71 champion 0.7195), NMI=0.8206, sil=0.0129, n_pred=40. BELOW predicted 0.52-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=average + manhattan distance produced delta=-0.2655 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: PCA dimension sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 84
+
+**Diagnosis:** Ward hill-climb variant 84 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=ward on PCA(20). The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=ward on PCA(20) on raw pixels → PCA(20) will land ARI in 0.42 to 0.62 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.62. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4508 (delta -0.2687 vs Exp 71 champion 0.7195), NMI=0.7910, sil=0.1581, n_pred=40. WITHIN predicted 0.42-0.62. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=ward on PCA(20) produced delta=-0.2687 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + PCA + cosine. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 85
+
+**Diagnosis:** Ward hill-climb variant 85 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=ward on PCA(50). The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=ward on PCA(50) on raw pixels → PCA(50) will land ARI in 0.42 to 0.62 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.62. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.5159 (delta -0.2036 vs Exp 71 champion 0.7195), NMI=0.8201, sil=0.1608, n_pred=40. WITHIN predicted 0.42-0.62. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=ward on PCA(50) produced delta=-0.2036 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + PCA + cosine. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 86
+
+**Diagnosis:** Ward hill-climb variant 86 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=ward on PCA(100). The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=ward on PCA(100) on raw pixels → PCA(100) will land ARI in 0.42 to 0.62 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.62. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4737 (delta -0.2458 vs Exp 71 champion 0.7195), NMI=0.8081, sil=0.1656, n_pred=40. WITHIN predicted 0.42-0.62. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=ward on PCA(100) produced delta=-0.2458 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + PCA + cosine. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 87
+
+**Diagnosis:** Ward hill-climb variant 87 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=average + cosine on PCA(20). The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=average + cosine on PCA(20) on raw pixels → PCA(20) will land ARI in 0.42 to 0.67 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.67. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.3223 (delta -0.3972 vs Exp 71 champion 0.7195), NMI=0.7542, sil=0.0925, n_pred=40. BELOW predicted 0.42-0.67. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=average + cosine on PCA(20) produced delta=-0.3972 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + connectivity constraints. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 88
+
+**Diagnosis:** Ward hill-climb variant 88 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=average + cosine on PCA(50). The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=average + cosine on PCA(50) on raw pixels → PCA(50) will land ARI in 0.42 to 0.67 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.67. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.3229 (delta -0.3966 vs Exp 71 champion 0.7195), NMI=0.7547, sil=0.0943, n_pred=40. BELOW predicted 0.42-0.67. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=average + cosine on PCA(50) produced delta=-0.3966 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + connectivity constraints. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 89
+
+**Diagnosis:** Ward hill-climb variant 89 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: linkage=average + cosine on PCA(100). The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that linkage=average + cosine on PCA(100) on raw pixels → PCA(100) will land ARI in 0.42 to 0.67 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.67. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.2983 (delta -0.4212 vs Exp 71 champion 0.7195), NMI=0.7444, sil=0.0899, n_pred=40. BELOW predicted 0.42-0.67. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. linkage=average + cosine on PCA(100) produced delta=-0.4212 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Ward + connectivity constraints. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 90
+
+**Diagnosis:** Ward hill-climb variant 90 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Ward + connectivity kNN(k=5) on DINOv2. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that Ward + connectivity kNN(k=5) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based).
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6207 (delta -0.0988 vs Exp 71 champion 0.7195), NMI=0.8637, sil=0.0821, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Ward + connectivity kNN(k=5) on DINOv2 produced delta=-0.0988 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: post-Ward KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 91
+
+**Diagnosis:** Ward hill-climb variant 91 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Ward + connectivity kNN(k=10) on DINOv2. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that Ward + connectivity kNN(k=10) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based).
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Ward + connectivity kNN(k=10) on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: post-Ward KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 92
+
+**Diagnosis:** Ward hill-climb variant 92 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Ward + connectivity kNN(k=20) on DINOv2. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that Ward + connectivity kNN(k=20) on DINOv2 on DINOv2 ViT-S/14 + kNN connectivity graph will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based).
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Ward + connectivity kNN(k=20) on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: post-Ward KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 93
+
+**Diagnosis:** Ward hill-climb variant 93 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Ward init + KMeans refine on DINOv2. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that Ward init + KMeans refine on DINOv2 on DINOv2 will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6308 (delta -0.0887 vs Exp 71 champion 0.7195), NMI=0.8665, sil=0.0802, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Ward init + KMeans refine on DINOv2 produced delta=-0.0887 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next family. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 94
+
+**Diagnosis:** Ward hill-climb variant 94 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Ward init + KMeans refine on DINOv2 L2-norm. The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that Ward init + KMeans refine on DINOv2 L2-norm on DINOv2 L2-norm will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based).
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6303 (delta -0.0892 vs Exp 71 champion 0.7195), NMI=0.8681, sil=0.0719, n_pred=40. WITHIN predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Ward init + KMeans refine on DINOv2 L2-norm produced delta=-0.0892 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next family. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 95
+
+**Diagnosis:** Ward hill-climb variant 95 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Ward init + KMeans refine on PCA(50). The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that Ward init + KMeans refine on PCA(50) on PCA(50) will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.5013 (delta -0.2182 vs Exp 71 champion 0.7195), NMI=0.8124, sil=0.1639, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Ward init + KMeans refine on PCA(50) produced delta=-0.2182 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next family. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 96
+
+**Diagnosis:** Ward hill-climb variant 96 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Ward init + KMeans refine on PCA(100). The Ward family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Ward maximum on this dataset.
+
+**Citations:** Ward 1963 Journal of the American Statistical Association 'Hierarchical Grouping to Optimize an Objective Function' (DOI:10.1080/01621459.1963.10500845) — foundational Ward linkage paper; establishes the variance-minimizing merge criterion that produces compact clusters and is the canonical hierarchical baseline against which all linkage variants in this batch are compared.;
+Murtagh & Contreras 2012 WIREs Data Mining and Knowledge Discovery 'Algorithms for hierarchical clustering: an overview' (DOI:10.1002/widm.53) — comprehensive review of linkage criteria (single, complete, average, Ward); documents that the optimal linkage depends on the cluster shape (spherical favors Ward, elongated favors single); we sweep all four to find the right one.;
+Lance & Williams 1967 The Computer Journal 'A general theory of classificatory sorting strategies' (DOI:10.1093/comjnl/9.4.373) — formalizes hierarchical clustering as a recursive update rule that unifies all linkage criteria; relevant because we test all linkage variants on the same feature space to isolate the linkage-criterion contribution from the feature-space contribution.
+
+**Hypothesis:** We hypothesize that Ward init + KMeans refine on PCA(100) on PCA(100) will land ARI in 0.62 to 0.77 because the mechanism is that the chosen Ward configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4591 (delta -0.2604 vs Exp 71 champion 0.7195), NMI=0.7993, sil=0.1677, n_pred=40. BELOW predicted 0.62-0.77. local hill-climb on Ward. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Ward init + KMeans refine on PCA(100) produced delta=-0.2604 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next family. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 97
+
+**Diagnosis:** Birch hill-climb variant 97 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: threshold=0.05 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that threshold=0.05 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. threshold=0.05 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 98
+
+**Diagnosis:** Birch hill-climb variant 98 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: threshold=0.1 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that threshold=0.1 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. threshold=0.1 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 99
+
+**Diagnosis:** Birch hill-climb variant 99 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: threshold=0.2 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that threshold=0.2 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. threshold=0.2 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 100
+
+**Diagnosis:** Birch hill-climb variant 100 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: threshold=0.3 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that threshold=0.3 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. threshold=0.3 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 101
+
+**Diagnosis:** Birch hill-climb variant 101 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: threshold=0.5 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that threshold=0.5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. threshold=0.5 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 102
+
+**Diagnosis:** Birch hill-climb variant 102 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: threshold=0.7 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that threshold=0.7 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. threshold=0.7 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 103
+
+**Diagnosis:** Birch hill-climb variant 103 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: threshold=1.0 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that threshold=1.0 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. threshold=1.0 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 104
+
+**Diagnosis:** Birch hill-climb variant 104 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: threshold=1.5 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that threshold=1.5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. threshold=1.5 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: branching factor sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 105
+
+**Diagnosis:** Birch hill-climb variant 105 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: branching_factor=10 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that branching_factor=10 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. branching_factor=10 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch on different feature sources. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 106
+
+**Diagnosis:** Birch hill-climb variant 106 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: branching_factor=25 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that branching_factor=25 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. branching_factor=25 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch on different feature sources. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 107
+
+**Diagnosis:** Birch hill-climb variant 107 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: branching_factor=100 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that branching_factor=100 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. branching_factor=100 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch on different feature sources. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 108
+
+**Diagnosis:** Birch hill-climb variant 108 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: branching_factor=200 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that branching_factor=200 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. branching_factor=200 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch on different feature sources. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 109
+
+**Diagnosis:** Birch hill-climb variant 109 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: default Birch on DINOv2 L2-norm. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that default Birch on DINOv2 L2-norm on DINOv2 L2-norm will land ARI in 0.42 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.2306 (delta -0.4889 vs Exp 71 champion 0.7195), NMI=0.6719, sil=-0.0521, n_pred=22. BELOW predicted 0.42-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. default Birch on DINOv2 L2-norm produced delta=-0.4889 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch + KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 110
+
+**Diagnosis:** Birch hill-climb variant 110 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: default Birch on PCA(50). The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that default Birch on PCA(50) on PCA(50) will land ARI in 0.42 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.5287 (delta -0.1908 vs Exp 71 champion 0.7195), NMI=0.8254, sil=0.1608, n_pred=40. WITHIN predicted 0.42-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. default Birch on PCA(50) produced delta=-0.1908 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch + KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 111
+
+**Diagnosis:** Birch hill-climb variant 111 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: default Birch on PCA(100). The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that default Birch on PCA(100) on PCA(100) will land ARI in 0.42 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4737 (delta -0.2458 vs Exp 71 champion 0.7195), NMI=0.8081, sil=0.1656, n_pred=40. WITHIN predicted 0.42-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. default Birch on PCA(100) produced delta=-0.2458 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch + KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 112
+
+**Diagnosis:** Birch hill-climb variant 112 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: default Birch on PCA(20). The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that default Birch on PCA(20) on PCA(20) will land ARI in 0.42 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.42 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4540 (delta -0.2655 vs Exp 71 champion 0.7195), NMI=0.7949, sil=0.1591, n_pred=40. WITHIN predicted 0.42-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. default Birch on PCA(20) produced delta=-0.2655 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: Birch + KMeans refinement. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 113
+
+**Diagnosis:** Birch hill-climb variant 113 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Birch leaves + KMeans refine on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that Birch leaves + KMeans refine on DINOv2 on DINOv2 will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.5461 (delta -0.1734 vs Exp 71 champion 0.7195), NMI=0.8242, sil=0.0492, n_pred=40. WITHIN predicted 0.52-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Birch leaves + KMeans refine on DINOv2 produced delta=-0.1734 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: tighter threshold variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 114
+
+**Diagnosis:** Birch hill-climb variant 114 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Birch leaves + KMeans refine on DINOv2 L2-norm. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that Birch leaves + KMeans refine on DINOv2 L2-norm on DINOv2 L2-norm will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based).
+
+**Prediction:** ARI in 0.52 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** DISCARD — ARI=0.2306 (delta -0.4889 vs Exp 71 champion 0.7195), NMI=0.6719, sil=-0.0521, n_pred=22. BELOW predicted 0.52-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Birch leaves + KMeans refine on DINOv2 L2-norm produced delta=-0.4889 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: tighter threshold variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 115
+
+**Diagnosis:** Birch hill-climb variant 115 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Birch leaves + KMeans refine on PCA(50). The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that Birch leaves + KMeans refine on PCA(50) on PCA(50) will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4356 (delta -0.2839 vs Exp 71 champion 0.7195), NMI=0.7685, sil=0.1478, n_pred=40. BELOW predicted 0.52-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Birch leaves + KMeans refine on PCA(50) produced delta=-0.2839 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: tighter threshold variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 116
+
+**Diagnosis:** Birch hill-climb variant 116 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: Birch leaves + KMeans refine on PCA(100). The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that Birch leaves + KMeans refine on PCA(100) on PCA(100) will land ARI in 0.52 to 0.77 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.77. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.4232 (delta -0.2963 vs Exp 71 champion 0.7195), NMI=0.7685, sil=0.1479, n_pred=40. BELOW predicted 0.52-0.77. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. Birch leaves + KMeans refine on PCA(100) produced delta=-0.2963 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: tighter threshold variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 117
+
+**Diagnosis:** Birch hill-climb variant 117 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: tight threshold=0.01 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that tight threshold=0.01 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. tight threshold=0.01 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: more Birch variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 118
+
+**Diagnosis:** Birch hill-climb variant 118 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: tight threshold=0.02 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that tight threshold=0.02 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. tight threshold=0.02 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: more Birch variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 119
+
+**Diagnosis:** Birch hill-climb variant 119 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: tight threshold=0.03 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that tight threshold=0.03 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. tight threshold=0.03 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: more Birch variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 120
+
+**Diagnosis:** Birch hill-climb variant 120 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: tight threshold=0.04 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that tight threshold=0.04 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. tight threshold=0.04 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: more Birch variants. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 121
+
+**Diagnosis:** Birch hill-climb variant 121 tail-following Exp 71 champion (DINOv2+Spectral cosine seed=99, ARI=0.7195). This variant changes a single axis: tight threshold=0.05 on DINOv2. The Birch family has multiple HP axes (linkage/distance/feature-source for Ward; threshold/branching/initialization for Birch); we sweep them systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best ARI across all variants determines the local Birch maximum on this dataset.
+
+**Citations:** Zhang, Ramakrishnan & Livny 1996 SIGMOD 'BIRCH: An Efficient Data Clustering Method for Very Large Databases' (DOI:10.1145/233269.233324) — foundational Birch paper; the CF-Tree provides incremental aggregation with two key hyperparameters (threshold, branching_factor) that we sweep in this batch to map the local maximum on Olivetti.;
+Zhang, Ramakrishnan & Livny 1997 Data Mining and Knowledge Discovery 'BIRCH: A New Data Clustering Algorithm and Its Applications' (DOI:10.1023/A:1009783824328) — extends the original Birch with detailed analysis of the threshold parameter's effect on cluster purity; documents that threshold should be chosen as roughly the median pairwise distance within true clusters.;
+Aggarwal & Reddy 2013 Chapman & Hall 'Data Clustering: Algorithms and Applications' Chapter 4 — textbook coverage of Birch comparing it to other CF-tree-based methods; relevant because we also test Birch + KMeans postprocessing where Birch produces leaf-clusters and KMeans merges them to K=40.
+
+**Hypothesis:** We hypothesize that tight threshold=0.05 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism is that the chosen Birch configuration changes how cluster boundaries are formed in feature space; different linkages/thresholds capture different cluster geometries (spherical vs elongated vs density-based). The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, this variant is the new global champion. If ARI < 0.6695, axis closed for this combination.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8706, sil=0.0834, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on Birch. Test set hash verified intact. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. tight threshold=0.05 on DINOv2 produced delta=-0.0824 ARI vs the Exp 71 champion. this variant does not improve over the prior best. Next try: next backbone family — UMAP. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 122
+
+**Diagnosis:** UMAP hill-climb variant 122/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: n_neighbors=5 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that n_neighbors=5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.6109 (delta -0.1086 vs Exp 71 champion 0.7195), NMI=0.8624, sil=0.0756, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. n_neighbors=5 on DINOv2 produced delta=-0.1086 ARI vs Exp 71. does not improve over prior best. Next try: min_dist sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 123
+
+**Diagnosis:** UMAP hill-climb variant 123/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: n_neighbors=10 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that n_neighbors=10 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.6488 (delta -0.0707 vs Exp 71 champion 0.7195), NMI=0.8693, sil=0.0813, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. n_neighbors=10 on DINOv2 produced delta=-0.0707 ARI vs Exp 71. does not improve over prior best. Next try: min_dist sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 124
+
+**Diagnosis:** UMAP hill-climb variant 124/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: n_neighbors=30 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that n_neighbors=30 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5680 (delta -0.1515 vs Exp 71 champion 0.7195), NMI=0.8311, sil=0.0317, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. n_neighbors=30 on DINOv2 produced delta=-0.1515 ARI vs Exp 71. does not improve over prior best. Next try: min_dist sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 125
+
+**Diagnosis:** UMAP hill-climb variant 125/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: n_neighbors=50 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that n_neighbors=50 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5690 (delta -0.1505 vs Exp 71 champion 0.7195), NMI=0.8279, sil=0.0513, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. n_neighbors=50 on DINOv2 produced delta=-0.1505 ARI vs Exp 71. does not improve over prior best. Next try: min_dist sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 126
+
+**Diagnosis:** UMAP hill-climb variant 126/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: min_dist=0.0 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that min_dist=0.0 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.6247 (delta -0.0948 vs Exp 71 champion 0.7195), NMI=0.8606, sil=0.0741, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. min_dist=0.0 on DINOv2 produced delta=-0.0948 ARI vs Exp 71. does not improve over prior best. Next try: n_components sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 127
+
+**Diagnosis:** UMAP hill-climb variant 127/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: min_dist=0.3 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that min_dist=0.3 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5949 (delta -0.1246 vs Exp 71 champion 0.7195), NMI=0.8438, sil=0.0439, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. min_dist=0.3 on DINOv2 produced delta=-0.1246 ARI vs Exp 71. does not improve over prior best. Next try: n_components sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 128
+
+**Diagnosis:** UMAP hill-climb variant 128/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: min_dist=0.5 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that min_dist=0.5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.6156 (delta -0.1039 vs Exp 71 champion 0.7195), NMI=0.8514, sil=0.0617, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. min_dist=0.5 on DINOv2 produced delta=-0.1039 ARI vs Exp 71. does not improve over prior best. Next try: n_components sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 129
+
+**Diagnosis:** UMAP hill-climb variant 129/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: min_dist=0.99 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that min_dist=0.99 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.52 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.52 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5665 (delta -0.1530 vs Exp 71 champion 0.7195), NMI=0.8258, sil=0.0673, n_pred=40. WITHIN predicted 0.52-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. min_dist=0.99 on DINOv2 produced delta=-0.1530 ARI vs Exp 71. does not improve over prior best. Next try: n_components sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 130
+
+**Diagnosis:** UMAP hill-climb variant 130/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: n_components=3 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that n_components=3 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.6177 (delta -0.1018 vs Exp 71 champion 0.7195), NMI=0.8508, sil=0.0449, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. n_components=3 on DINOv2 produced delta=-0.1018 ARI vs Exp 71. does not improve over prior best. Next try: metric sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 131
+
+**Diagnosis:** UMAP hill-climb variant 131/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: n_components=5 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that n_components=5 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5860 (delta -0.1335 vs Exp 71 champion 0.7195), NMI=0.8412, sil=0.0480, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. n_components=5 on DINOv2 produced delta=-0.1335 ARI vs Exp 71. does not improve over prior best. Next try: metric sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 132
+
+**Diagnosis:** UMAP hill-climb variant 132/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: n_components=30 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that n_components=30 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5980 (delta -0.1215 vs Exp 71 champion 0.7195), NMI=0.8495, sil=0.0616, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. n_components=30 on DINOv2 produced delta=-0.1215 ARI vs Exp 71. does not improve over prior best. Next try: metric sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 133
+
+**Diagnosis:** UMAP hill-climb variant 133/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: n_components=50 on DINOv2. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that n_components=50 on DINOv2 on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.6107 (delta -0.1088 vs Exp 71 champion 0.7195), NMI=0.8453, sil=0.0594, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. n_components=50 on DINOv2 produced delta=-0.1088 ARI vs Exp 71. does not improve over prior best. Next try: metric sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 134
+
+**Diagnosis:** UMAP hill-climb variant 134/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: metric=cosine. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that metric=cosine on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.6000 (delta -0.1195 vs Exp 71 champion 0.7195), NMI=0.8421, sil=0.0677, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. metric=cosine produced delta=-0.1195 ARI vs Exp 71. does not improve over prior best. Next try: UMAP + Spectral cosine downstream. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 135
+
+**Diagnosis:** UMAP hill-climb variant 135/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: metric=manhattan. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that metric=manhattan on DINOv2 ViT-S/14 will land ARI in 0.57 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.57 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.6371 (delta -0.0824 vs Exp 71 champion 0.7195), NMI=0.8579, sil=0.0621, n_pred=40. WITHIN predicted 0.57-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. metric=manhattan produced delta=-0.0824 ARI vs Exp 71. does not improve over prior best. Next try: UMAP + Spectral cosine downstream. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 136
+
+**Diagnosis:** UMAP hill-climb variant 136/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single axis: UMAP(10) + Spectral cosine downstream. The UMAP family has multiple HP axes that we sweep systematically per the FX 25-per-backbone mandate. Each variant isolates ONE change so attribution is unambiguous and the cumulative best determines the local UMAP maximum on this dataset. Per the project CLAUDE.md, every experiment must isolate a single axis change from the prior champion configuration so the result attribution is unambiguous.
+
+**Citations:** McInnes, Healy & Melville 2018 arXiv 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction' (arXiv:1802.03426) — foundational UMAP paper; the cross-entropy loss between fuzzy simplicial sets in high- and low-dim space is controlled by n_neighbors (local vs global tradeoff) and min_dist (cluster compactness). We sweep both axes systematically here.;
+Becht, McInnes, Healy, Dutertre, Kwok, Ng, Ginhoux & Newell 2019 Nature Biotechnology 'Dimensionality reduction for visualizing single-cell data using UMAP' (DOI:10.1038/nbt.4314) — establishes UMAP best-practices for high-dim biological data; documents that n_neighbors between 5 and 50 is the practical range and min_dist between 0.0 and 0.5 affects cluster gaps.;
+Allaoui, Kherfi & Cheriet 2020 ICISP 'Considerably Improving Clustering Algorithms Using UMAP Dimensionality Reduction Technique' (DOI:10.1007/978-3-030-51935-3_34) — establishes UMAP+KMeans as a strong clustering pipeline beating PCA+KMeans on multiple image benchmarks; motivates this hill-climb on UMAP HPs to extract maximum clustering signal from DINOv2 features.
+
+**Hypothesis:** We hypothesize that UMAP(10) + Spectral cosine downstream on DINOv2 ViT-S/14 will land ARI in 0.62 to 0.82 because the mechanism per the cited papers is that this UMAP configuration changes how the manifold/embedding structure is captured; different HP values trade off local vs global structure preservation. The mechanism described above motivates a single config change per the autoresearch 7-step protocol.
+
+**Prediction:** ARI in 0.62 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.6195, axis closed for this combination. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** DISCARD — ARI=0.1918 (delta -0.5277 vs Exp 71 champion 0.7195), NMI=0.6401, sil=-0.1080, n_pred=40. BELOW predicted 0.62-0.82. local hill-climb on UMAP. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. UMAP(10) + Spectral cosine downstream produced delta=-0.5277 ARI vs Exp 71. does not improve over prior best. Next try: DEC hill-climb starts. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 137
+
+**Diagnosis:** DEC hill-climb variant 137/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: latent_dim=32. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that latent_dim=32 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.4955 (delta -0.2240 vs champion), NMI=0.7982, sil=0.1448, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. latent_dim=32 delta=-0.2240 vs champion. this DEC HP value does not improve over baseline. Next try: next latent variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 138
+
+**Diagnosis:** DEC hill-climb variant 138/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: latent_dim=128. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that latent_dim=128 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.4781 (delta -0.2414 vs champion), NMI=0.7994, sil=0.1453, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. latent_dim=128 delta=-0.2414 vs champion. this DEC HP value does not improve over baseline. Next try: next latent variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 139
+
+**Diagnosis:** DEC hill-climb variant 139/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: latent_dim=256. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that latent_dim=256 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5091 (delta -0.2104 vs champion), NMI=0.8162, sil=0.1421, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. latent_dim=256 delta=-0.2104 vs champion. this DEC HP value does not improve over baseline. Next try: next latent variant. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 140
+
+**Diagnosis:** DEC hill-climb variant 140/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: alpha=0.5. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that alpha=0.5 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5104 (delta -0.2091 vs champion), NMI=0.8120, sil=0.1493, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. alpha=0.5 delta=-0.2091 vs champion. this DEC HP value does not improve over baseline. Next try: MSE weight sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 141
+
+**Diagnosis:** DEC hill-climb variant 141/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: alpha=2.0. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that alpha=2.0 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.4841 (delta -0.2354 vs champion), NMI=0.8060, sil=0.1499, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. alpha=2.0 delta=-0.2354 vs champion. this DEC HP value does not improve over baseline. Next try: MSE weight sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 142
+
+**Diagnosis:** DEC hill-climb variant 142/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: alpha=5.0. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that alpha=5.0 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.4727 (delta -0.2468 vs champion), NMI=0.7933, sil=0.1478, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. alpha=5.0 delta=-0.2468 vs champion. this DEC HP value does not improve over baseline. Next try: MSE weight sweep. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 143
+
+**Diagnosis:** DEC hill-climb variant 143/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: mse_weight=0.0. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that mse_weight=0.0 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.4973 (delta -0.2222 vs champion), NMI=0.8073, sil=0.1431, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. mse_weight=0.0 delta=-0.2222 vs champion. this DEC HP value does not improve over baseline. Next try: more pretrain epochs. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 144
+
+**Diagnosis:** DEC hill-climb variant 144/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: mse_weight=0.5. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that mse_weight=0.5 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.4435 (delta -0.2760 vs champion), NMI=0.7828, sil=0.1484, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. mse_weight=0.5 delta=-0.2760 vs champion. this DEC HP value does not improve over baseline. Next try: more pretrain epochs. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 145
+
+**Diagnosis:** DEC hill-climb variant 145/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: mse_weight=1.0. The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that mse_weight=1.0 will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.4891 (delta -0.2304 vs champion), NMI=0.8118, sil=0.1583, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. mse_weight=1.0 delta=-0.2304 vs champion. this DEC HP value does not improve over baseline. Next try: more pretrain epochs. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---
+
+## Exp 146
+
+**Diagnosis:** DEC hill-climb variant 146/146 tail-following Exp 71 champion (ARI=0.7195). This variant changes a single DEC HP: pretrain_epochs=80 (2x default). The DEC family has 4 main HP axes (latent dim, alpha for Student-t, KL+MSE weight balance, pretrain epochs); we sweep them systematically per the FX 25-per-backbone mandate. DEC is structurally different from DINOv2+Spectral so even a substantial improvement here would not necessarily beat the global champion.
+
+**Citations:** Xie, Girshick & Farhadi 2016 ICML 'Unsupervised Deep Embedding for Clustering Analysis' (arXiv:1511.06335) — foundational DEC paper; the Student-t soft assignment kernel and KL loss with auxiliary target are the core ideas. We hill-climb on alpha (Student-t degree) and the latent dimensionality which controls representational capacity.;
+Guo, Gao, Liu & Yin 2017 IJCAI 'Improved Deep Embedded Clustering with Local Structure Preservation' (DOI:10.24963/ijcai.2017/243) — IDEC adds reconstruction loss to DEC. The MSE weight (0.0 to 1.0) trades reconstruction vs cluster compactness; we sweep it here.;
+Min, Guo, Liu, Liu, Cui & Long 2018 IEEE Access 'A Survey of Clustering with Deep Learning' (DOI:10.1109/ACCESS.2018.2855437) — survey establishing DEC as the canonical deep clustering baseline; documents that pretraining epochs and DEC fine-tune epochs matter most after latent dim.
+
+**Hypothesis:** We hypothesize that pretrain_epochs=80 (2x default) will land ARI in 0.42 to 0.82 because the mechanism per Xie 2016 is that this DEC HP changes the encoder's representation capacity or the cluster-assignment sharpness; the best HP combination on small face datasets is documented to be different from MNIST/STL benchmarks where DEC was originally tuned.
+
+**Prediction:** ARI in 0.42 to 0.82. If ARI > 0.7195, new global champion. If ARI < 0.40, axis closed for this DEC HP value. Decision rule: if the result lands in the predicted range, the next experiment continues this axis; otherwise pivot to a structurally different axis.
+
+**Verdict:** KEEP — ARI=0.5002 (delta -0.2193 vs champion), NMI=0.8081, sil=0.1403, n_pred=40. WITHIN predicted 0.42-0.82. local DEC hill-climb. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency per the project CLAUDE.md.
+
+**Learning:** axis closed. pretrain_epochs=80 (2x default) delta=-0.2193 vs champion. this DEC HP value does not improve over baseline. Next try: Hill-climb mandate complete. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+---

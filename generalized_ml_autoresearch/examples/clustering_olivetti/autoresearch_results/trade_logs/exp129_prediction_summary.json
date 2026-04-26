@@ -1,0 +1,7 @@
+{
+  "backbone": "umap_hc_min_dist=0.99_on_DINOv2",
+  "ari": 0.5664928292046936,
+  "nmi": 0.8257637910973668,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

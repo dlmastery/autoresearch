@@ -1,0 +1,7 @@
+{
+  "backbone": "umap_hc_metric=manhattan",
+  "ari": 0.6371000116152775,
+  "nmi": 0.8578663118650939,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

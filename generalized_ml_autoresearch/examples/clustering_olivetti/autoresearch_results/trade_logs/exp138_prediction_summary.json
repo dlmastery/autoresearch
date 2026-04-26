@@ -1,0 +1,7 @@
+{
+  "backbone": "dec_hc_latent_dim128",
+  "ari": 0.4781216090781922,
+  "nmi": 0.7994043648155023,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

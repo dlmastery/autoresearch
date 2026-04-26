@@ -1,0 +1,7 @@
+{
+  "backbone": "umap_hc_metric=cosine",
+  "ari": 0.5999664681012663,
+  "nmi": 0.842116328767088,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

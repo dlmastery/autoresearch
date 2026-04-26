@@ -1,6 +1,6 @@
 # Crash-Recovery Checkpoint — Olivetti Faces Clustering
 
-_Last update: 2026-04-26T00:00:12_
+_Last update: 2026-04-26T01:37:33_
 
 ## Current champion
 - **Exp:** 71 (spectral_hc_cosine_seed99_(variance_c)
@@ -87,6 +87,81 @@ _Last update: 2026-04-26T00:00:12_
 | 69 | spectral_hc_cosine_seed7_(variance_ch | 0.6596 | 0.8710 | KEEP |
 | 70 | spectral_hc_cosine_seed42_(variance_c | 0.6127 | 0.8609 | KEEP |
 | 71 | spectral_hc_cosine_seed99_(variance_c | 0.7195 | 0.9004 | KEEP |
+| 72 | ward_hc_linkageward_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 73 | ward_hc_linkageward_on_DINOv2_L2-norm | 0.6366 | 0.8721 | KEEP |
+| 74 | ward_hc_linkageaverage_on_DINOv2 | 0.4703 | 0.8158 | KEEP |
+| 75 | ward_hc_linkageaverage_on_DINOv2_L2-no | 0.4631 | 0.8234 | KEEP |
+| 76 | ward_hc_linkagecomplete_on_DINOv2 | 0.4805 | 0.8071 | KEEP |
+| 77 | ward_hc_linkagecomplete_on_DINOv2_L2-n | 0.4926 | 0.8112 | KEEP |
+| 78 | ward_hc_linkagesingle_on_DINOv2 | 0.1481 | 0.6689 | DISCARD |
+| 79 | ward_hc_linkagesingle_on_DINOv2_L2-nor | 0.1437 | 0.6625 | DISCARD |
+| 80 | ward_hc_linkageaverage_+_cosine_distan | 0.4490 | 0.8174 | KEEP |
+| 81 | ward_hc_linkagecomplete_+_cosine_dista | 0.4926 | 0.8112 | KEEP |
+| 82 | ward_hc_linkagesingle_+_cosine_distanc | 0.1437 | 0.6625 | DISCARD |
+| 83 | ward_hc_linkageaverage_+_manhattan_dis | 0.4540 | 0.8206 | KEEP |
+| 84 | ward_hc_linkageward_on_PCA(20) | 0.4508 | 0.7910 | KEEP |
+| 85 | ward_hc_linkageward_on_PCA(50) | 0.5159 | 0.8201 | KEEP |
+| 86 | ward_hc_linkageward_on_PCA(100) | 0.4737 | 0.8081 | KEEP |
+| 87 | ward_hc_linkageaverage_+_cosine_on_PCA | 0.3223 | 0.7542 | KEEP |
+| 88 | ward_hc_linkageaverage_+_cosine_on_PCA | 0.3229 | 0.7547 | KEEP |
+| 89 | ward_hc_linkageaverage_+_cosine_on_PCA | 0.2983 | 0.7444 | DISCARD |
+| 90 | ward_hc_Ward_+_connectivity_kNN(k5)_on | 0.6207 | 0.8637 | KEEP |
+| 91 | ward_hc_Ward_+_connectivity_kNN(k10)_o | 0.6371 | 0.8706 | KEEP |
+| 92 | ward_hc_Ward_+_connectivity_kNN(k20)_o | 0.6371 | 0.8706 | KEEP |
+| 93 | ward_hc_Ward_init_+_KMeans_refine_on_D | 0.6308 | 0.8665 | KEEP |
+| 94 | ward_hc_Ward_init_+_KMeans_refine_on_D | 0.6303 | 0.8681 | KEEP |
+| 95 | ward_hc_Ward_init_+_KMeans_refine_on_P | 0.5013 | 0.8124 | KEEP |
+| 96 | ward_hc_Ward_init_+_KMeans_refine_on_P | 0.4591 | 0.7993 | KEEP |
+| 97 | birch_hc_threshold0.05_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 98 | birch_hc_threshold0.1_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 99 | birch_hc_threshold0.2_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 100 | birch_hc_threshold0.3_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 101 | birch_hc_threshold0.5_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 102 | birch_hc_threshold0.7_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 103 | birch_hc_threshold1.0_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 104 | birch_hc_threshold1.5_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 105 | birch_hc_branching_factor10_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 106 | birch_hc_branching_factor25_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 107 | birch_hc_branching_factor100_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 108 | birch_hc_branching_factor200_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 109 | birch_hc_default_Birch_on_DINOv2_L2-nor | 0.2306 | 0.6719 | DISCARD |
+| 110 | birch_hc_default_Birch_on_PCA(50) | 0.5287 | 0.8254 | KEEP |
+| 111 | birch_hc_default_Birch_on_PCA(100) | 0.4737 | 0.8081 | KEEP |
+| 112 | birch_hc_default_Birch_on_PCA(20) | 0.4540 | 0.7949 | KEEP |
+| 113 | birch_hc_Birch_leaves_+_KMeans_refine_o | 0.5461 | 0.8242 | KEEP |
+| 114 | birch_hc_Birch_leaves_+_KMeans_refine_o | 0.2306 | 0.6719 | DISCARD |
+| 115 | birch_hc_Birch_leaves_+_KMeans_refine_o | 0.4356 | 0.7685 | KEEP |
+| 116 | birch_hc_Birch_leaves_+_KMeans_refine_o | 0.4232 | 0.7685 | KEEP |
+| 117 | birch_hc_tight_threshold0.01_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 118 | birch_hc_tight_threshold0.02_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 119 | birch_hc_tight_threshold0.03_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 120 | birch_hc_tight_threshold0.04_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 121 | birch_hc_tight_threshold0.05_on_DINOv2 | 0.6371 | 0.8706 | KEEP |
+| 122 | umap_hc_n_neighbors=5_on_DINOv2 | 0.6109 | 0.8624 | KEEP |
+| 123 | umap_hc_n_neighbors=10_on_DINOv2 | 0.6488 | 0.8693 | KEEP |
+| 124 | umap_hc_n_neighbors=30_on_DINOv2 | 0.5680 | 0.8311 | KEEP |
+| 125 | umap_hc_n_neighbors=50_on_DINOv2 | 0.5690 | 0.8279 | KEEP |
+| 126 | umap_hc_min_dist=0.0_on_DINOv2 | 0.6247 | 0.8606 | KEEP |
+| 127 | umap_hc_min_dist=0.3_on_DINOv2 | 0.5949 | 0.8438 | KEEP |
+| 128 | umap_hc_min_dist=0.5_on_DINOv2 | 0.6156 | 0.8514 | KEEP |
+| 129 | umap_hc_min_dist=0.99_on_DINOv2 | 0.5665 | 0.8258 | KEEP |
+| 130 | umap_hc_n_components=3_on_DINOv2 | 0.6177 | 0.8508 | KEEP |
+| 131 | umap_hc_n_components=5_on_DINOv2 | 0.5860 | 0.8412 | KEEP |
+| 132 | umap_hc_n_components=30_on_DINOv2 | 0.5980 | 0.8495 | KEEP |
+| 133 | umap_hc_n_components=50_on_DINOv2 | 0.6107 | 0.8453 | KEEP |
+| 134 | umap_hc_metric=cosine | 0.6000 | 0.8421 | KEEP |
+| 135 | umap_hc_metric=manhattan | 0.6371 | 0.8579 | KEEP |
+| 136 | umap_hc_UMAP(10)_+_Spectral_cosine_dow | 0.1918 | 0.6401 | DISCARD |
+| 137 | dec_hc_latent_dim32 | 0.4955 | 0.7982 | KEEP |
+| 138 | dec_hc_latent_dim128 | 0.4781 | 0.7994 | KEEP |
+| 139 | dec_hc_latent_dim256 | 0.5091 | 0.8162 | KEEP |
+| 140 | dec_hc_alpha0.5 | 0.5104 | 0.8120 | KEEP |
+| 141 | dec_hc_alpha2.0 | 0.4841 | 0.8060 | KEEP |
+| 142 | dec_hc_alpha5.0 | 0.4727 | 0.7933 | KEEP |
+| 143 | dec_hc_mse_weight0.0 | 0.4973 | 0.8073 | KEEP |
+| 144 | dec_hc_mse_weight0.5 | 0.4435 | 0.7828 | KEEP |
+| 145 | dec_hc_mse_weight1.0 | 0.4891 | 0.8118 | KEEP |
+| 146 | dec_hc_pretrain_epochs80_(2x_default) | 0.5002 | 0.8081 | KEEP |
 
 ## Next experiment
 
