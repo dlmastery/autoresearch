@@ -1,0 +1,7 @@
+{
+  "backbone": "dinov2_vitb14_vitb_km",
+  "ari": 0.5444686346364485,
+  "nmi": 0.8242772260912697,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

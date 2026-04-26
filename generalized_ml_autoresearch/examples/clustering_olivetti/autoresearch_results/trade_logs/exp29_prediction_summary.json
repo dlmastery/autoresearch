@@ -1,0 +1,7 @@
+{
+  "backbone": "dinov2_vits14_agg_complete",
+  "ari": 0.48053845715556553,
+  "nmi": 0.8071311527179613,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

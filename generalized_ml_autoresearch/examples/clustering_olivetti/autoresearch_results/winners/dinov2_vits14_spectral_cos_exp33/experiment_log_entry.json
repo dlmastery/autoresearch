@@ -1,0 +1,46 @@
+{
+  "experiment_num": 33,
+  "backbone": "dinov2_vits14_spectral_cos",
+  "description": "DINOv2 dinov2_vits14 + Spectral cosine affinity",
+  "config": {
+    "backbone": "dinov2+spectral_cos",
+    "model": "dinov2_vits14",
+    "downstream": "Spectral cosine affinity"
+  },
+  "composite": 0.6962579726807369,
+  "val_primary": 0.08901702612638474,
+  "test_primary": 0.6962579726807369,
+  "per_fold_test": [
+    0.6962579726807369
+  ],
+  "per_fold_val": [
+    0.08901702612638474
+  ],
+  "status": "KEEP",
+  "seconds_elapsed": 0.16302990913391113,
+  "timestamp": "2026-04-25T23:55:35",
+  "secondary_metrics": {
+    "ari": 0.6962579726807369,
+    "nmi": 0.897406840732261,
+    "fmi": 0.7063671196545162,
+    "homogeneity": 0.8871911591046284,
+    "completeness": 0.9078605225179307,
+    "v_measure": 0.8974068407322608,
+    "silhouette": 0.08901702612638474,
+    "n_pred_clusters": 40,
+    "n_noise": 0,
+    "n_true_clusters": 40
+  },
+  "per_fold_test_reports": [
+    {
+      "fold_id": 0,
+      "regime": "full-dataset",
+      "ari": 0.6962579726807369,
+      "nmi": 0.897406840732261,
+      "fmi": 0.7063671196545162,
+      "silhouette": 0.08901702612638474,
+      "n": 400
+    }
+  ],
+  "composite_fingerprint": "clustering-ari-floor0.3"
+}

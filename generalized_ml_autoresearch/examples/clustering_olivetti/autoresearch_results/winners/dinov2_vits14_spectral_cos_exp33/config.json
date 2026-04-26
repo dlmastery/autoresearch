@@ -1,0 +1,5 @@
+{
+  "backbone": "dinov2+spectral_cos",
+  "model": "dinov2_vits14",
+  "downstream": "Spectral cosine affinity"
+}

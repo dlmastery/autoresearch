@@ -1,0 +1,7 @@
+{
+  "backbone": "dinov2_vits14_pca100_km",
+  "ari": 0.5473029909681286,
+  "nmi": 0.8277505337087382,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

@@ -1,13 +1,13 @@
 # Crash-Recovery Checkpoint — Olivetti Faces Clustering
 
-_Last update: 2026-04-25T23:48:39_
+_Last update: 2026-04-25T23:56:17_
 
 ## Current champion
-- **Exp:** 20 (dinov2_kmeans)
-- **ARI:** 0.5455
-- **NMI:** 0.8201
-- **Silhouette:** 0.0710
-- **Description:** DINOv2 ViT-S/14 (Oquab 2024 Meta TMLR) features + KMeans
+- **Exp:** 33 (dinov2_vits14_spectral_cos)
+- **ARI:** 0.6963
+- **NMI:** 0.8974
+- **Silhouette:** 0.0890
+- **Description:** DINOv2 dinov2_vits14 + Spectral cosine affinity
 
 ## Experiment history
 
@@ -37,6 +37,31 @@ _Last update: 2026-04-25T23:48:39_
 | 19 | meanshift | 0.0000 | 0.0000 | DISCARD |
 | 20 | dinov2_kmeans | 0.5455 | 0.8201 | KEEP |
 | 21 | spherical_kmeans | 0.4816 | 0.7896 | KEEP |
+| 22 | dinov2_vits14_minibatch_kmeans | 0.5596 | 0.8393 | KEEP |
+| 23 | dinov2_vits14_bisecting_kmeans | 0.4437 | 0.7678 | KEEP |
+| 24 | dinov2_vits14_kmeans_random | 0.5000 | 0.8091 | KEEP |
+| 25 | dinov2_vits14_kmeans_n50 | 0.5852 | 0.8456 | KEEP |
+| 26 | dinov2_vits14_spherical | 0.5602 | 0.8259 | KEEP |
+| 27 | dinov2_vits14_agg_ward | 0.6371 | 0.8706 | KEEP |
+| 28 | dinov2_vits14_agg_avg | 0.4703 | 0.8158 | KEEP |
+| 29 | dinov2_vits14_agg_complete | 0.4805 | 0.8071 | KEEP |
+| 30 | dinov2_vits14_agg_cosine_avg | 0.4490 | 0.8174 | KEEP |
+| 31 | dinov2_vits14_spectral_g001 | 0.5852 | 0.8533 | KEEP |
+| 32 | dinov2_vits14_spectral_g01 | 0.2767 | 0.7672 | DISCARD |
+| 33 | dinov2_vits14_spectral_cos | 0.6963 | 0.8974 | KEEP |
+| 34 | dinov2_vits14_spectral_knn10 | 0.6389 | 0.8584 | KEEP |
+| 35 | dinov2_vits14_birch | 0.6371 | 0.8706 | KEEP |
+| 36 | dinov2_vits14_gmm_full | 0.5234 | 0.8133 | KEEP |
+| 37 | dinov2_vits14_gmm_diag | 0.5234 | 0.8133 | KEEP |
+| 38 | dinov2_vits14_pca50_km | 0.5312 | 0.8184 | KEEP |
+| 39 | dinov2_vits14_pca100_km | 0.5473 | 0.8278 | KEEP |
+| 40 | dinov2_vits14_umap10_km | 0.5982 | 0.8465 | KEEP |
+| 41 | dinov2_vits14_umap2_km | 0.6100 | 0.8455 | KEEP |
+| 42 | dinov2_vitb14_vitb_km | 0.5445 | 0.8243 | KEEP |
+| 43 | dinov2_vitb14_vitb_spherical | 0.5388 | 0.8119 | KEEP |
+| 44 | dinov2_vits14_seed1 | 0.5561 | 0.8301 | KEEP |
+| 45 | dinov2_vits14_seed2 | 0.5144 | 0.8110 | KEEP |
+| 46 | dinov2_vits14_seed7 | 0.5387 | 0.8175 | KEEP |
 
 ## Next experiment
 

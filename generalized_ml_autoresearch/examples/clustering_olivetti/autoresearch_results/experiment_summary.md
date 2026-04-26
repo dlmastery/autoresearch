@@ -1,35 +1,60 @@
 # Experiment Summary — Olivetti Faces Clustering Autoresearch
 
-_Generated 2026-04-25 23:48_
+_Generated 2026-04-25 23:56_
 
 ## Master leaderboard (sorted by ARI on full 400-row Olivetti dataset)
 
 | Rank | Exp | Backbone | ARI | NMI | Silhouette | Status | Description |
 |------|-----|----------|-----|-----|------------|--------|-------------|
-| 1 | 20 | dinov2_kmeans | 0.5455 | 0.8201 | 0.0710 | KEEP | DINOv2 ViT-S/14 (Oquab 2024 Meta TMLR) features + KMean |
-| 2 | 17 | birch | 0.5287 | 0.8254 | 0.1608 | KEEP | Birch (Zhang 1996) on PCA(50) |
-| 3 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 | KEEP | Spectral RBF with gamma sweep on PCA(50) |
-| 4 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 | KEEP | Spectral RBF with gamma sweep on PCA(50) |
-| 5 | 8 | agg_ward | 0.5159 | 0.8201 | 0.1608 | KEEP | Agglomerative Ward on PCA(50) (Ward 1963) |
-| 6 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 | KEEP | UMAP(10) + KMeans (McInnes 2018) |
-| 7 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 | KEEP | UMAP(10) + KMeans (McInnes 2018) |
-| 8 | 12 | dec | 0.4942 | 0.8036 | 0.1436 | KEEP | DEC: Deep Embedded Clustering (Xie 2016 ICML + Guo 2017 |
-| 9 | 21 | spherical_kmeans | 0.4816 | 0.7896 | 0.1266 | KEEP | Spherical KMeans (Dhillon 2001) on L2-norm PCA(50) |
-| 10 | 10 | conv_ae_kmeans | 0.4790 | 0.7934 | 0.1469 | KEEP | Convolutional AE (Hinton 2006) + KMeans, latent=64 |
-| 11 | 2 | kmeans_pca50 | 0.4780 | 0.7951 | 0.1485 | KEEP | PCA(50) + KMeans (Pearson 1901 + Steinley 2006) |
-| 12 | 14 | consensus_top5 | 0.4767 | 0.8082 | 0.1530 | KEEP | CSPA consensus of top-5 methods: agg_ward, dec, conv_ae |
-| 13 | 18 | affinity_prop | 0.4757 | 0.8105 | 0.1737 | KEEP | Affinity Propagation (Frey 2007 Science) on PCA(50) |
-| 14 | 3 | kmeans_pca100 | 0.4633 | 0.7856 | 0.1506 | KEEP | PCA(100) + KMeans |
-| 15 | 3 | kmeans_pca100 | 0.4633 | 0.7856 | 0.1506 | KEEP | PCA(100) + KMeans |
-| 16 | 7 | gmm_pca_full | 0.4545 | 0.7736 | 0.1394 | KEEP | GMM full-cov on PCA(50) (Bishop 2006 Ch.9) |
-| 17 | 4 | kmeans_pca150 | 0.4484 | 0.7846 | 0.1456 | KEEP | PCA(150) + KMeans |
-| 18 | 11 | resnet18_kmeans | 0.4444 | 0.7916 | 0.0324 | KEEP | ResNet18-ImageNet (He 2016) penultimate features + KMea |
-| 19 | 1 | kmeans_raw_pixels | 0.4057 | 0.7585 | 0.1479 | KEEP | KMeans K=40 on raw pixels — baseline (Lloyd 1982 + Arth |
-| 20 | 13 | simclr_kmeans | 0.3678 | 0.7502 | 0.0503 | KEEP | SimCLR (Chen 2020 ICML) + KMeans |
-| 21 | 5 | kmeans_pca_whitened | 0.3602 | 0.7508 | 0.0775 | KEEP | PCA(50) + whitening + KMeans |
-| 22 | 9 | hdbscan | 0.3438 | 0.8142 | 0.1807 | KEEP | HDBSCAN on PCA(50) (Campello 2013) |
-| 23 | 6 | spectral_rbf | 0.0578 | 0.4560 | -0.1250 | DISCARD | Spectral clustering (RBF affinity) |
-| 24 | 19 | meanshift | 0.0000 | 0.0000 | nan | DISCARD | MeanShift (Comaniciu 2002) on PCA(50) |
+| 1 | 33 | dinov2_vits14_spectral_cos | 0.6963 | 0.8974 | 0.0890 | KEEP | DINOv2 dinov2_vits14 + Spectral cosine affinity |
+| 2 | 34 | dinov2_vits14_spectral_knn10 | 0.6389 | 0.8584 | 0.0796 | KEEP | DINOv2 dinov2_vits14 + Spectral nearest-neighbors affin |
+| 3 | 27 | dinov2_vits14_agg_ward | 0.6371 | 0.8706 | 0.0834 | KEEP | DINOv2 dinov2_vits14 + Agglomerative Ward (variance-min |
+| 4 | 35 | dinov2_vits14_birch | 0.6371 | 0.8706 | 0.0834 | KEEP | DINOv2 dinov2_vits14 + Birch on DINOv2 features |
+| 5 | 41 | dinov2_vits14_umap2_km | 0.6100 | 0.8455 | 0.0678 | KEEP | DINOv2 dinov2_vits14 + UMAP(2) on DINOv2 + KMeans (extr |
+| 6 | 40 | dinov2_vits14_umap10_km | 0.5982 | 0.8465 | 0.0592 | KEEP | DINOv2 dinov2_vits14 + UMAP(10) on DINOv2 + KMeans |
+| 7 | 31 | dinov2_vits14_spectral_g001 | 0.5852 | 0.8533 | 0.0872 | KEEP | DINOv2 dinov2_vits14 + Spectral RBF gamma=0.001 (small) |
+| 8 | 25 | dinov2_vits14_kmeans_n50 | 0.5852 | 0.8456 | 0.0891 | KEEP | DINOv2 dinov2_vits14 + KMeans n_init=50 (5x more random |
+| 9 | 26 | dinov2_vits14_spherical | 0.5602 | 0.8259 | 0.0467 | KEEP | DINOv2 dinov2_vits14 + L2-normalized features + KMeans  |
+| 10 | 22 | dinov2_vits14_minibatch_kmeans | 0.5596 | 0.8393 | 0.0596 | KEEP | DINOv2 dinov2_vits14 + MiniBatchKMeans (faster, may be  |
+| 11 | 44 | dinov2_vits14_seed1 | 0.5561 | 0.8301 | 0.0904 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=1 (variance check on |
+| 12 | 39 | dinov2_vits14_pca100_km | 0.5473 | 0.8278 | 0.0745 | KEEP | DINOv2 dinov2_vits14 + PCA(100) on DINOv2 + KMeans |
+| 13 | 20 | dinov2_kmeans | 0.5455 | 0.8201 | 0.0710 | KEEP | DINOv2 ViT-S/14 (Oquab 2024 Meta TMLR) features + KMean |
+| 14 | 42 | dinov2_vitb14_vitb_km | 0.5445 | 0.8243 | 0.0379 | KEEP | DINOv2 dinov2_vitb14 + ViT-B/14 features + KMeans (larg |
+| 15 | 43 | dinov2_vitb14_vitb_spherical | 0.5388 | 0.8119 | 0.0506 | KEEP | DINOv2 dinov2_vitb14 + ViT-B/14 + L2-norm + KMeans (Sph |
+| 16 | 46 | dinov2_vits14_seed7 | 0.5387 | 0.8175 | 0.0633 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=7 (variance check on |
+| 17 | 38 | dinov2_vits14_pca50_km | 0.5312 | 0.8184 | 0.0328 | KEEP | DINOv2 dinov2_vits14 + PCA(50) on DINOv2 + KMeans (deno |
+| 18 | 17 | birch | 0.5287 | 0.8254 | 0.1608 | KEEP | Birch (Zhang 1996) on PCA(50) |
+| 19 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 | KEEP | Spectral RBF with gamma sweep on PCA(50) |
+| 20 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 | KEEP | Spectral RBF with gamma sweep on PCA(50) |
+| 21 | 36 | dinov2_vits14_gmm_full | 0.5234 | 0.8133 | 0.0341 | KEEP | DINOv2 dinov2_vits14 + GMM full-covariance K=40 |
+| 22 | 37 | dinov2_vits14_gmm_diag | 0.5234 | 0.8133 | 0.0341 | KEEP | DINOv2 dinov2_vits14 + GMM diagonal-covariance |
+| 23 | 8 | agg_ward | 0.5159 | 0.8201 | 0.1608 | KEEP | Agglomerative Ward on PCA(50) (Ward 1963) |
+| 24 | 45 | dinov2_vits14_seed2 | 0.5144 | 0.8110 | 0.0712 | KEEP | DINOv2 dinov2_vits14 + KMeans seed=2 (variance check on |
+| 25 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 | KEEP | UMAP(10) + KMeans (McInnes 2018) |
+| 26 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 | KEEP | UMAP(10) + KMeans (McInnes 2018) |
+| 27 | 24 | dinov2_vits14_kmeans_random | 0.5000 | 0.8091 | 0.0304 | KEEP | DINOv2 dinov2_vits14 + KMeans with random init (vs k-me |
+| 28 | 12 | dec | 0.4942 | 0.8036 | 0.1436 | KEEP | DEC: Deep Embedded Clustering (Xie 2016 ICML + Guo 2017 |
+| 29 | 21 | spherical_kmeans | 0.4816 | 0.7896 | 0.1266 | KEEP | Spherical KMeans (Dhillon 2001) on L2-norm PCA(50) |
+| 30 | 29 | dinov2_vits14_agg_complete | 0.4805 | 0.8071 | 0.0234 | KEEP | DINOv2 dinov2_vits14 + Agglomerative complete-linkage ( |
+| 31 | 10 | conv_ae_kmeans | 0.4790 | 0.7934 | 0.1469 | KEEP | Convolutional AE (Hinton 2006) + KMeans, latent=64 |
+| 32 | 2 | kmeans_pca50 | 0.4780 | 0.7951 | 0.1485 | KEEP | PCA(50) + KMeans (Pearson 1901 + Steinley 2006) |
+| 33 | 14 | consensus_top5 | 0.4767 | 0.8082 | 0.1530 | KEEP | CSPA consensus of top-5 methods: agg_ward, dec, conv_ae |
+| 34 | 18 | affinity_prop | 0.4757 | 0.8105 | 0.1737 | KEEP | Affinity Propagation (Frey 2007 Science) on PCA(50) |
+| 35 | 28 | dinov2_vits14_agg_avg | 0.4703 | 0.8158 | 0.0226 | KEEP | DINOv2 dinov2_vits14 + Agglomerative average-linkage |
+| 36 | 3 | kmeans_pca100 | 0.4633 | 0.7856 | 0.1506 | KEEP | PCA(100) + KMeans |
+| 37 | 3 | kmeans_pca100 | 0.4633 | 0.7856 | 0.1506 | KEEP | PCA(100) + KMeans |
+| 38 | 7 | gmm_pca_full | 0.4545 | 0.7736 | 0.1394 | KEEP | GMM full-cov on PCA(50) (Bishop 2006 Ch.9) |
+| 39 | 30 | dinov2_vits14_agg_cosine_avg | 0.4490 | 0.8174 | 0.0134 | KEEP | DINOv2 dinov2_vits14 + Agglomerative cosine + average l |
+| 40 | 4 | kmeans_pca150 | 0.4484 | 0.7846 | 0.1456 | KEEP | PCA(150) + KMeans |
+| 41 | 11 | resnet18_kmeans | 0.4444 | 0.7916 | 0.0324 | KEEP | ResNet18-ImageNet (He 2016) penultimate features + KMea |
+| 42 | 23 | dinov2_vits14_bisecting_kmeans | 0.4437 | 0.7678 | 0.0277 | KEEP | DINOv2 dinov2_vits14 + BisectingKMeans hierarchical bis |
+| 43 | 1 | kmeans_raw_pixels | 0.4057 | 0.7585 | 0.1479 | KEEP | KMeans K=40 on raw pixels — baseline (Lloyd 1982 + Arth |
+| 44 | 13 | simclr_kmeans | 0.3678 | 0.7502 | 0.0503 | KEEP | SimCLR (Chen 2020 ICML) + KMeans |
+| 45 | 5 | kmeans_pca_whitened | 0.3602 | 0.7508 | 0.0775 | KEEP | PCA(50) + whitening + KMeans |
+| 46 | 9 | hdbscan | 0.3438 | 0.8142 | 0.1807 | KEEP | HDBSCAN on PCA(50) (Campello 2013) |
+| 47 | 32 | dinov2_vits14_spectral_g01 | 0.2767 | 0.7672 | 0.0361 | DISCARD | DINOv2 dinov2_vits14 + Spectral RBF gamma=0.01 |
+| 48 | 6 | spectral_rbf | 0.0578 | 0.4560 | -0.1250 | DISCARD | Spectral clustering (RBF affinity) |
+| 49 | 19 | meanshift | 0.0000 | 0.0000 | nan | DISCARD | MeanShift (Comaniciu 2002) on PCA(50) |
 
 ## Per-experiment detail
 
@@ -200,3 +225,178 @@ _Generated 2026-04-25 23:48_
 - **Hypothesis (first 200ch):** We hypothesize that L2-normalized PCA(50) + KMeans (Spherical equivalent) will land ARI in 0.47 to 0.67 because the mechanism per Dhillon 2001 is that cosine-similarity-based clustering is robust to m...
 - **Verdict:** KEEP — ARI=0.4816 (delta -0.0343 vs baseline 0.5159), NMI=0.7896, silhouette=0.1266, n_pred_clusters=40. WITHIN the predicted range 0.47-0.67. Status under floor=0.30 is KEEP; intrinsic silhouette and extrinsic ARI provide independent signals about cluster geometry, validated against the locked test
 - **Learning:** axis closed. L2-normalized Spherical KMeans produced delta=-0.0343 ARI vs the prior baseline, updating our mental model of which methods recover Olivetti subject identities. The cumulative best ARI across all experiments drives the choice of the next axis to probe. Next try: Final summary + champion
+
+### Exp 22: DINOv2 dinov2_vits14 + MiniBatchKMeans (faster, may be less accurate)
+- **Backbone:** `dinov2_vits14_minibatch_kmeans` | **Status:** KEEP
+- **Result:** ARI 0.5596 | NMI 0.8393 | silhouette 0.0596 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that MiniBatchKMeans (faster, may be less accurate) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered str...
+- **Verdict:** KEEP — ARI=0.5596 (delta +0.0141 vs Exp 20 champion 0.5455), NMI=0.8393, silhouette=0.0596, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. minibatch_kmeans produced delta=+0.0141 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: BisectingKMeans hierarchical KMeans. The cumulative best ARI across all experiments so far drives the choice of which axis the next exp
+
+### Exp 23: DINOv2 dinov2_vits14 + BisectingKMeans hierarchical bisection
+- **Backbone:** `dinov2_vits14_bisecting_kmeans` | **Status:** KEEP
+- **Result:** ARI 0.4437 | NMI 0.7678 | silhouette 0.0277 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that BisectingKMeans hierarchical bisection on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure i...
+- **Verdict:** KEEP — ARI=0.4437 (delta -0.1018 vs Exp 20 champion 0.5455), NMI=0.7678, silhouette=0.0277, n_pred_clusters=40. BELOW predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency
+- **Learning:** axis closed. bisecting_kmeans produced delta=-0.1018 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: KMeans with random init. The cumulative best ARI across all experiments so far drives the choice of which axis the
+
+### Exp 24: DINOv2 dinov2_vits14 + KMeans with random init (vs k-means++)
+- **Backbone:** `dinov2_vits14_kmeans_random` | **Status:** KEEP
+- **Result:** ARI 0.5000 | NMI 0.8091 | silhouette 0.0304 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that KMeans with random init (vs k-means++) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure i...
+- **Verdict:** KEEP — ARI=0.5000 (delta -0.0455 vs Exp 20 champion 0.5455), NMI=0.8091, silhouette=0.0304, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. kmeans_random produced delta=-0.0455 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: KMeans with n_init=50 for more random restarts. The cumulative best ARI across all experiments so far drives the choi
+
+### Exp 25: DINOv2 dinov2_vits14 + KMeans n_init=50 (5x more random restarts)
+- **Backbone:** `dinov2_vits14_kmeans_n50` | **Status:** KEEP
+- **Result:** ARI 0.5852 | NMI 0.8456 | silhouette 0.0891 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that KMeans n_init=50 (5x more random restarts) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structu...
+- **Verdict:** KEEP — ARI=0.5852 (delta +0.0397 vs Exp 20 champion 0.5455), NMI=0.8456, silhouette=0.0891, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. kmeans_n50 produced delta=+0.0397 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: L2-normalized DINOv2 + Spherical KMeans. The cumulative best ARI across all experiments so far drives the choice of which axis the next exper
+
+### Exp 26: DINOv2 dinov2_vits14 + L2-normalized features + KMeans (Spherical)
+- **Backbone:** `dinov2_vits14_spherical` | **Status:** KEEP
+- **Result:** ARI 0.5602 | NMI 0.8259 | silhouette 0.0467 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that L2-normalized features + KMeans (Spherical) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered struct...
+- **Verdict:** KEEP — ARI=0.5602 (delta +0.0147 vs Exp 20 champion 0.5455), NMI=0.8259, silhouette=0.0467, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. spherical produced delta=+0.0147 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: Agglomerative Ward on DINOv2. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will p
+
+### Exp 27: DINOv2 dinov2_vits14 + Agglomerative Ward (variance-minimizing merges)
+- **Backbone:** `dinov2_vits14_agg_ward` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Agglomerative Ward (variance-minimizing merges) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered st...
+- **Verdict:** KEEP — ARI=0.6371 (delta +0.0916 vs Exp 20 champion 0.5455), NMI=0.8706, silhouette=0.0834, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. agg_ward produced delta=+0.0916 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: Agglomerative average-linkage. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will p
+
+### Exp 28: DINOv2 dinov2_vits14 + Agglomerative average-linkage
+- **Backbone:** `dinov2_vits14_agg_avg` | **Status:** KEEP
+- **Result:** ARI 0.4703 | NMI 0.8158 | silhouette 0.0226 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Agglomerative average-linkage on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in their r...
+- **Verdict:** KEEP — ARI=0.4703 (delta -0.0752 vs Exp 20 champion 0.5455), NMI=0.8158, silhouette=0.0226, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. agg_avg produced delta=-0.0752 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: Agglomerative complete-linkage. The cumulative best ARI across all experiments so far drives the choice of which axis the n
+
+### Exp 29: DINOv2 dinov2_vits14 + Agglomerative complete-linkage (max distance)
+- **Backbone:** `dinov2_vits14_agg_complete` | **Status:** KEEP
+- **Result:** ARI 0.4805 | NMI 0.8071 | silhouette 0.0234 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Agglomerative complete-linkage (max distance) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered stru...
+- **Verdict:** KEEP — ARI=0.4805 (delta -0.0650 vs Exp 20 champion 0.5455), NMI=0.8071, silhouette=0.0234, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. agg_complete produced delta=-0.0650 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: Agglomerative cosine-distance + average. The cumulative best ARI across all experiments so far drives the choice of wh
+
+### Exp 30: DINOv2 dinov2_vits14 + Agglomerative cosine + average linkage
+- **Backbone:** `dinov2_vits14_agg_cosine_avg` | **Status:** KEEP
+- **Result:** ARI 0.4490 | NMI 0.8174 | silhouette 0.0134 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Agglomerative cosine + average linkage on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure i...
+- **Verdict:** KEEP — ARI=0.4490 (delta -0.0965 vs Exp 20 champion 0.5455), NMI=0.8174, silhouette=0.0134, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. agg_cosine_avg produced delta=-0.0965 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: Spectral clustering on DINOv2. The cumulative best ARI across all experiments so far drives the choice of which axis
+
+### Exp 31: DINOv2 dinov2_vits14 + Spectral RBF gamma=0.001 (small)
+- **Backbone:** `dinov2_vits14_spectral_g001` | **Status:** KEEP
+- **Result:** ARI 0.5852 | NMI 0.8533 | silhouette 0.0872 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Spectral RBF gamma=0.001 (small) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in thei...
+- **Verdict:** KEEP — ARI=0.5852 (delta +0.0397 vs Exp 20 champion 0.5455), NMI=0.8533, silhouette=0.0872, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. spectral_g001 produced delta=+0.0397 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: Spectral RBF gamma=0.01. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will pr
+
+### Exp 32: DINOv2 dinov2_vits14 + Spectral RBF gamma=0.01
+- **Backbone:** `dinov2_vits14_spectral_g01` | **Status:** DISCARD
+- **Result:** ARI 0.2767 | NMI 0.7672 | silhouette 0.0361 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Spectral RBF gamma=0.01 on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in their raw for...
+- **Verdict:** DISCARD — ARI=0.2767 (delta -0.2688 vs Exp 20 champion 0.5455), NMI=0.7672, silhouette=0.0361, n_pred_clusters=40. BELOW predicted range 0.45-0.65. Status under floor=0.30 is DISCARD; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consi
+- **Learning:** axis closed. spectral_g01 produced delta=-0.2688 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: Spectral cosine. The cumulative best ARI across all experiments so far drives the choice of which axis the next experi
+
+### Exp 33: DINOv2 dinov2_vits14 + Spectral cosine affinity
+- **Backbone:** `dinov2_vits14_spectral_cos` | **Status:** KEEP
+- **Result:** ARI 0.6963 | NMI 0.8974 | silhouette 0.0890 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Spectral cosine affinity on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in their raw fo...
+- **Verdict:** KEEP — ARI=0.6963 (delta +0.1508 vs Exp 20 champion 0.5455), NMI=0.8974, silhouette=0.0890, n_pred_clusters=40. ABOVE predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistency
+- **Learning:** axis open. spectral_cos produced delta=+0.1508 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: Spectral nearest-neighbors. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will 
+
+### Exp 34: DINOv2 dinov2_vits14 + Spectral nearest-neighbors affinity (k=10)
+- **Backbone:** `dinov2_vits14_spectral_knn10` | **Status:** KEEP
+- **Result:** ARI 0.6389 | NMI 0.8584 | silhouette 0.0796 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Spectral nearest-neighbors affinity (k=10) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structu...
+- **Verdict:** KEEP — ARI=0.6389 (delta +0.0934 vs Exp 20 champion 0.5455), NMI=0.8584, silhouette=0.0796, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. spectral_knn10 produced delta=+0.0934 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: Birch on DINOv2. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 35: DINOv2 dinov2_vits14 + Birch on DINOv2 features
+- **Backbone:** `dinov2_vits14_birch` | **Status:** KEEP
+- **Result:** ARI 0.6371 | NMI 0.8706 | silhouette 0.0834 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that Birch on DINOv2 features on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in their raw fo...
+- **Verdict:** KEEP — ARI=0.6371 (delta +0.0916 vs Exp 20 champion 0.5455), NMI=0.8706, silhouette=0.0834, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. birch produced delta=+0.0916 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: GMM full-cov on DINOv2. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 36: DINOv2 dinov2_vits14 + GMM full-covariance K=40
+- **Backbone:** `dinov2_vits14_gmm_full` | **Status:** KEEP
+- **Result:** ARI 0.5234 | NMI 0.8133 | silhouette 0.0341 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that GMM full-covariance K=40 on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in their raw fo...
+- **Verdict:** KEEP — ARI=0.5234 (delta -0.0221 vs Exp 20 champion 0.5455), NMI=0.8133, silhouette=0.0341, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. gmm_full produced delta=-0.0221 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: GMM diag-cov. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment wi
+
+### Exp 37: DINOv2 dinov2_vits14 + GMM diagonal-covariance
+- **Backbone:** `dinov2_vits14_gmm_diag` | **Status:** KEEP
+- **Result:** ARI 0.5234 | NMI 0.8133 | silhouette 0.0341 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that GMM diagonal-covariance on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in their raw for...
+- **Verdict:** KEEP — ARI=0.5234 (delta -0.0221 vs Exp 20 champion 0.5455), NMI=0.8133, silhouette=0.0341, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. gmm_diag produced delta=-0.0221 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: HDBSCAN on DINOv2. The cumulative best ARI across all experiments so far drives the choice of which axis the next experime
+
+### Exp 38: DINOv2 dinov2_vits14 + PCA(50) on DINOv2 + KMeans (denoise)
+- **Backbone:** `dinov2_vits14_pca50_km` | **Status:** KEEP
+- **Result:** ARI 0.5312 | NMI 0.8184 | silhouette 0.0328 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that PCA(50) on DINOv2 + KMeans (denoise) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in ...
+- **Verdict:** KEEP — ARI=0.5312 (delta -0.0143 vs Exp 20 champion 0.5455), NMI=0.8184, silhouette=0.0328, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. pca50_km produced delta=-0.0143 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: PCA(100) + KMeans. The cumulative best ARI across all experiments so far drives the choice of which axis the next experime
+
+### Exp 39: DINOv2 dinov2_vits14 + PCA(100) on DINOv2 + KMeans
+- **Backbone:** `dinov2_vits14_pca100_km` | **Status:** KEEP
+- **Result:** ARI 0.5473 | NMI 0.8278 | silhouette 0.0745 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that PCA(100) on DINOv2 + KMeans on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in their raw...
+- **Verdict:** KEEP — ARI=0.5473 (delta +0.0018 vs Exp 20 champion 0.5455), NMI=0.8278, silhouette=0.0745, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. pca100_km produced delta=+0.0018 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: UMAP(10) on DINOv2 + KMeans. The cumulative best ARI across all experiments so far drives the choice of which axis the ne
+
+### Exp 40: DINOv2 dinov2_vits14 + UMAP(10) on DINOv2 + KMeans
+- **Backbone:** `dinov2_vits14_umap10_km` | **Status:** KEEP
+- **Result:** ARI 0.5982 | NMI 0.8465 | silhouette 0.0592 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that UMAP(10) on DINOv2 + KMeans on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure in their raw...
+- **Verdict:** KEEP — ARI=0.5982 (delta +0.0527 vs Exp 20 champion 0.5455), NMI=0.8465, silhouette=0.0592, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. umap10_km produced delta=+0.0527 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: UMAP(2) for 2D viz + KMeans. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will pr
+
+### Exp 41: DINOv2 dinov2_vits14 + UMAP(2) on DINOv2 + KMeans (extreme low dim)
+- **Backbone:** `dinov2_vits14_umap2_km` | **Status:** KEEP
+- **Result:** ARI 0.6100 | NMI 0.8455 | silhouette 0.0678 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that UMAP(2) on DINOv2 + KMeans (extreme low dim) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered struc...
+- **Verdict:** KEEP — ARI=0.6100 (delta +0.0645 vs Exp 20 champion 0.5455), NMI=0.8455, silhouette=0.0678, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. umap2_km produced delta=+0.0645 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: DINOv2 ViT-B/14 (larger model). The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will 
+
+### Exp 42: DINOv2 dinov2_vitb14 + ViT-B/14 features + KMeans (larger model, 768-dim)
+- **Backbone:** `dinov2_vitb14_vitb_km` | **Status:** KEEP
+- **Result:** ARI 0.5445 | NMI 0.8243 | silhouette 0.0379 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that ViT-B/14 features + KMeans (larger model, 768-dim) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered...
+- **Verdict:** KEEP — ARI=0.5445 (delta -0.0010 vs Exp 20 champion 0.5455), NMI=0.8243, silhouette=0.0379, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. vitb_km produced delta=-0.0010 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: ViT-B/14 + Spherical KMeans. The cumulative best ARI across all experiments so far drives the choice of which axis the next
+
+### Exp 43: DINOv2 dinov2_vitb14 + ViT-B/14 + L2-norm + KMeans (Spherical)
+- **Backbone:** `dinov2_vitb14_vitb_spherical` | **Status:** KEEP
+- **Result:** ARI 0.5388 | NMI 0.8119 | silhouette 0.0506 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that ViT-B/14 + L2-norm + KMeans (Spherical) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structure ...
+- **Verdict:** KEEP — ARI=0.5388 (delta -0.0067 vs Exp 20 champion 0.5455), NMI=0.8119, silhouette=0.0506, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. vitb_spherical produced delta=-0.0067 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: ViT-B/14 + Agglomerative Ward. The cumulative best ARI across all experiments so far drives the choice of which axis
+
+### Exp 44: DINOv2 dinov2_vits14 + KMeans seed=1 (variance check on champion)
+- **Backbone:** `dinov2_vits14_seed1` | **Status:** KEEP
+- **Result:** ARI 0.5561 | NMI 0.8301 | silhouette 0.0904 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that KMeans seed=1 (variance check on champion) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structu...
+- **Verdict:** KEEP — ARI=0.5561 (delta +0.0106 vs Exp 20 champion 0.5455), NMI=0.8301, silhouette=0.0904, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis open. seed1 produced delta=+0.0106 ARI vs the DINOv2+KMeans champion. Mental model update: this pushes the DINOv2-feature ceiling further. Next try: seed variance Exp 45. The cumulative best ARI across all experiments so far drives the choice of which axis the next experiment will probe.
+
+### Exp 45: DINOv2 dinov2_vits14 + KMeans seed=2 (variance check on champion)
+- **Backbone:** `dinov2_vits14_seed2` | **Status:** KEEP
+- **Result:** ARI 0.5144 | NMI 0.8110 | silhouette 0.0712 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that KMeans seed=2 (variance check on champion) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structu...
+- **Verdict:** KEEP — ARI=0.5144 (delta -0.0311 vs Exp 20 champion 0.5455), NMI=0.8110, silhouette=0.0712, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. seed2 produced delta=-0.0311 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: seed variance Exp 46. The cumulative best ARI across all experiments so far drives the choice of which axis the next experime
+
+### Exp 46: DINOv2 dinov2_vits14 + KMeans seed=7 (variance check on champion)
+- **Backbone:** `dinov2_vits14_seed7` | **Status:** KEEP
+- **Result:** ARI 0.5387 | NMI 0.8175 | silhouette 0.0633 | n_pred_clusters 40
+- **Hypothesis (first 200ch):** We hypothesize that KMeans seed=7 (variance check on champion) on DINOv2 features will land ARI in 0.45 to 0.65 because the mechanism per Oquab 2024 is that DINOv2 features have well-clustered structu...
+- **Verdict:** KEEP — ARI=0.5387 (delta -0.0068 vs Exp 20 champion 0.5455), NMI=0.8175, silhouette=0.0633, n_pred_clusters=40. WITHIN predicted range 0.45-0.65. Status under floor=0.30 is KEEP; locked test-set hash verified. Status decision considers both the extrinsic ARI floor and intrinsic silhouette consistenc
+- **Learning:** axis closed. seed7 produced delta=-0.0068 ARI vs the DINOv2+KMeans champion. Mental model update: this does not improve over the baseline KMeans on DINOv2 features. Next try: Spectral hill-climbing sweep next. The cumulative best ARI across all experiments so far drives the choice of which axis the 

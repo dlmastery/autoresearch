@@ -61,16 +61,16 @@ Per experiment: diagnose → cite → hypothesize → predict → run → analyz
 
 | Rank | Exp | Backbone | ARI | NMI | Silhouette |
 |---|---|---|---|---|---|
-| 1 | 20 | dinov2_kmeans | 0.5455 | 0.8201 | 0.0710 |
-| 2 | 17 | birch | 0.5287 | 0.8254 | 0.1608 |
-| 3 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 |
-| 4 | 16 | spectral_tuned | 0.5252 | 0.8228 | 0.1159 |
-| 5 | 8 | agg_ward | 0.5159 | 0.8201 | 0.1608 |
-| 6 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 |
-| 7 | 15 | umap_kmeans | 0.5001 | 0.8003 | 0.1278 |
-| 8 | 12 | dec | 0.4942 | 0.8036 | 0.1436 |
-| 9 | 21 | spherical_kmeans | 0.4816 | 0.7896 | 0.1266 |
-| 10 | 10 | conv_ae_kmeans | 0.4790 | 0.7934 | 0.1469 |
+| 1 | 33 | dinov2_vits14_spectral_cos | 0.6963 | 0.8974 | 0.0890 |
+| 2 | 34 | dinov2_vits14_spectral_knn10 | 0.6389 | 0.8584 | 0.0796 |
+| 3 | 27 | dinov2_vits14_agg_ward | 0.6371 | 0.8706 | 0.0834 |
+| 4 | 35 | dinov2_vits14_birch | 0.6371 | 0.8706 | 0.0834 |
+| 5 | 41 | dinov2_vits14_umap2_km | 0.6100 | 0.8455 | 0.0678 |
+| 6 | 40 | dinov2_vits14_umap10_km | 0.5982 | 0.8465 | 0.0592 |
+| 7 | 31 | dinov2_vits14_spectral_g001 | 0.5852 | 0.8533 | 0.0872 |
+| 8 | 25 | dinov2_vits14_kmeans_n50 | 0.5852 | 0.8456 | 0.0891 |
+| 9 | 26 | dinov2_vits14_spherical | 0.5602 | 0.8259 | 0.0467 |
+| 10 | 22 | dinov2_vits14_minibatch_kmeans | 0.5596 | 0.8393 | 0.0596 |
 
 ### 4.2 Why deep methods underperform on Olivetti
 

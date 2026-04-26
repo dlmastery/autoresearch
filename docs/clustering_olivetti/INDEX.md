@@ -5,7 +5,7 @@ title: Olivetti Clustering Autoresearch
 
 # Clustering Autoresearch — Olivetti Faces
 
-> Champion: Agglomerative Ward on PCA(50) — ARI = 0.5455
+> Champion: Agglomerative Ward on PCA(50) — ARI = 0.6963
 
 ## Quick links
 - 🎯 [Live Dashboard](clustering_olivetti/)

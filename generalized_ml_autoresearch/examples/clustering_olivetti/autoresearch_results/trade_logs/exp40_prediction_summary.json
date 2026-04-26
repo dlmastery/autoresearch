@@ -1,0 +1,7 @@
+{
+  "backbone": "dinov2_vits14_umap10_km",
+  "ari": 0.5981987862716099,
+  "nmi": 0.8464586401683509,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

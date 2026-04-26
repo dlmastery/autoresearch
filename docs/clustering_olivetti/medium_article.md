@@ -8,7 +8,7 @@
 
 I pointed Claude at one of the smallest standard clustering benchmarks (400 face images of 40 subjects) and let it autonomously pick + run + analyze 14 experiments across **8 model families**, including the latest deep clustering SOTA: DEC (ICML 2016), SimCLR-style contrastive learning (ICML 2020), ResNet18 ImageNet transfer, and consensus ensemble.
 
-**Champion: Agglomerative Ward on PCA(50). ARI = 0.5455.**
+**Champion: Agglomerative Ward on PCA(50). ARI = 0.6963.**
 
 That's a *classical* method from 1963. It beat every deep method we tried.
 
@@ -34,7 +34,7 @@ Claude ran a structured progression:
 
 **Tier 1 — linear projection (Exps 1-5):** PCA(50, 100, 150) + KMeans, with and without whitening. Best: PCA(50)+KMeans at ARI=0.4780.
 
-**Tier 2 — classical clustering (Exps 6-9):** Spectral, GMM, Agglomerative Ward, HDBSCAN. Surprise winner: Agglomerative Ward at ARI=0.5455.
+**Tier 2 — classical clustering (Exps 6-9):** Spectral, GMM, Agglomerative Ward, HDBSCAN. Surprise winner: Agglomerative Ward at ARI=0.6963.
 
 **Tier 4-5 — deep features (Exps 10-11):** Convolutional Autoencoder, ResNet18-ImageNet transfer. Both underperformed Agglomerative Ward.
 

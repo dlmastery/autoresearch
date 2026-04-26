@@ -1,9 +1,9 @@
 # Forensic Checkpoint — Olivetti Faces Clustering
 
-_Snapshot 2026-04-25T23:48:39_
+_Snapshot 2026-04-25T23:56:17_
 
 ## Champion
-- Exp 20 (dinov2_kmeans), ARI=0.5455
+- Exp 33 (dinov2_vits14_spectral_cos), ARI=0.6963
 
 ## Test set integrity
 - Full 400-row Olivetti dataset (sklearn-bundled)

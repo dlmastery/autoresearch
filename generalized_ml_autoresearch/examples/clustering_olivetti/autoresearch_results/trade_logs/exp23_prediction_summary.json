@@ -1,0 +1,7 @@
+{
+  "backbone": "dinov2_vits14_bisecting_kmeans",
+  "ari": 0.4436897385120931,
+  "nmi": 0.7677855799701964,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

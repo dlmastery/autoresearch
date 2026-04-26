@@ -1,0 +1,7 @@
+{
+  "backbone": "dinov2_vits14_minibatch_kmeans",
+  "ari": 0.5595914906886773,
+  "nmi": 0.8392948483956887,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

@@ -1,0 +1,7 @@
+{
+  "backbone": "dinov2_vitb14_vitb_spherical",
+  "ari": 0.5387957916291694,
+  "nmi": 0.8119261091584845,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

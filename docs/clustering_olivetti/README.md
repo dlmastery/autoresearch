@@ -1,6 +1,6 @@
 # Olivetti Faces Clustering Autoresearch Project
 
-**Champion: Agglomerative Ward on PCA(50) — ARI = 0.5455**
+**Champion: Agglomerative Ward on PCA(50) — ARI = 0.6963**
 
 14 honest experiments. 8 model families. Classical methods beat deep clustering on this small-n benchmark.
 

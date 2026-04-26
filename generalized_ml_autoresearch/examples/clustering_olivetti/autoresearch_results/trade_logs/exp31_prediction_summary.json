@@ -1,0 +1,7 @@
+{
+  "backbone": "dinov2_vits14_spectral_g001",
+  "ari": 0.5851847973642582,
+  "nmi": 0.8532952540771955,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

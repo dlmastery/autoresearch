@@ -1,6 +1,6 @@
 # Forensic Report — Olivetti Faces Clustering Autoresearch
 
-_Independent audit — 2026-04-25T23:48:39_
+_Independent audit — 2026-04-25T23:56:17_
 
 ## Executive findings
 
@@ -15,13 +15,13 @@ _Independent audit — 2026-04-25T23:48:39_
 | 7 | Intrinsic-extrinsic metric correlation positive | ✅ |
 | 8 | All experiments use identical test set hash | ✅ |
 | 9 | Strict reasoning gate enforced (28-field validation per experiment) | ✅ |
-| 10 | Champion artifact archive complete (Exp 20) | ✅ |
+| 10 | Champion artifact archive complete (Exp 33) | ✅ |
 
-## Champion model audit (Exp 20 — Agglomerative Ward + PCA)
+## Champion model audit (Exp 33 — Agglomerative Ward + PCA)
 
-- **ARI:** 0.5455
-- **NMI:** 0.8201
-- **Silhouette:** 0.0710
+- **ARI:** 0.6963
+- **NMI:** 0.8974
+- **Silhouette:** 0.0890
 - **n_pred_clusters:** 40 (matches K=40)
 - **n_noise:** 0
 - Deterministic algorithm (no random init) → reproducibility is mathematically guaranteed.
