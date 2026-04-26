@@ -69,3 +69,70 @@ Per the framework's Dashboard Files Update Mandate, every experiment writes:
 - `autoresearch_results/experiment_summary.md` (Claude appends)
 
 Final artifacts (mirror FX project): `paper.md`, `paper_abstract.md`, `medium_article.md`, `autoresearch_report.md`, `forensic_report.md`, `forensic_checkpoint.md`, `audit_report_third_party.md`, `winners/<champion>/` archive.
+
+## GitHub Pages Dashboard Sync (MANDATORY — every push, zero exceptions)
+
+**The live dashboard MUST be published to GitHub Pages on every commit that changes experiment state.** Hosted at:
+
+> https://dlmastery.github.io/autoresearch/clustering_olivetti/
+
+**Source of truth:** `autoresearch_results/dashboard.html` (+ its data files: `experiment_log.jsonl`, `best_config.json`, `reasoning_annotations.json`, and the `.md` report/journal/summary files the dashboard links to).
+
+**Pages mirror:** `docs/clustering_olivetti/` (lives at the repo root `docs/` because GitHub Pages serves the `docs/` folder). The dashboard's `dashboard.html` is copied to `docs/clustering_olivetti/index.html` so the URL `/clustering_olivetti/` routes directly to it.
+
+**Sync command (idempotent — run freely):**
+
+```bash
+cd generalized_ml_autoresearch/examples/clustering_olivetti
+python sync_dashboard.py
+```
+
+The script copies the entire `autoresearch_results/` artifact set (dashboard.html → index.html, experiment_log.jsonl, best_config.json, reasoning_annotations.json, all narrative .md files, the project README, paper, paper_abstract, index.md, CLAUDE.md) into `docs/clustering_olivetti/`. It fails loudly if any required source file is missing.
+
+**When must you sync?**
+
+- After every experiment that writes to the JSONL (i.e. every runner invocation)
+- After every reasoning-annotation edit
+- After every winner archive
+- After every artifact regeneration (paper, medium, reports)
+- **Before every `git push`** — the commit without the synced `docs/clustering_olivetti/` is a regression
+
+**Per-commit ritual:**
+
+```bash
+# 1. Run experiments / regenerate artifacts (above)
+# 2. Sync to docs/
+python sync_dashboard.py
+# 3. Stage the source AND the mirror
+git add generalized_ml_autoresearch/examples/clustering_olivetti docs/clustering_olivetti
+# 4. Commit
+git commit -m "..."
+# 5. Push (Pages rebuilds within ~30-60 s)
+git push origin master
+# 6. Verify
+curl -s -o /dev/null -w "%{http_code}\n" https://dlmastery.github.io/autoresearch/clustering_olivetti/best_config.json
+# Expected: 200
+```
+
+**Verification.** After push, `curl https://dlmastery.github.io/autoresearch/clustering_olivetti/best_config.json` should show the latest champion within 2 minutes. If stale, check `git log -1 docs/clustering_olivetti/` — the commit that updated `docs/` must match the commit that updated the source `autoresearch_results/`.
+
+**Enforcement.** A commit that changes `autoresearch_results/experiment_log.jsonl` but does NOT update `docs/clustering_olivetti/experiment_log.jsonl` is a regression. The pre-push checklist:
+
+- [ ] `dashboard.html` source matches `docs/clustering_olivetti/index.html` (`diff -q` returns empty)
+- [ ] `experiment_log.jsonl` row counts match between source and mirror
+- [ ] `best_config.json` is byte-identical between source and mirror
+- [ ] All five narrative .md files (paper, medium, autoresearch_report, forensic_report, audit_report_third_party) are mirrored
+
+**Why this matters.** The paper, the Medium article, and the third-party audit all cite the live dashboard as the project's institutional memory. A stale dashboard makes the citation a lie. Treat the Pages mirror as a public artifact with the same freshness guarantees as the source JSONL.
+
+## Local Dashboard (development)
+
+For browsing the dashboard during a session without pushing, run:
+
+```bash
+cd generalized_ml_autoresearch/examples/clustering_olivetti
+python -m http.server 8765 --directory autoresearch_results
+# Open http://localhost:8765/dashboard.html
+```
+
+The local dashboard reads the same JSONL / annotations / best_config files that the runner writes, so it's always live with whatever experiments have been logged. The Pages mirror is the *committed snapshot*; the local server is the *live view during development*.
