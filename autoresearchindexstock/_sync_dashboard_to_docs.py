@@ -92,6 +92,17 @@ if trade_src.exists():
           f"{n_sum} summaries; manifest: {len(set(experiments))} exps + "
           f"{len(ensembles)} ensembles")
 
+# Regenerate the all-experiments Excel download (with embedded charts)
+try:
+    import subprocess
+    subprocess.run([
+        "python",
+        str(Path(__file__).parent / "_export_equity_excel.py")
+    ], check=True, capture_output=True)
+    print("  [excel] autoresearch_equity.xlsx refreshed")
+except Exception as e:
+    print(f"  [excel] WARN: failed to regenerate xlsx: {e}")
+
 total = sum(f.stat().st_size for f in DST.rglob("*") if f.is_file())
 n_files = sum(1 for f in DST.rglob("*") if f.is_file())
 print(f"Synced {n_files} files to docs/index_stock_dashboard/ "

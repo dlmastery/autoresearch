@@ -34,7 +34,15 @@ test_pos_folds **7/7**, val_pos_folds 5/7, runtime 91.8s.
 | LightGBM | 0 (exp 7 attempted in background, reaped) | — | OPEN — needs foreground run |
 | CatBoost | 0 | — | OPEN |
 | Mamba/xLSTM/iTransformer/PatchTST/TSMixer/TimesNet/DLinear/N-BEATS/N-HiTS/TFT | 0 | — | QUEUED |
-| Tier-1.5 (StockMixer/MASTER/CARD/Crossformer/PatchMixer/RMixer/Adv-ALSTM/StockNet) | 0 | — | QUEUED (added to roster 2026-04-26) |
+| Tier-1.5 — **needs PyTorch implementation before runnable**: |||
+| - StockMixer (Ye 2024 AAAI 2401.05917) | 0 | — | NEEDS IMPL — MLP-mixer industry × style × temporal |
+| - MASTER (Li 2024 AAAI 2312.15235) | 0 | — | NEEDS IMPL — market-guided transformer |
+| - CARD (Wang 2024 ICLR 2305.12095) | 0 | — | NEEDS IMPL — channel-aligned blend transformer |
+| - Crossformer (Zhang-Yan 2023 ICLR) | 0 | — | NEEDS IMPL — cross-dim attention |
+| - PatchMixer (Cong 2024 KDD 2310.00655) | 0 | — | NEEDS IMPL — patches + MLP-mixing |
+| - Reversible Mixer (Sun 2024 NeurIPS) | 0 | — | NEEDS IMPL — reversible long-seq |
+| - Adv-ALSTM (Feng 2019 IJCAI) | 0 | — | NEEDS IMPL — adversarial robust LSTM |
+| - StockNet (Xu-Cohen 2018 ACL) | 0 | — | NEEDS IMPL — equity-prediction baseline |
 | Mega-ensemble (phase b) | n/a | — | BLOCKED on completing the 4 ensemble components |
 
 ## Next experiments (priority queue)
