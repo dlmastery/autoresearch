@@ -36,32 +36,21 @@ The runner writes Sharpe / hit-rate / equity / per-fold metrics for **all four**
 4. **Calendar features cite literature.** Day-of-week, FOMC week, OpEx week, January effect, Santa rally, earnings season — each feature has a comment with the seminal paper and arXiv / journal id.
 5. **Hardware constraints from parent CLAUDE.md still apply.** P-cores only, `_pin_to_safe_cores()` first-thing, 4 threads default.
 
-## Splits (regime-aware fold design — replaces FX-inherited windows)
+## Splits (different fold dates)
 
-7 walk-forward folds over 2004-01 → 2025-12. Last test window ends
-**2025-12-31**. **Each test window is placed inside a NAMED equity-market
-regime** so per-fold breakdowns reveal where the model wins or loses by
-named market state.
-
-Citations: Pagan & Sossounov 2003 *J. Applied Econometrics* (algorithmic
-bull/bear regime dating); Lunde & Timmermann 2004 *J. Business & Economic
-Statistics* (regime breakpoints with vol-thresholds); Hamilton 1989
-*Econometrica* (regime-switching). Fold-window discipline: López de Prado
-2018 *Advances in Financial ML* §7 (walk-forward + purge + embargo).
+7 walk-forward folds over 2004-01 → 2025-12. Last test window ends **2025-12-31**. Folds (`splits.py`):
 
 | Fold | Regime | Train end | Val | Test |
 |---|---|---|---|---|
-| 1 | **GFC peak crash** (Lehman + Mar-2009 bottom) | 2008-03 | 2008-04 → 2008-09 | 2008-10 → 2009-03 |
-| 2 | **2011 US-downgrade + EU debt** | 2011-03 | 2011-04 → 2011-08 | 2011-09 → 2012-03 |
-| 3 | **Taper tantrum + 2014 H1** | 2013-09 | 2013-10 → 2013-12 | 2014-01 → 2014-09 |
-| 4 | **China devaluation + oil crash** | 2015-03 | 2015-04 → 2015-08 | 2015-09 → 2016-04 |
-| 5 | **2018 Vol-mageddon + Q4 sell-off** | 2018-04 | 2018-05 → 2018-07 | 2018-08 → 2019-04 |
-| 6 | **COVID crash + V-recovery** | 2019-09 | 2019-10 → 2020-01 | 2020-02 → 2020-12 |
-| 7 | **Inflation bear + AI rally + 2025** | 2023-09 | 2023-10 → 2024-03 | **2024-04 → 2025-12** |
+| 1 | Pre-GFC bull / GFC onset | 2006-12 | 2007-04 → 2007-09 | 2008-01 → 2008-06 |
+| 2 | Post-GFC recovery | 2009-12 | 2010-04 → 2010-09 | 2011-01 → 2011-06 |
+| 3 | EU debt + taper tantrum | 2012-12 | 2013-04 → 2013-09 | 2014-01 → 2014-06 |
+| 4 | Strong dollar / oil crash | 2015-12 | 2016-04 → 2016-09 | 2017-01 → 2017-09 |
+| 5 | Low-vol → COVID shock | 2019-09 | 2019-10 → 2020-03 | 2020-04 → 2020-12 |
+| 6 | Inflation + Fed hikes | 2021-12 | 2022-04 → 2022-09 | 2023-01 → 2023-09 |
+| 7 | AI rally + recent | 2024-12 | 2025-01 → 2025-04 | **2025-05 → 2025-12** |
 
-Same purge=90d, embargo=21d, label-buffer=10d. Zero overlap verified
-programmatically each run. Train is expanding-window minus all val + test
-+ 10-day buffer windows.
+Same purge=90d, embargo=21d, label-buffer=10d. Zero overlap verified programmatically each run.
 
 ## Backbones (SOTA selection mirroring FX)
 

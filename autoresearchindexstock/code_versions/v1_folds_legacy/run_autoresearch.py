@@ -182,30 +182,11 @@ def _evaluate_per_window(
         per_b = evaluate_target_variant(pred_b, actuals_b, label="B")
         per_d = evaluate_target_variant(pred_d, actuals_d, label="D")
 
-        # Emit BOTH the multi-target keys (A_/B_/D_) and unprefixed aliases
-        # for target A so the existing FX-style dashboard code (which reads
-        # ``w.sharpe``, ``w.return_pct`` etc.) renders the primary 1d-return
-        # equity curve and per-fold table without changes. The dashboard's
-        # A/B/D selector swaps the prefix at render time when needed.
         row = {
             "fold":   fold["name"],
             "regime": fold["regime"],
             "n":      int(per_a["A_n"]),
             **per_a, **per_b, **per_d,
-            # Unprefixed aliases → target A (primary)
-            "sharpe":        per_a["A_sharpe"],
-            "sortino":       per_a.get("A_sortino", 0.0),
-            "return_pct":    per_a["A_return_pct"],
-            "equity":        1000.0 * (1 + per_a["A_return_pct"] / 100.0),
-            "max_dd":        0.0,        # not yet tracked per target
-            "win_rate":      per_a["A_hit_rate"],
-            "profit_factor": 0.0,
-            "ic":            per_a["A_ic"],
-            "hit":           per_a["A_hit_rate"],
-            "psr":           per_a["A_psr"],
-            "bh_sharpe":     per_a["A_bh_sharpe"],
-            "bh_return_pct": per_a["A_bh_return_pct"],
-            "excess_sharpe": per_a["A_excess_sharpe"],
         }
         rows.append(row)
 

@@ -238,28 +238,6 @@ def _vol_regime_features(downloaded: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         out["vix_logret_5d"] = np.log(vix).diff(5)
         out["vix_z60"] = (vix - vix.rolling(60).mean()) / vix.rolling(60).std().replace(0, np.nan)
 
-    # ^VXN — Nasdaq-100 native VIX. THIS is QQQ's own fear gauge; ^VIX is
-    # SPX's. Carries QQQ-specific information when tech vol decouples from
-    # broad-market vol (e.g., AI rally with low ^VIX but elevated ^VXN).
-    vxn = _close("^VXN")
-    if vxn is not None:
-        out["vxn"] = vxn
-        out["vxn_logret_1d"] = np.log(vxn).diff(1)
-        out["vxn_logret_5d"] = np.log(vxn).diff(5)
-        out["vxn_z60"] = (vxn - vxn.rolling(60).mean()) / vxn.rolling(60).std().replace(0, np.nan)
-        if vix is not None:
-            out["vxn_over_vix"] = vxn / vix.replace(0, np.nan)  # tech-vol vs broad-vol
-
-    # ^MOVE — Treasury bond vol. Cieslak & Pang 2021 RFS: bond-vol leads
-    # equity-vol; spike in MOVE = stress that often precedes equity sell-off.
-    move = _close("^MOVE")
-    if move is not None:
-        out["move"] = move
-        out["move_logret_5d"] = np.log(move).diff(5)
-        out["move_z60"] = (move - move.rolling(60).mean()) / move.rolling(60).std().replace(0, np.nan)
-        if vix is not None:
-            out["move_over_vix"] = move / vix.replace(0, np.nan)  # bond-stress vs equity-stress
-
     if vix is not None and vix9d is not None:
         out["vix9d_over_vix"] = vix9d / vix  # < 1 means contango (calm), > 1 backwardation (stress)
     if vix is not None and vix3m is not None:
@@ -429,63 +407,6 @@ def _cross_sectional_features(downloaded: Dict[str, pd.DataFrame]) -> pd.DataFra
         if tic in downloaded:
             c = downloaded[tic]["Close"]
             out[f"{name}_logret_5d"] = np.log(c).diff(5)
-
-    # ^IXIC — Nasdaq Composite. QQQ tracks the Nasdaq-100 (top ~100 of ~3500
-    # in ^IXIC). Ratio captures Mag-7 concentration vs broad-tech breadth:
-    # diverging => QQQ outperforming due to a few mega-caps (vulnerable);
-    # converging => broad participation (durable).
-    if "^IXIC" in downloaded and qqq is not None:
-        out["qqq_over_ixic"] = qqq["Close"] / downloaded["^IXIC"]["Close"]
-        out["qqq_over_ixic_5d"] = (
-            np.log(qqq["Close"]) - np.log(downloaded["^IXIC"]["Close"])
-        ).diff(5)
-
-    # SOXX / SMH — semiconductor ETFs. Mag-7 + AI rally is a chip story;
-    # XLK alone misses pure-play semis (NVDA, AMD, AVGO heavy).
-    for tic, name in [("SOXX", "soxx"), ("SMH", "smh")]:
-        if tic in downloaded:
-            c = downloaded[tic]["Close"]
-            out[f"{name}_logret_5d"] = np.log(c).diff(5)
-            out[f"{name}_logret_20d"] = np.log(c).diff(20)
-            if qqq is not None:
-                out[f"qqq_over_{name}_5d"] = (
-                    np.log(qqq["Close"]) - np.log(c)
-                ).diff(5)
-
-    # IBB — biotech sector beyond XLV.
-    if "IBB" in downloaded:
-        c = downloaded["IBB"]["Close"]
-        out["ibb_logret_5d"] = np.log(c).diff(5)
-        out["ibb_logret_20d"] = np.log(c).diff(20)
-
-    # ARKK — high-beta innovation ETF, leads risk-on/off shifts.
-    if "ARKK" in downloaded:
-        c = downloaded["ARKK"]["Close"]
-        out["arkk_logret_5d"] = np.log(c).diff(5)
-        out["arkk_logret_20d"] = np.log(c).diff(20)
-        if qqq is not None:
-            # ARKK / QQQ ratio: when ARKK leads QQQ, speculative risk-on.
-            out["arkk_over_qqq"] = c / qqq["Close"]
-            out["arkk_over_qqq_20d"] = (
-                np.log(c) - np.log(qqq["Close"])
-            ).diff(20)
-
-    # AGG — total US bond market, baseline duration+credit signal.
-    if "AGG" in downloaded:
-        c = downloaded["AGG"]["Close"]
-        out["agg_logret_5d"] = np.log(c).diff(5)
-        out["agg_logret_20d"] = np.log(c).diff(20)
-
-    # BTC-USD — Bitcoin. Bouri et al. 2017 Finance Research Letters show
-    # crypto-equity correlation rose post-2020 driven by shared risk-on
-    # flows; Yermack 2015 raises macro-asset character of BTC. Late starter
-    # (2014); the late-column-drop filter handles missing pre-2014 if cutoff
-    # excludes it.
-    if "BTC-USD" in downloaded:
-        c = downloaded["BTC-USD"]["Close"]
-        out["btc_logret_1d"] = np.log(c).diff(1)
-        out["btc_logret_5d"] = np.log(c).diff(5)
-        out["btc_logret_20d"] = np.log(c).diff(20)
 
     return pd.DataFrame(out)
 
@@ -699,13 +620,8 @@ def compute_qqq_features(downloaded: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     ]
     blocks = [b for b in blocks if b is not None and not b.empty]
 
-    # Outer-join the blocks first so we can ffill/bfill across signals with
-    # different calendars (e.g. ^TNX skips some NYSE holidays). Then
-    # re-align strictly to QQQ's trading-day index — BTC-USD adds weekends
-    # and would otherwise inflate the row count by ~30%.
     combined = pd.concat(blocks, axis=1, join="outer")
     combined = combined.replace([np.inf, -np.inf], np.nan)
-    combined = combined.reindex(qqq.index)
 
     # Calendar features depend only on the index — compute after concat
     cal = _calendar_features(combined.index)

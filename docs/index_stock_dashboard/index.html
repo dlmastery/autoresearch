@@ -134,6 +134,16 @@
     <button class="close-btn" id="tab-train" onclick="switchTab('train')">Train</button>
     <span style="color:#484f58;font-size:0.75em;margin-left:8px" id="tab-summary"></span>
   </div>
+  <!-- Target selector: switch the equity curve + per-fold table between
+       targets A (1d return — PRIMARY), B (5d return), and D (vol-adjusted 1d).
+       Per CLAUDE.md the optimisation is on A, but B and D are tracked + plotted. -->
+  <div style="margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <span style="color:#8b949e;font-size:0.78em;letter-spacing:0.5px">TARGET:</span>
+    <button class="close-btn" id="target-A" onclick="switchTarget('A')" style="background:#1a2332;color:#58a6ff" title="Primary: 1-day forward return (the KEEP/DISCARD driver)">A — 1d return</button>
+    <button class="close-btn" id="target-B" onclick="switchTarget('B')" title="Auxiliary: 5-day forward return">B — 5d return</button>
+    <button class="close-btn" id="target-D" onclick="switchTarget('D')" title="Vol-adjusted 1d return (orthogonalises trend from skill)">D — vol-adj 1d</button>
+    <span id="target-summary" style="color:#484f58;font-size:0.75em;margin-left:8px"></span>
+  </div>
   <!-- Equity curve: strategy returns vs initial investment baseline, across folds -->
   <div id="detail-chart-wrap" style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:12px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -199,6 +209,40 @@ const REFRESH_MS = 300000; // 5 minutes
 let allEntries = [];
 let selectedIdx = -1;
 let activeTab = 'test';
+// Multi-target plotting state (per CLAUDE.md: A=1d primary, B=5d, D=vol-adj 1d).
+// `activeTarget` swaps which prefix the chart + per-fold table reads from
+// each per-window dict. Each row carries A_*, B_*, D_* keys plus unprefixed
+// aliases of the A_* values, so 'A' selects the unprefixed path (default).
+let activeTarget = 'A';
+
+function switchTarget(t) {
+  activeTarget = t;
+  ['A','B','D'].forEach(x => {
+    const el = document.getElementById('target-' + x);
+    if (el) { el.style.background = t === x ? '#1a2332' : '#21262d'; el.style.color = t === x ? '#58a6ff' : '#8b949e'; }
+  });
+  if (selectedIdx >= 0) updateDetailWindows();
+}
+
+// Project a per-window dict so that w.sharpe / w.return_pct / etc. read from
+// whichever target is currently selected. Mutates a shallow copy and returns
+// it; the original window dict is left intact.
+function projectTarget(w) {
+  if (!w || activeTarget === 'A') return w;  // A is the default unprefixed path
+  const prefix = activeTarget + '_';
+  const out = Object.assign({}, w);
+  // Copy <prefix>_X over the unprefixed X for the keys the chart + table read.
+  ['sharpe','return_pct','excess_sharpe','bh_sharpe','bh_return_pct',
+   'sortino','ic','hit_rate','psr','n'].forEach(k => {
+    const v = w[prefix + k];
+    if (v !== undefined) out[k] = v;
+  });
+  // The runner emits hit_rate as the canonical key but the dashboard table
+  // reads w.hit. Keep both populated.
+  if (out.hit_rate !== undefined) out.hit = out.hit_rate;
+  if (out.return_pct != null) out.equity = 1000 * (1 + out.return_pct / 100);
+  return out;
+}
 // Set of experiment numbers that have a per-day trade CSV in trade_logs/.
 // Populated from trade_logs/manifest.json on each refresh.
 let tradeLogsManifest = new Set();
@@ -381,8 +425,25 @@ function updateDetailWindows() {
     mcc: e[pfx+'mcc'] != null ? e[pfx+'mcc'] : null,
     accuracy: e[pfx+'accuracy'] != null ? e[pfx+'accuracy'] : null,
   };
-  renderWindows(windows, 'window-body', agg);
-  renderEquityChart(windows, activeTab, e, selectedIdx);
+  // Project the per-window dicts onto the active target (A/B/D). For
+  // target A this is a no-op (returns the original windows); for B/D
+  // the unprefixed sharpe/return_pct/etc. are swapped to that target's.
+  const projWindows = (windows || []).map(projectTarget);
+  // Update the target-summary chip with the aggregate metric for activeTarget
+  const tgtSum = document.getElementById('target-summary');
+  if (tgtSum) {
+    const tag = activeTarget;
+    const ts = e[tag === 'A' ? 'sharpe' : (tag + '_sharpe')];
+    const tx = e[tag === 'A' ? 'excess_sharpe' : (tag + '_excess_sharpe')];
+    const tr = e[tag === 'A' ? 'return_pct' : (tag + '_return_pct')];
+    const lbl = tag === 'A' ? '1d return' : (tag === 'B' ? '5d return' : 'vol-adj 1d');
+    tgtSum.innerHTML = `<strong>${tag}</strong> (${lbl}): ` +
+      `Sharpe=<span style="color:${sharpeColor(ts)}">${fmtSign(ts)}</span>  ` +
+      `Excess=<span style="color:${sharpeColor(tx)}">${fmtSign(tx)}</span>  ` +
+      `Ret=${tr != null ? fmtSign(tr,2)+'%' : '--'}`;
+  }
+  renderWindows(projWindows, 'window-body', agg);
+  renderEquityChart(projWindows, activeTab, e, selectedIdx);
   const psr = activeTab === 'test' ? fmt(e.psr) : '--';
   const eqStr = eq != null ? '$' + fmt(eq, 0) : '--';
   document.getElementById('tab-summary').innerHTML =

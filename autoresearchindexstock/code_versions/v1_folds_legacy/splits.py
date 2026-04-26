@@ -33,66 +33,55 @@ LABEL_HORIZON_BUFFER: int = 10  # for the 5-day forward target + slack
 # contiguous, in-sample regime characteristic, and disjoint from all other
 # folds' val + test windows. Last fold ends 2025-12-31 (no 2026 data).
 
-# Regime-aware fold design (replaces the FX-inherited windows). Each test
-# window is placed inside a NAMED equity-market regime so per-fold
-# breakdowns reveal where the model wins or loses by named market state.
-#
-# Citations: Pagan & Sossounov 2003 J. Applied Econometrics 'A simple
-# framework for analysing bull and bear markets' — algorithmic regime
-# dating; Lunde & Timmermann 2004 J. Business & Economic Statistics
-# 'Duration dependence in stock prices'; Hamilton 1989 Econometrica
-# 'A new approach to the economic analysis of nonstationary time series'
-# (regime-switching). Window discipline: López de Prado 2018 'Advances
-# in Financial ML' §7 (walk-forward + purge + embargo, applied here).
 FOLDS: list[dict] = [
     {
         "name":   "fold_1",
-        "regime": "GFC peak crash (Lehman + Mar-2009 bottom)",
-        "train":  {"start": "2004-01", "end": "2008-03"},
-        "val":    {"start": "2008-04", "end": "2008-09"},
-        "test":   {"start": "2008-10", "end": "2009-03"},
+        "regime": "Pre-GFC bull and GFC onset",
+        "train":  {"start": "2004-01", "end": "2006-12"},
+        "val":    {"start": "2007-04", "end": "2007-09"},
+        "test":   {"start": "2008-01", "end": "2008-06"},
     },
     {
         "name":   "fold_2",
-        "regime": "2011 US-downgrade + EU debt",
-        "train":  {"start": "2004-01", "end": "2011-03"},
-        "val":    {"start": "2011-04", "end": "2011-08"},
-        "test":   {"start": "2011-09", "end": "2012-03"},
+        "regime": "Post-GFC recovery",
+        "train":  {"start": "2004-01", "end": "2009-12"},
+        "val":    {"start": "2010-04", "end": "2010-09"},
+        "test":   {"start": "2011-01", "end": "2011-06"},
     },
     {
         "name":   "fold_3",
-        "regime": "Taper tantrum and 2014 H1",
-        "train":  {"start": "2004-01", "end": "2013-09"},
-        "val":    {"start": "2013-10", "end": "2013-12"},
-        "test":   {"start": "2014-01", "end": "2014-09"},
+        "regime": "EU debt and taper tantrum",
+        "train":  {"start": "2004-01", "end": "2012-12"},
+        "val":    {"start": "2013-04", "end": "2013-09"},
+        "test":   {"start": "2014-01", "end": "2014-06"},
     },
     {
         "name":   "fold_4",
-        "regime": "China devaluation and oil crash",
-        "train":  {"start": "2004-01", "end": "2015-03"},
-        "val":    {"start": "2015-04", "end": "2015-08"},
-        "test":   {"start": "2015-09", "end": "2016-04"},
+        "regime": "Strong dollar and oil crash",
+        "train":  {"start": "2004-01", "end": "2015-12"},
+        "val":    {"start": "2016-04", "end": "2016-09"},
+        "test":   {"start": "2017-01", "end": "2017-09"},
     },
     {
         "name":   "fold_5",
-        "regime": "2018 Vol-mageddon + Q4 sell-off",
-        "train":  {"start": "2004-01", "end": "2018-04"},
-        "val":    {"start": "2018-05", "end": "2018-07"},
-        "test":   {"start": "2018-08", "end": "2019-04"},
+        "regime": "Late cycle and COVID shock",
+        "train":  {"start": "2004-01", "end": "2019-09"},
+        "val":    {"start": "2019-10", "end": "2020-03"},
+        "test":   {"start": "2020-04", "end": "2020-12"},
     },
     {
         "name":   "fold_6",
-        "regime": "COVID crash and V-recovery",
-        "train":  {"start": "2004-01", "end": "2019-09"},
-        "val":    {"start": "2019-10", "end": "2020-01"},
-        "test":   {"start": "2020-02", "end": "2020-12"},
+        "regime": "Inflation and Fed hikes",
+        "train":  {"start": "2004-01", "end": "2021-12"},
+        "val":    {"start": "2022-04", "end": "2022-09"},
+        "test":   {"start": "2023-01", "end": "2023-09"},
     },
     {
         "name":   "fold_7",
-        "regime": "Inflation bear, AI rally and 2025",
-        "train":  {"start": "2004-01", "end": "2023-09"},
-        "val":    {"start": "2023-10", "end": "2024-03"},
-        "test":   {"start": "2024-04", "end": "2025-12"},
+        "regime": "AI rally and 2025",
+        "train":  {"start": "2004-01", "end": "2024-12"},
+        "val":    {"start": "2025-01", "end": "2025-04"},
+        "test":   {"start": "2025-05", "end": "2025-12"},
     },
 ]
 

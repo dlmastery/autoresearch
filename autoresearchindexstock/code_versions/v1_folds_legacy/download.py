@@ -32,32 +32,11 @@ PRIMARY: Dict[str, str] = {
 # Cross-asset benchmarks for relative-strength + breadth features.
 #   Lo & MacKinlay 1990 — relative-strength reversal between indices.
 BENCHMARKS: Dict[str, str] = {
-    "SPY":   "SPDR S&P 500",
-    "DIA":   "SPDR Dow Jones",
-    "IWM":   "iShares Russell 2000",
-    "EFA":   "iShares MSCI EAFE (international DM)",
-    "EEM":   "iShares MSCI Emerging Markets",
-    "^IXIC": "Nasdaq Composite (QQQ underlying)",
-    "AGG":   "iShares Core US Aggregate Bond (baseline duration+credit)",
-}
-
-# Industry-specific ETFs — semiconductors and biotech are massive drivers of
-# QQQ. The Mag-7 + AI rally is fundamentally a chip story; SOXX/SMH carry
-# information XLK does not (XLK includes large-cap software which decouples
-# from semis). IBB widens healthcare beyond XLV. ARKK is a high-beta
-# innovation proxy that leads risk-on/off shifts in tech.
-INDUSTRY_TILTS: Dict[str, str] = {
-    "SOXX": "iShares Semiconductor ETF",
-    "SMH":  "VanEck Semiconductor ETF",
-    "IBB":  "iShares Biotechnology ETF",
-    "ARKK": "ARK Innovation ETF (high-beta tech proxy)",
-}
-
-# Crypto / risk-on barometer.
-#   Bouri et al. 2017 Finance Research Letters — Bitcoin is correlated with
-#   risk-on flows, particularly post-2020. Captures speculative-flow regime.
-CRYPTO_RISK: Dict[str, str] = {
-    "BTC-USD": "Bitcoin USD",
+    "SPY":  "SPDR S&P 500",
+    "DIA":  "SPDR Dow Jones",
+    "IWM":  "iShares Russell 2000",
+    "EFA":  "iShares MSCI EAFE (international DM)",
+    "EEM":  "iShares MSCI Emerging Markets",
 }
 
 # Sector ETFs — used for breadth + dispersion features.
@@ -81,18 +60,14 @@ SECTORS: Dict[str, str] = {
 #   equity returns. Pan & Poteshman 2006 — option-implied signals predict
 #   future returns. Whaley 2009 — VIX as an "investor fear gauge".
 VOL_REGIME: Dict[str, str] = {
-    "^VIX":   "CBOE VIX (S&P 500 30-day implied)",
-    "^VXN":   "CBOE Nasdaq-100 Volatility (QQQ-NATIVE fear gauge)",
+    "^VIX":  "CBOE VIX (30-day implied)",
     "^VIX9D": "CBOE VIX 9-day",
     "^VIX3M": "CBOE 3-month VIX",
     "^VIX6M": "CBOE 6-month VIX",
-    "^VVIX":  "CBOE Vol-of-Vol",
-    "^SKEW":  "CBOE SKEW (tail risk)",
-    "^OVX":   "CBOE Crude Oil ETF VIX",
-    "^GVZ":   "CBOE Gold ETF VIX",
-    # ^MOVE = ICE BofA Treasury vol — bond-vol leads equity-vol per
-    # Cieslak & Pang 2021 RFS "Common Shocks in Stocks and Bonds".
-    "^MOVE":  "ICE BofA MOVE Index (Treasury bond vol)",
+    "^VVIX": "CBOE Vol-of-Vol",
+    "^SKEW": "CBOE SKEW (tail risk)",
+    "^OVX":  "CBOE Crude Oil ETF VIX",
+    "^GVZ":  "CBOE Gold ETF VIX",
 }
 
 # Fixed income / credit / yield curve.
@@ -136,15 +111,13 @@ INTL_RISK: Dict[str, str] = {
 
 # Combine. Order matters only for log readability.
 ALL_SIGNALS: Dict[str, Dict[str, str]] = {
-    "primary":         PRIMARY,
-    "benchmarks":      BENCHMARKS,
-    "industry_tilts":  INDUSTRY_TILTS,
-    "sectors":         SECTORS,
-    "vol_regime":      VOL_REGIME,
-    "yields_credit":   YIELDS_CREDIT,
-    "macro_fx":        MACRO_FX,
-    "intl_risk":       INTL_RISK,
-    "crypto_risk":     CRYPTO_RISK,
+    "primary":      PRIMARY,
+    "benchmarks":   BENCHMARKS,
+    "sectors":      SECTORS,
+    "vol_regime":   VOL_REGIME,
+    "yields_credit": YIELDS_CREDIT,
+    "macro_fx":     MACRO_FX,
+    "intl_risk":    INTL_RISK,
 }
 
 
