@@ -105,6 +105,11 @@ def evaluate_target_variant(predictions: np.ndarray,
 
     direction = np.sign(pred)
     strat = direction * act
+    # Safety clip: trading_report computes cumulative log1p which goes
+    # complex if any return <= -1. Real per-period returns on liquid
+    # equities are always > -1; this clip is defensive against bad target
+    # construction (e.g. vol-adjusted returns scaled outside (-1,1)).
+    strat = np.clip(strat, -0.99, np.inf)
     rpt = trading_report(strat)
     bh = buy_and_hold_metrics(act)
     excess = float(sharpe_ratio(strat)) - bh["bh_sharpe"]

@@ -177,10 +177,16 @@ def _evaluate_per_window(
                          "n": 0, "A_sharpe": 0.0, "skipped": True})
             continue
 
-        # Per-fold metrics on PRIMARY target A
+        # Per-fold metrics:
+        #  A — predict 1d return, realise 1d return.
+        #  B — predict 5d return, realise 5d return.
+        #  D — predict VOL-ADJUSTED 1d return; the trade earns the UNSCALED
+        #      1d return (we use the vol-adjusted prediction only to set
+        #      direction). This avoids out-of-range (<-1) "returns" breaking
+        #      cumulative-compounding metrics inside trading_report.
         per_a = evaluate_target_variant(pred_a, actuals_a, label="A")
         per_b = evaluate_target_variant(pred_b, actuals_b, label="B")
-        per_d = evaluate_target_variant(pred_d, actuals_d, label="D")
+        per_d = evaluate_target_variant(pred_d, actuals_a, label="D")
 
         # Emit BOTH the multi-target keys (A_/B_/D_) and unprefixed aliases
         # for target A so the existing FX-style dashboard code (which reads
@@ -252,7 +258,8 @@ def _evaluate_per_window(
     ad = np.concatenate(actual_d_all) if actual_d_all else np.array([])
     agg_a = evaluate_target_variant(pa, aa, label="A")
     agg_b = evaluate_target_variant(pb, ab, label="B")
-    agg_d = evaluate_target_variant(pd_, ad, label="D")
+    # Aggregate D evaluated against UNSCALED 1d returns — see comment above.
+    agg_d = evaluate_target_variant(pd_, aa, label="D")
     n_neg = sum(1 for r in rows if r.get("A_sharpe", 0.0) < 0 and not r.get("skipped"))
 
     return {
