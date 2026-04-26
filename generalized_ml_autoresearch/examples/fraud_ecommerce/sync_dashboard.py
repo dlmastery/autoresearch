@@ -32,6 +32,13 @@ def main():
         ("experiment_log.jsonl", "experiment_log.jsonl"),
         ("reasoning_annotations.json", "reasoning_annotations.json"),
         ("best_config.json", "best_config.json"),
+        ("medium_article.md", "medium_article.md"),
+        ("autoresearch_report.md", "autoresearch_report.md"),
+        ("forensic_report.md", "forensic_report.md"),
+        ("forensic_checkpoint.md", "forensic_checkpoint.md"),
+        ("audit_report_third_party.md", "audit_report_third_party.md"),
+        ("experiment_summary.md", "experiment_summary.md"),
+        ("research_journal.md", "research_journal.md"),
     ]
     for src_name, dst_name in pairs:
         src = SRC / src_name
