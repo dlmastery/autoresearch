@@ -14,6 +14,12 @@ autoresearch/autoresearch_results/best_model.pt
 autoresearch/autoresearch_results/running.json
 autoresearch/.claude/
 
+# autoresearchindexstock — same exclusions as the FX project
+autoresearchindexstock/.data_cache_qqq/
+autoresearchindexstock/autoresearch_results/best_model.pt
+autoresearchindexstock/autoresearch_results/running.json
+autoresearchindexstock/.claude/
+
 # fraud_ecommerce: large CSVs sourced from public mirrors — re-buildable via prepare_data.py + add_velocity_features.py
 generalized_ml_autoresearch/examples/fraud_ecommerce/data/raw_train.csv
 generalized_ml_autoresearch/examples/fraud_ecommerce/data/raw_test.csv
