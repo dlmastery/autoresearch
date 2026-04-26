@@ -1,85 +1,80 @@
 ---
 name: AutoResearch QQQ Checkpoint
-description: 0 exps. Bootstrap session 2026-04-26. Pipeline scaffold complete; first wave queued.
+description: 6 experiments. Champion MLP @ FX-Exp32 HPs composite +0.5799. LSTM @ FX-Exp35 first BH-beating excess +0.2297.
 type: project
 ---
 
-## Status
+## 🏆 GLOBAL CHAMPION (exp 6)
 
-**BOOTSTRAP — 0 experiments run.** Infrastructure built this session,
-first experiment queued for verification.
+**MLP @ FX-Exp32 HPs (residual MLP, head_dropout=0.25, seed=0)** —
+composite **+0.5799**, A_sharpe +0.6799, excess +0.0757, BH +0.6042,
+test_pos_folds 6/7, val_pos_folds 5/7, **runtime 28.7s**.
 
-## Project shape
-
-- Asset: **QQQ** (Nasdaq-100 ETF)
-- Window: 2004-01-01 → **2025-12-31** (no 2026 data; hard cap in
-  `data/download.py`)
-- Optimisation target: **target A — `fwd_ret_1d`** (1-day forward log
-  return). Composite = `min(test_A_sharpe, val_A_sharpe) - 0.1 *
-  n_negative_folds`.
-- Track + plot: A (1d), B (5d), C (sign concordance), D (vol-adjusted 1d).
-- Splits: 7-fold walk-forward, last test 2025-05 → 2025-12.
-- Backbones: 15-roster mirror of FX, **25 hill-climb experiments per
-  backbone**.
-- Goal: meet or beat FX mega-ensemble Sharpe **+9.7071** on
-  excess-Sharpe (strategy − buy-and-hold).
-
-## Backbone queue (priority order)
-
-1. xgboost      — pending
-2. lightgbm     — pending
-3. catboost     — pending
-4. lstm         — pending
-5. mlp          — pending
-6. mamba        — pending
-7. xlstm        — pending
-8. itransformer — pending
-9. patchtst     — pending
-10. patchtsmixer — pending
-11. timesnet    — pending
-12. dlinear     — pending
-13. nbeats      — pending
-14. nhits       — pending
-15. tft         — pending
-
-## Next experiment (verify pipeline)
-
+CLI:
 ```bash
-cd C:/Users/evija/autoresearch
-"C:/Users/evija/anaconda3/python.exe" -m autoresearchindexstock.run_autoresearch \
-  --backbone xgboost --max-depth 4 --gbm-lr 0.03 --n-estimators 1500 \
-  --seq-len 60 --seed 42 \
-  --description "xgboost: SOTA baseline (Chen & Guestrin 2016 KDD), bootstrap"
+"C:/Users/evija/anaconda3/python.exe" -u -m autoresearchindexstock.run_autoresearch \
+  --backbone mlp --seq-len 10 --lr 3e-4 --bs 32 --epochs 50 --patience 10 \
+  --weight-decay 1e-5 --head-dropout 0.25 --seed 0 \
+  --description "MLP @ FX champion HPs (Exp32) — Gu-Kelly-Xiu 2020 RFS"
 ```
 
-**Rationale**: XGBoost was the FX single-model champion (+9.186 composite).
-Reproducing that recipe on QQQ first gives an apples-to-apples baseline
-and a sanity check that the entire pipeline (download → features → splits
-→ train → eval → log) is wired correctly. If composite ≥ 0 with sane
-fold-level Sharpe, pipeline works; we then iterate the 25-exp hill-climb.
+## 📈 Most strategy-vs-passive performance (exp 5)
 
-## Files / scaffolding (complete)
+**LSTM @ FX-Exp35 HPs** — composite -0.1318, A_sharpe **+0.8339**,
+**excess_sharpe +0.2297** (first BH-beating excess of the session),
+test_pos_folds **7/7**, val_pos_folds 5/7, runtime 91.8s.
 
-- `autoresearchindexstock/CLAUDE.md` (extends parent)
-- `autoresearchindexstock/data/download.py` — QQQ + ~30 cross-asset signals
-- `autoresearchindexstock/data/features.py` — ~120 equity-native features
-- `autoresearchindexstock/data/splits.py` — 7 regime-labelled folds
-- `autoresearchindexstock/evaluation/metrics.py` — composite + excess
-- `autoresearchindexstock/run_autoresearch.py` — runner (multi-target eval)
-- `autoresearchindexstock/_sync_dashboard_to_docs.py` — Pages mirror
-- `autoresearchindexstock/autoresearch_results/dashboard.html` — to be
-  adapted with A/B/C/D plotting
-- `autoresearchindexstock/memory/project_autoresearch_checkpoint.md`
-  (this file)
+## Phase summary
 
-## Files / scaffolding (TODO before first experiment)
+| Phase | Exps | Champion | Status |
+|---|---:|---|---|
+| MLP | 3 (exps 3, 4, 6) | exp 6 (FX-Exp32 HPs) +0.5799 | OPEN — multi-seed + hidden hill-climb queued |
+| LSTM | 1 (exp 5) | exp 5 (FX-Exp35 HPs) excess +0.23 | OPEN — multi-seed needed |
+| XGBoost | 2 (exps 1, 2) | exp 1 (smoke) -1.5423 | DEFERRED — harness-timeout, foreground re-run pending |
+| LightGBM | 0 (exp 7 attempted in background, reaped) | — | OPEN — needs foreground run |
+| CatBoost | 0 | — | OPEN |
+| Mamba/xLSTM/iTransformer/PatchTST/TSMixer/TimesNet/DLinear/N-BEATS/N-HiTS/TFT | 0 | — | QUEUED |
+| Tier-1.5 (StockMixer/MASTER/CARD/Crossformer/PatchMixer/RMixer/Adv-ALSTM/StockNet) | 0 | — | QUEUED (added to roster 2026-04-26) |
+| Mega-ensemble (phase b) | n/a | — | BLOCKED on completing the 4 ensemble components |
 
-- [ ] Adapt `dashboard.html` title + add A/B/C/D plot selector
-- [ ] Smoke-test `python -m autoresearchindexstock.run_autoresearch ...`
-- [ ] First sync to `docs/index_stock_dashboard/`
-- [ ] Commit + push
+## Next experiments (priority queue)
+
+1. **Multi-seed exp 6** — MLP @ FX-Exp32 HPs across seeds [7, 42, 99, 2024] to characterise seed variance (4 experiments).
+2. **Multi-seed exp 5** — LSTM @ FX-Exp35 HPs across seeds [0, 7, 99, 2024] (4 experiments).
+3. **LightGBM @ FX-Exp235 HPs** (depth=4, gbm_lr=0.01, n_est=2000, seq=60) — must run foreground (or split smaller batches).
+4. **CatBoost @ FX-Exp236 HPs** (depth=4, gbm_lr=0.01, n_est=2000, seq=60).
+5. **XGBoost @ FX-Exp203 HPs** (depth=4, gbm_lr=0.03, n_est=1500, seq=60) — needs foreground.
+6. **Build `_qqq_mega_ensemble.py`** — port FX rank-avg recipe.
+7. Continue 25-experiment hill-climb per backbone.
+
+## Lessons learned this session
+
+1. **Use `--lr` (not `--learning-rate`).** Common mistake; wasted runs.
+2. **More XGBoost trees made things WORSE on QQQ.** 50 trees beat 300 trees on composite. Opposite of FX. Diagnosis: 12,300-dim flattened seq=60 input space too large for unregularised XGBoost.
+3. **MLP > XGBoost in compute-efficiency on QQQ.** 18× faster + higher composite.
+4. **FX-champion HPs transfer to QQQ.** Both LSTM @ FX-Exp35 (7/7 test folds) and MLP @ FX-Exp32 (+composite) beat plain SOTA-recipe baselines. `head_dropout=0.25` and `wd=7e-4` empirical FX optima survive the asset transfer.
+5. **First positive excess-Sharpe (+0.2297) achieved at exp 5.** LSTM @ FX-Exp35 strategy beats passive QQQ.
+6. **Bash background tasks have a 2-10 min harness timeout.** Long-running experiments must run foreground.
+7. **Target D vol-adjusted returns can be < -1.** Strat realisation must use UNSCALED 1d returns + safety clip in `evaluate_target_variant`.
+8. **BTC-USD outer-join inflates rows by ~30% via weekend dates.** Reindex to NYSE business days post-concat.
+9. **Late-starting tickers must be auto-dropped** or `dropna()` eats 2007-2018 history.
+
+## Files in current state
+
+- `autoresearchindexstock/CLAUDE.md` (753 lines, self-contained, audit complete)
+- `data/download.py` — 56 tickers including ^VXN/^MOVE/SOXX/SMH/^IXIC/ARKK/IBB/AGG/BTC-USD
+- `data/features.py` — 205 features, equity-native
+- `data/splits.py` — 7 regime-aware folds (GFC peak / 2011 EU debt / Taper / China-oil / Vol-mageddon / COVID / AI rally)
+- `evaluation/metrics.py` — composite + excess-Sharpe + multi-target eval
+- `run_autoresearch.py` — runner with A/B/D logging
+- `autoresearch_results/experiment_log.jsonl` — 6 entries
+- `autoresearch_results/best_config.json` — exp 6 champion
+- `autoresearch_results/reasoning_annotations.json` — full 6-experiment annotations
+- `autoresearch_results/research_journal.md` — narrative
+- `autoresearch_results/experiment_summary.md` — tabular log
+- `autoresearch_results/dashboard.html` — A/B/D selector wired
+- `autoresearch_results/trade_logs/` — 6 per-experiment CSVs + summaries + manifest
 
 ## Hardware
 
-Same as parent — P-cores 0,2,4,6 only. `_pin_to_safe_cores()` imported
-from FX runner.
+P-cores 0,2,4,6 only (parent CLAUDE.md mandate, BSOD prevention).

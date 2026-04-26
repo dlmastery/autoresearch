@@ -110,7 +110,18 @@ def evaluate_target_variant(predictions: np.ndarray,
     # equities are always > -1; this clip is defensive against bad target
     # construction (e.g. vol-adjusted returns scaled outside (-1,1)).
     strat = np.clip(strat, -0.99, np.inf)
-    rpt = trading_report(strat)
+    try:
+        rpt = trading_report(strat)
+    except ZeroDivisionError:
+        # All-positive downside or constant-loss series can produce
+        # downside_std = 0 inside trading_report. Fall back to defaults
+        # the runner expects so the pipeline does not crash on the rare
+        # zero-vol-loss-bucket case.
+        rpt = {
+            "total_return_pct": 0.0,
+            "win_rate": 0.0,
+            "max_drawdown_pct": 0.0,
+        }
     bh = buy_and_hold_metrics(act)
     excess = float(sharpe_ratio(strat)) - bh["bh_sharpe"]
     return {

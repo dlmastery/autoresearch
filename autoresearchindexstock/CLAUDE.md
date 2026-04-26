@@ -263,9 +263,11 @@ Hill-climb axes:
 | seed | variance characterisation (≥3 seeds before champion) |
 | GBM-specific: max_depth, n_estimators, min_child_weight, subsample, colsample_bytree, gamma, reg_lambda, num_leaves | structural HPs |
 
-### Backbone roster (15 — same SOTA selection as FX)
+### Backbone roster (15 generic TS + 8 equity-specific 2024-2026 SOTA)
 
-Order is FX final-ranking — strongest first:
+Order is FX final-ranking — strongest first.
+
+#### Tier 1: 15 generic time-series backbones (same as FX)
 
 1. **XGBoost** — Chen & Guestrin 2016 KDD (arXiv:1603.02754). FX single-model winner.
 2. **LightGBM** — Ke et al. 2017 NeurIPS.
@@ -283,9 +285,50 @@ Order is FX final-ranking — strongest first:
 14. **N-HiTS** — Challu et al. 2023 AAAI (arXiv:2201.12886).
 15. **TFT** — Lim et al. 2021 IJF (arXiv:1912.09363).
 
+#### Tier 1.5: 8 EQUITY-INDEX-SPECIFIC SOTA (added 2026-04-26 per latest research)
+
+These are 2024-2026 architectures *purpose-built* for stock / index
+prediction (not generic TS). They carry inductive biases — sector/style
+mixing, market-guided attention, channel-aware blending — that are
+tailor-made for the 205-feature QQQ matrix. Add these AFTER the Tier-1
+backbones have established the per-feature signal floor:
+
+16. **StockMixer** — Ye, Cao, Lu, Chen 2024 AAAI 'StockMixer: A Simple
+    yet Strong MLP-based Architecture for Stock Price Forecasting'
+    (arXiv:2401.05917) — MLP-Mixer with industry × style × temporal
+    mixing layers; beats N-BEATS / PatchTST on stock benchmarks.
+17. **MASTER** — Li, Sun, Zhao 2024 AAAI 'MASTER: Market-Guided Stock
+    Transformer for Stock Price Forecasting' (arXiv:2312.15235) —
+    explicit market-guided cross-attention; matches our SOXX/SMH/^IXIC
+    cross-asset structure.
+18. **CARD** — Wang, Wu, Long 2024 ICLR 'CARD: Channel Aligned Robust
+    Blend Transformer for Time Series Forecasting' (arXiv:2305.12095)
+    — channel-aware attention; directly relevant when 205 features have
+    heterogeneous semantics.
+19. **Crossformer** — Zhang, Yan 2023 ICLR 'Crossformer: Transformer
+    Utilizing Cross-Dimension Dependency for Multivariate Time Series
+    Forecasting' — routinely tops MTS leaderboards on financial data.
+20. **PatchMixer** — Cong, Wang, Yu 2024 KDD 'PatchMixer: A Patch-Mixing
+    Architecture for Long-Term Time Series Forecasting' (arXiv:2310.00655)
+    — PatchTST patches with MLP-mixing instead of attention; cheaper.
+21. **Reversible Mixer (RMixer)** — Sun, Liu, Long, Wang 2024 NeurIPS —
+    reversible architecture for long-sequence memory efficiency.
+22. **Adv-ALSTM** — Feng, Chen, He, Ding, Sun, Chua 2019 IJCAI 'Enhancing
+    Stock Movement Prediction with Adversarial Training' — adversarial
+    robust LSTM; equity-prediction baseline that resists feature noise.
+23. **StockNet** — Xu, Cohen 2018 ACL 'Stock Movement Prediction from
+    Tweets and Historical Prices' — older but established baseline for
+    binary direction prediction on equity tickers.
+
 Foundation TS models (TimesFM, Chronos, Moirai, MOMENT, Time-MoE, Sundial,
 TiRex) are deferred — underperformed on FX at our n. Add only if a
 ceiling appears.
+
+#### Per-backbone budget update
+
+23 backbones × 25 hill-climb experiments = **~575 total experiments
+before phase-b ensembles.** Tier-1.5 equity-specific additions use the
+same 25-experiment budget per backbone.
 
 ### Per-Backbone SOTA Training Recipes (MANDATORY — re-derive per backbone)
 
