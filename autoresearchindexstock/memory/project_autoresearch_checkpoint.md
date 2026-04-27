@@ -39,7 +39,53 @@ Archived: `winners/mamba_exp17_dmamba_e4_seed42/`.
 
 **Diagnostic conclusion (from commit 54868a1):** "Path to FX parity is QQQ-specific HP discovery, not config transfer."
 
-## NEXT EXPERIMENT: #24 LightGBM exp 10 multi-seed (seed=0)
+## STRATEGY (updated 2026-04-27 by user direction)
+
+**Cheap-first HP exhaustion before heavy backbones.** Per user instruction: finish 25-exp HP search on MLP (~30s/run) and LSTM (~90s/run) BEFORE re-running heavier backbones (LightGBM/CatBoost/XGBoost/Mamba). Cheap iteration loops let us cover the 25-exp mandate in ~12 min vs ~42 min per single heavy-backbone run.
+
+**Backbone tiers by per-run cost on QQQ:**
+| Tier | Backbones | Per-run | Status |
+|---|---|---|---|
+| Cheap | MLP, LSTM | 28-92s | **IN PROGRESS — start here** |
+| Medium | XGBoost (lite), LightGBM (lite n_est=300) | 100-600s | queued |
+| Heavy | LightGBM full, XGBoost full, CatBoost, Mamba/dMamba | 1000-18000s | queued (after cheap done) |
+
+**Multi-seed lessons (already learned, applies to ALL backbones):**
+- dMamba seed=42 +0.86 was lucky; 4-seed median -0.25
+- MLP seed=0 +0.58 was lucky; 4-seed median -1.35
+- LightGBM seed=42 +0.48 was high; 2-seed mean +0.27 (3rd seed pending — DEFERRED to medium-tier work)
+
+## DONE THIS SESSION (2026-04-27)
+
+- Fixed dashboard Status column (KEEP/DISCARD) — runner patch + 23-row JSONL backfill, committed `0debb50`, pushed to GH Pages.
+- Exp 24 LightGBM seed=0 returned **+0.0663 composite** (seed=0 vs seed=42's +0.4825 → -0.42 delta; 2-seed LightGBM mean now +0.27). DISCARD. Verdict + learning written to reasoning_annotations.
+
+## NEXT EXPERIMENT: #25 MLP HP hill-climb — lr 3e-4 → 1e-4
+
+**Pre-flight rationale:** MLP @ FX-Exp32 HPs (exp 6 champion) is a lucky-seed result like dMamba (4-seed median -1.35). Most-likely-to-help single-knob change for stability: lr 3e-4 → 1e-4 (Keskar 2017 ICLR flat-minima theory; Smith 2017 cyclical LR for small-data). Lower LR statistically lands SGD in flatter minima → reduced seed-to-seed variance. Trade peak (seed=0 may drop from +0.58 to +0.45) for stability (4-seed median may rise from -1.35 toward +0.0).
+
+**Bash command (cwd = C:/Users/evija/autoresearch, run in background):**
+```bash
+"C:/Users/evija/anaconda3/python.exe" -u -m autoresearchindexstock.run_autoresearch \
+  --backbone mlp --seq-len 10 --lr 1e-4 --bs 32 --epochs 50 --patience 10 \
+  --weight-decay 1e-5 --head-dropout 0.25 --huber-delta 1.0 --grad-clip 1.0 \
+  --warmup-epochs 0 --seed 0 \
+  --description "MLP @ FX-Exp32 lr=1e-4 (down from 3e-4) — flat-minima hill-climb; Keskar 2017 ICLR, Smith 2017 cyclical LR; targets 4-seed median improvement vs exp 6 seed=0 lucky"
+```
+
+**Expected runtime:** ~30-50s (slightly longer than exp 6's 28s).
+
+**Decision rule after run:**
+- composite ∈ [+0.2, +0.7]: hypothesis viable → schedule seeds 7/42/99 to confirm flatter-minima via reduced 4-seed std-dev
+- composite < 0.0: lr=1e-4 too small (under-train in 50 epochs) → try lr=2e-4 next
+- composite > +0.7: surprise upside — keep + multi-seed immediately
+
+## OLD next-exp record (DEFERRED — to revisit after cheap tier complete)
+
+#24 LightGBM exp 10 multi-seed (seed=0) — completed, +0.0663 DISCARD.
+LightGBM seeds 7/99 pending, scheduled for medium-tier phase.
+
+
 
 **Pre-flight rationale:** Same diagnostic discipline that exposed dMamba as lucky must apply to LightGBM exp 10 (the strongest non-cherry-picked single-model: +0.48 composite, A_sharpe +1.07, 6/7 folds). Before investing the remaining 25-experiment QQQ-native HP-tuning budget on LightGBM as the primary backbone, we must verify whether +0.48 is a stable expectation or another +1σ lucky-seed artefact.
 
