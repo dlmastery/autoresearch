@@ -1,88 +1,99 @@
 ---
 name: AutoResearch QQQ Checkpoint
-description: 6 experiments. Champion MLP @ FX-Exp32 HPs composite +0.5799. LSTM @ FX-Exp35 first BH-beating excess +0.2297.
+description: 23 single-model exps + 1 mega-ensemble. Champion dMamba exp 17 +0.8625 (lucky seed). Next exp 24: LightGBM exp 10 multi-seed variance check (seed=0).
 type: project
 ---
 
-## 🏆 GLOBAL CHAMPION (exp 6)
+## 🏆 GLOBAL CHAMPION (exp 17 — but lucky seed)
 
-**MLP @ FX-Exp32 HPs (residual MLP, head_dropout=0.25, seed=0)** —
-composite **+0.5799**, A_sharpe +0.6799, excess +0.0757, BH +0.6042,
-test_pos_folds 6/7, val_pos_folds 5/7, **runtime 28.7s**.
+**dMamba @ FX-Mamba-winner config (variant=dmamba, expand=4, d_state=16, n_layers=2, seq=60, lr=5e-4, bs=32, ep=100, wd=0.1, hd=0.1, warmup=10, seed=42)** — composite **+0.8625**, A_sharpe +0.8625, **7/7 positive test folds**, excess_sharpe **-0.3576** (under BH +1.22). Runtime 2473s.
 
-CLI:
+**⚠️ Champion is a lucky seed.** 4-seed sweep (exps 17, 19, 20, 21):
+| Seed | Composite | A_sharpe | excess |
+|---:|---:|---:|---:|
+| 42 (champ) | +0.8625 | +0.8625 | -0.3576 |
+| 0  | +0.0169 | +0.5952 | -0.6249 |
+| 99 | -0.8620 | -0.4620 | -1.6821 |
+| 7  | -0.5230 | -0.1230 | -1.3431 |
+| **median** | **-0.25** | **+0.24** | **-1.0** |
+
+Archived: `winners/mamba_exp17_dmamba_e4_seed42/`.
+
+## 🥈 MEGA-5 ENSEMBLE (rank-avg)
+
+**LightGBM + CatBoost + XGBoost + LSTM + MLP, rank-avg of FX-winner-config predictions** — Sharpe **+0.876**, return +107.4%, win-rate 51.0%, excess **-0.343** (under BH +1.219). Best ensemble variant. Archived: `winners/ensemble_mega5_rank/`.
+
+## Phase summary (FX-winner-config transfer phase complete)
+
+| Phase | Exps | Champion (seed=42) | 4-seed median | Status |
+|---|---:|---|---:|---|
+| MLP @ FX-Exp32 HPs | exps 3,4,6,7,13,16 | exp 6 +0.5799 (seed=0) | -1.16 | DONE |
+| LSTM @ FX-Exp35 HPs | exps 5,8,11,23 | exp 5 +0.83 A_sh (seed=42) | +0.11 | DONE |
+| XGBoost @ FX-Exp203 HPs | exps 1,2,22 | exp 22 -1.78 (n_est=1500) | n/a | DONE |
+| LightGBM @ FX-Exp235 HPs | exps 9,10,12 | **exp 10 +0.48 (seed=42)** | **UNKNOWN — needs multi-seed** | **VERIFICATION REQUIRED** |
+| CatBoost @ FX-Exp236 HPs | exps 14,18 | exp 18 -0.92 (n_est=2000) | n/a | DONE |
+| Mamba @ FX-Mamba HPs | exps 15,17,19,20,21 | exp 17 +0.86 (lucky) | -0.25 | DONE |
+| MEGA-5 ensemble | rank-avg | +0.876 | n/a | DONE |
+
+**Headline gap**: best raw Sharpe +0.876 vs FX target +9.7 → 8.8 Sharpe units short. All ensembles trail BH +1.219 by 0.3-0.9 excess Sharpe.
+
+**Diagnostic conclusion (from commit 54868a1):** "Path to FX parity is QQQ-specific HP discovery, not config transfer."
+
+## NEXT EXPERIMENT: #24 LightGBM exp 10 multi-seed (seed=0)
+
+**Pre-flight rationale:** Same diagnostic discipline that exposed dMamba as lucky must apply to LightGBM exp 10 (the strongest non-cherry-picked single-model: +0.48 composite, A_sharpe +1.07, 6/7 folds). Before investing the remaining 25-experiment QQQ-native HP-tuning budget on LightGBM as the primary backbone, we must verify whether +0.48 is a stable expectation or another +1σ lucky-seed artefact.
+
+**Bash command (cwd = C:/Users/evija/autoresearch, run in background):**
 ```bash
-"C:/Users/evija/anaconda3/python.exe" -u -m autoresearchindexstock.run_autoresearch \
-  --backbone mlp --seq-len 10 --lr 3e-4 --bs 32 --epochs 50 --patience 10 \
-  --weight-decay 1e-5 --head-dropout 0.25 --seed 0 \
-  --description "MLP @ FX champion HPs (Exp32) — Gu-Kelly-Xiu 2020 RFS"
+"C:/Users/evija/anaconda3/python.exe" -m autoresearchindexstock.run_autoresearch \
+  --backbone lightgbm --seq-len 60 --max-depth 4 --gbm-lr 0.01 --n-estimators 1000 \
+  --lr 3e-4 --bs 32 --epochs 50 --patience 10 --weight-decay 1e-5 \
+  --head-dropout 0.1 --huber-delta 1.0 --grad-clip 1.0 --warmup-epochs 0 \
+  --seed 0 \
+  --description "LightGBM @ FX-Exp235 HPs seed=0 — multi-seed variance check (vs exp 10 seed=42 +0.48); same discipline that exposed dMamba lucky-seed; Lakshminarayanan 2017 NeurIPS"
 ```
 
-## 📈 Most strategy-vs-passive performance (exp 5)
+**Expected runtime:** ~1640s = 27 min (matching exp 10).
 
-**LSTM @ FX-Exp35 HPs** — composite -0.1318, A_sharpe **+0.8339**,
-**excess_sharpe +0.2297** (first BH-beating excess of the session),
-test_pos_folds **7/7**, val_pos_folds 5/7, runtime 91.8s.
+**Decision rule after run:**
+- If composite ∈ [+0.08, +0.88]: LightGBM is real → schedule seeds 7, 99 for full 4-seed median, then begin QQQ-native HP hill-climb on LightGBM
+- If composite < 0.0: LightGBM was lucky too → pivot to a different baseline (MEGA-5 itself, or different feature engineering)
 
-## Phase summary
+## Subsequent queue (if exp 24 confirms LightGBM)
 
-| Phase | Exps | Champion | Status |
-|---|---:|---|---|
-| MLP | 3 (exps 3, 4, 6) | exp 6 (FX-Exp32 HPs) +0.5799 | OPEN — multi-seed + hidden hill-climb queued |
-| LSTM | 1 (exp 5) | exp 5 (FX-Exp35 HPs) excess +0.23 | OPEN — multi-seed needed |
-| XGBoost | 2 (exps 1, 2) | exp 1 (smoke) -1.5423 | DEFERRED — harness-timeout, foreground re-run pending |
-| LightGBM | 0 (exp 7 attempted in background, reaped) | — | OPEN — needs foreground run |
-| CatBoost | 0 | — | OPEN |
-| Mamba/xLSTM/iTransformer/PatchTST/TSMixer/TimesNet/DLinear/N-BEATS/N-HiTS/TFT | 0 | — | QUEUED |
-| Tier-1.5 — **needs PyTorch implementation before runnable**: |||
-| - StockMixer (Ye 2024 AAAI 2401.05917) | 0 | — | NEEDS IMPL — MLP-mixer industry × style × temporal |
-| - MASTER (Li 2024 AAAI 2312.15235) | 0 | — | NEEDS IMPL — market-guided transformer |
-| - CARD (Wang 2024 ICLR 2305.12095) | 0 | — | NEEDS IMPL — channel-aligned blend transformer |
-| - Crossformer (Zhang-Yan 2023 ICLR) | 0 | — | NEEDS IMPL — cross-dim attention |
-| - PatchMixer (Cong 2024 KDD 2310.00655) | 0 | — | NEEDS IMPL — patches + MLP-mixing |
-| - Reversible Mixer (Sun 2024 NeurIPS) | 0 | — | NEEDS IMPL — reversible long-seq |
-| - Adv-ALSTM (Feng 2019 IJCAI) | 0 | — | NEEDS IMPL — adversarial robust LSTM |
-| - StockNet (Xu-Cohen 2018 ACL) | 0 | — | NEEDS IMPL — equity-prediction baseline |
-| Mega-ensemble (phase b) | n/a | — | BLOCKED on completing the 4 ensemble components |
+- **#25** LightGBM seed=7 (3rd seed)
+- **#26** LightGBM seed=99 (4th seed → median estimate locked)
+- **#27** LightGBM hill-climb #1: max_depth 4 → 6 (Chen-Guestrin 2016 default; tabular ceiling) at the seed-median config
+- **#28** LightGBM hill-climb #2: gbm_lr 0.01 → 0.005 + n_est 1000 → 2000 (more conservative boosting)
+- ... continue 25-exp HP search per CLAUDE.md mandate
 
-## Next experiments (priority queue)
+## Process debt to address (NOT blocking exp 24)
 
-1. **Multi-seed exp 6** — MLP @ FX-Exp32 HPs across seeds [7, 42, 99, 2024] to characterise seed variance (4 experiments).
-2. **Multi-seed exp 5** — LSTM @ FX-Exp35 HPs across seeds [0, 7, 99, 2024] (4 experiments).
-3. **LightGBM @ FX-Exp235 HPs** (depth=4, gbm_lr=0.01, n_est=2000, seq=60) — must run foreground (or split smaller batches).
-4. **CatBoost @ FX-Exp236 HPs** (depth=4, gbm_lr=0.01, n_est=2000, seq=60).
-5. **XGBoost @ FX-Exp203 HPs** (depth=4, gbm_lr=0.03, n_est=1500, seq=60) — needs foreground.
-6. **Build `_qqq_mega_ensemble.py`** — port FX rank-avg recipe.
-7. Continue 25-experiment hill-climb per backbone.
+- `reasoning_annotations.json` only has entries 1-6, 24. Entries 7-23 are MISSING (CLAUDE.md violation). Backfill verdict/learning for 7-23 from JSONL between experiments — work to do during the 27-min exp 24 run.
 
-## Lessons learned this session
+## Hardware (mandatory)
 
-1. **Use `--lr` (not `--learning-rate`).** Common mistake; wasted runs.
-2. **More XGBoost trees made things WORSE on QQQ.** 50 trees beat 300 trees on composite. Opposite of FX. Diagnosis: 12,300-dim flattened seq=60 input space too large for unregularised XGBoost.
-3. **MLP > XGBoost in compute-efficiency on QQQ.** 18× faster + higher composite.
-4. **FX-champion HPs transfer to QQQ.** Both LSTM @ FX-Exp35 (7/7 test folds) and MLP @ FX-Exp32 (+composite) beat plain SOTA-recipe baselines. `head_dropout=0.25` and `wd=7e-4` empirical FX optima survive the asset transfer.
-5. **First positive excess-Sharpe (+0.2297) achieved at exp 5.** LSTM @ FX-Exp35 strategy beats passive QQQ.
-6. **Bash background tasks have a 2-10 min harness timeout.** Long-running experiments must run foreground.
-7. **Target D vol-adjusted returns can be < -1.** Strat realisation must use UNSCALED 1d returns + safety clip in `evaluate_target_variant`.
-8. **BTC-USD outer-join inflates rows by ~30% via weekend dates.** Reindex to NYSE business days post-concat.
-9. **Late-starting tickers must be auto-dropped** or `dropna()` eats 2007-2018 history.
+P-cores 0,2,4,6 only via `_pin_to_safe_cores()` (parent CLAUDE.md mandate, BSOD prevention; 5 BSODs on 2026-04-19 from E-core WHEA errors). Runner pins automatically at import.
 
 ## Files in current state
 
-- `autoresearchindexstock/CLAUDE.md` (753 lines, self-contained, audit complete)
 - `data/download.py` — 56 tickers including ^VXN/^MOVE/SOXX/SMH/^IXIC/ARKK/IBB/AGG/BTC-USD
 - `data/features.py` — 205 features, equity-native
 - `data/splits.py` — 7 regime-aware folds (GFC peak / 2011 EU debt / Taper / China-oil / Vol-mageddon / COVID / AI rally)
-- `evaluation/metrics.py` — composite + excess-Sharpe + multi-target eval
-- `run_autoresearch.py` — runner with A/B/D logging
-- `autoresearch_results/experiment_log.jsonl` — 6 entries
-- `autoresearch_results/best_config.json` — exp 6 champion
-- `autoresearch_results/reasoning_annotations.json` — full 6-experiment annotations
-- `autoresearch_results/research_journal.md` — narrative
-- `autoresearch_results/experiment_summary.md` — tabular log
-- `autoresearch_results/dashboard.html` — A/B/D selector wired
-- `autoresearch_results/trade_logs/` — 6 per-experiment CSVs + summaries + manifest
+- `evaluation/metrics.py` — composite + excess-Sharpe + multi-target eval (A/B/D)
+- `run_autoresearch.py` — runner with A/B/D logging, auto-pin to P-cores
+- `_qqq_mega_ensemble.py` — MEGA-5 rank-avg ensemble script
+- `_sync_dashboard_to_docs.py` — copies autoresearch_results/ → docs/index_stock_dashboard/
+- `autoresearch_results/experiment_log.jsonl` — 23 entries
+- `autoresearch_results/best_config.json` — exp 17 dMamba champion
+- `autoresearch_results/reasoning_annotations.json` — entries 1-6, 24 (gap: 7-23)
+- `autoresearch_results/winners/` — `mamba_exp17_dmamba_e4_seed42/` and `ensemble_mega5_rank/`
+- `docs/index_stock_dashboard/` — Pages mirror in sync (md5-verified 2026-04-27)
 
-## Hardware
+## Live dashboard
+- Local: `python -m http.server 8888 --directory C:/Users/evija/autoresearch/autoresearchindexstock/autoresearch_results`
+- Pages: <https://dlmastery.github.io/autoresearch/index_stock_dashboard/>
 
-P-cores 0,2,4,6 only (parent CLAUDE.md mandate, BSOD prevention).
+## Last session start (this resume)
+
+2026-04-27 — Crash-recovery resume after 54868a1. Verified clean state (HEAD == origin/master, all docs/ md5-matched). User confirmed multi-seed-LightGBM diagnostic over dMamba hill-climb. Wrote pre-launch annotation 24, this checkpoint, ready to launch exp 24.

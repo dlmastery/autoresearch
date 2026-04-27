@@ -611,6 +611,18 @@ def main() -> None:
         "per_window_val":   val_eval["per_window"],
     }
 
+    # KEEP/DISCARD status — set BEFORE appending so the dashboard's status column
+    # populates. Mirrors FX runner line 485. Compares against current global best.
+    prev_best_composite = -1e9
+    if BEST_PATH.exists():
+        try:
+            prev_best_composite = json.loads(
+                BEST_PATH.read_text(encoding="utf-8")
+            ).get("composite", -1e9)
+        except Exception:
+            pass
+    entry["status"] = "KEEP" if composite > prev_best_composite else "DISCARD"
+
     # Atomic write under a file lock so parallel CPU+GPU runs do not
     # collide on experiment_num. The function reassigns entry["experiment_num"]
     # to the authoritative next value and returns it.
@@ -620,13 +632,9 @@ def main() -> None:
     _write_trade_csv(assigned, test_eval["trade_rows"], summary)
 
     # 8. Champion check ----------------------------------------------------
-    is_champion = False
-    if BEST_PATH.exists():
-        prev = json.loads(BEST_PATH.read_text(encoding="utf-8"))
-        if composite > prev.get("composite", -1e9):
-            is_champion = True
-    else:
-        is_champion = True
+    # Reuses prev_best_composite captured above the JSONL append so status and
+    # is_champion stay in sync (KEEP <=> is_champion).
+    is_champion = composite > prev_best_composite
     if is_champion:
         BEST_PATH.write_text(json.dumps(entry, indent=2), encoding="utf-8")
         if not is_gbm:
