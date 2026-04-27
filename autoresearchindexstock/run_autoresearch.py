@@ -370,6 +370,13 @@ def main() -> None:
     parser.add_argument("--gbm-lr", type=float, default=None,
                         help="GBM only — boosting learning rate")
     parser.add_argument("--n-estimators", type=int, default=None)
+    parser.add_argument("--mamba-variant", type=str, default=None,
+                        choices=[None, "vanilla", "s_mamba", "dmamba", "mambats"],
+                        help="Mamba: variant (FX winner = dmamba)")
+    parser.add_argument("--expand", type=int, default=None,
+                        help="Mamba: d_inner = d_model * expand (FX winner = 4)")
+    parser.add_argument("--d-state", type=int, default=None,
+                        help="Mamba: d_state for SSM (default 16)")
     parser.add_argument("--description", required=True)
     args = parser.parse_args()
 
@@ -479,6 +486,9 @@ def main() -> None:
         kw = {}
         if args.hidden_size is not None: kw["hidden_size"] = args.hidden_size
         if args.num_layers is not None: kw["num_layers"] = args.num_layers
+        if args.mamba_variant is not None: kw["variant"] = args.mamba_variant
+        if args.expand is not None: kw["expand"] = args.expand
+        if args.d_state is not None: kw["d_state"] = args.d_state
         model = create_model(
             backbone=args.backbone,
             n_input_features=n_features,
