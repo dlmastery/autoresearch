@@ -486,9 +486,9 @@ def main() -> None:
         kw = {}
         if args.hidden_size is not None: kw["hidden_size"] = args.hidden_size
         if args.num_layers is not None: kw["num_layers"] = args.num_layers
-        if args.mamba_variant is not None: kw["variant"] = args.mamba_variant
-        if args.expand is not None: kw["expand"] = args.expand
-        if args.d_state is not None: kw["d_state"] = args.d_state
+        if args.mamba_variant is not None: kw["mamba_variant"] = args.mamba_variant
+        if args.expand is not None: kw["mamba_expand"] = args.expand
+        if args.d_state is not None: kw["mamba_d_state"] = args.d_state
         model = create_model(
             backbone=args.backbone,
             n_input_features=n_features,
