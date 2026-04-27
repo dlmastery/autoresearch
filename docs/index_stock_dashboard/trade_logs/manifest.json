@@ -24,7 +24,18 @@
     22,
     23
   ],
-  "ensembles": [],
+  "ensembles": [
+    {
+      "name": "mega5_ensemble",
+      "label": "Mega5 Ensemble",
+      "file": "mega5_ensemble_trades.csv",
+      "summary_file": null,
+      "sharpe": null,
+      "rows": null,
+      "win_rate": null,
+      "return_pct": null
+    }
+  ],
   "n_experiment_csvs": 23,
-  "n_ensemble_csvs": 0
+  "n_ensemble_csvs": 1
 }
