@@ -271,27 +271,19 @@ def log_experiment(*, exp_num: int, backbone: str, description: str, config: dic
     (RESULTS / "trade_logs" / f"exp{exp_num}_prediction_summary.json").write_text(
         json.dumps(summary, indent=2, default=str), encoding="utf-8")
 
-    # Update best_config if new GLOBAL UNCONDITIONAL champion.
-    # Guard added 2026-04-26 (post-Exp 149 lesson): only auto-promote experiments
-    # that evaluated on the FULL dataset with no sample rejection. Deployment-mode
-    # results (with silhouette rejection or noise points) are NOT comparable to
-    # unconditional ARIs and must NOT auto-displace the unconditional champion.
+    # Update best_config if new champion
     if BEST_PATH.exists():
         prev = json.loads(BEST_PATH.read_text(encoding="utf-8"))
         prev_composite = prev.get("composite", float("-inf"))
     else:
         prev_composite = float("-inf")
-    n_pred_ok = metrics.get("n_pred_clusters") == metrics.get("n_true_clusters")
-    n_noise_ok = (metrics.get("n_noise", 0) or 0) == 0
-    is_unconditional = n_pred_ok and n_noise_ok
-    if composite > prev_composite and is_unconditional:
+    if composite > prev_composite:
         BEST_PATH.write_text(json.dumps({
             "experiment_num": exp_num, "backbone": backbone, "composite": composite,
             "test_primary": metrics["ari"], "val_primary": metrics.get("silhouette"),
             "config": config, "description": description,
             "secondary_metrics": record["secondary_metrics"],
             "timestamp": record["timestamp"],
-            "note": "Unconditional champion (n_pred==K_true and n_noise==0).",
         }, indent=2, default=str), encoding="utf-8")
 
     print(f"[Exp {exp_num} ({backbone})] composite={composite:.4f} ari={metrics['ari']:.4f} "

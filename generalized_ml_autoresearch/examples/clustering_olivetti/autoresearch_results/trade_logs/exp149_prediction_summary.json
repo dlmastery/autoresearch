@@ -1,0 +1,7 @@
+{
+  "backbone": "silhouette_reject_on_exp71",
+  "ari": 0.874026282553854,
+  "nmi": 0.9542282709432366,
+  "n_pred_clusters": 39,
+  "n_noise": 83
+}

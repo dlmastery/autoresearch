@@ -1,8 +1,9 @@
 # Olivetti Faces Clustering AutoResearch Project
 
-**Champion: DINOv2 ViT-S/14 + Spectral Clustering, cosine affinity, seed = 99 — ARI = 0.7195**
+**Unconditional champion: Exp 147 — 5-seed CSPA co-association ensemble (Strehl 2002) of Spectral cosine on DINOv2 ViT-S/14 — ARI = 0.7346**
+**Deployment-mode champion: Exp 149 — silhouette-rejection on Exp 71 — conditional ARI = 0.8740 on 317/400 kept samples**
 
-149 honest experiments across 6 backbone families (linear projections, manifold learning, spectral clustering, deep autoencoders, pretrained vision transformers, ensembles). Every experiment is grounded in a peer-reviewed paper, predicted with a numeric ARI range *before* it runs, and validated against that prediction afterwards. The reasoning trail lives in `reasoning_annotations.json` (149 entries × 7 fields) so a future Claude Code session can reconstruct *why* every champion was chosen without re-reading any source.
+152 honest experiments across 6 backbone families (linear projections, manifold learning, spectral clustering, deep autoencoders, pretrained vision transformers, ensembles). Every experiment is grounded in a peer-reviewed paper, predicted with a numeric ARI range *before* it runs, and validated against that prediction afterwards. The reasoning trail lives in `reasoning_annotations.json` (149 entries × 7 fields) so a future Claude Code session can reconstruct *why* every champion was chosen without re-reading any source.
 
 ## Headline result
 

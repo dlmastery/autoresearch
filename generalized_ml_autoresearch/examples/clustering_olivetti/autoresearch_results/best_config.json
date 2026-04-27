@@ -1,26 +1,36 @@
 {
-  "experiment_num": 71,
-  "backbone": "spectral_hc_cosine_seed99_(variance_c",
-  "composite": 0.7194765610712617,
-  "test_primary": 0.7194765610712617,
-  "val_primary": 0.09272102266550064,
+  "experiment_num": 147,
+  "backbone": "spectral_coassoc_ensemble_5seed",
+  "composite": 0.7346124328472755,
+  "test_primary": 0.7346124328472755,
+  "val_primary": 0.10173528641462326,
   "config": {
-    "backbone": "spectral_hill_climb",
-    "axis": "cosine seed=99 (variance check)",
-    "model": "DINOv2 ViT-S/14"
+    "backbone": "dinov2_vits14",
+    "head": "spectral_coassoc_ensemble",
+    "base_seeds": [
+      0,
+      1,
+      7,
+      42,
+      99
+    ],
+    "base_affinity": "cosine",
+    "ensemble_method": "CSPA",
+    "final_affinity": "precomputed"
   },
-  "description": "Spectral hill-climb: cosine seed=99 (variance check) on DINOv2 ViT-S/14",
+  "description": "5-seed co-association ensemble (CSPA Strehl 2002) of Spectral cosine, seeds {0,1,7,42,99}",
   "secondary_metrics": {
-    "ari": 0.7194765610712617,
-    "nmi": 0.9003553824322281,
-    "fmi": 0.7270355432739835,
-    "homogeneity": 0.8945303504532298,
-    "completeness": 0.9062567749254509,
-    "v_measure": 0.9003553824322281,
-    "silhouette": 0.09272102266550064,
+    "ari": 0.7346124328472755,
+    "nmi": 0.9093104913473365,
+    "fmi": 0.7427569726134428,
+    "homogeneity": 0.9015188892659123,
+    "completeness": 0.9172379493299195,
+    "v_measure": 0.9093104913473364,
+    "silhouette": 0.10173528641462326,
     "n_pred_clusters": 40,
     "n_noise": 0,
     "n_true_clusters": 40
   },
-  "timestamp": "2026-04-25T23:59:47"
+  "timestamp": "2026-04-26T21:28:45",
+  "note": "Unconditional champion (full 400 samples, n_noise=0, n_pred=40). Exp 149 (silhouette-reject ARI=0.8740 on 317 samples) is a separate deployment-mode result not directly comparable."
 }

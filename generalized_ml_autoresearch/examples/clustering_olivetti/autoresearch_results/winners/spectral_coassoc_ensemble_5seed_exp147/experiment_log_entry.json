@@ -1,0 +1,55 @@
+{
+  "experiment_num": 147,
+  "backbone": "spectral_coassoc_ensemble_5seed",
+  "description": "5-seed co-association ensemble (CSPA Strehl 2002) of Spectral cosine, seeds {0,1,7,42,99}",
+  "config": {
+    "backbone": "dinov2_vits14",
+    "head": "spectral_coassoc_ensemble",
+    "base_seeds": [
+      0,
+      1,
+      7,
+      42,
+      99
+    ],
+    "base_affinity": "cosine",
+    "ensemble_method": "CSPA",
+    "final_affinity": "precomputed"
+  },
+  "composite": 0.7346124328472755,
+  "val_primary": 0.10173528641462326,
+  "test_primary": 0.7346124328472755,
+  "per_fold_test": [
+    0.7346124328472755
+  ],
+  "per_fold_val": [
+    0.10173528641462326
+  ],
+  "status": "KEEP",
+  "seconds_elapsed": 61.31106472015381,
+  "timestamp": "2026-04-26T21:28:45",
+  "secondary_metrics": {
+    "ari": 0.7346124328472755,
+    "nmi": 0.9093104913473365,
+    "fmi": 0.7427569726134428,
+    "homogeneity": 0.9015188892659123,
+    "completeness": 0.9172379493299195,
+    "v_measure": 0.9093104913473364,
+    "silhouette": 0.10173528641462326,
+    "n_pred_clusters": 40,
+    "n_noise": 0,
+    "n_true_clusters": 40
+  },
+  "per_fold_test_reports": [
+    {
+      "fold_id": 0,
+      "regime": "full-dataset",
+      "ari": 0.7346124328472755,
+      "nmi": 0.9093104913473365,
+      "fmi": 0.7427569726134428,
+      "silhouette": 0.10173528641462326,
+      "n": 400
+    }
+  ],
+  "composite_fingerprint": "clustering-ari-floor0.3"
+}

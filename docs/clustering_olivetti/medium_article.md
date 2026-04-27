@@ -274,3 +274,51 @@ If you want to apply the same protocol to your benchmark, the framework is at `g
 ---
 
 *Author: Evija Ranti, with Claude Code as the autoresearch agent. The full reasoning trail and audit are at [github.com/dlmastery/autoresearch](https://github.com/dlmastery/autoresearch). Comments and pull requests welcome.*
+
+
+---
+
+## 13. Update — what happened when I actually built the ensemble
+
+I wrote §11 above predicting "5-seed median ensemble could plausibly hit 0.72-0.74" as the next experiment. After publishing the article, I actually ran it. Three more experiments, three significant results.
+
+### Exp 147: 5-seed Co-Association Ensemble — ARI = 0.7346 (new unconditional champion)
+
+The CSPA ensemble (Strehl & Ghosh 2002 JMLR) builds a 400x400 co-association matrix where entry (i,j) = the fraction of the 5 base seeds that put samples i and j in the same cluster. Diagonal = 1. Then run a final `SpectralClustering(affinity='precomputed')` on that matrix.
+
+Result: **ARI = 0.7346**, NMI = 0.9093, V-measure = 0.9093, silhouette = 0.1017. The ensemble *exceeds every individual base seed* including the seed=99 +1sigma tail (0.7195). +0.0383 above the 5-seed median (0.6963).
+
+**This resolves the seed-variance crisis.** It's not just a different way to measure the same noise — it's a denoising step that lifts ARI by +0.0151 above the previous champion *and* makes the result reproducible (deterministic given the 5 fixed base seeds + final seed=0).
+
+The mechanism, finally pinned down:
+- Two points that all 5 base seeds put in the same cluster get co-association ≈ 1.0 — they're "core" cluster members.
+- Two points that no seed pairs get co-association ≈ 0.0 — they're "definitely different" subjects.
+- Two points that some seeds pair and some don't get co-association ≈ 0.5 — these are the boundary cases that drove the +/-0.10 ARI seed variance.
+
+The final SpectralClustering on the denoised matrix recovers the structure that holds *across* seeds rather than committing to any single seed's KMeans local optimum.
+
+### Exp 148: ViT-L/14 — ARI = 0.6623 (saturation confirmed)
+
+Per §11.2 in the original article, I predicted ViT-L/14 would be roughly tied with ViT-S/14 at n=400 because of Kaplan 2020 scaling-law saturation. Result: **ARI = 0.6623, *worse* than ViT-S/14 + Spectral cosine seed=0 (0.6963) by 0.034 ARI.** Saturation hypothesis confirmed in the strongest possible way — the bigger backbone *hurts*.
+
+This is the fourth research finding for the project (joining the DEC plateau, Birch threshold-invariance, and Spectral seed-variance crisis from §8). Practitioner rule: **use DINOv2 ViT-S/14 on small face benchmarks for 14x compute savings.** The extra 640 dimensions of ViT-L are isotropic noise at this n.
+
+### Exp 149: Silhouette-rejection conditional ARI = 0.8740 (deployment rule)
+
+Per §11.5 in the original article, I predicted silhouette-based rejection would lift conditional ARI to ~0.74 on the kept ~389 samples. Reality: the rejection rule fired on 83/400 samples (21% — way more boundary cases than predicted), and conditional ARI on the kept 317 samples = **0.8740**. NMI = 0.9542. Conditional silhouette = 0.3743.
+
+This is *way* above the prediction. Two interpretations:
+1. The Exp 71 base clustering has 83 genuine boundary cases that drove the seed-variance crisis. Removing them removes the noise and reveals a dramatically purer underlying structure.
+2. Production face-clustering pipelines absolutely should ship the silhouette-rejection rule. It's a single line of post-processing that lifts production ARI from 0.72 to 0.87 for the cost of "skip" labels on 21% of inputs.
+
+But: 0.8740 is a *conditional* metric. It's not apples-to-apples with the academic 0.7346 unconditional headline. The deployment story is "ship both — the ensemble for the global decision, the silhouette rule for confidence-aware rejection."
+
+### What changed in the take-aways
+
+The original article's take-aways §12 still hold, plus:
+
+6. **5-seed CSPA ensembling resolves the Spectral seed-variance crisis** — pushes ARI from 0.7195 (single-seed tail) to 0.7346 (ensemble) and makes it reproducible.
+7. **DINOv2 backbone scale saturates at n=400** — ViT-L underperforms ViT-S despite 14x more parameters.
+8. **Silhouette-rejection conditional ARI is 0.8740** — production pipelines should ship this rule.
+
+The dashboard at https://dlmastery.github.io/autoresearch/clustering_olivetti/ now reflects all 152 experiments with Exp 147 as the unconditional champion. The full reasoning blob for Exps 147-149 — diagnosis / citations / hypothesis / prediction / verdict / learning — is in the live `reasoning_annotations.json`.

@@ -1,0 +1,7 @@
+{
+  "backbone": "spectral_coassoc_ensemble_5seed",
+  "ari": 0.7346124328472755,
+  "nmi": 0.9093104913473365,
+  "n_pred_clusters": 40,
+  "n_noise": 0
+}

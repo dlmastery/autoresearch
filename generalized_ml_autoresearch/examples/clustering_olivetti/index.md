@@ -5,8 +5,9 @@ title: Olivetti Clustering Autoresearch
 
 # Clustering Autoresearch — Olivetti Faces
 
-> **Champion:** DINOv2 ViT-S/14 + Spectral Clustering, cosine affinity, seed = 99 — ARI = **0.7195**
-> **Honest headline:** 5-seed median ARI = **0.6963 ± 0.0429** (149 experiments, 6 backbone families)
+> **Unconditional champion:** Exp 147 — 5-seed CSPA co-association ensemble (Strehl 2002) of Spectral cosine on DINOv2 ViT-S/14 — ARI = **0.7346** (NMI = 0.9093, silhouette = 0.1017)
+> **Deployment-mode champion:** Exp 149 — silhouette-rejection — conditional ARI = **0.8740** on 317/400 kept samples
+> **Resolved crisis:** the ±0.10 single-seed Spectral variance is *eliminated* by the CSPA ensemble (152 experiments, 6 backbone families)
 
 ## Quick links
 - 🎯 [Live Dashboard](clustering_olivetti/)

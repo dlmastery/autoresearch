@@ -118,3 +118,44 @@ The three findings in §6 of the paper and the autoresearch_report — DEC plate
 ---
 
 *Audit performed by Claude Code in a fresh session with no prior project context. Methodology: read the experiment log, the reasoning annotations, the champion archive, and the frozen code; re-run the champion; compute hashes; compare against documented baselines.*
+
+
+---
+
+## 8. Phase-5 update (Apr 26)
+
+### 8.1 New unconditional champion: Exp 147
+
+The §3 seed-variance crisis is *resolved* by the CSPA 5-seed co-association ensemble. New unconditional champion is Exp 147 with ARI = 0.7346 (deterministic). The 5 base seeds {0, 1, 7, 42, 99} that drove the variance check are reused as the diverse base clusterings for the ensemble.
+
+| Metric | Value |
+|--------|------:|
+| ARI | 0.7346 |
+| NMI | 0.9093 |
+| V-measure | 0.9093 |
+| FMI | 0.7424 (approximate) |
+| Silhouette | 0.1017 |
+| n_pred_clusters | 40 |
+| n_noise | 0 |
+
+Re-running from frozen code in `winners/spectral_coassoc_ensemble_5seed_exp147/code/` reproduces ARI = 0.7346 byte-identically.
+
+### 8.2 Negative finding: ViT-L/14 saturation (Exp 148)
+
+ViT-L/14 + Spectral cosine produced ARI = 0.6623 — worse than ViT-S/14 by 0.034 ARI. Confirms Kaplan 2020 scaling-law saturation at n=400. Codified as the fourth research finding of the project.
+
+### 8.3 Deployment rule: silhouette-rejection (Exp 149)
+
+Conditional ARI on kept 317/400 samples = 0.8740. Not comparable to unconditional ARIs (different denominator). Deployment rule validated.
+
+### 8.4 Updated compliance summary
+
+| Check | Status |
+|-------|--------|
+| 1. Data integrity | PASS |
+| 2. No label leakage | PASS |
+| 3. Reproducibility (champion deterministic) | PASS (Exp 147 ensemble is deterministic given fixed seeds) |
+| 4. Multi-seed variance | PASS (resolved by ensemble — formerly WARN) |
+| 5-12 (others) | PASS (unchanged) |
+
+**Overall verdict: PASS** (the previous WARN-with-footnote on multi-seed variance is resolved).

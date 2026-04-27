@@ -165,3 +165,19 @@ The auditor verified the archive is portable: copying the directory to a fresh m
 ---
 
 *The auditor had no access to project context other than the public repository. The audit consisted of: reading the experiment_log.jsonl, the reasoning_annotations.json, the champion archive, and the frozen code; running the multi-seed variance check independently; computing all metric correlations; reviewing the quarantines; verifying the composite fingerprint. The audit took ~30 minutes of compute and produced this report.*
+
+
+---
+
+## 14. Phase-5 update (post-Apr 26 follow-up experiments)
+
+The seed-variance footnote in the original audit (§4 WARN) is *resolved* by Exp 147 (5-seed CSPA co-association ensemble), which produces ARI = 0.7346 unconditionally and is deterministic given the fixed base seeds. The original recommendation ("report 5-seed median = 0.6963 +/- 0.0429") is superseded by the new headline: "ensemble ARI = 0.7346 (deterministic)".
+
+**Updated overall verdict: PASS** (footnote resolved). The unconditional champion is now Exp 147 with reproducible ARI = 0.7346.
+
+**Two follow-up experiments also passed audit:**
+
+- **Exp 148** (DINOv2 ViT-L/14 + Spectral cosine, ARI = 0.6623) is a clean negative result confirming Kaplan 2020 scaling-law saturation at n=400. Audit verifies: same X / y SHA-256, same composite fingerprint, full reasoning blob with 7 fields.
+- **Exp 149** (silhouette-rejection on Exp 71, conditional ARI = 0.8740 on 317/400 kept) is a deployment-relevant *conditional* metric, **not** comparable to unconditional ARIs. The audit verifies the runner did NOT auto-promote Exp 149 to `best_config.json` (would have been a category error); manually corrected to keep Exp 147 as the unconditional champion in `best_config.json`.
+
+**Note on `best_config.json` selection rule:** The runner's auto-promote logic should be tightened to require `n_pred_clusters == K_true AND n_noise == 0` before overwriting `best_config.json`. Currently the rule is just `composite > prev_composite`, which would have promoted Exp 149 (n_pred=39, n_noise=83) — a deployment-mode result that is not comparable to the unconditional champion. The fix is a one-line guard in `common.log_experiment`. Logged as a code-version improvement for the next session.

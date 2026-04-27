@@ -1,0 +1,14 @@
+{
+  "backbone": "dinov2_vits14",
+  "head": "spectral_coassoc_ensemble",
+  "base_seeds": [
+    0,
+    1,
+    7,
+    42,
+    99
+  ],
+  "base_affinity": "cosine",
+  "ensemble_method": "CSPA",
+  "final_affinity": "precomputed"
+}
