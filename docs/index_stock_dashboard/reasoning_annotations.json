@@ -515,5 +515,95 @@
     "_manual": true,
     "verdict": "🏆 LSTM 4-seed mean RECORD: +0.74 seed=99 (highest LSTM single-seed). 4-seed mean +0.50, median +0.48, std 0.20, range 0.42. 1-layer LSTM is QQQ's most stable champion zone — better mean than dMamba expand=2 (+0.44 mean) AND 5x tighter variance (std 0.20 vs 1.08).",
     "learning": "**Major finding**: 1-layer LSTM (FX-paper-said-underfits) is QQQ's TRUE LSTM optimum — both higher mean composite (+0.50) and tighter variance (range 0.42) than 2-layer. The FX 2-layer prior comes from FX's larger n_train; QQQ's smaller n favors shallower. Continuing hill-climb from new baseline (1-layer)."
+  },
+  "75": {
+    "diagnosis": "Hill-climb from new LSTM champion (exp 74, 1-layer seed=99 +0.74; 4-seed mean +0.50). Untested architectural combo: 1-layer LSTM + hidden_size=256. FX paper tested hidden_size on 2-layer LSTM only (96/128/256, with 128 best). On 1-layer LSTM with QQQ's 205 features, wider cell (256) may hold regime context that 2-layer-128 had via depth.",
+    "citations": "FX paper §4.6 hidden_size sweep on 2-layer LSTM. Hochreiter & Schmidhuber 1997 — cell-state width controls long-range memory capacity. Bouthillier 2019 ICLR — single architectural change is the canonical hill-climb.",
+    "hypothesis": "1-layer + hidden=256 may match or exceed 1-layer + hidden=128 (default) by trading depth for width. Predicted composite [+0.0, +0.7].",
+    "prediction": "Composite [+0.0, +0.7], runtime ~30-50s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.23, val collapse 2/7. hidden=256 on 1-layer LSTM doesn't help — width alone doesn't substitute for depth. 1-layer+hidden=128 is the sweet spot.",
+    "learning": "1-layer LSTM hidden_size axis closed at 128. Continuing other axes."
+  },
+  "76": {
+    "diagnosis": "1-layer LSTM bs axis untested. exp 71 (champion) uses bs=16. FX paper §6.4 noted bs=32 had different seed-variance profile than bs=16. Single-knob test from new champion baseline.",
+    "citations": "FX paper §6.4 seed-variance regimes; Keskar 2017 batch-size flat-minima theory.",
+    "hypothesis": "bs=32 may match or differ from bs=16 on 1-layer LSTM. Predicted [-0.2, +0.6].",
+    "prediction": "Composite [-0.2, +0.7], runtime ~30s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.08, A_sh +0.40. bs=32 hurts 1-layer LSTM (vs bs=16 default). Sweet spot bs=16 confirmed.",
+    "learning": "1-layer LSTM bs axis closed at 16. Trying huber_delta=0.1 on 1-layer next (apply F1-fix delta to new champion)."
+  },
+  "77": {
+    "diagnosis": "Combine the two QQQ research-driven discoveries: (a) 1-layer LSTM (exp 71 4-seed mean +0.50) and (b) huber_delta=0.1 F1 fix (exp 65/66 +1.6 to +2.0 F1 alpha but val collapses on 2-layer). On 1-layer LSTM (which already has better val regime fit), huber=0.1 may give F1 lift WITHOUT val collapse.",
+    "citations": "Huber 1964/2009; Hochreiter-Schmidhuber 1997; FX paper §6.4 cross-axis combinations.",
+    "hypothesis": "1-layer + huber=0.1 combines depth-stability and outlier-robustness. Predicted F1 lift, val_pos preserved at 4-5/7. Composite [+0.0, +0.8].",
+    "prediction": "Composite [-0.2, +0.8], runtime ~30s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.72, F1 -0.76. 1-layer + huber=0.1 combo failed; F1 fix from exp 66 was lucky-seed not architecture-driven.",
+    "learning": "Cross-axis combo of 1-layer + huber=0.1 doesn't yield robust F1 fix. exp 71/72/73/74 1-layer baseline at huber=1.0 remains the stable LSTM champion."
+  },
+  "78": {
+    "diagnosis": "Untested MLP axis: weight_decay. exp 6 uses wd=1e-5 (default). Loshchilov 2019 log-spaced step to 1e-4 (10x). MLP architecture in QQQ is fixed 2-layer residual (no num_layers axis). Other untested axes: warmup_epochs, grad_clip — neither has strong literature for MLP.",
+    "citations": "Loshchilov, Hutter 2019 ICLR 'Decoupled Weight Decay' (arXiv:1711.05101); Krogh, Hertz 1992 NIPS 'A Simple Weight Decay'.",
+    "hypothesis": "wd=1e-4 (10x increase) on residual MLP may regularize vs exp 6 baseline. Predicted [-0.3, +0.7].",
+    "prediction": "Composite [-0.3, +0.7], runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "Identical to exp 6 (composite +0.5799 to 4 decimals). wd=1e-4 vs 1e-5 is no-op at this scale — FX learning replicated. Effective duplicate of exp 6.",
+    "learning": "MLP wd axis is inert in [1e-5, 1e-4] range at QQQ scale. Going to warmup axis next."
+  },
+  "79": {
+    "diagnosis": "Untested MLP axis: warmup_epochs. exp 6 uses 0 (immediate full lr). Goyal 2017 establishes LR warmup as the most reliable training-stability lever. Single-knob change: 0 → 5 epochs warmup.",
+    "citations": "Goyal, Dollar, Girshick et al. 2017 'Accurate, Large Minibatch SGD' (arXiv:1706.02677); Liu, Jiang, He et al. 2019 ICLR 'On the Variance of the Adaptive Learning Rate' (arXiv:1908.03265).",
+    "hypothesis": "5-epoch warmup may slightly improve seed-stability without meaningfully changing peak. Predicted [+0.3, +0.7].",
+    "prediction": "Composite [+0.3, +0.7], runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "🎯 NEW MLP CHAMPION. Composite +0.9735 (vs exp 6 +0.58, Δ +0.39). A_sharpe +1.0394, excess +0.4352, 7/7 TEST POS FOLDS. Best MLP on QQQ ever. Warmup=5 (Goyal 2017) gave transformative lift — at lr=3e-4 on small-data, immediate full LR was destabilising convergence.",
+    "learning": "Goyal 2017 LR warmup mechanism dramatically improves residual MLP on QQQ. Confirms Bouthillier 2019 LR-is-largest-variance-lever finding — warmup is essentially LR-as-time-varying, smoothing the early convergence. Multi-seed verify next to lock as new MLP champion."
+  },
+  "80": {
+    "diagnosis": "Multi-seed verify exp 79 (NEW MLP CHAMPION, warmup=5 seed=0 +0.97). Per CLAUDE.md FX-Project-Learnings 'median-of-k seed reporting', single-seed +0.97 may be lucky. Same config seed 0→42.",
+    "citations": "Lakshminarayanan 2017 NeurIPS deep ensembles; FX paper §6.4. Goyal 2017 — warmup stabilises seed variance.",
+    "hypothesis": "If warmup=5 mechanism is real (not just lucky seed=0), seed=42 should land [+0.3, +0.9]. exp 6 seed=42 was -1.50 (lucky-low); warmup may fix this.",
+    "prediction": "Composite [+0.0, +1.0], runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.71 (vs exp 79 seed=0 +0.97 — Δ -1.69). 2-seed range 1.69 — exp 79 was lucky-seed not mechanism-driven. MLP warmup has HIGH seed variance like 2-layer LSTM huber=0.1.",
+    "learning": "MLP warmup=5 mean across 2 seeds = +0.13 — modest improvement over baseline mean -0.91. Need 3rd seed for proper median estimate."
+  },
+  "81": {
+    "diagnosis": "3rd seed for MLP warmup=5 multi-seed. seeds 0/42 = +0.97/-0.71. Need seed=7 to triangulate.",
+    "citations": "Lakshminarayanan 2017 NeurIPS; Bouthillier 2019.",
+    "hypothesis": "Seed=7 in [-0.5, +0.7].",
+    "prediction": "Composite [-0.7, +0.8], runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.49. MLP warmup=5 3-seed: 0=+0.97, 42=-0.71, 7=-0.49. Mean -0.08, std 0.92. exp 79 was +σ lucky outlier on near-zero mean. MLP HP grid exhausted — no robust HP improvement on QQQ MLP.",
+    "learning": "MLP HP space conclusively saturated. All single-knob axes (lr/bs/hd/epochs/seq/wd/warmup/hidden/huber) explored — no robust improvement above exp 6 lucky-seed +0.58. Pivoting back to LSTM 1-layer hill-climb."
+  },
+  "82": {
+    "diagnosis": "LSTM 1-layer hill-climb on epochs axis. New champion (exps 71-74 1-layer 4-seed mean +0.50) used ep=100 pat=15 (Fischer-Krauss 2018 default). Fischer-Krauss explicitly used ep=200 on S&P daily LSTM. We tested ep=200 on 2-layer (exp 35) and it OVERFIT (-1.43). On 1-layer LSTM (smaller capacity) ep=200 may converge without overfit.",
+    "citations": "Fischer & Krauss 2018 EJOR 'Deep learning with LSTMs for financial market predictions' — recommended ep=200 + pat=20 for daily-frequency LSTM. Goyal 2017 — longer training stability lever.",
+    "hypothesis": "1-layer + ep=200 + pat=30 may improve over 1-layer + ep=100 by allowing more convergence at the smaller-capacity model. Predicted [+0.0, +0.8].",
+    "prediction": "Composite [-0.2, +0.8], runtime ~60-90s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.29, A_sh +0.12. ep=200 over-fits even on 1-layer LSTM. QQQ's 2200-row training too small for 200-epoch budget at any capacity.",
+    "learning": "LSTM ep=100 pat=15 is final on QQQ. Exiting epochs axis. Trying wd next."
+  },
+  "83": {
+    "diagnosis": "1-layer LSTM wd axis. exp 71 (champion) uses wd=7e-4. Loshchilov 2019 log-spaced step to 1e-3 (40% increase). On 2-layer LSTM wd=1e-3 (exp 33) gave better A_sh but val collapsed. On 1-layer (better val baseline) the trade may differ.",
+    "citations": "Loshchilov, Hutter 2019 ICLR (arXiv:1711.05101); FX paper §6.4 wd-axis inert in [5e-4, 1e-3] range.",
+    "hypothesis": "1-layer + wd=1e-3 may slightly improve via stronger AdamW decoupling. Predicted [+0.0, +0.6].",
+    "prediction": "Composite [-0.2, +0.6], runtime ~30-45s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.42. wd=1e-3 hurts 1-layer LSTM too. wd axis closed at 7e-4.",
+    "learning": "1-layer LSTM HP grid largely closed. Continuing to fill cheap-tier 25-budget."
+  },
+  "84": {
+    "diagnosis": "MLP grad_clip axis untested. exp 6 uses 1.0. Tighter clip=0.5 may stabilize gradients on noisy QQQ training.",
+    "citations": "Pascanu, Mikolov, Bengio 2013 ICML 'On the difficulty of training recurrent neural networks' (arXiv:1211.5063) — gradient clipping prevents explosions.",
+    "hypothesis": "grad_clip=0.5 may modestly stabilize. Predicted [+0.0, +0.7].",
+    "prediction": "Composite [+0.0, +0.7], runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "Composite +0.59 ≈ exp 6's +0.58. grad_clip axis inert at QQQ MLP scale. **MLP 25/25 cheap-tier complete per user mandate.**",
+    "learning": "MLP HP grid completely mapped. exp 6 (lr=3e-4 bs=32 ep=50 hd=0.25 wd=1e-5 hidden=128 grad_clip=1.0 huber=1.0) is the local optimum. 4-seed median -1.16 means MLP cheap-tier ceiling on QQQ is poor. LSTM 1-layer is materially better at 4-seed mean +0.50."
   }
 }
