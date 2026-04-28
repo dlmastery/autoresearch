@@ -845,6 +845,15 @@
     "citations": "Lucca, Moench 2015 Journal of Finance 'The Pre-FOMC Announcement Drift'. Boyd, Hu, Jagannathan 2005 RFS 'The Stock Market's Reaction to Unemployment News'. Stivers, Sun 2002 'Stock Returns at Index-Futures Expirations'. FX paper §6.5 — feature engineering > model replacement.",
     "hypothesis": "MLP @ exp 6 config + 5 new calendar features may improve composite via FOMC/NFP/CPI/quad-witching alpha signals. Predicted [+0.5, +1.0]. F1 GFC may improve since FOMC actions during GFC drove returns.",
     "prediction": "Composite [+0.4, +1.0], runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.51 (Δ -1.09 vs exp 6 +0.58). NEW FEATURES changed input dim from 205 to 210; model init differs → seed=0 reproducibility broken (was a +1.5σ lucky outlier on 205 features). Multi-seed verification needed before assessing feature value.",
+    "learning": "Adding features to a small-data MLP changes effective seed-distribution because the model's first-layer weight matrix shape changes. Cannot directly compare same-seed before/after. Need 4-seed mean to compare populations not individual seeds."
+  },
+  "112": {
+    "diagnosis": "Multi-seed exp 111 — MLP @ exp 6 + 5 new calendar features, seed=42. Per CLAUDE.md FX-Project-Learnings 'median-of-k seed reporting'. Goal: build 4-seed feature-vs-no-feature comparison.",
+    "citations": "Lakshminarayanan 2017 NeurIPS deep ensembles; Lucca-Moench 2015.",
+    "hypothesis": "If new features carry signal, 4-seed mean should match or exceed exp 6's 4-seed mean -1.16. seed=42 lands in [-1.5, +0.5].",
+    "prediction": "Composite [-1.5, +0.5], runtime ~25-40s.",
     "_manual": true
   }
 }
