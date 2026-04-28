@@ -1097,6 +1097,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-0.5, +1.0]",
     "prediction": "~30s",
+    "_manual": true,
+    "verdict": "Composite -0.14 (DISCARD) but **7/7 test folds positive!** A_sh +0.83, excess +0.23. 2-seed DLinear+features mean +0.33. exp 138 was lucky-high but mechanism is real.",
+    "learning": "DLinear+features 2-seed mean +0.33 confirms feature lift. 7/7 folds is structurally interesting — DLinear's linear-decomposition + calendar features may be regime-robust."
+  },
+  "140": {
+    "diagnosis": "DLinear+features seed=7 - 3rd seed",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-0.5, +1.0]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
