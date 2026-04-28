@@ -836,6 +836,15 @@
     "citations": "Nie, Nguyen, Sinthong, Kalagnanam 2023 ICLR 'A Time Series is Worth 64 Words' (arXiv:2211.14730).",
     "hypothesis": "PatchTST at seq=60 (paper-required) may behave better than FX seq=10 violation. Predicted [-0.5, +0.6].",
     "prediction": "Composite [-0.5, +0.6], runtime ~80-200s.",
+    "_manual": true,
+    "verdict": "DISCARD. -1.42. PatchTST at paper-required seq=60 still fails on QQQ — FX result reproduced. F1 -0.82 anti-skill, only F1 modestly positive. Patches need more data than QQQ provides.",
+    "learning": "PatchTST architecturally unsuited for small-n QQQ. Will not pursue further."
+  },
+  "111": {
+    "diagnosis": "User-directive 2026-04-28: re-run finished backbone champions with the 5 newly-added arxiv-cited calendar features (pre_fomc_t_minus_1/2, nfp_day, cpi_release_window, quad_witching). Starting with MLP per-backbone champion exp 6 config (residual MLP, lr=3e-4, bs=32, ep=50, hd=0.25, wd=1e-5, hidden=128, seed=0). New features add Lucca-Moench 2015 pre-FOMC drift signal which is documented to drive >70% of historical equity returns. Single 'change': the input feature panel grew by 5 columns (210 vs 205 before).",
+    "citations": "Lucca, Moench 2015 Journal of Finance 'The Pre-FOMC Announcement Drift'. Boyd, Hu, Jagannathan 2005 RFS 'The Stock Market's Reaction to Unemployment News'. Stivers, Sun 2002 'Stock Returns at Index-Futures Expirations'. FX paper §6.5 — feature engineering > model replacement.",
+    "hypothesis": "MLP @ exp 6 config + 5 new calendar features may improve composite via FOMC/NFP/CPI/quad-witching alpha signals. Predicted [+0.5, +1.0]. F1 GFC may improve since FOMC actions during GFC drove returns.",
+    "prediction": "Composite [+0.4, +1.0], runtime ~25-40s.",
     "_manual": true
   }
 }
