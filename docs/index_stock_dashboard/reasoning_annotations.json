@@ -1043,6 +1043,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.5, +0.5]",
     "prediction": "~25min",
+    "_manual": true,
+    "verdict": "DISCARD. -0.91. Features hurt dMamba on seed=0 too (was -1.28 seed=42). Confirmed regression.",
+    "learning": "dMamba doesn't benefit from features. Pivoting to LightGBM multi-seed."
+  },
+  "134": {
+    "diagnosis": "LightGBM @ exp 10+features seed=0 - multi-seed (was +0.42 seed=42)",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-0.5, +0.5]",
+    "prediction": "~10min",
     "_manual": true
   }
 }
