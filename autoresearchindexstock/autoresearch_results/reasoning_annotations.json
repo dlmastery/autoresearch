@@ -881,6 +881,15 @@
     "citations": "Lakshminarayanan 2017; Lucca-Moench 2015.",
     "hypothesis": "Composite [-0.5, +0.5]. 5-seed mean expected ≈ -0.05.",
     "prediction": "Runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.69. 5-seed MLP+features mean -0.18, median -0.51, std 0.57. vs old 4-seed mean -0.91 std 0.95: +0.73 mean lift, 40% lower std. Calendar features validated.",
+    "learning": "MLP 5-runs done with new features. Moving to LSTM 1-layer champion + new features for next 5-runs."
+  },
+  "116": {
+    "diagnosis": "User 5-runs-per-backbone directive: re-run LSTM 1-layer champion (exp 71-74 4-seed mean +0.50 std 0.20) with the 5 new calendar features. Expected mean lift like MLP got (+0.73). LSTM 1-layer is QQQ's most stable champion — should benefit from the regime-aware calendar dummies via cell-state encoding.",
+    "citations": "Lucca-Moench 2015; Boyd 2005; Hochreiter-Schmidhuber 1997 LSTM; Lakshminarayanan 2017.",
+    "hypothesis": "LSTM 1-layer + features seed=0 may improve over old +0.35 baseline. Predicted [+0.0, +1.0].",
+    "prediction": "Composite [-0.2, +1.0], runtime ~30-50s.",
     "_manual": true
   }
 }
