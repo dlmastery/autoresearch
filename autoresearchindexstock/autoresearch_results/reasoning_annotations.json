@@ -944,6 +944,15 @@
     "citations": "Ke 2017 LightGBM; FX paper §4.3.",
     "hypothesis": "LightGBM + features may improve over +0.48 baseline (lucky-seed) or maintain median +0.08.",
     "prediction": "[-0.5, +1.0], runtime ~250-1500s.",
+    "_manual": true,
+    "verdict": "Composite +0.42 (Δ -0.06 vs exp 10 +0.48). LightGBM+features essentially tied with old. A_sh +0.72.",
+    "learning": "LightGBM+features held composite well. Trees are most-feature-tolerant per FX paper §4.3 axis-aligned splits."
+  },
+  "123": {
+    "diagnosis": "CatBoost @ exp 98 champion + new features. Per FX paper §4.3 trees benefit from features. CatBoost worst GBM on QQQ — features may help most where baseline weakest.",
+    "citations": "Prokhorenkova 2018; FX paper §4.3.",
+    "hypothesis": "CatBoost+features may improve over -0.56 baseline.",
+    "prediction": "[-1.0, +0.5], runtime ~600-1500s.",
     "_manual": true
   }
 }
