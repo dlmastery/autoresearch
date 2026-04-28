@@ -138,6 +138,65 @@ Before touching any code:
 5. **Separation of concerns is not optional.** Runners log. Dashboards
    display. Evaluators evaluate. Never tangle them.
 
+## FX Project Learnings — Apply Rigorously to QQQ (UPDATED 2026-04-27)
+
+The FX project (in sibling folder `autoresearch/`) reached composite **+9.186** (XGBoost Exp 203) with a 3-way GBM rank-average ensemble at test Sharpe **+9.4708**. QQQ peaks at **+1.32** (dMamba Exp 52). The 8-Sharpe-unit gap is partially structural (asset class) but also reflects FX-protocol learnings I have not yet rigorously applied to QQQ. This section is the consolidated transfer list. Deviation from these is itself a regression — if you find yourself bypassing one of these rules, STOP and re-read this section.
+
+### Methodology — non-negotiable
+
+1. **One change per iteration.** Strict. Composition of changes is forbidden. The FX protocol followed this for 265 experiments. I violated it once on QQQ (exp 28 changed both epochs and patience) — never again.
+
+2. **Three consecutive DISCARDs = STOP, rethink mechanism.** Not "try the next HP axis". The FX paper explicitly warns: "Multiple failures mean your hypothesis about what to change is wrong. The answer is NOT more hyperparameter tweaks — it's a structural change: different architecture, different loss, different features, different training procedure." I violated this on the MLP grind (exps 27-30 + 58-60 = 7 consecutive DISCARDs) by continuing HP tweaks.
+
+3. **Diagnose-before-cite-before-hypothesize.** Per-fold failure surface FIRST, then literature search, then hypothesis. Generic optimization papers (Smith 2017, Loshchilov 2019, Keskar 2017) without a fold-specific deficiency match are insufficient — that's grid search wearing research-driven costume.
+
+4. **Citation rigor.** Every non-trivial change carries an explicit paper citation with full author/year/venue/title/arXiv ID. Generic "Bouthillier 2019 says LR is the variance lever" is too thin if the proposed change isn't actually about LR. Map paper to specific failure mode.
+
+5. **Reasoning annotation is the primary scientific artifact.** The FX paper explicitly: "the reasoning log is the science, not the model". Every experiment writes verdict + learning post-hoc, not just diagnosis pre-hoc. If a session ends without verdict written, that's institutional-memory loss.
+
+### Specific FX findings I have NOT yet applied to QQQ
+
+These are direct gaps. Each is a candidate next experiment.
+
+a) **Tree-friendly seq_len monotonic uplift (FX paper §4.3 Table 4).** FX trees showed composite +7.34 at seq=5 → +9.19 at seq=60 — monotonic improvement because flattened windows give trees a 6240-column feature matrix and trees split axis-aligned on any column. **QQQ trees have only been tested at seq=60.** GBM seq sweep on QQQ is a clear gap — try seq=5, 10, 20, 30, 45 against the current LightGBM exp 10 baseline.
+
+b) **3-way GBM rank-average ensemble at seq=60 (FX paper §4.5 Table 5).** FX champion XGBoost +9.186 → ensemble +9.471 by averaging XGBoost + LightGBM + CatBoost at the SAME seq=60 with rank aggregation. **QQQ tried MEGA-5 (3 GBMs + LSTM + MLP at +0.876)** but NEVER the pure 3-way GBM rank-average. For QQQ this might underperform MEGA-5 (since GBMs don't dominate as in FX) — but it's the FX-paper deployment artifact and worth measuring.
+
+c) **Shuffle-test audit for tree champions (FX paper §3.5).** FX runs an explicit leakage check: train tree model on permuted training labels, evaluate on real test set. FX result: aggregate test Sharpe +0.006 across permuted runs (no leakage). **QQQ has never run this audit.** Per FX-paper protocol: "if a tree model's reported test Sharpe exceeds the strongest deep-learning baseline by > +1.0, run shuffle test." On QQQ no GBM exceeds Mamba +1.32, but the shuffle-test discipline applies to ALL champions; should be added as a CI-style check.
+
+d) **Off-by-one alignment audit (FX paper §3.5).** FX's first XGBoost run gave composite -1.61 due to `y = seg_tgt.values[seq_len:]` (lookahead by 1) vs evaluator's `[seq_len-1:]`. Fix gave +8.78 jump. **QQQ runner uses `seq_len - 1` already** (verified at run_autoresearch.py:457) — alignment correct. But mandatory: a `validate_data_contract.py` module that asserts (x, y) pairs from training match evaluator's FXDataset for a random mini-batch. Not yet ported to QQQ.
+
+e) **Multi-pair-style training (FX paper §3.1, Limitations §6.6).** FX trains on 6 currency pairs concatenated → effective n_train ~3-5x larger than QQQ's single-asset 2200 rows. **QQQ's biggest data deficit.** Possible fix: train QQQ champion config on QQQ + SPY + IWM + VTI as panel (4× n_train), evaluate only on QQQ. Architecturally same model, different data composition. Requires runner extension.
+
+f) **Per-backbone code snapshot to `code_versions/`.** FX rule: snapshot `model/backbone.py` and `run_autoresearch.py` before starting experiments on a new backbone. Prevents adjacent-backbone code changes from contaminating provenance. **QQQ has not been doing this.** Going forward: snapshot when switching backbone families.
+
+g) **Median-of-k seed reporting for neural champions.** FX paper recommends k≥3 seed median + range. **QQQ champion exp 52 has 4-seed sweep (median +0.86, range 2.34) — already done.** Document this with the right framing in the audit report (seed=42 single-run +1.32 is the headline; +0.86 is the deployment expectation).
+
+h) **Calibration analysis** — FX §5.4 calibration error 0.013 on champion. **QQQ has not done calibration.** Add to winner audit reports.
+
+i) **Permutation feature importance** — FX §6.5 implicit; tree models reveal feature importance natively. **QQQ has not done this.** With LightGBM exp 10 at +0.48, importance ranking on the 205 features would tell us which features carry signal vs noise — possible feature ablation lever.
+
+### What FX did better (process discipline)
+
+- **265 experiments at the time of paper.** QQQ has 62. FX-level coverage requires ~5× more experiments.
+- **DISCARD ratio ~60%** (FX paper §6.1). High DISCARD ratio is a sign of non-trivial hypotheses. QQQ DISCARD ratio is similar (~70%) — OK on this axis.
+- **Self-reversal on evidence.** FX agent reversed prior architecture preference (deep-learning bias) to GBM after exp 175 alignment-fix +8.78 jump. QQQ similar reversal: dMamba expand=4 (FX-tuned) → expand=2 (paper default) at exp 48.
+- **Append-only log, no rewrites.** Every experiment, including failures, is preserved. QQQ has done this.
+
+### Key structural observation: QQQ's val folds are pathologically small
+
+FX val windows are 180-200 days each. QQQ val windows: F1=96d, F2=105d, F3=63d, F4=105d, F5=63d, F6=84d, F7=123d. The composite metric `min(test_sh, val_sh) - 0.1·n_neg` is high-variance because the `min` is dominated by val_sh which is noisy at tiny n. The seq_len ceiling at 60 (F3/F5 limit) is a direct consequence. **This is the deepest single reason QQQ peaks lower than FX**: even a model with FX-equivalent test_sharpe is composite-clipped by a 4-prediction-day val Sharpe. Future structural fix candidate (out of session scope): enlarge F3/F5/F6 val windows in `data/splits.py` to ≥120 days each.
+
+### Don't-repeat-on-QQQ list (mistakes I made already)
+
+- ❌ Treating "seed instability" as the deficiency for 30+ exps when the actual deficiency was per-fold regime failure (F1 GFC anti-skill).
+- ❌ Grid-search on cheap MLP/LSTM HP after 4+ DISCARDs without pivoting to structural change.
+- ❌ Launching seq=120 experiment without checking fold-size compatibility (would have skipped 6/7 val folds).
+- ❌ Running 56 experiments before noticing missing classification metrics in the JSONL (dashboard schema regression).
+- ❌ Not running shuffle-test on Mamba champion +1.32 (still TODO).
+- ❌ Building MEGA-5 ensemble with single-seed components instead of multi-seed-median components.
+- ❌ Initially analyzing huber_delta=0.3 effect without realizing 0.3 > max QQQ residual 0.10 → loss is effectively MSE → my "F1 fix" hypothesis was based on wrong loss-shape analysis.
+
 ## Hard Rules (NEVER violate)
 
 ### Compute & GPU saturation (UPDATED 2026-04-27)
@@ -202,19 +261,55 @@ When 3+ consecutive DISCARDs from a single per-backbone champion: STOP
 hill-climbing that axis — pivot to a different axis OR a different
 backbone. Per CLAUDE.md "consecutive discards = local optimum" mandate.
 
-### Per-backbone seq_len (UPDATED 2026-04-27)
+### Per-backbone seq_len (UPDATED 2026-04-27 — STRUCTURAL CEILING)
 
 **seq_len is variable PER backbone — the runner accepts `--seq-len` and
-each experiment chooses.** Industry SOTA for daily-equity prediction:
+each experiment chooses.** BUT — there is a hard ceiling driven by
+the QQQ super-fold structure that no backbone can exceed without
+corrupting the metric.
 
-| Backbone | QQQ champion seq | SOTA reference seq | Notes |
+**THE seq_len CEILING IS 60 (test) / 60 (val).** The smallest val
+folds (F3 = 63d, F5 = 63d) have wt_len just enough for `seq=60`. The
+runner's fold-bounded windowing (`feats.loc[ws:we]`, no straddling —
+this is correct, no leakage) refuses to predict any fold where
+`wt_len < seq_len + 1`. At seq>60:
+
+| Val fold | wt_len | seq=60 | seq=90 | seq=120 |
+|---|---:|---:|---:|---:|
+| F1 | 96d | 37 preds | 7 preds | **SKIP** |
+| F2 | 105d | 46 preds | 16 preds | **SKIP** |
+| F3 | 63d | 4 preds | **SKIP** | **SKIP** |
+| F4 | 105d | 46 preds | 16 preds | **SKIP** |
+| F5 | 63d | 4 preds | **SKIP** | **SKIP** |
+| F6 | 84d | 25 preds | **SKIP** | **SKIP** |
+| F7 | 123d | 64 preds | 34 preds | 4 preds |
+
+At seq=90, 3 of 7 val folds skip; at seq=120, 6 of 7 val folds skip.
+Composite formula `min(test_sh, val_sh) - 0.1 * n_neg` becomes
+mechanically incomparable to historical experiments — fewer val folds
+counted, val Sharpe averaged over a tiny prediction set. This is NOT
+strict data leakage (the runner doesn't straddle held-out periods)
+but it IS metric-integrity violation.
+
+**Hard rule**: **DO NOT run any experiment with seq_len > 60 unless
+you have ALSO restructured the folds to enlarge F3/F5 val windows.**
+Fold restructure is a structural change requiring re-baseline of
+ALL prior experiments — out of scope for HP hill-climbing.
+
+| Backbone | QQQ champion seq | SOTA reference seq | Useful range on QQQ given ceiling |
 |---|---:|---|---|
-| MLP | 10 | n/a (architectural ceiling — flatten dim grows linearly with seq) | seq=20/60 catastrophic on QQQ (exps 4, 25); 10 is the ceiling. |
-| LSTM | 10 (champ) | Fischer & Krauss 2018 EJOR S&P daily LSTM used **seq=240**. We've tested 10/20/60 on QQQ; seq=20 modest gain on pos folds (exp 32) but excess regressed; seq=60 mediocre (exp 26). Worth testing 30-90 systematically. |
-| XGBoost / LightGBM / CatBoost | 60 | Tabular has no canonical seq_len; common practice 30-90. QQQ has tested **only seq=60** — opportunity: 30, 90 untested. |
-| Mamba / dMamba | 60 | Gu-Dao 2024 used L=512-2048 for time-series benchmarks. SSM scales O(L) so longer seq is cheap. **MAJOR gap on QQQ — 60 only — seq=120 / 240 untested and likely a meaningful lift** given dMamba expand=2 d_state=32 already gave +1.32. |
+| MLP | 10 | n/a (architectural ceiling — flatten dim grows linearly with seq, hits overfit at seq>10) | 5, 8, 10, 15, 20, 30 — but exp 25 showed seq=60 catastrophic, so MLP's effective ceiling is ~30 |
+| LSTM | 10 (champ exp 8) | Fischer & Krauss 2018 EJOR S&P daily LSTM used **seq=240** (5000-row dataset, irrelevant here). | 5, 10, 15, 20, 30, 60 — tested 10/20/60; seq=20 (exp 32) was the best non-baseline |
+| XGBoost / LightGBM / CatBoost | 60 | Tabular has no canonical seq_len. | 30, 45, 60 — opportunity to test 30, 45 |
+| Mamba / dMamba | 60 (champ exp 52) | Gu-Dao 2024 used L=512-2048 (long-context language). SSM scales O(L) but **CAN'T exceed 60 here without losing val folds**. | 30, 45, 60 — opportunity to test shorter (30, 45) since SSM may not need long context if d_state=32 already encodes regime. |
 
-When testing seq_len changes:
+**Future option (out of session scope)**: enlarging val windows in
+`data/splits.py` — F3 val window is currently 2014-Q1 (63 days); could
+extend to 2014-H1 (126 days). Similar for F5 around Vol-mageddon Q4
+2018. This would re-allow seq=120+ but invalidates all prior
+experiments and requires the full 25-exp budget rerun per backbone.
+
+When testing seq_len changes (within the seq≤60 ceiling):
 1. Cite the specific paper that recommends the candidate seq for the backbone family.
 2. Pre-flight VRAM at the new seq × batch (linear or quadratic per architecture).
 3. seq_len change is ONE knob — combine with other changes only after seq_len axis is closed.
