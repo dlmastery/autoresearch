@@ -935,6 +935,15 @@
     "citations": "Chen-Guestrin 2016; Grinsztajn 2022 (heterogeneous tabular); FX paper §4.3.",
     "hypothesis": "XGBoost @ exp 44 + features may improve over -0.25 baseline. Predicted [-0.5, +0.5].",
     "prediction": "Composite [-0.5, +0.5], runtime ~80-150s.",
+    "_manual": true,
+    "verdict": "DISCARD by composite (-0.61, Δ -0.36 vs exp 44 -0.25). But A_sh +1.21 (BEST XGBoost A_sh ever, was +0.44 baseline), excess -0.01 (essentially neutral), 6/7 test pos. Per FX paper §4.3, trees benefit from features — confirmed direction-wise but val regime suffers.",
+    "learning": "XGBoost+features improves direction skill but val regime fits less well. Need multi-seed."
+  },
+  "122": {
+    "diagnosis": "LightGBM @ exp 10 champion + new features. Per FX paper §4.3 trees should benefit monotonically.",
+    "citations": "Ke 2017 LightGBM; FX paper §4.3.",
+    "hypothesis": "LightGBM + features may improve over +0.48 baseline (lucky-seed) or maintain median +0.08.",
+    "prediction": "[-0.5, +1.0], runtime ~250-1500s.",
     "_manual": true
   }
 }
