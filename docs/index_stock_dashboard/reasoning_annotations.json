@@ -926,6 +926,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-0.5, +1.0]",
     "prediction": "~30s",
+    "_manual": true,
+    "verdict": "Composite +0.34. 5-seed LSTM 1-layer+features lock: mean +0.01, median +0.02, std 0.74. vs old 4-seed mean +0.50 std 0.20: features REDUCE mean by -0.49 and INCREASE std by 3.7x. Confirmed: LSTM doesn't benefit from explicit calendar features.",
+    "learning": "MLP and LSTM 5-runs with new features done. Architecture-feature interaction: MLP +0.86 mean lift, LSTM -0.49 mean drop. MLP doesn't have temporal recurrence so explicit calendar features add real signal; LSTM's cell-state already encodes time-of-cycle. Moving to medium-tier (XGBoost, LightGBM, CatBoost) where trees should benefit from ANY new feature column per FX paper §4.3 axis-aligned splitting."
+  },
+  "121": {
+    "diagnosis": "User 5-runs budget extends to medium-tier. XGBoost per-backbone champion exp 44 (depth=4 n_est=100 lr=0.02 seq=60 -0.25). Per FX paper §4.3 trees benefit MONOTONICALLY from feature count (axis-aligned splits on any column). Predicted: features should help trees more than they helped MLP, more than they hurt LSTM.",
+    "citations": "Chen-Guestrin 2016; Grinsztajn 2022 (heterogeneous tabular); FX paper §4.3.",
+    "hypothesis": "XGBoost @ exp 44 + features may improve over -0.25 baseline. Predicted [-0.5, +0.5].",
+    "prediction": "Composite [-0.5, +0.5], runtime ~80-150s.",
     "_manual": true
   }
 }
