@@ -1151,6 +1151,15 @@
     "citations": "Ekambaram, Jati, Nguyen, Sinthong, Kalagnanam 2023 KDD (arXiv:2306.09364)",
     "hypothesis": "[-0.5, +0.5]",
     "prediction": "~60-200s",
+    "_manual": true,
+    "verdict": "+0.06. A_sh +1.04 (strong direction). 5/7 pos. PatchTSMixer first-test-on-QQQ. Decent baseline.",
+    "learning": "PatchTSMixer's MLP-Mixer + patches works ok on QQQ. Worth multi-seed."
+  },
+  "146": {
+    "diagnosis": "PatchTSMixer seed=0 multi-seed",
+    "citations": "Ekambaram 2023 KDD; Lakshminarayanan 2017",
+    "hypothesis": "[-0.5, +0.5]",
+    "prediction": "~60-200s",
     "_manual": true
   }
 }
