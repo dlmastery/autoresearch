@@ -1223,6 +1223,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.0, +0.0]",
     "prediction": "~22min",
+    "_manual": true,
+    "verdict": "DISCARD. -0.20.",
+    "learning": "Continuing."
+  },
+  "154": {
+    "diagnosis": "XGBoost seed=99 4-seed lock",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.0, +0.5]",
+    "prediction": "~80s",
     "_manual": true
   }
 }
