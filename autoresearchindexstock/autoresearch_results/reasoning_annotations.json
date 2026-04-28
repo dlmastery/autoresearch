@@ -917,6 +917,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.0, +0.3]",
     "prediction": "~30s",
+    "_manual": true,
+    "verdict": "🎯 LSTM+features RECORD: composite +1.05, A_sh +1.11, excess +0.50. Approaching global champ +1.32. 4-seed mean -0.07 (high variance — seed=99 was +1.05 outlier vs others).",
+    "learning": "LSTM+features has high seed variance but seed=99 generates strong result. Going to 5th seed (2024) for full population."
+  },
+  "120": {
+    "diagnosis": "5th seed LSTM+features",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-0.5, +1.0]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
