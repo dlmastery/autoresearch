@@ -827,6 +827,15 @@
     "citations": "Zeng, Chen, Zhang, Xu 2023 AAAI 'Are Transformers Effective for Time Series Forecasting?' (arXiv:2205.13504) — linear decomposition matches transformer on long-horizon TS.",
     "hypothesis": "DLinear's simple linear-decomp may capture QQQ trend (BH +1.22) better than complex models. FX peak +3.16 — on QQQ may be competitive vs LSTM 1-layer +0.50.",
     "prediction": "Composite [-0.5, +1.0], runtime ~30-60s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.04. DLinear F5 +2.13 alpha (Vol-mageddon) but F3 -0.31 drag. 4/7 test pos. Decent baseline.",
+    "learning": "DLinear linear-decomp captures vol-shock regime (F5) well. Reasonable Phase F baseline."
+  },
+  "110": {
+    "diagnosis": "PatchTST (Nie 2023 ICLR arXiv:2211.14730) — Phase F backbone. Required seq>=60 per paper (patches need enough context). FX paper §4.7 capped at -1.72 (paper recipe violation: seq=10 — said 'redo at seq=60 queued'). On QQQ at seq=60 untested.",
+    "citations": "Nie, Nguyen, Sinthong, Kalagnanam 2023 ICLR 'A Time Series is Worth 64 Words' (arXiv:2211.14730).",
+    "hypothesis": "PatchTST at seq=60 (paper-required) may behave better than FX seq=10 violation. Predicted [-0.5, +0.6].",
+    "prediction": "Composite [-0.5, +0.6], runtime ~80-200s.",
     "_manual": true
   }
 }
