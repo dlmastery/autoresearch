@@ -138,6 +138,135 @@ Before touching any code:
 5. **Separation of concerns is not optional.** Runners log. Dashboards
    display. Evaluators evaluate. Never tangle them.
 
+## Per-Experiment Sync + Commit Rule (UPDATED 2026-04-28 — MANDATORY)
+
+**Before launching every new experiment, sync the dashboard to docs/ AND commit + push to GitHub.** No batching. No "I'll commit after 5 more". Every experiment's full state lands on GitHub before the next one starts.
+
+### Workflow (strict, no shortcuts)
+
+After every experiment completes:
+1. Read result, write verdict + learning into `reasoning_annotations.json`
+2. Run `python autoresearchindexstock/_sync_dashboard_to_docs.py`
+3. `git add autoresearchindexstock/autoresearch_results docs/index_stock_dashboard autoresearchindexstock/memory autoresearchindexstock/CLAUDE.md` (whatever changed)
+4. `git commit -F .commit_msg.txt` with a focused message describing this single experiment + verdict
+5. `git push origin master`
+6. Verify `git status` clean
+7. THEN pre-author next experiment annotation and launch
+
+### Rationale
+
+- Dashboard at https://dlmastery.github.io/autoresearch/index_stock_dashboard/ is the project's institutional memory. Stale dashboard = lying about what's been done.
+- Per-experiment commits give precise rollback granularity if a code change breaks a future run.
+- Forces a deliberate pause between experiments — prevents the rapid-fire grid-search drift CLAUDE.md prohibits.
+- If the laptop crashes mid-experiment-batch (Intel HX silicon known issue, 5 BSODs on 2026-04-19), the worst loss is the SINGLE running experiment. Without per-experiment commits, ~10 experiments of state could be lost.
+
+### Allowed exception
+
+For very-cheap (<60s) MLP/LSTM rapid-fire bursts (3-5 sequential experiments at the same baseline) — single commit covering the burst is acceptable IF AND ONLY IF dashboard is synced + pushed at the END of the burst BEFORE moving to a different backbone.
+
+### Enforcement
+
+If you find yourself launching an experiment with `git status` not clean (uncommitted changes from prior experiment), STOP. Commit + push first. Re-read this section. The protocol exists because the institutional-memory and crash-recovery costs of skipping commits compound.
+
+## Backbone Bootstrap Rule (UPDATED 2026-04-28 — MANDATORY)
+
+**Every new backbone MUST start with the SOTA hyperparameter recipe from the latest arXiv paper for that architecture.** No "let's try the runner defaults". No "let's adapt FX-tuned values". The research-driven protocol begins from the paper's recommended recipe; deviation from the paper requires arXiv-cited justification in the reasoning annotation.
+
+### Workflow per new backbone (Experiment 1 of its 25-budget)
+
+1. **Pull the paper.** Read the experiments section and find the recommended HP recipe (lr, batch, epochs, patience, warmup, weight_decay, seq_len, head_dropout, optimizer, scheduler, loss).
+2. **Record the recipe** in `reasoning_annotations.json` as a separate "sota_recipe" block. Include paper citation with arXiv ID.
+3. **Note any QQQ-required deviations** explicitly:
+   - seq_len ceiling at 60 (QQQ fold-size constraint — see "Per-backbone seq_len" section)
+   - VRAM ceiling at 16 GB (QQQ hardware — see "GPU Memory Constraint" section)
+   - Multi-pair vs single-asset training (most papers train on multi-instrument panels; QQQ is single asset)
+4. **Run Experiment 1 at the paper recipe** (with documented deviations only). This is the bootstrap baseline.
+5. **All subsequent 24 experiments** hill-climb from this paper-recipe baseline, ONE knob per experiment, arXiv-cited deficiency-driven per CLAUDE.md research-driven protocol.
+
+### Examples of paper-recipes already used
+
+| Backbone | Paper-recipe used in QQQ Exp 1 | Citation |
+|---|---|---|
+| MLP | lr=3e-4 bs=32 ep=50 pat=10 wd=1e-5 hd=0.25 hidden=128 (residual) | Gu, Kelly, Xiu 2020 RFS |
+| LSTM | lr=1e-3 bs=16 ep=100 pat=15 wd=7e-4 hd=0.1/0.25 num_layers=2 hidden=128 (bidirectional) | Fischer & Krauss 2018 EJOR |
+| dMamba | lr=5e-4 bs=32 ep=100 pat=20 wd=0.1 warmup=10 expand=4 d_state=16 num_layers=2 | Gu, Dao 2024 COLM (arXiv:2312.00752) + Liu 2025 dMamba (arXiv:2602.09081) |
+| XGBoost | lr=0.03 max_depth=6 n_est=1500 (later refined to 0.01/4/1500) | Chen, Guestrin 2016 KDD (arXiv:1603.02754) |
+| LightGBM | lr=0.01 depth=4 n_est=1000 leaf-wise growth | Ke et al. 2017 NeurIPS LightGBM |
+| CatBoost | lr=0.01 depth=4 n_est=2000 ordered-boosting | Prokhorenkova et al. 2018 NeurIPS (arXiv:1706.09516) |
+| xLSTM | lr=1e-3 bs=32 ep=100 pat=20 wd=7e-4 hd=0.1 (Beck 2024 default) | Beck et al. 2024 NeurIPS (arXiv:2405.04517) |
+| PatchTST (when run) | lr=1e-4 bs=32 ep=100 pat=20 seq=60 patch_len=16 | Nie et al. 2023 ICLR (arXiv:2211.14730) |
+
+### Required deviations table per backbone
+
+| Constraint | Affected backbones | Deviation forced |
+|---|---|---|
+| seq_len ≤ 60 (QQQ fold-size ceiling) | All seq-models | Most papers used seq=240+ or 512+; we cap at 60 |
+| 16 GB VRAM ceiling | Foundation models > 200M params | Use smallest checkpoint OR PEFT/LoRA |
+| Single-asset training | All | Most papers used multi-instrument panels; we have just QQQ |
+| 2,200-row training set | All | Many papers had 5000+ rows; smaller-data favours simpler architectures |
+
+**If a paper's recipe explicitly requires a longer seq_len than 60 OR more parameters than fit in 16 GB**, document the deviation in the Experiment 1 reasoning annotation — and choose the smallest viable variant. Do NOT silently adapt; the arXiv-cited recipe is the starting truth.
+
+## Post-Cheap-Tier Roadmap (UPDATED 2026-04-28 by user directive)
+
+After cheap-tier 25-experiment budgets are met for fast backbones (MLP, LSTM at minimum), the priority order for new backbones is **STRICT**:
+
+**Order — non-negotiable per user directive 2026-04-28:**
+1. **Cheap-tier completion** (MLP, LSTM, xLSTM)
+2. **Medium-tier completion** (XGBoost, LightGBM, CatBoost) + **Mamba family**
+3. **Phase F other-already-in-runner** (PatchTST, PatchTSMixer, iTransformer, DLinear, N-BEATS) — small/cheap, in-runner
+4. **Phase D Stock-specific backbones** (Adv-ALSTM, StockMixer, MASTER, PatchMixer, CARD, Reversible Mixer) — most QQQ-relevant, code-adds required
+5. **Phase E SOTA April 2026 Foundation models LAST** (Sundial, TimesFM 2.5, Chronos-2, Moirai 2.0, TiRex, MOMENT, Time-MoE, TimeMixer/++) — heaviest VRAM, most code work, most uncertain transfer to QQQ
+
+**Foundation models come LAST. Do not jump ahead.** They are the heaviest, hardest-to-debug, and most likely to need PEFT/LoRA infrastructure builds. Stock-specific architectures are MORE likely to pay off on QQQ since they are designed for equity prediction.
+
+### Phase D — Stock-specific backbones (priority over foundation models)
+Each requires CODE ADDS to `model/backbone.py` + `create_model()` routing + SOTA recipe + 25-exp budget.
+
+| # | Backbone | Paper | arXiv | Why prioritize on QQQ |
+|---|---|---|---|---|
+| 1 | **MASTER** | Li, Sun, Liu, Yang, Sun 2024 AAAI 'Market-Guided Stock Transformer' | 2312.15235 | Market-guided attention specifically designed for stock prediction. Uses macro signals as guides to attend over equity features — exactly the QQQ feature panel structure. |
+| 2 | **StockMixer** | Ye, Liu, Liu, Tian, Pang 2024 AAAI 'StockMixer: A Simple yet Strong MLP-based Architecture for Stock Price Forecasting' | 2401.05917 | MLP-mixer applied to industry × style × temporal axes of stock returns. Architecturally matches QQQ's 56-ticker cross-section + 205 features. |
+| 3 | **CARD** | Wang, Wu, Long, Long 2024 ICLR 'CARD: Channel Aligned Robust Blend Transformer for Time Series Forecasting' | 2305.12095 | Channel-aligned attention robust to noisy financial features; outperforms PatchTST on noisy benchmarks. |
+| 4 | **PatchMixer** | Cong, Yu et al. 2024 KDD 'PatchMixer: Patch-MLP-Mixer Time Series Forecasting' | 2310.00655 | Patches + MLP-mixing — combines PatchTST's patch tokenisation with TSMixer's MLP backbone. |
+| 5 | **Adv-ALSTM** | Feng, Chen, He, Ding, Sun, Chua 2019 IJCAI 'Adversarial Attention LSTM for Stock Prediction' | 1810.09936 | Older but stock-specific: adversarial training + attentive LSTM specifically for daily stock returns. |
+| 6 | **Reversible Mixer** | Sun et al. 2024 NeurIPS | TBD | Reversible long-sequence mixer. |
+
+### Phase E — SOTA April 2026 foundation / general TS backbones (LAST per user directive)
+Each requires CODE ADDS + recipe selection + memory-pre-flight (per "GPU Memory Constraint" — most are 200M-1B params).
+
+| # | Backbone | Paper | arXiv | Notes |
+|---|---|---|---|---|
+| 7 | **Sundial** | Liu, Zhang, Wu, Long 2025 'Sundial' | 2502.00816 | 1T-token TimeBench pretrain + flow-matching loss; 500M-1B params (PEFT only) |
+| 8 | **TimesFM 2.5** | Google 2025 (~500M) | (no arXiv yet — model card) | Decoder-only TS foundation, continuous quantile heads; PEFT |
+| 9 | **Chronos-2** | Ansari et al. 2025 'Chronos-2' | 2510.15821 | Universal TS, top zero-shot; multi-quantile heads |
+| 10 | **Moirai 2.0** | Woo et al. 2025 'Moirai 2.0' | 2511.11698 | Sparse MoE, multi-token prediction |
+| 11 | **TiRex** | Auer, Pöppel, Pflüger, Brandstetter, Hochreiter 2025 'TiRex' | (xLSTM-decoder, NXAI 2025) | xLSTM-based decoder, retrieval-augmented; ~300M |
+| 12 | **MOMENT** | Goswami, Szafer, Choudhry, Cai, Li, Dubrawski 2024 ICML 'MOMENT' | 2402.03885 | T5 masked-TS pretrain; small (40M) and large (385M) variants |
+| 13 | **Time-MoE** | Shi et al. 2024 ICLR'25 'Time-MoE' | 2409.16040 | Sparse MoE decoder; 113M-453M variants |
+| 14 | **TimeMixer / TimeMixer++** | Wang, Wu, Shi, Hu, Luo, Ma, Zhang, Zhou 2024 ICLR 'TimeMixer' | 2405.14616 | Multi-scale decomposition; small footprint |
+
+### Implementation protocol per new backbone
+
+For EACH new backbone in Phase 1 / Phase 2:
+1. **Read the paper.** Document architecture, SOTA recipe, key inductive bias.
+2. **Implement class** in `autoresearchindexstock/model/backbone.py` (or import from a HF/external package if licensed). Add to `BACKBONE_REGISTRY` and `create_model()` routing.
+3. **Snapshot code** to `code_versions/<backbone>_start/` per the per-backbone-isolation rule.
+4. **Pre-flight VRAM check** for 200M+ models (record in reasoning_annotation experiment 1).
+5. **Run SOTA-recipe baseline** (experiment 1 — defaults from the paper).
+6. **Hill-climb 25 experiments** per CLAUDE.md research-driven protocol (one knob per experiment, arXiv-cited rationale, per-fold deficiency-driven).
+7. **Snapshot code** to `code_versions/<backbone>_final/` after the 25-exp budget closes.
+
+Total effort: 6 stock-specific × 25 exps + 8 SOTA-foundation × 25 exps = **350 experiments** of additional research budget.
+
+Within current Claude Code session, this is many sessions of work. The roadmap is committed; sequencing is bottom-up by complexity (Adv-ALSTM is older + simpler so easiest port; foundation models are heaviest).
+
+### Order of attack within each phase
+
+**Phase 1 within order:** Adv-ALSTM (simplest, 5-day port) → StockMixer (clean MLP-mixer port) → MASTER (transformer with market-guide) → PatchMixer → CARD → Reversible Mixer.
+
+**Phase 2 within order:** MOMENT-small (40M, fits easily) → TimeMixer (no foundation pretrain, simpler) → TiRex (xLSTM-decoder, builds on existing xlstm code) → Chronos-2-bolt-small (9M-48M trivially fits) → Time-MoE-base (113M) → Moirai-small (14M-91M) → TimesFM small → Sundial.
+
 ## FX Project Learnings — Apply Rigorously to QQQ (UPDATED 2026-04-27)
 
 The FX project (in sibling folder `autoresearch/`) reached composite **+9.186** (XGBoost Exp 203) with a 3-way GBM rank-average ensemble at test Sharpe **+9.4708**. QQQ peaks at **+1.32** (dMamba Exp 52). The 8-Sharpe-unit gap is partially structural (asset class) but also reflects FX-protocol learnings I have not yet rigorously applied to QQQ. This section is the consolidated transfer list. Deviation from these is itself a regression — if you find yourself bypassing one of these rules, STOP and re-read this section.

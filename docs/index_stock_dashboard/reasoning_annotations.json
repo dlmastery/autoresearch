@@ -746,6 +746,33 @@
     "citations": "Prokhorenkova 2018; FX paper §4.4.",
     "hypothesis": "Composite [-1.0, +0.0]. Best CatBoost yet potentially.",
     "prediction": "Composite [-1.0, +0.2], runtime ~1500-3000s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.88. CatBoost combo lr=0.02 + n_est=2000 worse than either alone. CatBoost on QQQ saturated near -0.5 floor.",
+    "learning": "CatBoost capacity-lr interaction non-monotonic. Trying depth axis."
+  },
+  "101": {
+    "diagnosis": "CatBoost depth axis. exp 18 used depth=4. Try depth=6 (Chen-Guestrin canonical higher end).",
+    "citations": "Prokhorenkova 2018; Chen-Guestrin 2016.",
+    "hypothesis": "depth=6 may overfit on QQQ small-data; may also underfit if depth was the bottleneck.",
+    "prediction": "Composite [-1.5, +0.0], runtime ~1500-2500s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.41. seq=5 underfit MLP — too few historical days for residual MLP to find pattern.",
+    "learning": "MLP seq axis: 5 underfit, 10 best, 20 confounded, 60 catastrophic. seq=10 confirmed sweet spot."
+  },
+  "102": {
+    "diagnosis": "User-extended MLP budget to 50 experiments. exp 6 (champion +0.58) + seq=10. seq_len axis: tested 10 (champion), 20 (exp 4 confounded), 60 (exp 25 catastrophic -0.44). Untested seq=5 — smaller window may regularize residual MLP further on small-n QQQ data.",
+    "citations": "FX paper §4.6 (MLP residual at seq=10); Gu-Kelly-Xiu 2020.",
+    "hypothesis": "seq=5 may modestly under-fit (less context) but reduce overfit risk. Predicted [-0.3, +0.6].",
+    "prediction": "Composite [-0.3, +0.6], runtime ~15-25s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.44 (FX comparable +0.65 cap). xLSTM @ Beck 2024 default recipe on QQQ. F1 -0.39, F3 +1.54 alpha (!), F4 -0.73, F6 +0.68 alpha, F7 +0.26. Mixed regime — Per-fold strong on Taper (F3 +1.54) and COVID-recovery (F6 +0.68) but weak on F1 GFC and F4 China-oil.",
+    "learning": "xLSTM bootstrap on QQQ produces sub-vanilla-LSTM result (vs LSTM 1-layer 4-seed mean +0.50). Per-fold: F3 alpha is real; xLSTM's mLSTM matrix memory may help trend regimes. Per CLAUDE.md SOTA-from-arxiv mandate, this exp 1 of xLSTM 25-budget started at Beck 2024 paper recipe — next experiments hill-climb from this baseline."
+  },
+  "103": {
+    "diagnosis": "User-extended LSTM budget to 75 experiments with directive 'try various SOTA LSTM types like xLSTM'. The runner exposes `xlstm` backbone (Beck et al. 2024 NeurIPS) which combines sLSTM (exponential gating) and mLSTM (matrix memory). FX paper §4.7 tested xLSTM and capped at composite +0.65 (7 experiments) — declared 'fails to cross +1'. UNTESTED on QQQ. Possible asset-class effect: equity vs FX. Starting xLSTM at FX-paper recipe (lr=1e-3 bs=32 ep=100 pat=20).",
+    "citations": "Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS 'xLSTM: Extended Long Short-Term Memory' (arXiv:2405.04517) — exponential gating + matrix memory; matches Transformer-scale on language. FX paper §4.7 — xLSTM capped at +0.65 on FX 104-feature panel.",
+    "hypothesis": "xLSTM on QQQ may behave differently than FX. Equity has more trend structure than FX; xLSTM's mLSTM matrix memory may capture regime context better. Predicted [-0.5, +0.8].",
+    "prediction": "Composite [-0.5, +0.8], runtime ~120-300s (more params than vanilla LSTM).",
     "_manual": true
   }
 }
