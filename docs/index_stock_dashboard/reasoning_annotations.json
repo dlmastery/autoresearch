@@ -1115,6 +1115,15 @@
     "citations": "Gu-Dao 2024",
     "hypothesis": "[-1.0, +0.5]",
     "prediction": "~25min",
+    "_manual": true,
+    "verdict": "DISCARD. -0.09. dMamba+features d_state=16 still regresses (vs old +0.86 4-seed mean -0.95 lift). Smaller-state didn't fix feature regression. After this exp, features.py rolled back to 205-feature panel.",
+    "learning": "dMamba doesn't benefit from explicit calendar features at any d_state. Pivoted to features rollback."
+  },
+  "142": {
+    "diagnosis": "Post-rollback resumption. dMamba global champion (exp 52) had 4-seed sweep (mean +0.50, range 2.34). Per CLAUDE.md FX-Project-Learnings 'k≥3 seed median', adding 5th seed=2024 to lock 5-seed estimate of the GLOBAL CHAMPION at restored 205-feature panel.",
+    "citations": "Lakshminarayanan 2017 NeurIPS deep ensembles; FX paper §6.4.",
+    "hypothesis": "Composite [-1.0, +1.5]. 5-seed mean expected ~+0.40-0.60.",
+    "prediction": "Runtime ~25 min.",
     "_manual": true
   }
 }
