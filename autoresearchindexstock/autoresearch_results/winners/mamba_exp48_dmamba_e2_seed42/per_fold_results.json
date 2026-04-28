@@ -1,48 +1,12 @@
 {
   "experiment_num": 48,
   "backbone": "mamba",
-  "description": "dMamba @ exp 17 expand=2 (down from 4) - Gu-Dao 2024 paper default; QQQ regularisation test",
-  "config": {
-    "seq_len": 60,
-    "lr": 0.0005,
-    "batch_size": 32,
-    "epochs": 100,
-    "weight_decay": 0.1,
-    "patience": 20,
-    "warmup_epochs": 10,
-    "head_dropout": 0.1,
-    "huber_delta": 1.0,
-    "grad_clip": 1.0,
-    "seed": 42,
-    "hidden_size": null,
-    "num_layers": null,
-    "max_depth": null,
-    "gbm_lr": null,
-    "n_estimators": null
-  },
   "composite": 1.1887,
+  "A_sharpe": 1.2887,
+  "A_excess_sharpe": 0.0686,
   "test_pos_folds": 6,
   "val_pos_folds": 6,
-  "val_loss": -2.8554521366558245,
-  "elapsed_sec": 878.0,
-  "timestamp": "2026-04-27T19:25:51",
-  "sharpe": 1.2887,
-  "val_sharpe": 2.073,
-  "ic": 0.0792,
-  "hit": 52.7,
-  "psr": 0.9965,
-  "equity": 3048.3,
-  "return_pct": 204.83,
-  "bh_sharpe": 1.2201,
-  "bh_return_pct": 185.59,
-  "excess_sharpe": 0.0686,
-  "B_sharpe": -0.3644,
-  "B_excess_sharpe": -3.2028,
-  "B_return_pct": -68.96,
-  "D_sharpe": 1.2887,
-  "D_excess_sharpe": 0.0686,
-  "D_return_pct": 204.83,
-  "per_window": [
+  "test_per_window": [
     {
       "fold": "fold_1",
       "regime": "GFC peak crash (Lehman + Mar-2009 bottom)",
@@ -380,7 +344,7 @@
       "excess_sharpe": -0.9161
     }
   ],
-  "per_window_val": [
+  "val_per_window": [
     {
       "fold": "fold_1",
       "regime": "GFC peak crash (Lehman + Mar-2009 bottom)",
@@ -718,5 +682,22 @@
       "excess_sharpe": -0.5668
     }
   ],
-  "status": "KEEP"
+  "config": {
+    "seq_len": 60,
+    "lr": 0.0005,
+    "batch_size": 32,
+    "epochs": 100,
+    "weight_decay": 0.1,
+    "patience": 20,
+    "warmup_epochs": 10,
+    "head_dropout": 0.1,
+    "huber_delta": 1.0,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "hidden_size": null,
+    "num_layers": null,
+    "max_depth": null,
+    "gbm_lr": null,
+    "n_estimators": null
+  }
 }
