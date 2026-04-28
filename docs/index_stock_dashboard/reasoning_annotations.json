@@ -1295,6 +1295,15 @@
     "citations": "Picard 2021 'torch.manual_seed(3407)'",
     "hypothesis": "[-1.5, +0.5]",
     "prediction": "~25s",
+    "_manual": true,
+    "verdict": "DISCARD. -0.89.",
+    "learning": "Continuing."
+  },
+  "162": {
+    "diagnosis": "LSTM 1-layer seed=13",
+    "citations": "Picard 2021",
+    "hypothesis": "[-0.5, +1.0]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
