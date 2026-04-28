@@ -890,6 +890,15 @@
     "citations": "Lucca-Moench 2015; Boyd 2005; Hochreiter-Schmidhuber 1997 LSTM; Lakshminarayanan 2017.",
     "hypothesis": "LSTM 1-layer + features seed=0 may improve over old +0.35 baseline. Predicted [+0.0, +1.0].",
     "prediction": "Composite [-0.2, +1.0], runtime ~30-50s.",
+    "_manual": true,
+    "verdict": "Composite +0.02 (vs exp 71 same-seed=0 +0.35, Δ -0.33). Single-seed regression. Need multi-seed for population comparison since model init differs at 210 features vs 205.",
+    "learning": "Same input-dim caveat as MLP: same-seed comparisons aren't directly meaningful. Continuing multi-seed."
+  },
+  "117": {
+    "diagnosis": "LSTM 1-layer + new features seed=42. 4-seed comparison vs old LSTM 1-layer mean +0.50 (champion zone).",
+    "citations": "Lakshminarayanan 2017; Lucca-Moench 2015.",
+    "hypothesis": "If features genuinely help LSTM (as for MLP), 5-seed mean should match or exceed +0.50 baseline.",
+    "prediction": "Composite [-0.2, +0.9], runtime ~30s.",
     "_manual": true
   }
 }
