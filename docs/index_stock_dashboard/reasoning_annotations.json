@@ -1214,6 +1214,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.5, +0.5]",
     "prediction": "~80s",
+    "_manual": true,
+    "verdict": "DISCARD. -0.15.",
+    "learning": "Continuing budget grind."
+  },
+  "153": {
+    "diagnosis": "CatBoost seed=99 - 4th seed",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.0, +0.0]",
+    "prediction": "~22min",
     "_manual": true
   }
 }
