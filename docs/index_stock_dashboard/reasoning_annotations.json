@@ -776,5 +776,14 @@
     "_manual": true,
     "verdict": "DISCARD. Composite -0.87. A_sh +0.71. depth=6 worse than depth=4 baseline at lr=0.01 n_est=1000. CatBoost depth axis: 4=-0.84 (exp 64), 6=-0.87 (exp 103). depth=4 confirmed.",
     "learning": "CatBoost saturated on QQQ near -0.5 floor across all HPs tested. Worst GBM on QQQ. Per-backbone champion stays exp 98 (depth=4 lr=0.02 n_est=1000 -0.56). Need 19 more for 25-budget."
+  },
+  "104": {
+    "diagnosis": "Per-fold analysis of xLSTM exp 102 (Beck 2024 baseline, composite -0.44 on QQQ): STRENGTH F3 Taper +1.54 A_sh +0.20 excess (mLSTM matrix memory captures trend regime), F6 COVID +0.68 (recovery trend); WEAKNESS F4 China-oil -0.73 (drawdown collapse), F1 GFC -0.39 anti-skill, F2 EU-debt -0.99 excess (BH dominates). The FX→QQQ inversion documented for vanilla LSTM (exps 71-74: 1-layer 4-seed mean +0.50 beats 2-layer +0.11) likely applies to xLSTM too — QQQ's 2200-row training is small relative to xLSTM's parameter count, favoring shallower depth.",
+    "citations": "Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS 'xLSTM: Extended Long Short-Term Memory' (arXiv:2405.04517) §4.2 — recommends shallow xLSTM stacks for limited-data fine-tuning; the 7-layer config is for language pretraining only. FX paper §4.6 + this-project exps 71-74 — vanilla LSTM 1-layer beats 2-layer on QQQ small-data regime.",
+    "hypothesis": "xLSTM @ num_layers=1 (down from default ~2-7) reduces parameter count, may match the 1-layer-vanilla-LSTM advantage on QQQ small-data. Mechanism: mLSTM matrix memory at single layer still has regime context, but fewer params reduce overfit on F1/F2/F4 (the failing folds). Predicted F3 alpha preserved (matrix memory still works), F4 may improve if depth was the overfit driver.",
+    "prediction": "Composite [-0.3, +0.7]. F3 expected to stay positive. F4 expected to lift from -0.73 toward [-0.5, +0.3]. Runtime ~150-300s.",
+    "_manual": true,
+    "verdict": "DISCARD by composite (-0.60) BUT F4 RECORD: A_sh +2.30, **excess +2.29** — best F4 (China-oil drawdown) on QQQ ever. F1 +0.19 (improvement from -0.39). xLSTM 1-layer is a F4-DRAWDOWN SPECIALIST. F2/F3/F6/F7 all regressed (1-layer too small for trend regimes).",
+    "learning": "**Structural finding**: xLSTM depth-vs-regime tradeoff. 1-layer = drawdown/chaos specialist (F1, F4). 2-layer (Beck default exp 102) = trend specialist (F3, F6). Complementary ensemble candidate per CLAUDE.md FX-Project-Learnings (a) deep ensembles. Per-fold targeted deficiency-research worked: F4 specifically targeted, F4 specifically fixed."
   }
 }
