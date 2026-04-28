@@ -1061,6 +1061,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.0, +0.5]",
     "prediction": "~2min",
+    "_manual": true,
+    "verdict": "DISCARD. -0.72.",
+    "learning": "XGBoost+features 2-seed mid range."
+  },
+  "136": {
+    "diagnosis": "CatBoost+features seed=0 - verify exp 123 +0.55 lift was not lucky",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.0, +0.5]",
+    "prediction": "~22min",
     "_manual": true
   }
 }
