@@ -989,6 +989,15 @@
     "citations": "Lakshminarayanan 2017.",
     "hypothesis": "[-0.5, +0.6].",
     "prediction": "Runtime ~30s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.84. exp 126 was lucky seed=42. 2-seed mean -0.13.",
+    "learning": "MLP+features+lr=1e-4 still high seed variance. Continuing."
+  },
+  "128": {
+    "diagnosis": "3rd seed MLP+features lr=1e-4",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.0, +0.5]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
