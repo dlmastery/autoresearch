@@ -854,6 +854,15 @@
     "citations": "Lakshminarayanan 2017 NeurIPS deep ensembles; Lucca-Moench 2015.",
     "hypothesis": "If new features carry signal, 4-seed mean should match or exceed exp 6's 4-seed mean -1.16. seed=42 lands in [-1.5, +0.5].",
     "prediction": "Composite [-1.5, +0.5], runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "Composite +0.41 (DISCARD by global comp +1.32). A_sh +0.51, excess -0.10, 6/7 test pos. **Big lift from new features**: 2-seed mean -0.05 vs old MLP 4-seed mean -0.90 = +0.85 lift. Lucca-Moench 2015 + Boyd 2005 calendar dummies validating on QQQ.",
+    "learning": "**Feature engineering pays off**: 5 calendar features (pre-FOMC, NFP, CPI, quad-witching) lift MLP 2-seed mean by +0.85. FX paper §6.5 quote validated. Continuing 3rd seed to lock median."
+  },
+  "113": {
+    "diagnosis": "3rd seed MLP + new features. seeds 0/42 = -0.51/+0.41 (mean -0.05). Need seed=7 to lock 3-seed median.",
+    "citations": "Lakshminarayanan 2017; Lucca-Moench 2015 JF.",
+    "hypothesis": "Composite [-0.5, +0.5].",
+    "prediction": "Runtime ~25-40s.",
     "_manual": true
   }
 }
