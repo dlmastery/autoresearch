@@ -98,10 +98,22 @@ def evaluate_target_variant(predictions: np.ndarray,
     pred = pred[:n]; act = act[:n]
     mask = np.isfinite(pred) & np.isfinite(act)
     pred = pred[mask]; act = act[mask]
+    # Classification metrics (precision/recall/f1/f2/mcc/accuracy + tp/fp/tn/fn)
+    # are computed even on the empty-input path so the dashboard never sees
+    # KeyError on these dashboard columns. Per CLAUDE.md "Traditional ML
+    # Metrics (MANDATORY for every experiment)".
     if pred.size == 0:
+        zero_cls = {
+            f"{label}_precision": 0.0, f"{label}_recall": 0.0,
+            f"{label}_f1": 0.0, f"{label}_f2": 0.0,
+            f"{label}_accuracy": 0.0, f"{label}_mcc": 0.0,
+            f"{label}_tp": 0, f"{label}_fp": 0,
+            f"{label}_tn": 0, f"{label}_fn": 0,
+        }
         return {f"{label}_sharpe": 0.0, f"{label}_excess_sharpe": 0.0,
                 f"{label}_return_pct": 0.0, f"{label}_hit_rate": 0.0,
-                f"{label}_n": 0, f"{label}_bh_sharpe": 0.0}
+                f"{label}_n": 0, f"{label}_bh_sharpe": 0.0,
+                **zero_cls}
 
     direction = np.sign(pred)
     strat = direction * act
@@ -124,6 +136,10 @@ def evaluate_target_variant(predictions: np.ndarray,
         }
     bh = buy_and_hold_metrics(act)
     excess = float(sharpe_ratio(strat)) - bh["bh_sharpe"]
+    # Direction-classification metrics — dashboard column data per CLAUDE.md.
+    # Treat sign(pred)==sign(actual) as "correct UP" / "correct DOWN" using
+    # the FX-evaluation classification helper (re-exported above).
+    cm = classification_metrics(pred, act)
     return {
         f"{label}_sharpe":        round(float(sharpe_ratio(strat)), 4),
         f"{label}_sortino":       round(float(sortino_ratio(strat)), 4),
@@ -135,6 +151,16 @@ def evaluate_target_variant(predictions: np.ndarray,
         f"{label}_bh_return_pct": round(bh["bh_return_pct"], 2),
         f"{label}_psr":           round(float(probabilistic_sharpe_ratio(strat)), 4),
         f"{label}_ic":            round(float(information_coefficient(pred, act)["ic_spearman"]), 4),
+        f"{label}_precision":     cm["precision"],
+        f"{label}_recall":        cm["recall"],
+        f"{label}_f1":            cm["f1"],
+        f"{label}_f2":            cm["f2"],
+        f"{label}_accuracy":      cm["accuracy"],
+        f"{label}_mcc":           cm["mcc"],
+        f"{label}_tp":            cm["tp"],
+        f"{label}_fp":            cm["fp"],
+        f"{label}_tn":            cm["tn"],
+        f"{label}_fn":            cm["fn"],
     }
 
 

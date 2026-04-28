@@ -353,5 +353,12 @@
     "_manual": true,
     "verdict": "DISCARD. Composite -0.67. Vanilla Mamba (Gu-Dao 2024 base) materially worse than dMamba (Liu 2025 directional variant). dmamba variant is the right architectural choice for QQQ.",
     "learning": "Variant axis closed: dmamba > vanilla > untested others. Continue dMamba hill-climb on remaining axes (lr, n_layers, additional seeds)."
+  },
+  "57": {
+    "diagnosis": "From new champion exp 52 (dMamba expand=2 d_state=32 lr=5e-4 +1.32), test slower lr 5e-4 → 3e-4 per Smith 2017 + Keskar 2017 flat-minima theory. Single-knob change.",
+    "citations": "Smith 2017 'Cyclical Learning Rates' (arXiv:1506.01186); Keskar et al. 2017 ICLR 'Sharp vs Flat Minima' (arXiv:1609.04836); Gu, Dao 2024 (arXiv:2312.00752).",
+    "hypothesis": "Slower lr=3e-4 may improve generalisation via flatter minima but slower convergence may need more epochs.",
+    "prediction": "Composite [+0.6, +1.5]. Runtime ~1500-2500s.",
+    "_manual": true
   }
 }

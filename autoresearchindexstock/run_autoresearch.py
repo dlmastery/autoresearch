@@ -270,6 +270,20 @@ def _evaluate_per_window(
             "bh_sharpe":     per_a["A_bh_sharpe"],
             "bh_return_pct": per_a["A_bh_return_pct"],
             "excess_sharpe": per_a["A_excess_sharpe"],
+            # Unprefixed classification aliases for the dashboard (target A
+            # primary). Per CLAUDE.md "Traditional ML Metrics (MANDATORY for
+            # every experiment)" the dashboard's Prec/Rec/F1/F2/MCC/Acc
+            # columns + per-window detail panel read these fields directly.
+            "precision": per_a.get("A_precision", 0.0),
+            "recall":    per_a.get("A_recall",    0.0),
+            "f1":        per_a.get("A_f1",        0.0),
+            "f2":        per_a.get("A_f2",        0.0),
+            "mcc":       per_a.get("A_mcc",       0.0),
+            "accuracy":  per_a.get("A_accuracy",  0.0),
+            "tp":        per_a.get("A_tp", 0),
+            "fp":        per_a.get("A_fp", 0),
+            "tn":        per_a.get("A_tn", 0),
+            "fn":        per_a.get("A_fn", 0),
         }
         rows.append(row)
 
@@ -607,6 +621,22 @@ def main() -> None:
         "D_sharpe":         test_eval["D_sharpe"],
         "D_excess_sharpe":  test_eval["D_excess_sharpe"],
         "D_return_pct":     test_eval["D_return_pct"],
+        # Aggregate classification metrics (target A primary) — required by
+        # dashboard's Prec/Rec/F1/F2/MCC/Acc columns and CLAUDE.md
+        # "Traditional ML Metrics" mandate. Computed inside
+        # evaluate_target_variant via classification_metrics.
+        "precision":        test_eval.get("A_precision", 0.0),
+        "recall":           test_eval.get("A_recall",    0.0),
+        "f1":               test_eval.get("A_f1",        0.0),
+        "f2":               test_eval.get("A_f2",        0.0),
+        "mcc":              test_eval.get("A_mcc",       0.0),
+        "accuracy":         test_eval.get("A_accuracy",  0.0),
+        "val_precision":    val_eval.get("A_precision",  0.0),
+        "val_recall":       val_eval.get("A_recall",     0.0),
+        "val_f1":           val_eval.get("A_f1",         0.0),
+        "val_f2":           val_eval.get("A_f2",         0.0),
+        "val_mcc":          val_eval.get("A_mcc",        0.0),
+        "val_accuracy":     val_eval.get("A_accuracy",   0.0),
         "per_window":       test_eval["per_window"],
         "per_window_val":   val_eval["per_window"],
     }

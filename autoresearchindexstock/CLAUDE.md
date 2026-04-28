@@ -140,6 +140,85 @@ Before touching any code:
 
 ## Hard Rules (NEVER violate)
 
+### Compute & GPU saturation (UPDATED 2026-04-27)
+
+**Saturate the GPU, NOT the CPU.** This laptop has known Intel 14th-gen
+HX silicon degradation (5 BSODs on 2026-04-19, WHEA parity errors on
+E-cores). Treat the CPU as fragile.
+
+- **Neural backbones (MLP, LSTM, Mamba/dMamba)**: must use `torch.device("cuda" if torch.cuda.is_available() else "cpu")` (already wired in runner). Mamba's selective state-space scan is GPU-vectorised; LSTM's recurrence batches well on GPU; even MLP's matmul is GPU-faster.
+- **CPU pinning (mandatory)**: 4 P-cores only — logical IDs `[0,2,4,6]` via `_pin_to_safe_cores()`. NEVER lift this without explicit user approval. E-cores 16-31 are BANNED (WHEA parity errors caused 5 BSODs on 2026-04-19).
+- **Override knobs**: `AUTORESEARCH_USE_ALL_CORES=1` (NOT recommended), `AUTORESEARCH_N_THREADS=N`.
+- **GBMs (XGBoost / LightGBM / CatBoost)**: currently CPU-only via the wrapper — acceptable for short runs. Future opportunity: enable `tree_method='gpu_hist'` (XGBoost), `device='gpu'` (LightGBM), `task_type='GPU'` (CatBoost) to offload further work to the RTX 4090 Laptop GPU and reduce sustained CPU load. Pre-flight any such change with HWiNFO64 monitoring.
+- **Pre-flight VRAM check**: 16 GB cap. Per-experiment annotation should record expected peak VRAM at chosen `seq_len` × `batch_size` × precision when adopting any new foundation-scale backbone (>200 M params). See "GPU Memory Constraint" section.
+
+### Metric output schema (parity with FX runner — UPDATED 2026-04-27)
+
+The QQQ runner's JSONL output must include EVERY field the dashboard
+columns read. This was a recurring deficiency: the QQQ
+`evaluate_target_variant` originally dropped classification metrics that
+the FX runner emitted, and `_evaluate_per_window` never aggregated
+uncertainty / never ran a `train_eval` pass — leaving 6+ dashboard
+columns blank for ALL 56 historical experiments. Fixed in commit
+following exp 57.
+
+**Required JSONL top-level fields per experiment** (any new field added
+to FX runner's emit MUST also be added to QQQ runner — they share
+`evaluation/metrics.classification_metrics`):
+- Strategy: `composite`, `sharpe`, `val_sharpe`, `train_sharpe` (TODO if missing), `ic`, `hit`, `psr`, `equity`, `return_pct`
+- Buy-and-hold (QQQ-specific): `bh_sharpe`, `bh_return_pct`, `excess_sharpe`
+- Multi-target (QQQ-specific): `B_sharpe`, `B_excess_sharpe`, `B_return_pct`, `D_sharpe`, `D_excess_sharpe`, `D_return_pct`
+- **Classification (mandatory)**: `precision`, `recall`, `f1`, `f2`, `mcc`, `accuracy` + val-prefixed twins (`val_precision`, etc.)
+- Uncertainty (neural backbones via MC Dropout): `confidence_mean`, `aleatoric_mean`, `epistemic_mean` + val-prefixed twins (TODO — currently empty for QQQ)
+- Counts: `test_pos_folds`, `val_pos_folds`
+- Per-window: `per_window` (test) and `per_window_val` (val) — each window dict contains the same A_/B_/D_ prefix block + unprefixed aliases for target A + per-window classification keys (`precision`, `recall`, `f1`, `f2`, `mcc`, `accuracy`, `tp`, `fp`, `tn`, `fn`)
+- Status: `status` ∈ {`KEEP`, `DISCARD`} computed against `best_config.json` BEFORE the JSONL append (commit `0debb50`)
+
+**Audit gate (run before every batch of experiments)**:
+1. `wc -l experiment_log.jsonl` matches the next `experiment_num`
+2. The most recent JSONL row has every required field non-null
+3. Run `_backfill_classification.py` if any historical row is missing classification keys (idempotent)
+4. Per-window dicts have `precision`/`recall`/`f1`/`f2`/`mcc`/`accuracy`/`tp`/`fp`/`tn`/`fn`
+
+If ANY required field is missing on a new run, the runner has regressed and must be patched BEFORE launching the next experiment. The dashboard reads these fields directly — empty columns are a runner bug, not a dashboard bug.
+
+### Cheap-first 25-experiment-per-backbone protocol (UPDATED 2026-04-27)
+
+Per user direction (2026-04-27): exhaust cheap backbones BEFORE moving
+to heavy ones. Order:
+
+| Tier | Backbones | Per-run cost | Mandate |
+|---|---|---|---|
+| Cheap | MLP, LSTM | 28-150s | 25 each |
+| Medium | XGBoost, LightGBM | 100-2900s | 25 each |
+| Heavy | CatBoost, Mamba/dMamba | 700-19000s | 25 each |
+
+Within each tier, ALWAYS hill-climb from the per-backbone champion
+(highest composite, NOT highest A_sharpe — composite is the formal
+champion criterion per `composite_score` in metrics.py). One config
+change per experiment. ONE arXiv-cited rationale per experiment.
+
+When 3+ consecutive DISCARDs from a single per-backbone champion: STOP
+hill-climbing that axis — pivot to a different axis OR a different
+backbone. Per CLAUDE.md "consecutive discards = local optimum" mandate.
+
+### Per-backbone seq_len (UPDATED 2026-04-27)
+
+**seq_len is variable PER backbone — the runner accepts `--seq-len` and
+each experiment chooses.** Industry SOTA for daily-equity prediction:
+
+| Backbone | QQQ champion seq | SOTA reference seq | Notes |
+|---|---:|---|---|
+| MLP | 10 | n/a (architectural ceiling — flatten dim grows linearly with seq) | seq=20/60 catastrophic on QQQ (exps 4, 25); 10 is the ceiling. |
+| LSTM | 10 (champ) | Fischer & Krauss 2018 EJOR S&P daily LSTM used **seq=240**. We've tested 10/20/60 on QQQ; seq=20 modest gain on pos folds (exp 32) but excess regressed; seq=60 mediocre (exp 26). Worth testing 30-90 systematically. |
+| XGBoost / LightGBM / CatBoost | 60 | Tabular has no canonical seq_len; common practice 30-90. QQQ has tested **only seq=60** — opportunity: 30, 90 untested. |
+| Mamba / dMamba | 60 | Gu-Dao 2024 used L=512-2048 for time-series benchmarks. SSM scales O(L) so longer seq is cheap. **MAJOR gap on QQQ — 60 only — seq=120 / 240 untested and likely a meaningful lift** given dMamba expand=2 d_state=32 already gave +1.32. |
+
+When testing seq_len changes:
+1. Cite the specific paper that recommends the candidate seq for the backbone family.
+2. Pre-flight VRAM at the new seq × batch (linear or quadratic per architecture).
+3. seq_len change is ONE knob — combine with other changes only after seq_len axis is closed.
+
 ### Data Integrity
 - NEVER create sliding windows across non-contiguous date ranges. Use
   `create_contiguous_datasets()` which splits at gaps and creates
