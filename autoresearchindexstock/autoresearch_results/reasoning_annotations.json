@@ -1142,6 +1142,15 @@
     "citations": "Oreshkin, Carpov, Chapados, Bengio 2020 ICLR (arXiv:1905.10437)",
     "hypothesis": "[-1.0, +0.5]",
     "prediction": "~60-200s",
+    "_manual": true,
+    "verdict": "DISCARD. -1.43. N-BEATS fails on QQQ (FX result reproduced — basis-expansion stacks over-parameterise at small n).",
+    "learning": "N-BEATS not viable for QQQ. Trying PatchTSMixer."
+  },
+  "145": {
+    "diagnosis": "PatchTSMixer (Ekambaram 2023 KDD) - Phase F untested on QQQ",
+    "citations": "Ekambaram, Jati, Nguyen, Sinthong, Kalagnanam 2023 KDD (arXiv:2306.09364)",
+    "hypothesis": "[-0.5, +0.5]",
+    "prediction": "~60-200s",
     "_manual": true
   }
 }
