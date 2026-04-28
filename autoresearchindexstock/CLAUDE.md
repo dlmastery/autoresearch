@@ -138,6 +138,58 @@ Before touching any code:
 5. **Separation of concerns is not optional.** Runners log. Dashboards
    display. Evaluators evaluate. Never tangle them.
 
+## User Directives Log (Consolidated — read first, every session)
+
+This section consolidates all explicit user directives received during the QQQ project. Each is binding. New session starts here.
+
+### Session 2026-04-27 directives
+
+1. **Cheap-first 25-experiment-per-backbone protocol**: order is cheap (MLP, LSTM) → medium (XGBoost, LightGBM, CatBoost) → heavy (CatBoost full, Mamba). Within tier, hill-climb from per-backbone champion (composite metric, NOT A_sharpe).
+2. **Do not use seq>60**: QQQ super-fold val windows are too small (F3=63d, F5=63d). Above seq=60, val folds get skipped — composite metric becomes incomparable to historical experiments. (See "Per-backbone seq_len" section.)
+3. **Per-backbone industry SOTA seq_len norm**: each backbone family has its own canonical seq from the founding paper. MLP=10 (Gu-Kelly-Xiu 2020), LSTM=10-240 (Fischer-Krauss 2018), Mamba=60+ (Gu-Dao 2024). Pick from the paper, capped at QQQ's seq=60 ceiling.
+4. **Saturate GPU not CPU**: Intel HX silicon degradation (5 BSODs on 2026-04-19, WHEA E-core errors). Neural backbones (MLP, LSTM, Mamba, xLSTM) use CUDA. CPU pinned to P-cores [0,2,4,6] only. Future opportunity to GPU-accelerate GBMs.
+5. **Don't stop and ask**: when forking, default to (b) and continue. Apply CLAUDE.md research-driven protocol per experiment.
+6. **For each new experiment**: start from previous winner → deep per-fold analysis → SOTA arxiv research targeting the specific deficiency → arxiv-cited justification → THEN run. Dashboard's reasoning_annotations.json must reflect this fully.
+7. **Read FX docs and apply rigorously**: paper.md, medium_article.md, research_journal.md, autoresearch_report.md. The FX project's 265-experiment trace is the protocol exemplar; QQQ should match its rigor.
+8. **Architectural variants matter**: residual MLP (FX MLP champion), bidirectional LSTM, num_layers/hidden_size — the runner exposes `--num-layers` and `--hidden-size` flags; use them to explore architectural axes, not just optimisation HPs.
+
+### Session 2026-04-28 directives
+
+9. **Foundation models LAST**: order is cheap-tier → medium-tier → Mamba → Phase F (other-already-in-runner: PatchTST, PatchTSMixer, iTransformer, DLinear, N-BEATS) → Phase D (Stock-specific code adds: Adv-ALSTM, StockMixer, MASTER, PatchMixer, CARD, Reversible Mixer) → **Phase E SOTA April 2026 foundation models LAST** (Sundial, TimesFM 2.5, Chronos-2, Moirai 2.0, TiRex, MOMENT, Time-MoE, TimeMixer/++).
+10. **Add 25 more MLP experiments (50 total)**: extended from 25 to 50 budget per user. MLP runs ~30s on GPU; cheap.
+11. **Add 50 more LSTM experiments (75 total)**: extended from 25 to 75 budget per user. Try various SOTA LSTM types — vanilla LSTM, xLSTM (already in runner), and consider future code adds for AWD-LSTM, Mogrifier, etc.
+12. **Always start every backbone with SOTA HP from arxiv latest research**: Bootstrap Rule. The first experiment of any new backbone must use the recipe from the latest arxiv paper for that architecture. Deviations require arxiv-cited justification. (See "Backbone Bootstrap Rule" section.)
+13. **Always update dashboard + commit + push BEFORE moving to next experiment**: per-experiment commit rule. No batching. (See "Per-Experiment Sync + Commit Rule" section.)
+14. **Phase priority within Phase D / Phase E**:
+    - Phase D order: Adv-ALSTM (simplest port) → StockMixer → MASTER → PatchMixer → CARD → Reversible Mixer.
+    - Phase E order: MOMENT-small → TimeMixer → TiRex → Chronos-2-bolt-small → Time-MoE-base → Moirai-small → TimesFM small → Sundial.
+15. **Create proper task lists with meticulous checkpoints**: 14 tasks created (#32-45) covering all backbone budgets + cross-cutting work (deep-ensemble, confidence-weighted sizing, shuffle-test audit, calibration). Plus #46 for arxiv-cited feature engineering.
+16. **For each backbone winner — detailed weak-points analysis, arxiv research deep, arxiv justification before starting**: re-emphasis of the 7-step research-driven protocol. Each new experiment requires per-fold deficiency identification + SOTA arxiv paper match + numeric prediction + verdict + learning. No grid search disguised as research.
+17. **Research arxiv for features that might boost Sharpe**: per FX paper §6.5 'it pays more to engineer features than to replace the model'. QQQ feature gaps documented in task #46: VIX term-structure slopes, HYG-AGG credit spread, FOMC/CPI/NFP calendar dummies, yield curve slopes, cross-sectional NDX momentum, style factor returns, 0DTE options flow, news/LLM embeddings.
+
+### Sticky operational rules (cumulative)
+
+- **Per-experiment commit + push BEFORE next experiment** (rule 13)
+- **SOTA-from-arxiv recipe for every new backbone Experiment 1** (rule 12)
+- **Research-driven protocol per experiment** (rules 6, 16) — diagnose-cite-hypothesize-predict-run-analyse-checkpoint
+- **seq_len ≤ 60 hard ceiling** (rule 2)
+- **GPU not CPU** (rule 4)
+- **Foundation models LAST** (rule 9)
+- **Cheap → medium → heavy → Phase F → Phase D → Phase E** (rules 1, 9, 14)
+- **Track everything in tasks** (rule 15)
+- **Feature engineering is a parallel workstream** (rule 17, task #46)
+
+### Mistakes I've made and the user has corrected
+
+- ❌ Grid-searching HP without per-fold deficiency analysis (corrected after exps 58-60)
+- ❌ Trying seq=120 without checking fold-size constraint (corrected by user)
+- ❌ Treating seed instability as deficiency when actual deficiency was per-fold regime failure (corrected)
+- ❌ Foundation models ordered first instead of last (corrected)
+- ❌ FX→QQQ HP transfer naïveté (didn't realize paper-defaults > FX-tuned for smaller QQQ data)
+- ❌ Missing dashboard fields for 56 experiments (classification metrics undetected, fixed retroactively)
+- ❌ KEEP/DISCARD bug undetected for 23 experiments (Status column blank, fixed retroactively)
+- ❌ Parallel-launch experiments causing annotation key drift (re-keyed retroactively)
+
 ## Per-Experiment Sync + Commit Rule (UPDATED 2026-04-28 — MANDATORY)
 
 **Before launching every new experiment, sync the dashboard to docs/ AND commit + push to GitHub.** No batching. No "I'll commit after 5 more". Every experiment's full state lands on GitHub before the next one starts.
