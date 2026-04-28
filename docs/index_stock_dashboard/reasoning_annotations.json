@@ -1268,6 +1268,15 @@
     "citations": "FX paper section 4.6; Keskar 2017",
     "hypothesis": "[-0.5, +1.0]",
     "prediction": "~25s",
+    "_manual": true,
+    "verdict": "DISCARD. -2.21.",
+    "learning": "Cross-axis combo failed."
+  },
+  "159": {
+    "diagnosis": "xLSTM hidden=64 seed=99",
+    "citations": "Beck 2024",
+    "hypothesis": "[-1.0, +1.5]",
+    "prediction": "~3min",
     "_manual": true
   }
 }
