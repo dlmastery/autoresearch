@@ -872,6 +872,15 @@
     "citations": "Lakshminarayanan 2017.",
     "hypothesis": "[-0.5, +0.5].",
     "prediction": "Runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "Composite +0.48 (DISCARD by global +1.32). A_sh +0.58, excess -0.03, 6/7 test pos. **MLP+features 4-seed lock: mean -0.05, median -0.05, std 0.57.** vs old MLP 4-seed: mean -0.91, std 0.95. **MASSIVE +0.86 mean lift + 40% std reduction from 5 calendar features.**",
+    "learning": "Lucca-Moench 2015 + Boyd 2005 + Stivers-Sun 2002 calendar dummies validated dramatically on QQQ. The FX paper §6.5 'feature engineering > model replacement' insight proven. Rolling out features to LSTM next."
+  },
+  "115": {
+    "diagnosis": "5-runs-per-backbone budget per user 2026-04-28 directive. MLP @ champion config + new features seed=2024 — 5th seed for stable population estimate.",
+    "citations": "Lakshminarayanan 2017; Lucca-Moench 2015.",
+    "hypothesis": "Composite [-0.5, +0.5]. 5-seed mean expected ≈ -0.05.",
+    "prediction": "Runtime ~25-40s.",
     "_manual": true
   }
 }
