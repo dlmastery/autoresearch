@@ -621,41 +621,6 @@ def _calendar_features(idx: pd.DatetimeIndex) -> pd.DataFrame:
         idx.month.isin([1, 4, 7, 10]) & (idx.day >= 8) & (idx.day <= 35)
     ).astype(int)
 
-    # Pre-FOMC drift window (Lucca, Moench 2015 JF). >70% of historical
-    # market returns occurred in the 24-hour window before FOMC announcements.
-    # T-1 dummy: trading day immediately preceding a FOMC meeting day.
-    fomc_idx = pd.DatetimeIndex(fomc)
-    bday = pd.tseries.offsets.BDay()
-    fomc_minus1 = pd.DatetimeIndex([(d - bday).normalize() for d in fomc_idx])
-    fomc_minus2 = pd.DatetimeIndex([(d - 2 * bday).normalize() for d in fomc_idx])
-    fomc_minus1_set = set(fomc_minus1)
-    fomc_minus2_set = set(fomc_minus2)
-    df["pre_fomc_t_minus_1"] = np.array([d.normalize() in fomc_minus1_set for d in idx]).astype(int)
-    df["pre_fomc_t_minus_2"] = np.array([d.normalize() in fomc_minus2_set for d in idx]).astype(int)
-
-    # NFP day dummy (first Friday of each month, BLS Employment Situation
-    # release). Boyd, Hu, Jagannathan 2005 RFS — equity reaction to
-    # employment news. Approximation: the first Friday of every month is
-    # nearly always NFP day (very rare holiday exceptions).
-    nfp_day_arr = np.array([
-        (d.dayofweek == 4) and (d.day <= 7) for d in idx
-    ])
-    df["nfp_day"] = nfp_day_arr.astype(int)
-
-    # CPI release window dummy (BLS publishes Consumer Price Index
-    # ~10th-15th of each month for prior month's data). Approximation as
-    # any business day in the 10-15 calendar-day band per month.
-    # Boyd, Hu, Jagannathan 2005 — inflation news drives equity vol.
-    df["cpi_release_window"] = (
-        (idx.day >= 10) & (idx.day <= 15)
-    ).astype(int)
-
-    # Quad-witching: third Friday of Mar/Jun/Sep/Dec — index futures +
-    # index options + stock futures + stock options expire. Higher vol.
-    df["quad_witching"] = (
-        (idx.month.isin([3, 6, 9, 12])) & third_fri
-    ).astype(int)
-
     return df
 
 
