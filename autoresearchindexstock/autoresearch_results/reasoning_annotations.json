@@ -1133,6 +1133,15 @@
     "citations": "Chen-Guestrin 2016.",
     "hypothesis": "[-1.0, +0.3].",
     "prediction": "Composite [-1.0, +0.3], runtime ~80-150s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.55. n_est=100 sweet spot.",
+    "learning": "XGBoost capacity peak at 100 confirmed. Trying N-BEATS."
+  },
+  "144": {
+    "diagnosis": "N-BEATS (Oreshkin 2020 ICLR) - Phase F backbone never tested on QQQ. FX paper §4.7 N-BEATS all 8 configs negative on FX. May behave different on QQQ.",
+    "citations": "Oreshkin, Carpov, Chapados, Bengio 2020 ICLR (arXiv:1905.10437)",
+    "hypothesis": "[-1.0, +0.5]",
+    "prediction": "~60-200s",
     "_manual": true
   }
 }
