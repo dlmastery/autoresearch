@@ -1070,6 +1070,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.0, +0.5]",
     "prediction": "~22min",
+    "_manual": true,
+    "verdict": "+0.08. 2-seed CatBoost+features mean +0.32 (vs old -0.92). Real lift confirmed. CatBoost benefits most from features.",
+    "learning": "Trees benefit from features (CatBoost mean +0.32, vs old -0.92 = +1.24 lift)."
+  },
+  "137": {
+    "diagnosis": "iTransformer+features seed=42 (was -1.41 baseline; variate-attention may benefit from feature count growth)",
+    "citations": "Liu 2024 ICLR iTransformer",
+    "hypothesis": "[-1.5, +0.5]",
+    "prediction": "~2min",
     "_manual": true
   }
 }
