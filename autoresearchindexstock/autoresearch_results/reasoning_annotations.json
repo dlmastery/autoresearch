@@ -1241,6 +1241,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.0, +1.0]",
     "prediction": "~25min",
+    "_manual": true,
+    "verdict": "+0.97 = matches exp 55 seed=7. Confirms seed determinism.",
+    "learning": "Trying untested expand=3 between 2 (champ) and 4."
+  },
+  "156": {
+    "diagnosis": "dMamba expand=3 (between 2 champ +1.32 and 4 baseline +0.86)",
+    "citations": "Gu-Dao 2024 expand parameter",
+    "hypothesis": "[-0.5, +1.5]",
+    "prediction": "~20min",
     "_manual": true
   }
 }
