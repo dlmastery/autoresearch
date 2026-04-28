@@ -1079,6 +1079,15 @@
     "citations": "Liu 2024 ICLR iTransformer",
     "hypothesis": "[-1.5, +0.5]",
     "prediction": "~2min",
+    "_manual": true,
+    "verdict": "🎯 +0.12 (Δ +1.53 vs exp 108 -1.41). A_sh +1.28, excess +0.06, 6/7 pos. iTransformer variate-attention dramatically benefits from features. Per Liu 2024: attention scales with feature count.",
+    "learning": "**HUGE finding**: iTransformer was failing on QQQ (capped at -1.41) but +features lifted to +0.12. Variate-attention architecture is feature-count-friendly. Now testing DLinear+features."
+  },
+  "138": {
+    "diagnosis": "DLinear+features (was -0.04 baseline, F5 +1.82 alpha)",
+    "citations": "Zeng 2023 AAAI DLinear",
+    "hypothesis": "[-0.5, +0.7]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
