@@ -1007,6 +1007,15 @@
     "citations": "Keskar 2017",
     "hypothesis": "[-1.0, +0.5]",
     "prediction": "~30s",
+    "_manual": true,
+    "verdict": "DISCARD. +0.22. Mid result.",
+    "learning": "MLP+features bs=16 in middle range."
+  },
+  "130": {
+    "diagnosis": "MLP+features hd=0.20 (less reg)",
+    "citations": "Srivastava 2014",
+    "hypothesis": "[-0.5, +0.6]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
