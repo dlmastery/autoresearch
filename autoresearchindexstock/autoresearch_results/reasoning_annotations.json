@@ -899,6 +899,15 @@
     "citations": "Lakshminarayanan 2017; Lucca-Moench 2015.",
     "hypothesis": "If features genuinely help LSTM (as for MLP), 5-seed mean should match or exceed +0.50 baseline.",
     "prediction": "Composite [-0.2, +0.9], runtime ~30s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.88. 2-seed LSTM+features mean -0.43 vs old 4-seed mean +0.50. **Features HURT LSTM** — opposite of MLP. Possibly LSTM cell-state already encodes calendar via temporal recurrence.",
+    "learning": "Feature-vs-architecture interaction: MLP benefits from explicit calendar features (no temporal recurrence), LSTM doesn't (recurrence captures time naturally). Need seed=7 to confirm."
+  },
+  "118": {
+    "diagnosis": "3rd seed LSTM+features.",
+    "citations": "Lakshminarayanan 2017.",
+    "hypothesis": "If feature-architecture interaction real, seed=7 also worse than baseline.",
+    "prediction": "[-1.0, +0.3].",
     "_manual": true
   }
 }
