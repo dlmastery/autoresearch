@@ -1232,6 +1232,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.0, +0.5]",
     "prediction": "~80s",
+    "_manual": true,
+    "verdict": "DISCARD. -0.24.",
+    "learning": "Continuing."
+  },
+  "155": {
+    "diagnosis": "Mamba @ exp 52 with seed=2024 different attempt (post features rollback)",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.0, +1.0]",
+    "prediction": "~25min",
     "_manual": true
   }
 }
