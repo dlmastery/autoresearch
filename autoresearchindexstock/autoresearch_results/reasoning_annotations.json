@@ -818,6 +818,15 @@
     "citations": "Liu, Hu, Zhang, Wang, Wu, Wang, Long 2024 ICLR 'iTransformer: Inverted Transformers Are Effective for Time Series Forecasting' (arXiv:2310.06625) — inverts attention to operate over variates not time-steps; suited for multivariate panels.",
     "hypothesis": "iTransformer's variate-attention may handle QQQ's 205-feature panel differently than time-step attention. If FX's 104-feature panel was too few for the d×d=10816 attention matrix to learn, QQQ's 205 (42025 attention) is even worse. Predicted [-1.0, +0.3].",
     "prediction": "Composite [-1.0, +0.3], runtime ~150-300s.",
+    "_manual": true,
+    "verdict": "DISCARD. -1.41. iTransformer fails on QQQ as on FX. F4 +2.89 alpha (drawdown specialist!) but F2 -4.19 catastrophic, F5 -2.52, F3 -0.90. Mass-variance per-fold.",
+    "learning": "iTransformer's variate-attention fails on small-data financial regression. Same FX result reproduced. Adding to Phase F backbones-tried list."
+  },
+  "109": {
+    "diagnosis": "DLinear (Zeng 2023 AAAI 'Are Transformers Effective for Time Series?' arXiv:2205.13504) — Phase F backbone untested on QQQ. FX paper §4.7 capped at +3.16 (best non-tree non-LSTM on FX). Per CLAUDE.md SOTA-from-arxiv: lr=1e-3, ep=100, pat=20.",
+    "citations": "Zeng, Chen, Zhang, Xu 2023 AAAI 'Are Transformers Effective for Time Series Forecasting?' (arXiv:2205.13504) — linear decomposition matches transformer on long-horizon TS.",
+    "hypothesis": "DLinear's simple linear-decomp may capture QQQ trend (BH +1.22) better than complex models. FX peak +3.16 — on QQQ may be competitive vs LSTM 1-layer +0.50.",
+    "prediction": "Composite [-0.5, +1.0], runtime ~30-60s.",
     "_manual": true
   }
 }
