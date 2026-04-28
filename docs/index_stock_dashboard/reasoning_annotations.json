@@ -1106,6 +1106,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-0.5, +1.0]",
     "prediction": "~30s",
+    "_manual": true,
+    "verdict": "DISCARD. -0.93. 3-seed DLinear+features mean -0.09. exp 138 was lucky.",
+    "learning": "DLinear+features less robust than I thought. Continuing other backbones."
+  },
+  "141": {
+    "diagnosis": "dMamba+features d_state=16 (down from 32) - smaller-state may handle features better",
+    "citations": "Gu-Dao 2024",
+    "hypothesis": "[-1.0, +0.5]",
+    "prediction": "~25min",
     "_manual": true
   }
 }
