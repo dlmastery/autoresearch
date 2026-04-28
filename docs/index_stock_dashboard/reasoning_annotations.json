@@ -980,6 +980,15 @@
     "citations": "Smith 2017; Keskar 2017.",
     "hypothesis": "lr=1e-4 was bad for old-features MLP (-1.36 exp 27). May behave differently on new features.",
     "prediction": "[-1.0, +0.5], runtime ~30s.",
+    "_manual": true,
+    "verdict": "🎯 +0.58. Best MLP+features result. lr=1e-4 was bad on old features (exp 27 -1.36) but works on new features. Different feature set → different optimal HP.",
+    "learning": "MLP+features new champion: lr=1e-4 + 5 calendar features. HP optima shift with feature changes. Multi-seed verify next."
+  },
+  "127": {
+    "diagnosis": "Multi-seed verify exp 126 (new MLP+features champion +0.58 lr=1e-4 seed=42).",
+    "citations": "Lakshminarayanan 2017.",
+    "hypothesis": "[-0.5, +0.6].",
+    "prediction": "Runtime ~30s.",
     "_manual": true
   }
 }
