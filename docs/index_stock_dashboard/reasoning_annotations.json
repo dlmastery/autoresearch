@@ -632,5 +632,120 @@
     "_manual": true,
     "verdict": "DISCARD. Composite -1.11. hd=0.15 hurts 1-layer LSTM. **LSTM 25/25 cheap-tier complete.**",
     "learning": "Cheap-tier MLP+LSTM 50 experiments complete per user mandate. Moving to medium-tier (XGBoost 13/25, LightGBM 6/25, Mamba 15/25, CatBoost 3/25). Best stable champion remains LSTM 1-layer 4-seed mean +0.50 (exp 71-74)."
+  },
+  "88": {
+    "diagnosis": "XGBoost per-backbone champion exp 44 (depth=4 n_est=100 lr=0.02 seq=60 seed=42 composite -0.25). Per CLAUDE.md FX-Project-Learnings 'tree models are seed-deterministic in effect' but ALSO 'shuffle-test for tree champions'. First step: confirm seed-determinism on QQQ XGBoost. FX paper §6.4 found XGBoost byte-identical across seeds. If true on QQQ, that's a deployment property; if not, caveat the result.",
+    "citations": "FX paper §6.4 'Seed-Variance Regimes'; Chen-Guestrin 2016 KDD XGBoost.",
+    "hypothesis": "If XGBoost seed-deterministic on QQQ, exp 88 produces composite ≈ -0.25 (within ±0.01). If not, range may be ±0.2-0.5 like neural seed variance.",
+    "prediction": "Composite [-0.6, +0.0], runtime ~80s. Most likely byte-identical to exp 44 since column/row subsampling are the only RNG-using XGBoost operations.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -1.21 (vs exp 44 seed=42 -0.25, Δ -0.96). A_sh +0.87 (HIGHER than exp 44's +0.44). XGBoost on QQQ has SEED VARIANCE. Contradicts FX paper §6.4 'byte-identical' claim — likely because QQQ wrapper uses subsample<1.0 by default.",
+    "learning": "QQQ XGBoost: 2-seed range 0.96 (composite). Comparable to neural backbone variance. The FX 'XGBoost is seed-deterministic' guideline doesn't transfer. Pivoting to LightGBM multi-seed (better GBM on QQQ at +0.48)."
+  },
+  "89": {
+    "diagnosis": "LightGBM is QQQ's best GBM (exp 10 seed=42 +0.48). Multi-seed: exp 10 seed=42 +0.48, exp 24 seed=0 +0.07, 2-seed mean +0.27. Need seed=7 for 3-seed median (per CLAUDE.md FX-Project-Learnings k≥3 mandate).",
+    "citations": "Lakshminarayanan 2017 NeurIPS; Ke 2017 LightGBM; FX paper §6.4.",
+    "hypothesis": "Seed=7 in [+0.0, +0.5] confirms stable median; if negative, LightGBM exp 10 was lucky-seed.",
+    "prediction": "Composite [-0.3, +0.7], runtime ~250-1500s.",
+    "_manual": true,
+    "verdict": "Composite +0.09 (median of 3 seeds = +0.09, mean +0.21). exp 10's +0.48 was +1.5σ lucky outlier. True LightGBM expectation +0.10-0.20.",
+    "learning": "LightGBM (best QQQ GBM) 3-seed mean +0.21 << LSTM 1-layer 4-seed mean +0.50. LSTM is materially better stable champion. Locking 4-seed median for LightGBM."
+  },
+  "90": {
+    "diagnosis": "4th seed (=99) for LightGBM exp 10 multi-seed lock.",
+    "citations": "Lakshminarayanan 2017.",
+    "hypothesis": "Composite [-0.5, +0.5].",
+    "prediction": "Runtime ~250-1500s.",
+    "_manual": true,
+    "verdict": "Composite +0.05. LightGBM 4-seed lock: mean +0.17, median +0.08, std 0.21. Tight variance, low level. exp 10's +0.48 was definitive +1.5σ outlier.",
+    "learning": "LightGBM stable but low. LSTM 1-layer at mean +0.50 is the best STABLE champion on QQQ."
+  },
+  "91": {
+    "diagnosis": "LightGBM HP exploration: n_estimators 1000 → 500. exp 9 (n_est=300) gave -0.47, exp 12 (n_est=2000) gave +0.29. Sweet spot may be tighter test in 500-1500.",
+    "citations": "Chen-Guestrin 2016 KDD; Ke 2017 LightGBM.",
+    "hypothesis": "n_est=500 may match or fall between -0.47 (n=300) and +0.48 (n=1000) — likely [+0.0, +0.4].",
+    "prediction": "Composite [-0.2, +0.5], runtime ~250-700s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.76. n_est=500 worse than 1000. n_est sweet spot at 1000.",
+    "learning": "LightGBM n_est curve: 300=-0.47, 500=-0.76, 1000=+0.48 (lucky), 2000=+0.29. Tight peak at 1000."
+  },
+  "92": {
+    "diagnosis": "LightGBM max_depth axis. exp 10 uses depth=4. exp 37 tested depth=6 (-0.34). Untested: depth=5 (between 4 and 6).",
+    "citations": "Chen-Guestrin 2016; Ke 2017 LightGBM.",
+    "hypothesis": "depth=5 likely between exp 10 +0.48 and exp 37 -0.34, so [-0.2, +0.5].",
+    "prediction": "Composite [-0.3, +0.5], runtime ~300-1000s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.33. depth=5 worse than 4. depth axis closed.",
+    "learning": "LightGBM depth peak at 4. Trying lr next."
+  },
+  "93": {
+    "diagnosis": "LightGBM gbm_lr axis. exp 10 uses 0.01. FX paper noted lr=0.01 peak but 0.005 close. Test 0.005.",
+    "citations": "FX paper §4.2; Friedman 2001.",
+    "hypothesis": "lr=0.005 underfit at n_est=1000 (effective rounds 5 vs 10). Predicted [-0.5, +0.3].",
+    "prediction": "Composite [-0.5, +0.4], runtime ~250-700s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.80. lr=0.005 underfit at n_est=1000.",
+    "learning": "LightGBM lr peak at 0.01."
+  },
+  "94": {
+    "diagnosis": "LightGBM lr=0.02 (untested faster). exp 38 was lr=0.02 already? Let me check — yes, exp 38 was XGBoost-style LightGBM lr=0.02 → -0.36. Already done. Trying max_depth=3 instead.",
+    "citations": "Chen-Guestrin 2016.",
+    "hypothesis": "depth=3 underfit at lr=0.01 n_est=1000.",
+    "prediction": "Composite [-0.5, +0.3], runtime ~250-700s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.04. depth=3 close to baseline.",
+    "learning": "LightGBM depth=3 viable but doesn't beat depth=4 baseline."
+  },
+  "95": {
+    "diagnosis": "n_est=1500 untested for LightGBM (1000=+0.48, 2000=+0.29). Tightening capacity sweep.",
+    "citations": "Chen-Guestrin 2016.",
+    "hypothesis": "Composite [+0.0, +0.5].",
+    "prediction": "Runtime ~400-1500s.",
+    "_manual": true,
+    "verdict": "**LightGBM RECORD**: composite +0.6105 (vs exp 10 +0.48, Δ +0.13). A_sh +0.98, 6/7 test pos folds. n_est=1500 NEW sweet spot. n_est curve: 500=-0.76, 1000=+0.48, 1500=+0.61, 2000=+0.29.",
+    "learning": "n_est sweet spot refined to 1500 (was 1000). Multi-seed verify next."
+  },
+  "96": {
+    "diagnosis": "Multi-seed verify exp 95 (NEW LightGBM CHAMP, n_est=1500 seed=42 +0.61). Per CLAUDE.md FX-Project-Learnings.",
+    "citations": "Lakshminarayanan 2017.",
+    "hypothesis": "Seed=0 in [+0.0, +0.5].",
+    "prediction": "Runtime ~300-1500s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.46. exp 95 lucky-seed pattern again. 2-seed range 1.07.",
+    "learning": "LightGBM n_est=1500 also lucky-seed-prone."
+  },
+  "97": {
+    "diagnosis": "3rd seed n_est=1500",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "Lock 3-seed median",
+    "prediction": "[-0.5, +0.5]",
+    "_manual": true,
+    "verdict": "DISCARD. -0.14. n_est=1500 3-seed median -0.14 < n_est=1000 median +0.08. exp 95 was lucky-seed outlier.",
+    "learning": "LightGBM TRUE n_est sweet spot at 1000 (median +0.08), not 1500. Hill-climb saturated."
+  },
+  "98": {
+    "diagnosis": "CatBoost most behind at 3/25. Per-backbone champion exp 18 (n_est=2000 depth=4 lr=0.01 seq=60 -0.92). Try lr=0.02 (untested for CatBoost; XGBoost found lr=0.02 was better than lr=0.05).",
+    "citations": "Prokhorenkova 2018 NeurIPS CatBoost; FX paper §4.4.",
+    "hypothesis": "lr=0.02 may match the XGBoost finding direction. Predicted [-1.0, +0.0].",
+    "prediction": "Composite [-1.5, +0.0], runtime ~600-2000s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.56. lr=0.02 better than lr=0.01 for CatBoost (vs exp 64 -0.84, Δ +0.28). Slight CatBoost improvement direction.",
+    "learning": "CatBoost lr=0.02 better than 0.01 — same direction as XGBoost finding."
+  },
+  "99": {
+    "diagnosis": "CatBoost smaller capacity test. exp 14 (n_est=500 lr=0.05) -1.71. exp 98 (n_est=1000 lr=0.02) -0.56. Try n_est=500 + lr=0.02 (slower lr at smaller capacity).",
+    "citations": "Prokhorenkova 2018; Friedman 2001.",
+    "hypothesis": "n_est=500 lr=0.02 may underfit but tests capacity floor.",
+    "prediction": "Composite [-1.5, -0.2], runtime ~400-1000s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.85. CatBoost n_est=500 underfit even at lr=0.02. Capacity floor below 1000.",
+    "learning": "CatBoost capacity sweet spot above 1000. Try lr=0.02 + n_est=2000 (combine best findings)."
+  },
+  "100": {
+    "diagnosis": "Exp 100 milestone! CatBoost combo: lr=0.02 (best lr per exp 98) + n_est=2000 (best capacity per exp 18). Untested combination of two CatBoost findings.",
+    "citations": "Prokhorenkova 2018; FX paper §4.4.",
+    "hypothesis": "Composite [-1.0, +0.0]. Best CatBoost yet potentially.",
+    "prediction": "Composite [-1.0, +0.2], runtime ~1500-3000s.",
+    "_manual": true
   }
 }
