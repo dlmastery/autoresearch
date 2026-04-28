@@ -1016,6 +1016,15 @@
     "citations": "Srivastava 2014",
     "hypothesis": "[-0.5, +0.6]",
     "prediction": "~30s",
+    "_manual": true,
+    "verdict": "DISCARD. -0.58 comp, A_sh +0.69, excess +0.08, 6/7. Decent direction skill.",
+    "learning": "Continuing."
+  },
+  "131": {
+    "diagnosis": "MLP+features hidden=96 - replicate old-features val-strong pattern",
+    "citations": "FX paper section 4.6",
+    "hypothesis": "[+0.0, +0.7]",
+    "prediction": "~25s",
     "_manual": true
   }
 }
