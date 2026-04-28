@@ -953,6 +953,15 @@
     "citations": "Prokhorenkova 2018; FX paper §4.3.",
     "hypothesis": "CatBoost+features may improve over -0.56 baseline.",
     "prediction": "[-1.0, +0.5], runtime ~600-1500s.",
+    "_manual": true,
+    "verdict": "🎯 +0.55 LIFT for CatBoost from features. Composite -0.01 (vs exp 98 -0.56). A_sh +0.46. Weakest GBM benefited most — FX paper §4.3 axis-aligned-trees confirmed.",
+    "learning": "Feature-vs-architecture summary so far: MLP +0.86 lift, LSTM -0.49 hurt, XGBoost direction +1.21 (best A_sh) but composite slight regression, LightGBM ~tied, CatBoost +0.55 lift. Trees more feature-tolerant than recurrent nets. Now Mamba (heavy)."
+  },
+  "124": {
+    "diagnosis": "dMamba global champion exp 52 + new features. Heavy backbone (~30 min). Mamba's selective state-space may handle features differently than LSTM — its mLSTM-equivalent matrix memory has variate-attention.",
+    "citations": "Gu-Dao 2024 Mamba; Liu 2025 dMamba; FX paper.",
+    "hypothesis": "dMamba+features may improve from +1.32 lucky-seed baseline (4-seed median +0.86).",
+    "prediction": "[-0.5, +1.5], runtime ~1500-2500s.",
     "_manual": true
   }
 }
