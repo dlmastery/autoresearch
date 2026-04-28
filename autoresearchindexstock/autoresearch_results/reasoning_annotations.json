@@ -908,6 +908,15 @@
     "citations": "Lakshminarayanan 2017.",
     "hypothesis": "If feature-architecture interaction real, seed=7 also worse than baseline.",
     "prediction": "[-1.0, +0.3].",
+    "_manual": true,
+    "verdict": "DISCARD. -0.48. 3-seed LSTM+features mean -0.44 (vs old +0.50). Features clearly HURT LSTM at 3 seeds.",
+    "learning": "Confirmed: LSTM doesn't benefit from added calendar features (cell-state already encodes temporal patterns). MLP did benefit (+0.86 mean lift). Different architecture-feature interaction."
+  },
+  "119": {
+    "diagnosis": "4th seed LSTM+features",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.0, +0.3]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
