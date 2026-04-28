@@ -1034,6 +1034,15 @@
     "citations": "Keskar 2017",
     "hypothesis": "[-1.5, +0.5]",
     "prediction": "~25s",
+    "_manual": true,
+    "verdict": "DISCARD. -0.91. bs=64+features worse.",
+    "learning": "MLP HP space increasingly closed at exp 6 baseline + new features."
+  },
+  "133": {
+    "diagnosis": "Mamba+features seed=0 - multi-seed verify the -1.28 regression at seed=42",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.5, +0.5]",
+    "prediction": "~25min",
     "_manual": true
   }
 }
