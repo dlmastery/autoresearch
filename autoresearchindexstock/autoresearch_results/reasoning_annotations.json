@@ -1025,6 +1025,15 @@
     "citations": "FX paper section 4.6",
     "hypothesis": "[+0.0, +0.7]",
     "prediction": "~25s",
+    "_manual": true,
+    "verdict": "DISCARD. -0.74. hidden=96+features worse.",
+    "learning": "Continue HP exploration."
+  },
+  "132": {
+    "diagnosis": "MLP+features bs=64 (up from 32) seed=42",
+    "citations": "Keskar 2017",
+    "hypothesis": "[-1.5, +0.5]",
+    "prediction": "~25s",
     "_manual": true
   }
 }
