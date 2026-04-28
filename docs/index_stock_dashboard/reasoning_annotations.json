@@ -605,5 +605,32 @@
     "_manual": true,
     "verdict": "Composite +0.59 ≈ exp 6's +0.58. grad_clip axis inert at QQQ MLP scale. **MLP 25/25 cheap-tier complete per user mandate.**",
     "learning": "MLP HP grid completely mapped. exp 6 (lr=3e-4 bs=32 ep=50 hd=0.25 wd=1e-5 hidden=128 grad_clip=1.0 huber=1.0) is the local optimum. 4-seed median -1.16 means MLP cheap-tier ceiling on QQQ is poor. LSTM 1-layer is materially better at 4-seed mean +0.50."
+  },
+  "85": {
+    "diagnosis": "LSTM 1-layer lr axis. exp 71 (champion) uses lr=1e-3. Smith 2017 + Keskar 2017 — lower lr finds flatter minima. On 2-layer LSTM exp 34 lr=5e-4 had val collapse (-0.38). On 1-layer (smaller capacity) may behave differently.",
+    "citations": "Smith 2017 'Cyclical Learning Rates' (arXiv:1506.01186); Keskar 2017 ICLR (arXiv:1609.04836).",
+    "hypothesis": "lr=5e-4 on 1-layer may slightly improve flat-minima generalization. Predicted [+0.0, +0.6].",
+    "prediction": "Composite [-0.2, +0.6], runtime ~30-45s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.59. lr=5e-4 hurts 1-layer too. lr axis closed at 1e-3.",
+    "learning": "1-layer LSTM HP grid increasingly closed."
+  },
+  "86": {
+    "diagnosis": "LSTM 1-layer warmup axis. Tested on 2-layer (exp 36) marginally negative; on MLP (exp 79) gave seed-0 lucky outlier. On 1-layer LSTM untested. Goyal 2017 LR warmup theory.",
+    "citations": "Goyal 2017 'Accurate Large Minibatch SGD' (arXiv:1706.02677); Liu et al. 2019 ICLR (arXiv:1908.03265).",
+    "hypothesis": "warmup=5 on 1-layer LSTM may stabilize early-training. Predicted [+0.0, +0.6].",
+    "prediction": "Composite [-0.2, +0.6], runtime ~30s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.77. warmup=5 hurts 1-layer too.",
+    "learning": "1-layer LSTM HP grid mostly closed. Final test: hd axis."
+  },
+  "87": {
+    "diagnosis": "LSTM 1-layer hd axis (final cheap-tier slot). exp 71 uses hd=0.1. Trying hd=0.15 (mild reg increase) per Srivastava 2014.",
+    "citations": "Srivastava 2014 JMLR 'Dropout'.",
+    "hypothesis": "Mild reg increase may slightly improve val. Predicted [+0.0, +0.6].",
+    "prediction": "Composite [-0.2, +0.6], runtime ~30s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -1.11. hd=0.15 hurts 1-layer LSTM. **LSTM 25/25 cheap-tier complete.**",
+    "learning": "Cheap-tier MLP+LSTM 50 experiments complete per user mandate. Moving to medium-tier (XGBoost 13/25, LightGBM 6/25, Mamba 15/25, CatBoost 3/25). Best stable champion remains LSTM 1-layer 4-seed mean +0.50 (exp 71-74)."
   }
 }
