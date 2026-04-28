@@ -773,6 +773,8 @@
     "citations": "Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS 'xLSTM: Extended Long Short-Term Memory' (arXiv:2405.04517) — exponential gating + matrix memory; matches Transformer-scale on language. FX paper §4.7 — xLSTM capped at +0.65 on FX 104-feature panel.",
     "hypothesis": "xLSTM on QQQ may behave differently than FX. Equity has more trend structure than FX; xLSTM's mLSTM matrix memory may capture regime context better. Predicted [-0.5, +0.8].",
     "prediction": "Composite [-0.5, +0.8], runtime ~120-300s (more params than vanilla LSTM).",
-    "_manual": true
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.87. A_sh +0.71. depth=6 worse than depth=4 baseline at lr=0.01 n_est=1000. CatBoost depth axis: 4=-0.84 (exp 64), 6=-0.87 (exp 103). depth=4 confirmed.",
+    "learning": "CatBoost saturated on QQQ near -0.5 floor across all HPs tested. Worst GBM on QQQ. Per-backbone champion stays exp 98 (depth=4 lr=0.02 n_est=1000 -0.56). Need 19 more for 25-budget."
   }
 }
