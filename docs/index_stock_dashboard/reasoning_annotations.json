@@ -1088,6 +1088,15 @@
     "citations": "Zeng 2023 AAAI DLinear",
     "hypothesis": "[-0.5, +0.7]",
     "prediction": "~30s",
+    "_manual": true,
+    "verdict": "🎯 +0.80. DLinear+features MASSIVE LIFT (Δ +0.84 vs -0.04). A_sh +0.99, excess +0.39 POSITIVE, 6/7. DLinear linear-decomp + calendar features approaches global champion +1.32.",
+    "learning": "**Major finding**: DLinear+features is QQQ's 2nd-best stable single-model after dMamba expand=2 d_state=32. Linear models benefit dramatically from feature engineering when features carry orthogonal alpha (FOMC/NFP/CPI signals). Multi-seed verify next."
+  },
+  "139": {
+    "diagnosis": "DLinear+features seed=0 - multi-seed verify exp 138 +0.80",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-0.5, +1.0]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
