@@ -1259,6 +1259,15 @@
     "citations": "Gu-Dao 2024",
     "hypothesis": "[-0.5, +1.0]",
     "prediction": "~25min",
+    "_manual": true,
+    "verdict": "DISCARD. -1.52. 3-layer dMamba over-fits.",
+    "learning": "num_layers=2 confirmed."
+  },
+  "158": {
+    "diagnosis": "MLP combo - hidden=96 (val-strong) + bs=16 (untested combo)",
+    "citations": "FX paper section 4.6; Keskar 2017",
+    "hypothesis": "[-0.5, +1.0]",
+    "prediction": "~25s",
     "_manual": true
   }
 }
