@@ -794,5 +794,21 @@
     "_manual": true,
     "verdict": "🎯 xLSTM RECORD: composite +0.0807 (Δ +0.52 vs Beck baseline -0.44). A_sh +0.80, excess +0.20 POSITIVE, 5/7 test pos. **F1 GFC +3.10 EXCESS — best F1 alpha on QQQ ever.** F3 +0.80, F4 +1.37, F5 +1.24 all positive excess (5 of 7 folds beat BH). Only F6/F7 lost (recovery/rally trends). val_pos 5/7.",
     "learning": "**Beck 2024 §4.2 small-data hidden recommendation validated dramatically on QQQ.** xLSTM hidden=64 (4x smaller mLSTM matrix memory) is xLSTM's new champion zone. Mechanism: smaller matrix memory regularizes against modal-day overfit, freeing capacity for the rare-event regimes (F1 GFC, F4 drawdown, F5 vol-spike). Trade is loss of slow-trend regimes (F6 COVID-recovery, F7 AI-rally) which need more capacity to follow the trend. **Multi-seed verify next.**"
+  },
+  "106": {
+    "diagnosis": "Multi-seed verify exp 105 xLSTM hidden=64 RECORD (composite +0.08 seed=42, F1 +3.10 excess). Per CLAUDE.md FX-Project-Learnings 'median-of-k seed reporting', single-seed F1 record may be lucky outlier — historical pattern: exp 66 LSTM huber=0.1 seed=0 had F1 +1.61 but seed=42 was -0.90 (range 2.51). Same protocol: change seed only.",
+    "citations": "Lakshminarayanan, Pritzel, Blundell 2017 NeurIPS 'Deep Ensembles' (arXiv:1612.01474); Beck 2024 NeurIPS xLSTM (arXiv:2405.04517).",
+    "hypothesis": "If hidden=64 is genuine champion zone, seed=0 lands [-0.3, +0.3]. F1 expected [+1.0, +3.0] — if F1 alpha holds across seeds, the mechanism is real (small-data hidden regularization). If F1 collapses to anti-skill, exp 105 was lucky.",
+    "prediction": "Composite [-0.5, +0.5], runtime ~150-300s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.75 (vs exp 105 +0.08, Δ -0.83). F1 excess -0.06 (vs exp 105 +3.10!). exp 105 was +2σ lucky-seed outlier. 2-seed F1 excess mean +1.52, comp mean -0.34. The hidden=64 mechanism gives F1 alpha on AVERAGE but with huge per-seed variance.",
+    "learning": "xLSTM hidden=64 has high seed variance like other neural backbones. exp 105 was lucky seed=42. Need 3rd seed to lock the median."
+  },
+  "107": {
+    "diagnosis": "3rd seed for xLSTM hidden=64 multi-seed lock. seeds 42/0 = +0.08/-0.75. Need seed=7 to triangulate.",
+    "citations": "Lakshminarayanan 2017.",
+    "hypothesis": "Seed=7 in [-0.5, +0.4].",
+    "prediction": "Composite [-0.6, +0.5], runtime ~150-300s.",
+    "_manual": true
   }
 }
