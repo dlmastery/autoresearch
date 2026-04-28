@@ -1124,6 +1124,15 @@
     "citations": "Lakshminarayanan 2017 NeurIPS deep ensembles; FX paper §6.4.",
     "hypothesis": "Composite [-1.0, +1.5]. 5-seed mean expected ~+0.40-0.60.",
     "prediction": "Runtime ~25 min.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.19. dMamba 5-seed mean +0.23 (vs 4-seed +0.50 — exp 142 drags the mean). Single-seed +1.32 record stays.",
+    "learning": "5-seed dMamba mean +0.23 — still QQQ best by mean among Mamba family. Continuing XGBoost grind for budget."
+  },
+  "143": {
+    "diagnosis": "XGBoost HP at exp 44 baseline (depth=4 lr=0.02 n_est=100 -0.25). Try n_est=150 — untested between 100 (champ) and 200 (catastrophic).",
+    "citations": "Chen-Guestrin 2016.",
+    "hypothesis": "[-1.0, +0.3].",
+    "prediction": "Composite [-1.0, +0.3], runtime ~80-150s.",
     "_manual": true
   }
 }
