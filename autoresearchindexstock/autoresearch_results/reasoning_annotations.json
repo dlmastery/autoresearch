@@ -809,6 +809,15 @@
     "citations": "Lakshminarayanan 2017.",
     "hypothesis": "Seed=7 in [-0.5, +0.4].",
     "prediction": "Composite [-0.6, +0.5], runtime ~150-300s.",
+    "_manual": true,
+    "verdict": "DISCARD. -0.52, F1 excess +1.22. 3-seed xLSTM hidden=64: mean -0.40, median -0.52. F1 excess mean +1.42 (real but high variance). Worse than LSTM 1-layer mean +0.50.",
+    "learning": "xLSTM hidden=64 mechanism real for F1 but composite not stable. Pivoting to iTransformer (Phase F, untested on QQQ)."
+  },
+  "108": {
+    "diagnosis": "iTransformer (Liu 2024 ICLR arXiv:2310.06625) — Phase F backbone untested on QQQ. FX paper §4.7 capped at +0.001 (called it 'fails to cross +1' on FX). UNTESTED on QQQ — may behave differently per asset class. Per CLAUDE.md SOTA-from-arxiv mandate: start at Liu 2024 paper recipe (lr=1e-4, batch=32, AdamW, dropout=0.1).",
+    "citations": "Liu, Hu, Zhang, Wang, Wu, Wang, Long 2024 ICLR 'iTransformer: Inverted Transformers Are Effective for Time Series Forecasting' (arXiv:2310.06625) — inverts attention to operate over variates not time-steps; suited for multivariate panels.",
+    "hypothesis": "iTransformer's variate-attention may handle QQQ's 205-feature panel differently than time-step attention. If FX's 104-feature panel was too few for the d×d=10816 attention matrix to learn, QQQ's 205 (42025 attention) is even worse. Predicted [-1.0, +0.3].",
+    "prediction": "Composite [-1.0, +0.3], runtime ~150-300s.",
     "_manual": true
   }
 }
