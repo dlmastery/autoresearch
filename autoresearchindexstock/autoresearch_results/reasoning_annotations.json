@@ -1160,6 +1160,15 @@
     "citations": "Ekambaram 2023 KDD; Lakshminarayanan 2017",
     "hypothesis": "[-0.5, +0.5]",
     "prediction": "~60-200s",
+    "_manual": true,
+    "verdict": "DISCARD. -1.82. PatchTSMixer high seed variance. 2-seed mean -0.88.",
+    "learning": "PatchTSMixer not stable on QQQ."
+  },
+  "147": {
+    "diagnosis": "MLP @ exp 6 seed=2024 - 5th seed OLD-features baseline lock",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.5, +0.5]",
+    "prediction": "~25s",
     "_manual": true
   }
 }
