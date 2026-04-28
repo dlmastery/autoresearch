@@ -1250,6 +1250,15 @@
     "citations": "Gu-Dao 2024 expand parameter",
     "hypothesis": "[-0.5, +1.5]",
     "prediction": "~20min",
+    "_manual": true,
+    "verdict": "DISCARD. -0.09. expand=3 worse than expand=2.",
+    "learning": "expand=2 confirmed sweet spot."
+  },
+  "157": {
+    "diagnosis": "dMamba num_layers=3 - default 2; testing depth",
+    "citations": "Gu-Dao 2024",
+    "hypothesis": "[-0.5, +1.0]",
+    "prediction": "~25min",
     "_manual": true
   }
 }
