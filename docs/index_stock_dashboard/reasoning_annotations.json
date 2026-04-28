@@ -1277,6 +1277,15 @@
     "citations": "Beck 2024",
     "hypothesis": "[-1.0, +1.5]",
     "prediction": "~3min",
+    "_manual": true,
+    "verdict": "DISCARD. -0.56.",
+    "learning": "Continuing."
+  },
+  "160": {
+    "diagnosis": "XGBoost seed=2024 - 5-seed lock",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.0, +0.5]",
+    "prediction": "~80s",
     "_manual": true
   }
 }
