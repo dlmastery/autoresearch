@@ -1205,6 +1205,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.0, +0.0]",
     "prediction": "~22min",
+    "_manual": true,
+    "verdict": "+0.24. CatBoost seed=7 decent.",
+    "learning": "Continuing budget grind."
+  },
+  "152": {
+    "diagnosis": "XGBoost @ exp 44 seed=0 - 2nd seed for champion config (was -1.21 single seed=0 earlier; check stability)",
+    "citations": "Lakshminarayanan 2017",
+    "hypothesis": "[-1.5, +0.5]",
+    "prediction": "~80s",
     "_manual": true
   }
 }
