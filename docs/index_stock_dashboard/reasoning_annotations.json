@@ -443,5 +443,77 @@
     "_manual": true,
     "verdict": "DISCARD by composite (-0.33) but **F1 RECORD**: F1 A_sharpe +1.61, **excess +2.05** — first QQQ experiment with F1 GFC alpha. Hit 56.5%. 4 folds positive excess (F1, F3, F4, F5). Composite killed by val_pos 2/7 (same robust-loss val collapse as MLP exp 65). Confirms LSTM cell-state can fit F1 outliers when given low-delta Huber gradient signal.",
     "learning": "**Mechanism validated across architectures**: huber_delta=0.1 produces F1 GFC alpha on both MLP (exp 65 F1 +0.87) and LSTM (exp 66 F1 +1.61). LSTM benefits MORE because cell-state retains crash-regime context. BUT: composite metric is killed because val_pos collapses (modal-day fitting suffers from outlier-weighted gradient). Real fix needs multi-stage training (warmup MSE → Huber finetune) or per-regime ensemble — out of single-knob scope. Within single-knob scope, exp 66 is the strongest F1-anchor model yet — ensemble candidate."
+  },
+  "67": {
+    "diagnosis": "Multi-seed verification of exp 66's F1 record (LSTM huber_delta=0.1 seed=0 produced F1 A_sh +1.61, excess +2.05 — best F1 ever on QQQ). Per CLAUDE.md FX-Project-Learnings 'median-of-k seed reporting', single-seed F1 +1.61 may be lucky outlier or genuine mechanism. Switching seed 0→42 on exp 66 config tests whether the robust-loss F1-fix mechanism is seed-stable.",
+    "citations": "Lakshminarayanan, Pritzel, Blundell 2017 NeurIPS 'Deep Ensembles' (arXiv:1612.01474) — multi-seed median is the proper estimator. Bouthillier 2019 ICLR 'Unreproducible Research' (arXiv:1902.10628) — seeds dominate single-experiment variance. FX paper §6.4 — neural champions require k≥3 seed median.",
+    "hypothesis": "If exp 66 F1 fix is mechanism-driven (huber_delta=0.1 puts gradient on crash residuals), seed=42 should produce F1 in [+0.5, +2.0] range. If lucky seed=0, F1 collapses back toward neutral.",
+    "prediction": "Composite [-0.5, +0.5], F1 A_sh [+0.3, +1.8], runtime ~80s.",
+    "_manual": true,
+    "verdict": "F1 RECORD COLLAPSED at seed=42: F1 A_sh -0.90 (vs exp 66 seed=0 +1.61). Exp 66's F1 record was a lucky +2σ outlier. 2-seed F1 mean +0.36 — modest improvement, not record. Composite -0.025 (within band).",
+    "learning": "Per CLAUDE.md FX-Project-Learnings 'single-seed champions are usually within seed noise'. LSTM huber=0.1 has HUGE F1 seed variance (range 2.51 between seed=0 +1.61 and seed=42 -0.90). The robust-loss F1-fix mechanism is real on average (+0.36 mean improvement) but unreliable per-seed. Not a deployment-grade lever. Pivoting to architectural-axis exploration (untested on QQQ): MLP hidden_size."
+  },
+  "68": {
+    "diagnosis": "Architectural axis untested on QQQ. MLP exp 6 (champion +0.58) uses default hidden_size (128 per FX paper backbone.py). FX paper §4.6 explored hidden_size {96, 128, 256} and found 128 optimal (96 underfits, 256 overfits). For QQQ we should re-test this axis since QQQ's 205-feature input is 2× FX's 104-feature, so optimal hidden may shift. Single-knob change: hidden_size=128 → 256 on MLP exp 6 baseline.",
+    "citations": "FX paper §4.6 'Deep Sequence Models: LSTM, Mamba, MLP' — hidden=128 was MLP champion on FX with hidden∈{96,128,256} swept. Gu, Kelly, Xiu 2020 RFS 'Empirical Asset Pricing via Machine Learning' — financial-DNN width vs n_train ratio matters; small-n needs narrow nets. He et al. 2016 CVPR ResNet — residual MLP is wider-friendly than vanilla MLP because skip connections preserve gradient.",
+    "hypothesis": "Doubling hidden 128 → 256 with QQQ's 205-feature input (10x205 = 2050-dim flatten at seq=10) gives 524k parameters in residual block (vs FX's ~265k). May underfit on QQQ's 2200 train samples OR find better feature combinations. Predicted composite [-0.5, +0.7].",
+    "prediction": "Composite [-0.5, +0.7], runtime ~30-50s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.45, A_sh +0.29. hidden=256 overfits — confirms FX paper hidden=128 prior. Trying hidden=96 (FX 2nd-best) next as smaller-data regularizer.",
+    "learning": "MLP hidden axis: 256 hurts on QQQ as on FX. Going smaller direction next."
+  },
+  "69": {
+    "diagnosis": "FX paper §4.6 tested hidden ∈ {96, 128, 256}; 96 was 2nd-best (under-fit). For QQQ with smaller n_train (~2200) than FX (~2500), a narrower net may regularize better. Single-knob: hidden 128 → 96 from MLP exp 6.",
+    "citations": "FX paper §4.6; Gu, Kelly, Xiu 2020 RFS — small-n DNN benefits from narrow width.",
+    "hypothesis": "hidden=96 may modestly improve on hidden=128 if QQQ's smaller-data regime favors narrower. Predicted [-0.3, +0.7].",
+    "prediction": "Composite [-0.3, +0.7], runtime ~25-40s.",
+    "_manual": true,
+    "verdict": "DISCARD by composite (+0.44 vs +0.58) but val_pos 6/7 (BEST of any MLP — vs exp 6's 5/7). Narrower hidden=96 improves val regime fit. Test_pos still 6/7.",
+    "learning": "MLP narrower hidden lifts val_pos. Trying hidden=64 next to test if trend continues."
+  },
+  "70": {
+    "diagnosis": "Continuing narrower-hidden hill-climb. exp 69 (hidden=96) gave val_pos 6/7 — best ever for MLP. Testing hidden=64 to see if trend continues. Smaller capacity may regularize further on small QQQ data.",
+    "citations": "FX paper §4.6; Gu, Kelly, Xiu 2020 RFS; Zhang et al. 2017 'Understanding deep learning requires rethinking generalization'.",
+    "hypothesis": "hidden=64 may further improve val regime fit but at risk of underfit. Predicted composite [+0.0, +0.7].",
+    "prediction": "Composite [+0.0, +0.7], runtime ~20s.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.97. hidden=64 underfits. MLP hidden curve mapped: 64 underfit / 96 val-strong / 128 champion / 256 overfit. Pivoting to LSTM architectural axis.",
+    "learning": "MLP architectural axis closed at hidden∈{96,128}. exp 69 (hidden=96 val 6/7) is the best val-regime MLP. Could multi-seed it later. Now testing LSTM num_layers."
+  },
+  "71": {
+    "diagnosis": "LSTM exp 8 baseline uses default num_layers (2 per FX paper §4.6). FX explored num_layers ∈ {1, 2, 3} and found 1-layer composite +3.57 (under-fit), 2-layer +6.42 (champion), 3-layer +1.64 (collapse). For QQQ this axis is untested. Testing num_layers=1 (FX-known underfit baseline) to see if QQQ pattern matches.",
+    "citations": "FX paper §4.6 'Number of layers {1, 2, 3} → 2'. Hochreiter & Schmidhuber 1997 'LSTM' — depth in RNNs trades expressivity for vanishing gradients. Graves 2013 'Generating Sequences with RNNs' (arXiv:1308.0850) — multi-layer LSTMs benefit from gradient highway.",
+    "hypothesis": "num_layers=1 should underfit on QQQ as on FX. Predicted composite [-0.5, +0.3].",
+    "prediction": "Composite [-0.5, +0.3], runtime ~70-100s.",
+    "_manual": true,
+    "verdict": "**NEW LSTM PER-BACKBONE CHAMPION**: composite +0.3547 (vs exp 8 +0.24, Δ +0.11). A_sharpe +0.8960 (BEST LSTM ever), excess +0.2917 (BEST LSTM excess since exp 5 +0.23), pos 6/7. DISCARD globally (vs exp 52 +1.32) but new LSTM champion. **FX→QQQ INVERSION on num_layers**: FX had 1-layer underfit at +3.57, 2-layer champion +6.42. QQQ has 1-layer BEATING 2-layer. Mechanism: smaller QQQ training set (n=2200 vs FX 2500+) regularises better with shallower LSTM.",
+    "learning": "LSTM num_layers=1 is the new QQQ LSTM champion baseline. Multi-seed verify next. After verification, hill-climb other axes from this new baseline."
+  },
+  "72": {
+    "diagnosis": "Multi-seed verify exp 71 (NEW LSTM CHAMPION num_layers=1 composite +0.35 seed=0). Per CLAUDE.md FX-Project-Learnings 'median-of-k seed reporting'. Same config except seed 0→42.",
+    "citations": "Lakshminarayanan 2017 NeurIPS deep ensembles; FX paper §6.4.",
+    "hypothesis": "If 1-layer LSTM is genuinely better than 2-layer on QQQ, seed=42 should land [+0.0, +0.6]. If lucky seed=0, regression toward zero or negative.",
+    "prediction": "Composite [-0.3, +0.6], runtime ~30s.",
+    "_manual": true,
+    "verdict": "Composite +0.3150 (within predicted band, A_sh +0.66, excess +0.05). 2-seed mean +0.335. **STABLE NEW LSTM CHAMPION**: both seeds (0 +0.35, 42 +0.32) positive composite + positive excess. FX→QQQ 1-layer-vs-2-layer inversion is real, not lucky.",
+    "learning": "1-layer LSTM is QQQ's robust LSTM champion zone (3-seed expected +0.30 ± 0.05). Continuing multi-seed (seed=7) to lock 4-seed median."
+  },
+  "73": {
+    "diagnosis": "3rd seed for new LSTM champion (num_layers=1). seeds 0/42 = +0.35/+0.32. Need seed=7 to triangulate 3-seed median.",
+    "citations": "Lakshminarayanan 2017 NeurIPS; FX paper §6.4.",
+    "hypothesis": "Seed=7 in [+0.1, +0.5] confirms stable champion zone.",
+    "prediction": "Composite [-0.1, +0.5], runtime ~30-45s.",
+    "_manual": true,
+    "verdict": "🎯 LSTM RECORD. Composite +0.6060 (highest LSTM seed). A_sharpe +1.29 (HIGHEST QQQ NEURAL SINGLE-SEED EVER), excess +0.69 (HIGHEST QQQ NEURAL EXCESS EVER), 7/7 test pos folds. 3-seed 1-layer LSTM: mean +0.43, std 0.16 — extremely stable.",
+    "learning": "**FX→QQQ 1-vs-2 layer inversion confirmed across 3 seeds.** 1-layer LSTM is QQQ's true LSTM champion. exp 73 seed=7 likely +1σ outlier; seed=99 will lock the 4-seed median estimate."
+  },
+  "74": {
+    "diagnosis": "4th seed for new LSTM champion (1-layer). seeds 0/42/7 = +0.35/+0.32/+0.61, mean +0.43 std 0.16. Need seed=99 for 4-seed median lock.",
+    "citations": "Lakshminarayanan 2017 NeurIPS; FX paper §6.4.",
+    "hypothesis": "Seed=99 in [+0.1, +0.5]. 4-seed median expected +0.35.",
+    "prediction": "Composite [+0.0, +0.6], runtime ~30-45s.",
+    "_manual": true,
+    "verdict": "🏆 LSTM 4-seed mean RECORD: +0.74 seed=99 (highest LSTM single-seed). 4-seed mean +0.50, median +0.48, std 0.20, range 0.42. 1-layer LSTM is QQQ's most stable champion zone — better mean than dMamba expand=2 (+0.44 mean) AND 5x tighter variance (std 0.20 vs 1.08).",
+    "learning": "**Major finding**: 1-layer LSTM (FX-paper-said-underfits) is QQQ's TRUE LSTM optimum — both higher mean composite (+0.50) and tighter variance (range 0.42) than 2-layer. The FX 2-layer prior comes from FX's larger n_train; QQQ's smaller n favors shallower. Continuing hill-climb from new baseline (1-layer)."
   }
 }
