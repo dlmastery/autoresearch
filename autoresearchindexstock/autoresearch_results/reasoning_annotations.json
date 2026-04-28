@@ -998,6 +998,15 @@
     "citations": "Lakshminarayanan 2017",
     "hypothesis": "[-1.0, +0.5]",
     "prediction": "~30s",
+    "_manual": true,
+    "verdict": "DISCARD. -0.15. 3-seed mean -0.14 — worse than lr=3e-4 mean -0.05. lr=1e-4 axis closed.",
+    "learning": "MLP+features+lr=3e-4 still best baseline. Trying bs=16 next."
+  },
+  "129": {
+    "diagnosis": "MLP+features bs=16 (down from 32) - Keskar 2017 small-batch",
+    "citations": "Keskar 2017",
+    "hypothesis": "[-1.0, +0.5]",
+    "prediction": "~30s",
     "_manual": true
   }
 }
