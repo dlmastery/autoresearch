@@ -524,3 +524,13 @@ roadmap.
 - **Rationale:** Picard 2021 + Lakshminarayanan 2017 §3.2
 - **Prediction:** comp [+0.4, +1.3], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp200: MLP exp 79 seed=42 (variance crash)
+- **Result:** Comp -0.71. 2-seed mean +0.13 (huge swing).
+- **Status:** DISCARD; MLP exp 79 +0.97 was seed=0 luck.
+
+### Exp201: MLP exp 79 seed=99 (3-seed lock)
+- **Config delta from exp 200:** seed 42→99
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017 §3.2
+- **Prediction:** comp [-0.5, +1.0], runtime ~30-60s
+- **Result:** PENDING
