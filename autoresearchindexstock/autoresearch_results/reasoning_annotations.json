@@ -1931,6 +1931,14 @@
   },
   "234": {
     "diagnosis": "LSTM seq=35 #10/10 FINAL seed=2026",
+    "_manual": true,
+    "verdict": "KEEP-PARTIAL. Comp +0.69, A_sh +1.25 (HIGH), B_sh +0.48. 10-SEED LSTM seq=35 grind COMPLETE: A_sh median +0.66 mean +0.52; B_sh median +0.83 mean +0.82; comp median +0.42 mean +0.23. **LSTM seq=35 is comparable to MLP seq=10 +0.43 multi-seed median \u2014 major upgrade from LSTM seq=10 ~0**."
+  },
+  "235": {
+    "diagnosis": "XGBoost seq=35 #1/10 (3/6 cheap-tier at seq=35) - rebase from XGBoost-best exp 63",
+    "citations": "Chen-Guestrin 2016 KDD",
+    "hypothesis": "seq=35 untested for XGBoost - one knob from exp 63 seq=60",
+    "prediction": "comp [-0.5, +0.5]",
     "_manual": true
   }
 }
