@@ -1983,6 +1983,15 @@
   "241": {
     "diagnosis": "xLSTM seq=60 #3/10 seed=0",
     "citations": "Picard 2021",
+    "_manual": true,
+    "verdict": "KEEP. MambaStock 3-layer +0.036 (POSITIVE!), A_sh **+0.90**, F1 GFC **+6.02 RECORD ACROSS ALL BACKBONES**. Per-fold F1=+6.02 F2=+1.67 F3=-1.50 F4=-0.07 F5=+0.66 F6=+0.88 F7=+0.29. 5/7 pos. F3 Taper weakest. NEW within-MambaStock champion.",
+    "learning": "3-layer + adaptive temperature unlocks GFC crash alpha. F3 Taper fold weakest; hill-climb target."
+  },
+  "242": {
+    "diagnosis": "MambaStock #4/10. exp 241 new champion (+0.036, A_sh +0.90, F1 RECORD +6.02). F3 Taper -1.50 weakest. Per Shi 2024 \u00a73.4, multi-scale aggregator (last/mean/max) can be tuned via different pooling. Try expand=4 (more SSM channels per Liu 2025 DMamba expand ablation).",
+    "citations": "Shi et al. 2024 arXiv:2402.18959 \u00a73.4 multi-scale; Liu 2025 DMamba arXiv:2602.09081 expand ablation \u00a74.2.",
+    "hypothesis": "MambaStock 3-layer + expand=4 doubles channel count for richer feature interactions on F3 Taper.",
+    "prediction": "comp [-0.2, +0.4], A_sh [+0.5, +1.2], runtime ~15-20min.",
     "_manual": true
   }
 }
