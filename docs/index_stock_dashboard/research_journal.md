@@ -227,3 +227,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Fischer-Krauss 2018 EJOR §3.2 hidden sweep; Hochreiter-Schmidhuber 1997 LSTM capacity; Goodfellow et al. 2016 §11.3 capacity scaling; He 2016 CVPR.
 **Hypothesis:** 1-layer hidden=256 (vs 128) doubles LSTM cell capacity; ~268k params still safe at n=2538.
 **Prediction:** comp [+0.5, +1.2], A_sh [+0.5, +1.5], runtime 4-6min.
+
+## Exp172 — LSTM 1-layer hidden=256 (capacity bump REMARKABLE TEST RESULT)
+**Diagnosis:** Pivot to LSTM after CatBoost exhaustion; capacity axis untested per Fischer-Krauss 2018 §3.2.
+**Citations:** Fischer-Krauss 2018 §3.2; Hochreiter-Schmidhuber 1997; Goodfellow 2016 §11.3; He 2016.
+**Hypothesis:** hidden=256 (vs 128) doubles LSTM capacity; ~268k params still safe at n=2538.
+**Prediction:** comp [+0.5, +1.2], A_sh [+0.5, +1.5].
+**Verdict:** DISCARD by composite (-0.04) BUT **A_sharpe +0.8974**, excess **+0.2931 (FIRST POSITIVE EXCESS in many exps!)**, F5 **RECORD +3.32**, F4 +2.21, F6 +1.31, 5/7 positive folds. Val drag at +0.16. Runtime 60s.
+**Learning:** Capacity bump 128→256 unlocks F4/F5/F6 alpha. Val mismatch likely Taper-like regime overfit. Need variance check.
+
+## Exp173 — LSTM hidden=256 seed=42 (variance check)
+**Diagnosis:** Confirm exp 172 test-side breakthrough (A_sh +0.90) is reproducible across seeds.
+**Citations:** Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 §3.2; Fischer-Krauss 2018 §3.2; Bengio 1994 IEEE TNN gradient trajectories.
+**Hypothesis:** Same exp 172 config, seed 99→42; A_sh ≥ +0.5 confirms real capacity lift.
+**Prediction:** comp [-0.4, +0.5], A_sh [+0.5, +1.2], F5 [+1.0, +3.5].

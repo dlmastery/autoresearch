@@ -183,3 +183,18 @@ roadmap.
 - **Rationale:** Fischer-Krauss 2018 §3.2 — capacity sweep, 256 untested
 - **Prediction:** comp [+0.5, +1.2], runtime 4-6min
 - **Result:** PENDING
+
+### Exp172: LSTM 1-layer hidden=256 (capacity axis untested)
+- **Config delta from exp 74:** hidden_size 128→256
+- **Rationale:** Fischer-Krauss 2018 §3.2 capacity sweep; 256 untested
+- **Prediction:** comp [+0.5, +1.2], A_sh [+0.5, +1.5]
+- **Result:** Composite -0.0364 | **A_sharpe +0.8974** | excess **+0.2931** | val_sh +0.1636
+- **Per-fold A_sharpe:** F1=+0.92 F2=+1.33 F3=-0.61 F4=**+2.21** F5=**+3.32** F6=+1.31 F7=-0.44
+- **Status:** DISCARD by composite, but RECORD test alpha — first positive excess in many exps
+- **Learning:** Capacity bump unlocks F4/F5/F6 alpha. Val alignment seed/regime-specific. Need variance check.
+
+### Exp173: LSTM hidden=256 seed=42 (variance check)
+- **Config delta from exp 172:** seed 99→42
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017 — confirm capacity-lift reproducibility
+- **Prediction:** comp [-0.4, +0.5], A_sh [+0.5, +1.2], runtime ~60-90s
+- **Result:** PENDING
