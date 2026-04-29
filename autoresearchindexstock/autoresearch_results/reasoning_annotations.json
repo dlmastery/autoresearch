@@ -1861,6 +1861,14 @@
     "citations": "Picard 2021",
     "hypothesis": "alt seed",
     "prediction": "comp [-1.5, +1.0]",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -0.60. 9-seed median -0.56. seq=35 confirms wide variance, median negative."
+  },
+  "224": {
+    "diagnosis": "MLP seq=35 #10/10 FINAL seed=2026 - completes user directive",
+    "citations": "Picard 2021; Lakshminarayanan 2017",
+    "hypothesis": "final seed for 10-seed median",
+    "prediction": "comp [-1.5, +1.0]",
     "_manual": true
   }
 }
