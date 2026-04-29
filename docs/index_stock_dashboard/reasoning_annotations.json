@@ -2004,6 +2004,14 @@
   "244": {
     "diagnosis": "xLSTM seq=60 #5/10 seed=2024",
     "citations": "Picard 2021",
+    "_manual": true,
+    "verdict": "DISCARD. Samba baseline -0.15. A_sh +0.15, B_sh +0.86, val +0.70. F2 EU-debt catastrophic -3.05."
+  },
+  "245": {
+    "diagnosis": "HybridMamba SOTA-recipe baseline (#1/10). AI21 Jamba 2024 arXiv:2403.19887 paper-default config: 2-layer interleaved Mamba+attention, expand=2, d_state=16, hidden=128.",
+    "citations": "AI21 Labs 2024 arXiv \"Jamba: A Hybrid Transformer-Mamba Language Model\" (arXiv:2403.19887). Section 4.1 paper-default HPs.",
+    "hypothesis": "HybridMamba paper defaults reveal baseline before hill-climbing.",
+    "prediction": "comp [-0.5, +0.5], runtime ~12-18min.",
     "_manual": true
   }
 }
