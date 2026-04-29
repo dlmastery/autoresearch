@@ -2059,6 +2059,14 @@
     "citations": "Smith 2017 arXiv:1803.09820 \u00a73 lr leverage; Gu-Dao 2024 \u00a74.1.",
     "hypothesis": "lr=1e-3 (2x champion) tests faster-learning regime.",
     "prediction": "comp [-0.5, +1.5], runtime ~10-15min.",
+    "_manual": true,
+    "verdict": "KEEP-PARTIAL. dMamba lr=1e-3 +0.164, A_sh +0.94, F2 **+6.61 RECORD ACROSS ALL BACKBONES**, F3=+1.55 F5=+1.23 F6=+1.30. F1=-0.39 weak. 5/7 pos."
+  },
+  "253": {
+    "diagnosis": "dMamba seq=60 #4/10 \u2014 lr=7.5e-4 (untested mid-point between champion lr=5e-4 and exp 252 lr=1e-3 +0.164). Targets F1 GFC weak from exp 252.",
+    "citations": "Smith 2017 \u00a73 lr\u00d7n_est tradeoff; Gu-Dao 2024 \u00a74.1.",
+    "hypothesis": "lr=7.5e-4 + warmup=10 retains F2 alpha while protecting F1.",
+    "prediction": "comp [+0.5, +1.4], runtime ~10-15min.",
     "_manual": true
   }
 }
