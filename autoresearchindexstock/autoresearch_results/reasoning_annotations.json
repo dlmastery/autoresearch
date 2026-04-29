@@ -1808,6 +1808,15 @@
     "citations": "Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2; Goyal 2017 \u00a72.4; Gu-Kelly-Xiu 2020.",
     "hypothesis": "MLP seq=35 seed=99 (one knob from exp 216 seed=42) locks 3-seed median.",
     "prediction": "Composite [-0.8, +0.7]; runtime ~50-90s.",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -0.56, A_sh ~0, val_sh -0.06. **3-seed MLP seq=35 distribution: [+0.55, -1.04, -0.56] median -0.56, mean -0.35.** seq=35 axis is REJECTED at multi-seed median for MLP. Per-fold: F1 +1.16, F5 +0.65 positive but F2-F7 mostly weak. Note: tp/fp/tn/fn now populating correctly (133/92/427/583) \u2014 runner fix working.",
+    "learning": "MLP seq=35 fails 3-seed median. Same as seq=20 (also rejected earlier in session). seq=10 remains the MLP sweet-spot. Per user directive continue 10-experiment grind to characterize variance."
+  },
+  "218": {
+    "diagnosis": "MLP seq=35 4-seed median lock per user 10-exp directive.",
+    "citations": "Picard 2021; Lakshminarayanan 2017 \u00a73.2.",
+    "hypothesis": "seed=7 4-seed median lock.",
+    "prediction": "comp [-1.0, +0.5], runtime ~50-90s.",
     "_manual": true
   }
 }
