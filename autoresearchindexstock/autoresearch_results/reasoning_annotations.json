@@ -1960,6 +1960,15 @@
     "citations": "Beck, P\u00f6ppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS \"xLSTM: Extended Long Short-Term Memory\" (arXiv:2405.04517) \u00a73.2 \u2014 matrix-memory scaling with hidden_size. Cieslak, Pang 2021 RFS \"Common Shocks in Stocks and Bonds\" \u2014 commodity-shock 3-way interactions. Hochreiter, Schmidhuber 1997 LSTM capacity \u00a73.1.",
     "hypothesis": "xLSTM seq=60 + hidden=128 (one knob from exp 237 hidden=64) doubles matrix-memory capacity for commodity-shock interactions, expected to lift F4 from -1.23 toward +0.0.",
     "prediction": "comp [0.0, +0.7], A_sh [+0.8, +1.5], F4 [-0.5, +0.3], runtime ~10-20min.",
+    "_manual": true,
+    "verdict": "DISCARD. MambaStock SOTA-recipe baseline: comp -0.39, A_sh +0.01, B_sh -0.63, val_sh +0.90 (positive!). Per-fold F1=+1.65 F2=-1.91 F3=-1.14 F4=-0.42 F5=+1.36 F6=-1.70 F7=+0.54. 3/7 pos. F2/F6 stress regimes weak. Adaptive temperature + multi-scale aggregation at paper defaults under-trained on QQQ.",
+    "learning": "MambaStock at hidden=128 fails on stress regimes. Per Shi et al. 2024 \u00a74.1 ablation, hidden=64 is recommended for n<10k stock samples \u2014 try smaller hidden next."
+  },
+  "239": {
+    "diagnosis": "MambaStock #2/10 hill-climb. exp 238 baseline (-0.39) F2/F6 stress regimes weak. Per Shi et al. 2024 arXiv:2402.18959 \u00a74.1 ablation, the recommended hidden_size for stock prediction at n<10k daily samples is 64 (not 128). Hill-climb knob: hidden 128\u219264.",
+    "citations": "Shi, Zhao, Chen 2024 arXiv \"MambaStock: Selective state space model for stock prediction\" (arXiv:2402.18959) \u00a74.1 \u2014 hidden_size ablation on n=2k-8k daily stock samples; hidden=64 outperforms hidden=128 due to overfit reduction. \u00a73.3 \u2014 adaptive temperature softmax detail.",
+    "hypothesis": "MambaStock hidden=64 + temperature-init=1.0 + lr=5e-4 (one knob change from exp 238 hidden=128) reduces overfit on F2 EU-debt and F6 COVID stress regimes.",
+    "prediction": "comp [-0.5, +0.5], A_sh [+0.0, +0.6], runtime ~10-15min.",
     "_manual": true
   }
 }
