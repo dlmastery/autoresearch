@@ -559,3 +559,12 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Ekambaram 2023 KDD arXiv:2306.09364; Picard 2021; Lakshminarayanan 2017.
 **Hypothesis:** seed=99 locks 3-seed PatchTSMixer median.
 **Prediction:** comp [-2.0, +0.5], runtime ~1-3min.
+
+## Exp197 — PatchTSMixer seed=99 (RECORD A_sh +1.22, F2 +4.87)
+**Verdict:** DISCARD by composite (+0.155) BUT **A_sh +1.22 RECORD** (matches BH exactly!), F2 +4.87 RECORD, 6/7 positive folds. val drag.
+**Learning:** PatchTSMixer at right seed produces strongest test alpha this session. Need variance lock.
+
+## Exp198 — PatchTSMixer seed=7 (variance check on A_sh +1.22 record)
+**Citations:** Ekambaram 2023 KDD; Picard 2021; Lakshminarayanan 2017 §3.2.
+**Hypothesis:** A_sh stays ≥ +0.7 confirms.
+**Prediction:** comp [-2.0, +0.5], A_sh [+0.4, +1.5], runtime ~3-7min.

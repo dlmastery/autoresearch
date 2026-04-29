@@ -1628,6 +1628,15 @@
     "citations": "Ekambaram, Jati, Nguyen, Sinthong, Kalagnanam 2023 KDD 'TSMixer: Lightweight MLP-Mixer Model for Multivariate Time Series' (arXiv:2306.09364) \u00a73 \u2014 patch-mixing architecture; Picard 2021; Lakshminarayanan 2017.",
     "hypothesis": "PatchTSMixer + lr=1e-3 + ep=100 + pat=15 + bs=32 + seq=60 + seed=99 (one knob from exp 146 seed=0) locks 3-seed median. If median > 0, lift is real.",
     "prediction": "Composite [-2.0, +0.5]; runtime ~1-3min.",
+    "_manual": true,
+    "verdict": "DISCARD by composite (+0.1550) BUT REMARKABLE TEST RESULT: **A_sharpe +1.2201 (highest A_sh seen this session \u2014 matches BH+1.22 exactly).** Per-fold A_sharpe: F1 +0.43, F2 **+4.87 (RECORD across all backbones!)**, F3 +2.06, F4 -0.80, F5 +1.18, F6 +2.43, F7 +0.79. **6/7 positive folds.** val_sh +0.255 (drag), excess +0.0000 (matches BH magnitude). 3-seed PatchTSMixer distribution: comp [+0.056, -1.82, +0.155] median +0.056. Runtime 374s = 6.2min.",
+    "learning": "**PatchTSMixer seed=99 is the highest-A_sharpe single-seed result this session at +1.22 (ties BH).** F2 +4.87 record. 6/7 positive folds. The PatchTSMixer architecture (Ekambaram 2023 KDD) appears highly seed-sensitive but at the right seed produces strong test alpha that matches buy-and-hold magnitude. Need 4th seed variance check to characterize the distribution. Decision: PatchTSMixer seed=7 next."
+  },
+  "198": {
+    "diagnosis": "PatchTSMixer at 3/25 with composite distribution [+0.056, -1.82, +0.155] median +0.056 (just barely positive). But seed=99 produced A_sharpe +1.22 \u2014 highest in session matching BH exactly. Per CLAUDE.md '3-seed median > baseline' + Lakshminarayanan 2017, more seeds needed to characterize PatchTSMixer A_sharpe distribution. seed=7 is the next canonical seed. Champion to beat is global mamba +1.32; PatchTSMixer-best (single-seed A_sharpe basis) is exp 197 +1.22.",
+    "citations": "Ekambaram, Jati, Nguyen, Sinthong, Kalagnanam 2023 KDD 'TSMixer' (arXiv:2306.09364) \u00a73 \u2014 patch-mixing architecture; Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2.",
+    "hypothesis": "PatchTSMixer + lr=1e-3 + ep=100 + pat=15 + bs=32 + seq=60 + seed=7 (one knob from exp 197: seed 99\u21927) will produce A_sharpe within \u00b10.5 of exp 197's +1.22 if the strong test alpha is reproducible. If A_sh stays \u2265 +0.7, PatchTSMixer is a real candidate for ensemble use.",
+    "prediction": "Composite [-2.0, +0.5]; A_sharpe [+0.4, +1.5]; runtime ~3-7min.",
     "_manual": true
   }
 }

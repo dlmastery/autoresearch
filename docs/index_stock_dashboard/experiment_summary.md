@@ -493,3 +493,14 @@ roadmap.
 - **Rationale:** Ekambaram 2023 KDD; Picard 2021
 - **Prediction:** comp [-2.0, +0.5], runtime ~1-3min
 - **Result:** PENDING
+
+### Exp197: PatchTSMixer seed=99 (RECORD A_sh +1.22)
+- **Result:** Comp +0.155 | **A_sh +1.22 RECORD (= BH)** | F2 +4.87 RECORD | 6/7 pos folds
+- **Status:** DISCARD by comp, RECORD test alpha
+- **Learning:** PatchTSMixer at right seed = strongest test alpha this session.
+
+### Exp198: PatchTSMixer seed=7 (variance check on +1.22)
+- **Config delta from exp 197:** seed 99→7
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017
+- **Prediction:** comp [-2.0, +0.5], A_sh [+0.4, +1.5], runtime ~3-7min
+- **Result:** PENDING
