@@ -1772,6 +1772,15 @@
     "citations": "Friedman 2001 \u00a75.2; Prokhorenkova 2018 \u00a73.3.",
     "hypothesis": "lr=0.04 mid-point.",
     "prediction": "Composite [-0.5, +0.4]; runtime ~6-10min.",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -0.19, A_sh +0.11, val_sh **+0.37 POSITIVE!**, excess -1.11. Per-fold F1=+1.32 F2=+2.79 F3=+2.06 F4=-1.63 F5=-1.76 F6=+1.03 F7=-0.39. 4/7 positive. lr=0.04 first CatBoost config in this session with positive val_sh; net composite still negative due to 3 negative folds \u00d7 0.1 penalty.",
+    "learning": "lr=0.04 helps val_sh. But 3 negative folds (F4/F5/F7) drag composite. CatBoost 24/25, 1 final slot."
+  },
+  "214": {
+    "diagnosis": "Final CatBoost slot. lr=0.04 had positive val (exp 213); test with seed=0 variance check to see if val stays positive across seeds.",
+    "citations": "Picard 2021; Lakshminarayanan 2017.",
+    "hypothesis": "lr=0.04 seed=0 confirms or rejects val stability.",
+    "prediction": "Composite [-0.5, +0.3]; runtime ~6-10min.",
     "_manual": true
   }
 }
