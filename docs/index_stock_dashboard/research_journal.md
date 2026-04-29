@@ -507,3 +507,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Zeng 2023 §4.2 seq sweep; Goyal 2017; Hochreiter 1997.
 **Hypothesis:** seq=20 captures 20-day momentum cycles.
 **Prediction:** comp [-0.4, +0.5], runtime ~30-60s.
+
+## Exp192 — DLinear seq_len=20 (DISCARD)
+**Diagnosis:** seq axis untested for DLinear.
+**Citations:** Zeng 2023 §4.2; Goyal 2017; Hochreiter 1997.
+**Hypothesis:** seq=20 captures 20-day momentum.
+**Prediction:** comp [-0.4, +0.5].
+**Verdict:** DISCARD. Comp -0.22, A_sh +0.08, val_sh +0.85. F4/F6 lost. Runtime 65s.
+**Learning:** DLinear post-rollback weak; seq axis not the lift.
+
+## Exp193 — iTransformer paper-recipe lr=5e-5 + warmup
+**Diagnosis:** iTransformer 2/25, post-rollback baseline -1.41. Paper recipe untested.
+**Citations:** Liu 2024 ICLR arXiv:2310.06625 §4.1; Vaswani 2017 §5.3 warmup; Goyal 2017.
+**Hypothesis:** lr=5e-5 + warmup=10 stabilizes inverted attention.
+**Prediction:** comp [-0.8, +0.3], runtime ~3-6min.

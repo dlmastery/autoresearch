@@ -443,3 +443,13 @@ roadmap.
 - **Rationale:** Zeng 2023 §4.2 seq sweep
 - **Prediction:** comp [-0.4, +0.5], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp192: DLinear seq_len=20 (DISCARD)
+- **Result:** Composite -0.22 | A_sh +0.08 | val_sh +0.85
+- **Status:** DISCARD; DLinear post-rollback weak. Pivot to iTransformer.
+
+### Exp193: iTransformer paper-recipe lr=5e-5 warmup=10
+- **Config delta from exp 108:** lr 1e-4→5e-5, warmup 0→10
+- **Rationale:** Liu 2024 ICLR §4.1 paper recipe; Vaswani 2017 §5.3 warmup
+- **Prediction:** comp [-0.8, +0.3], runtime ~3-6min
+- **Result:** PENDING
