@@ -521,3 +521,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Liu 2024 ICLR arXiv:2310.06625 §4.1; Vaswani 2017 §5.3 warmup; Goyal 2017.
 **Hypothesis:** lr=5e-5 + warmup=10 stabilizes inverted attention.
 **Prediction:** comp [-0.8, +0.3], runtime ~3-6min.
+
+## Exp193 — iTransformer paper-recipe lr=5e-5 warmup=10 (RECORD A_sh +0.92)
+**Diagnosis:** Liu 2024 ICLR §4.1 paper recipe untested.
+**Citations:** Liu 2024 ICLR arXiv:2310.06625 §4.1; Vaswani 2017 §5.3; Goyal 2017.
+**Hypothesis:** lr=5e-5+warmup=10 stabilizes inverted attention.
+**Prediction:** comp [-0.8, +0.3].
+**Verdict:** DISCARD by composite (-1.52) BUT **A_sh +0.92 RECORD** for iTransformer. val crash. F1=+1.43 F3=+1.96 F6=+1.70 F7=+1.09. Runtime 98s.
+**Learning:** Paper-recipe lifts iTransformer test alpha massively. Need variance check.
+
+## Exp194 — iTransformer paper-recipe seed=0 (variance check)
+**Diagnosis:** Verify exp 193 +0.92 A_sh reproducibility per Picard 2021.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Liu 2024 §4.1.
+**Hypothesis:** A_sh stays ≥ +0.5 confirms.
+**Prediction:** comp [-1.5, +0.5], A_sh [+0.4, +1.1], runtime ~1.5-3min.

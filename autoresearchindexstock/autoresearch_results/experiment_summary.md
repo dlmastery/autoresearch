@@ -453,3 +453,16 @@ roadmap.
 - **Rationale:** Liu 2024 ICLR §4.1 paper recipe; Vaswani 2017 §5.3 warmup
 - **Prediction:** comp [-0.8, +0.3], runtime ~3-6min
 - **Result:** PENDING
+
+### Exp193: iTransformer paper-recipe (RECORD A_sh +0.92)
+- **Config delta from exp 108:** lr 1e-4→5e-5, warmup 0→10
+- **Result:** Composite -1.52 | **A_sh +0.92 RECORD** | val_sh -1.22
+- **Per-fold:** F1=+1.43 F2=-0.24 F3=+1.96 F4=-0.04 F5=-0.11 F6=+1.70 F7=+1.09
+- **Status:** DISCARD by composite, RECORD test alpha
+- **Learning:** Paper-recipe lifts iTransformer +2.3 A_sh. Val drag.
+
+### Exp194: iTransformer paper-recipe seed=0 (variance check)
+- **Config delta from exp 193:** seed 42→0
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017
+- **Prediction:** comp [-1.5, +0.5], A_sh [+0.4, +1.1], runtime ~1.5-3min
+- **Result:** PENDING
