@@ -451,3 +451,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Ke 2017 NeurIPS §3.1; Friedman 2001 §5.4; Chen-Guestrin 2016 §3.2.
 **Hypothesis:** depth=5 leaf-wise growth (32 leaves) may produce different per-fold than XGBoost depth=5.
 **Prediction:** comp [-0.4, +0.6], runtime ~10-15min.
+
+## Exp188 — LGBM depth=5 (single-seed, LGBM budget 23/25 not 25/25)
+**Diagnosis:** Final LGBM slot (recount: actually 24 now).
+**Citations:** Ke 2017 §3.1; Friedman 2001 §5.4.
+**Hypothesis:** depth=5 leaf-wise growth different from XGBoost.
+**Prediction:** comp [-0.4, +0.6].
+**Verdict:** DISCARD. Comp -0.14, A_sh +0.41, val barely positive +0.06. Same val-instability pattern. Runtime 426s.
+**Learning:** LGBM at 23/25 (recount). 2 more slots needed.
+
+## Exp189 — LGBM lr=0.005 n_est=3000 (slowest-lr capacity-matched, untested)
+**Diagnosis:** 2 LGBM slots remaining; try slowest-learner regime.
+**Citations:** Friedman 2001 §5.2; ESL §10.12; Ke 2017 §3.1.
+**Hypothesis:** lr=0.005 + n_est=3000 finds smoother flat minima.
+**Prediction:** comp [-0.3, +0.6], runtime ~15-25min.

@@ -399,3 +399,14 @@ roadmap.
 - **Rationale:** Ke 2017 §3.1 + Friedman 2001 §5.4 — bracket depth axis
 - **Prediction:** comp [-0.4, +0.6], runtime ~10-15min
 - **Result:** PENDING
+
+### Exp188: LGBM depth=5 single-seed (LGBM at 23/25 recount)
+- **Config delta from exp 95:** max_depth 4→5
+- **Result:** Composite -0.1388 | A_sh +0.41 | val barely positive
+- **Status:** DISCARD; same GBM val-instability pattern. LGBM at 23/25.
+
+### Exp189: LGBM lr=0.005 n_est=3000 (slowest-lr untested)
+- **Config delta from exp 95:** lr 0.01→0.005, n_est 1500→3000
+- **Rationale:** Friedman 2001 §5.2 slow-lr stability
+- **Prediction:** comp [-0.3, +0.6], runtime ~15-25min
+- **Result:** PENDING
