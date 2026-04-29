@@ -1637,6 +1637,15 @@
     "citations": "Ekambaram, Jati, Nguyen, Sinthong, Kalagnanam 2023 KDD 'TSMixer' (arXiv:2306.09364) \u00a73 \u2014 patch-mixing architecture; Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2.",
     "hypothesis": "PatchTSMixer + lr=1e-3 + ep=100 + pat=15 + bs=32 + seq=60 + seed=7 (one knob from exp 197: seed 99\u21927) will produce A_sharpe within \u00b10.5 of exp 197's +1.22 if the strong test alpha is reproducible. If A_sh stays \u2265 +0.7, PatchTSMixer is a real candidate for ensemble use.",
     "prediction": "Composite [-2.0, +0.5]; A_sharpe [+0.4, +1.5]; runtime ~3-7min.",
+    "_manual": true,
+    "verdict": "DISCARD strongly. Composite -1.0960, A_sh **-0.1414** (NEGATIVE \u2014 vs seed=99's +1.22!), val_sh -0.696, excess -1.3615. Per-fold A_sharpe: F1 -0.48, F2 +1.06, F3 +0.81, F4 -0.30, F5 -1.76, F6 -0.54, F7 +0.38. 3/7 positive folds. **4-seed PatchTSMixer distribution: A_sh swings -1.36 between seeds \u2014 the +1.22 from seed=99 was an EXTREME OUTLIER.** Same pattern as iTransformer paper-recipe. Runtime 484s = 8.1min.",
+    "learning": "PatchTSMixer's A_sh +1.22 from exp 197 was seed-luck on the val side (not the test side \u2014 A_sh DOES vary across seeds for PatchTSMixer too). 4-seed median is around -0.5 composite. **Cross-backbone pattern conclusively confirmed across 30+ experiments this session: every backbone except mamba dmamba shows high A_sharpe + wild val_sharpe = composite \u2248 0 at multi-seed median.**"
+  },
+  "199": {
+    "diagnosis": "33 experiments this session (165-198). Cross-backbone pattern conclusive: every non-Mamba backbone shows high A_sharpe at lucky seed but multi-seed composite median \u2248 0. PatchTSMixer at 4/25 with comp distribution [+0.06, -1.82, +0.16, -1.10] median -0.52. seed=2024 for 5-seed lock per Lakshminarayanan 2017 \u00a73.2 (5+ members ideal for stable median). This is the final HP-grind experiment before strategic pivot to deep-ensemble inference script (task #41).",
+    "citations": "Lakshminarayanan, Pritzel, Blundell 2017 NeurIPS 'Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles' (arXiv:1612.01474) \u00a73.2 \u2014 5+ seeds ideal for stable median. Picard 2021 arXiv:2109.08203 \u2014 seed-std on small-n. Ekambaram 2023 KDD \u2014 PatchTSMixer architecture.",
+    "hypothesis": "PatchTSMixer + lr=1e-3 + ep=100 + pat=15 + bs=32 + seq=60 + seed=2024 (one knob from exp 198: seed 7\u21922024) locks 5-seed PatchTSMixer median.",
+    "prediction": "Composite [-2.0, +0.5]; runtime ~3-7min.",
     "_manual": true
   }
 }

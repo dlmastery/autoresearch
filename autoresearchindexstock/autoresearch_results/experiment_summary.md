@@ -504,3 +504,13 @@ roadmap.
 - **Rationale:** Picard 2021 + Lakshminarayanan 2017
 - **Prediction:** comp [-2.0, +0.5], A_sh [+0.4, +1.5], runtime ~3-7min
 - **Result:** PENDING
+
+### Exp198: PatchTSMixer seed=7 (variance crash)
+- **Result:** Comp -1.10, A_sh -0.14. 4-seed comp distribution range -1.98.
+- **Status:** DISCARD; A_sh +1.22 from exp 197 was outlier.
+
+### Exp199: PatchTSMixer seed=2024 (5-seed lock)
+- **Config delta from exp 198:** seed 7→2024
+- **Rationale:** Lakshminarayanan 2017 §3.2 (5+ seeds for stable median)
+- **Prediction:** comp [-2.0, +0.5], runtime ~3-7min
+- **Result:** PENDING

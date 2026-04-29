@@ -568,3 +568,11 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Ekambaram 2023 KDD; Picard 2021; Lakshminarayanan 2017 §3.2.
 **Hypothesis:** A_sh stays ≥ +0.7 confirms.
 **Prediction:** comp [-2.0, +0.5], A_sh [+0.4, +1.5], runtime ~3-7min.
+
+## Exp198 — PatchTSMixer seed=7 (variance crash)
+**Verdict:** DISCARD. Comp -1.10, A_sh -0.14. 4-seed PatchTSMixer comp [+0.06, -1.82, +0.16, -1.10] median -0.52.
+
+## Exp199 — PatchTSMixer seed=2024 (5-seed median lock)
+**Citations:** Lakshminarayanan 2017 §3.2; Picard 2021; Ekambaram 2023.
+**Hypothesis:** seed=2024 locks 5-seed median.
+**Prediction:** comp [-2.0, +0.5], runtime ~3-7min.
