@@ -78,3 +78,18 @@ We are 6 of 375 experiments in. The fact that LSTM @ FX-champion HPs
 already produces 7/7 positive test folds + a positive excess-Sharpe is
 an early validation that the project will reach FX parity within
 roadmap.
+
+### Exp165: LightGBM seed=13 (4-seed variance lock)
+- **Config delta from CatBoost exp 98:** backbone=lightgbm, depth=4, gbm_lr=0.01, n_est=1000, seq=60, seed=13
+- **Rationale:** Lock 4-seed LGBM distribution to compare median vs +1.32 champion (Ke 2017; Picard 2021)
+- **Prediction:** comp [-0.5, +0.7]
+- **Result:** Composite **-0.7409** | A_sharpe +0.5068 | A_excess -0.7126
+- **Per-fold A_sharpe:** F1=+2.43 F2=-0.25 F3=-0.25 F4=+0.09 F5=+0.86 F6=+0.48 F7=+0.26
+- **Status:** DISCARD
+- **Learning:** 4-seed LGBM range [-0.74, +0.50] — axis closed, LGBM cannot beat dMamba +1.32
+
+### Exp166: CatBoost depth=8 (deep oblivious trees)
+- **Config delta from CatBoost exp 98:** max_depth 4→8 (one knob change)
+- **Rationale:** depth=8 untested axis on most-under-budget backbone; targets F2/F3 macro-3-way interactions (Prokhorenkova 2018 §4.1; Cieslak-Pang 2021)
+- **Prediction:** comp [-0.4, +0.6], F2 +0.0-+0.4, F3 +0.0-+0.3
+- **Result:** PENDING

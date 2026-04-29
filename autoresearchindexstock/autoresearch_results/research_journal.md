@@ -120,3 +120,17 @@
 5. **Build `_qqq_mega_ensemble.py`** — port the rank-avg recipe from FX `_emtsf_mega_ensemble.py` to QQQ. Target: meet or beat **excess-Sharpe of FX +9.7071**.
 6. **Continue 25-experiment hill-climb per backbone** for the 23-backbone roster (15 generic TS + 8 equity-specific 2024-2026 SOTA).
 7. Eventually: paper / Medium / audit reports / Colab notebook (full FX-style artefact suite).
+
+## Exp165 — LightGBM seed=13 variance lock (4-seed ensemble)
+**Diagnosis:** 4th-seed LGBM exp 10 config to nail down the seed-variance distribution. FX-paper §3.5 asserts GBM seed-determinism but earlier QQQ XGBoost runs already broke that claim; this run finalizes the LGBM seed-noise band on QQQ.
+**Citations:** Ke et al. 2017 NeurIPS 'LightGBM' — GOSS+EFB stochastic sampling means seed-dependent training; Picard 2021 'Torch.manual_seed(3407) is all you need' (arXiv:2109.08203) — empirical seed-std ~0.5 on Sharpe-like metrics at n<10k.
+**Hypothesis:** Composite in [-0.5, +0.7]; 4-seed median should converge to honest LGBM estimate.
+**Prediction:** comp [-0.5, +0.7], A_sh [+0.2, +1.0], A_exc [-1.5, 0.0].
+**Verdict:** DISCARD. Composite -0.7409. Per-fold A_sharpe F1=+2.43 F2=-0.25 F3=-0.25 F4=+0.09 F5=+0.86 F6=+0.48 F7=+0.26. 4-seed LGBM range now [-0.74, +0.50] confirming non-determinism on n=2738 QQQ.
+**Learning:** Axis closed — LGBM seed-ensemble median ~+0.0 to +0.2, decisively below dMamba +1.32 champion. Move budget to CatBoost depth=8 (most under-budget at 11/25).
+
+## Exp166 — CatBoost depth=8 (deep oblivious trees, untested axis)
+**Diagnosis:** 3 consecutive DISCARDs (163-165). CatBoost is most under-budget cheap-tier (11/25). Within CatBoost, depth=4 (exp 98 best) and depth=6 (exp 103) both tested; depth=8 NEVER tried. Champion CatBoost-best F2/F3 fail consistently — possibly 3-way macro×VIX×yield-curve interactions that depth=4 cannot capture.
+**Citations:** Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516) §4.1 depth=6-8 best for 100-500 feature tabular; §3.2 ordered-boosting protects against prediction-shift overfit at deeper depth; Cieslak-Pang 2021 RFS — stress-regime equity 3-way interactions require depth>=3.
+**Hypothesis:** depth=8 lr=0.02 n_est=1000 (one knob from exp 98 depth=4) — deeper oblivious trees fit macro×VIX×yc interactions; mechanism: 256-leaf tree with 184 features and 2538 rows + ordered-boosting bias control.
+**Prediction:** comp [-0.4, +0.6], A_sh [+0.2, +1.0], F2 expected +0.0 to +0.4, F3 expected +0.0 to +0.3, runtime ~10-15min.
