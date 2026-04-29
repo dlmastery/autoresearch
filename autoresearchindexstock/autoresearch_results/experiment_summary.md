@@ -577,3 +577,11 @@ roadmap.
 - **Rationale:** Picard 2021 + Lakshminarayanan 2017
 - **Prediction:** comp [+0.3, +1.2], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp205: MLP wd=1e-4 seed=42 (variance crash)
+- **Result:** Comp -0.92. 2-seed [+0.97, -0.92].
+- **Status:** DISCARD; wd=1e-4 same seed-instability.
+
+### Exp206: MLP wd=1e-4 seed=99 (3-seed lock; MLP final slot 50/50)
+- **Prediction:** comp [-0.5, +1.0], runtime ~30-60s
+- **Result:** PENDING

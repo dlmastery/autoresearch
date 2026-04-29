@@ -632,3 +632,10 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021; Lakshminarayanan 2017; Loshchilov-Hutter 2019.
 **Hypothesis:** Confirms +0.97 reproducibility.
 **Prediction:** comp [+0.3, +1.2], runtime ~30-60s.
+
+## Exp205 — MLP wd=1e-4 seed=42 (variance crash)
+**Verdict:** DISCARD. Comp -0.92. Same val-instability. 2-seed [+0.97, -0.92].
+
+## Exp206 — MLP wd=1e-4 seed=99 (3-seed lock + MLP 50/50 final)
+**Citations:** Picard 2021; Lakshminarayanan 2017; Loshchilov-Hutter 2019.
+**Prediction:** comp [-0.5, +1.0], runtime ~30-60s.

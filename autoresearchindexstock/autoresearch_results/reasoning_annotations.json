@@ -1700,6 +1700,15 @@
     "citations": "Picard 2021 arXiv:2109.08203. Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2. Loshchilov-Hutter 2019 ICLR arXiv:1711.05101. Goyal 2017 arXiv:1706.02677.",
     "hypothesis": "MLP residual + lr=3e-4 + wd=1e-4 + ep=50 + pat=10 + bs=32 + hd=0.25 + warmup=5 + seed=42 (one knob from exp 204: seed 0\u219242) verifies if the wd=1e-4 lift is reproducible.",
     "prediction": "Composite [+0.3, +1.2]; runtime ~30-60s.",
+    "_manual": true,
+    "verdict": "DISCARD strongly. Composite -0.9202, A_sh -0.0737 (NEG), val_sh -0.92, excess -0.68. 2-seed MLP wd=1e-4 distribution: comp [+0.97 seed=0, -0.92 seed=42] \u2014 same val-instability pattern as MLP wd=1e-5. Runtime 26s.",
+    "learning": "MLP wd=1e-4 + warmup=5 lift was seed=0 luck. Same pattern as before \u2014 seed=0 lucky, seed=42 unlucky for MLP exp 79-style config. The wd axis isn't the magic. Continuing to MLP final slot 50/50."
+  },
+  "206": {
+    "diagnosis": "MLP at 50/50 \u2014 final slot. Verify wd=1e-4 with seed=99 (3-seed median lock). If composite \u2265 +0.2, the wd=1e-4 + warmup=5 combination has a real lift. If lower, it's not better than MLP exp 79 5-seed median +0.43.",
+    "citations": "Picard 2021; Lakshminarayanan 2017 \u00a73.2; Loshchilov-Hutter 2019.",
+    "hypothesis": "MLP wd=1e-4 warmup=5 seed=99 locks 3-seed median.",
+    "prediction": "Composite [-0.5, +1.0]; runtime ~30-60s.",
     "_manual": true
   }
 }
