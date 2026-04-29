@@ -1886,6 +1886,14 @@
     "citations": "Picard 2021",
     "hypothesis": "alt seed",
     "prediction": "comp [-1.0, +0.8]",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -0.11. 2-seed LSTM seq=35 [-0.47, -0.11] mean -0.29."
+  },
+  "227": {
+    "diagnosis": "LSTM seq=35 #3/10 seed=0",
+    "citations": "Picard 2021",
+    "hypothesis": "alt seed",
+    "prediction": "comp [-1.0, +0.8]",
     "_manual": true
   }
 }
