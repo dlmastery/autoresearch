@@ -433,3 +433,13 @@ roadmap.
 - **Rationale:** Establish post-features-rollback DLinear variance
 - **Prediction:** comp [-0.5, +0.5], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp191: DLinear post-rollback seed=0
+- **Result:** Composite -0.38 | A_sh -0.08 | DLinear post-rollback 2-seed mean -0.21
+- **Status:** DISCARD; weak post-rollback baseline.
+
+### Exp192: DLinear seq_len=20 (untested axis)
+- **Config delta from exp 109:** seq_len 10→20
+- **Rationale:** Zeng 2023 §4.2 seq sweep
+- **Prediction:** comp [-0.4, +0.5], runtime ~30-60s
+- **Result:** PENDING

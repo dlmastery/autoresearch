@@ -493,3 +493,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Zeng-Chen-Zhang-Xu 2023 AAAI arXiv:2205.13504; Picard 2021; Lakshminarayanan 2017.
 **Hypothesis:** Same exp 109 config seed=0; comp ±0.4 establishes post-rollback range.
 **Prediction:** comp [-0.5, +0.5], runtime ~30-60s.
+
+## Exp191 — DLinear post-rollback seed=0 (DISCARD)
+**Diagnosis:** Establish post-features-rollback DLinear baseline.
+**Citations:** Zeng 2023 AAAI; Picard 2021; Lakshminarayanan 2017.
+**Hypothesis:** Same exp 109 config seed=0; comp ±0.4.
+**Prediction:** comp [-0.5, +0.5].
+**Verdict:** DISCARD. Comp -0.38, A_sh NEGATIVE -0.08. 2-seed mean -0.21. Runtime 30s.
+**Learning:** DLinear post-rollback weak. seq_len axis untested.
+
+## Exp192 — DLinear seq_len=20 (untested)
+**Diagnosis:** DLinear 5/25; try seq=20 untested.
+**Citations:** Zeng 2023 §4.2 seq sweep; Goyal 2017; Hochreiter 1997.
+**Hypothesis:** seq=20 captures 20-day momentum cycles.
+**Prediction:** comp [-0.4, +0.5], runtime ~30-60s.
