@@ -2085,5 +2085,14 @@
     "prediction": "comp [-1.0, +0.5], runtime ~3-5min.",
     "_manual": true,
     "verdict": "DISCARD. iTransformer hidden=64 -0.52, A_sh +0.82 stronger than hidden=256. B_sh +0.14."
+  },
+  "256": {
+    "verdict": "KEEP-PARTIAL. dMamba lr=1e-3 seed=0 +0.26 (better than seed=42 +0.16). 2-seed mean +0.21 \u2014 promising regime. F2=+3.94 F3=+2.72 strong, F4/F7 weak.",
+    "_manual": true
+  },
+  "257": {
+    "diagnosis": "dMamba lr=1e-3 seed=99 (#5/10 - 3-seed lock)",
+    "citations": "Picard 2021",
+    "_manual": true
   }
 }
