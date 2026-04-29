@@ -255,3 +255,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Fischer-Krauss 2018 §3.4; Goyal 2017 arXiv:1706.02677; Hochreiter-Schmidhuber 1997 §3.1; Bengio 1994.
 **Hypothesis:** seq=20 (vs 10) captures 20-day momentum/reversal cycles aligned with monthly vol cycles.
 **Prediction:** comp [+0.5, +1.2], A_sh [+0.8, +1.5], runtime ~70-100s.
+
+## Exp174 — LSTM seq=20 (REJECTED — gradient-vanishing)
+**Diagnosis:** Test untested seq axis per Fischer-Krauss 2018 §3.4.
+**Citations:** Fischer-Krauss 2018 §3.4; Goyal 2017; Hochreiter-Schmidhuber 1997; Bengio 1994.
+**Hypothesis:** seq=20 captures 20-day momentum patterns.
+**Prediction:** comp [+0.5, +1.2].
+**Verdict:** DISCARD strongly. Comp -0.8293 (vs +0.74 baseline). A_sh +0.18 (vs +1.30!). F2/F3/F4 collapsed. Bengio 1994 gradient-vanishing CONFIRMED at our n.
+**Learning:** seq=20 worse than seq=10. Axis bounded above. Try seq=5 (opposite direction).
+
+## Exp175 — LSTM seq=5 (untested shorter direction)
+**Diagnosis:** seq=20 rejected; try seq=5 (shorter than current sweet-spot 10).
+**Citations:** Bengio 1994 IEEE TNN; Hochreiter-Schmidhuber 1997 §3.1; Fischer-Krauss 2018 §3.4; Vaswani 2017 §3.2.
+**Hypothesis:** seq=5 within QQQ daily autocorr halflife; eliminates grad-flow issues.
+**Prediction:** comp [+0.4, +1.0], A_sh [+1.0, +1.6], runtime ~50-70s.

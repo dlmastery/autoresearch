@@ -213,3 +213,18 @@ roadmap.
 - **Rationale:** Fischer-Krauss 2018 §3.4 — seq sweep, 20 untested
 - **Prediction:** comp [+0.5, +1.2], A_sh [+0.8, +1.5], runtime ~70-100s
 - **Result:** PENDING
+
+### Exp174: LSTM hidden=128 seq_len=20 (REJECTED — grad-vanishing)
+- **Config delta from exp 74:** seq_len 10→20
+- **Rationale:** Fischer-Krauss 2018 §3.4 — seq sweep
+- **Prediction:** comp [+0.5, +1.2]
+- **Result:** Composite **-0.8293** | A_sh +0.18 | val_sh -0.43 | excess -0.66
+- **Per-fold A_sharpe:** F1=+1.48 F2=-0.86 F3=-1.03 F4=-0.83 F5=+0.83 F6=+0.74 F7=-0.31
+- **Status:** DISCARD strongly — Bengio 1994 grad-vanishing confirmed
+- **Learning:** seq=20 worse than seq=10; bound from above. Try seq=5 (shorter).
+
+### Exp175: LSTM seq_len=5 (untested shorter direction)
+- **Config delta from exp 74:** seq_len 10→5
+- **Rationale:** Bengio 1994 — shorter seq eliminates grad-flow issues
+- **Prediction:** comp [+0.4, +1.0], A_sh [+1.0, +1.6], runtime ~50-70s
+- **Result:** PENDING
