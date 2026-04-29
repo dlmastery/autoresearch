@@ -546,3 +546,11 @@ roadmap.
 - **Rationale:** Lakshminarayanan 2017 §3.2 (5+ members)
 - **Prediction:** comp [+0.0, +1.0], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp202: MLP seed=7 (4-seed median +0.01)
+- **Result:** Comp -0.49. 4-seed MLP exp 79 median +0.014.
+- **Status:** DISCARD; MLP joins val-instability club.
+
+### Exp203: MLP seed=2024 (5-seed lock)
+- **Prediction:** comp [-0.7, +1.0], runtime ~30-60s
+- **Result:** PENDING

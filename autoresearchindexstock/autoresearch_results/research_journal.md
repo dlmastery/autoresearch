@@ -601,3 +601,11 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Lakshminarayanan 2017 §3.2 (5+ members ideal); Picard 2021; Goyal 2017; Loshchilov-Hutter 2019.
 **Hypothesis:** seed=7 confirms +0.52 median.
 **Prediction:** comp [+0.0, +1.0], runtime ~30-60s.
+
+## Exp202 — MLP seed=7 (4-seed median drops to +0.01)
+**Verdict:** DISCARD. Comp -0.49. 4-seed MLP exp 79 [+0.97, -0.71, +0.52, -0.49] median +0.014.
+**Learning:** MLP joins val-instability club. Mamba dmamba uniquely stable.
+
+## Exp203 — MLP seed=2024 (5-seed median lock)
+**Citations:** Lakshminarayanan 2017 §3.2; Picard 2021.
+**Prediction:** comp [-0.7, +1.0], runtime ~30-60s.
