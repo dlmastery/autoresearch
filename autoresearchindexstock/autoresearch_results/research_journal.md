@@ -465,3 +465,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Friedman 2001 §5.2; ESL §10.12; Ke 2017 §3.1.
 **Hypothesis:** lr=0.005 + n_est=3000 finds smoother flat minima.
 **Prediction:** comp [-0.3, +0.6], runtime ~15-25min.
+
+## Exp189 — LGBM lr=0.005 n_est=3000 (slowest-lr, A_sh RECORD +0.94)
+**Diagnosis:** Slow-lr stability test untested.
+**Citations:** Friedman 2001 §5.2; ESL §10.12; Ke 2017 §3.1.
+**Hypothesis:** Slow lr finds smoother flat minima.
+**Prediction:** comp [-0.3, +0.6].
+**Verdict:** DISCARD. Comp +0.24, **A_sh +0.94 RECORD**, 6/7 positive folds, F6 COVID +2.88 RECORD. Runtime 662s.
+**Learning:** Slowest-lr regime is most-stable LGBM variant. Need variance check.
+
+## Exp190 — LGBM exp 189 seed=99 (variance check on RECORD A_sh)
+**Diagnosis:** Final LGBM slot; verify slowest-lr +0.94 A_sh reproducibility.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Friedman 2001 §5.2.
+**Hypothesis:** A_sh stays ≥ +0.6 confirms deployable.
+**Prediction:** comp [-0.2, +0.6], A_sh [+0.5, +1.1], runtime ~10-15min.

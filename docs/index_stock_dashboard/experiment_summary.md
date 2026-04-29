@@ -410,3 +410,15 @@ roadmap.
 - **Rationale:** Friedman 2001 §5.2 slow-lr stability
 - **Prediction:** comp [-0.3, +0.6], runtime ~15-25min
 - **Result:** PENDING
+
+### Exp189: LGBM lr=0.005 n_est=3000 (RECORD A_sh)
+- **Config delta from exp 95:** lr 0.01→0.005, n_est 1500→3000
+- **Result:** Composite +0.2434 | **A_sh +0.9415 RECORD** | 6/7 pos folds | F6 +2.88 RECORD
+- **Status:** DISCARD; promising slow-lr regime, need variance check
+- **Learning:** Slowest-lr stabilizes LGBM. Test alpha robust.
+
+### Exp190: LGBM exp 189 seed=99 (variance check)
+- **Config delta from exp 189:** seed 42→99
+- **Rationale:** Picard 2021 — confirm A_sh +0.94 reproducibility
+- **Prediction:** comp [-0.2, +0.6], A_sh [+0.5, +1.1], runtime ~10-15min
+- **Result:** PENDING
