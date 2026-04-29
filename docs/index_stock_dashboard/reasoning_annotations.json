@@ -1921,6 +1921,11 @@
   },
   "232": {
     "diagnosis": "LSTM seq=35 #8/10 seed=3",
+    "_manual": true,
+    "verdict": "KEEP-PARTIAL. Comp +0.59, A +0.69, B +0.08."
+  },
+  "233": {
+    "diagnosis": "LSTM seq=35 #9/10 seed=5",
     "_manual": true
   }
 }
