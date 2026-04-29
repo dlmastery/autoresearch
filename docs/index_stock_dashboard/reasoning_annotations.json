@@ -1969,6 +1969,14 @@
     "citations": "Shi, Zhao, Chen 2024 arXiv \"MambaStock: Selective state space model for stock prediction\" (arXiv:2402.18959) \u00a74.1 \u2014 hidden_size ablation on n=2k-8k daily stock samples; hidden=64 outperforms hidden=128 due to overfit reduction. \u00a73.3 \u2014 adaptive temperature softmax detail.",
     "hypothesis": "MambaStock hidden=64 + temperature-init=1.0 + lr=5e-4 (one knob change from exp 238 hidden=128) reduces overfit on F2 EU-debt and F6 COVID stress regimes.",
     "prediction": "comp [-0.5, +0.5], A_sh [+0.0, +0.6], runtime ~10-15min.",
+    "_manual": true,
+    "verdict": "DISCARD. MambaStock hidden=64 -0.45. A_sh -0.05, B_sh +0.09. Worse than hidden=128 baseline. Hidden axis under-fit."
+  },
+  "240": {
+    "diagnosis": "MambaStock #3/10. exps 238/239 both ~-0.4. Per Shi et al. 2024 \u00a73.2, the canonical setup is 3 layers (we tested 2). Hill-climb num_layers axis.",
+    "citations": "Shi, Zhao, Chen 2024 arXiv:2402.18959 \u00a73.2 \u2014 3-layer multi-scale architecture is recommended.",
+    "hypothesis": "MambaStock + num_layers=3 + hidden=128 explores depth axis.",
+    "prediction": "comp [-0.5, +0.5], runtime ~12-18min.",
     "_manual": true
   }
 }
