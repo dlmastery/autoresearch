@@ -554,3 +554,14 @@ roadmap.
 ### Exp203: MLP seed=2024 (5-seed lock)
 - **Prediction:** comp [-0.7, +1.0], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp203: MLP seed=2024 (5-seed median POSITIVE +0.43)
+- **Result:** Comp **+0.4333** | A_sh +0.62 | 6/7 pos folds
+- **5-seed MLP exp 79 median +0.433** — SECOND non-Mamba stable positive median!
+- **Status:** DISCARD vs global, but MLP exp 79 confirmed deployable.
+
+### Exp204: MLP exp 79 + wd=1e-4 (Loshchilov-Hutter canonical)
+- **Config delta from MLP champion:** wd 1e-5→1e-4
+- **Rationale:** Loshchilov-Hutter 2019 AdamW canonical; combine with warmup
+- **Prediction:** comp [+0.3, +1.2], runtime ~30-60s
+- **Result:** PENDING

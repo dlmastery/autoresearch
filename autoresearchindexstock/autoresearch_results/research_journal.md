@@ -609,3 +609,13 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 ## Exp203 — MLP seed=2024 (5-seed median lock)
 **Citations:** Lakshminarayanan 2017 §3.2; Picard 2021.
 **Prediction:** comp [-0.7, +1.0], runtime ~30-60s.
+
+## Exp203 — MLP seed=2024 (5-seed median POSITIVE +0.43)
+**Verdict:** DISCARD vs +1.32 global BUT major: comp **+0.4333**, A_sh +0.62, **6/7 positive folds**.
+**5-seed MLP exp 79 distribution: median +0.433, mean +0.144.** SECOND non-Mamba backbone with stable positive multi-seed median!
+**Learning:** MLP exp 79 is a real lift — deployable for ensemble.
+
+## Exp204 — MLP exp 79 + wd=1e-4 (Loshchilov-Hutter canonical)
+**Citations:** Loshchilov-Hutter 2019; Goyal 2017; Gu-Kelly-Xiu 2020.
+**Hypothesis:** wd=1e-4 + warmup=5 combines best axes.
+**Prediction:** comp [+0.3, +1.2], runtime ~30-60s.

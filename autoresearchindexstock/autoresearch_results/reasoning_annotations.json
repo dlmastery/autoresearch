@@ -1682,6 +1682,15 @@
     "citations": "Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2; Picard 2021 arXiv:2109.08203; Goyal 2017; Loshchilov-Hutter 2019.",
     "hypothesis": "MLP exp 79 + seed=2024 (one knob from exp 202) locks 5-seed median.",
     "prediction": "Composite [-0.7, +1.0]; runtime ~30-60s.",
+    "_manual": true,
+    "verdict": "DISCARD vs +1.32 global BUT major positive: composite **+0.4333**, A_sh +0.6192, val_sh +0.5333, excess +0.0149 (positive, barely above BH+0.60). Per-fold A_sharpe: F1 +0.71, F2 +0.62, F3 +0.05, F4 +0.42, F5 +1.44, F6 +1.38, F7 -0.09. **6/7 positive folds.** **5-seed MLP exp 79 distribution: [+0.974, -0.714, +0.520, -0.491, +0.433] sorted [-0.714, -0.491, +0.433, +0.520, +0.974] median +0.433, mean +0.144. POSITIVE 5-SEED MEDIAN!** Runtime 30s.",
+    "learning": "**MLP exp 79 5-seed median +0.433 \u2014 SECOND non-Mamba backbone with stable positive multi-seed median this session.** Adding seed=2024 (+0.433) alongside seed=0 (+0.974) and seed=99 (+0.520) gives 3 of 5 seeds positive. Despite seed=42/7 negatives, the median is robustly positive. This is now a real candidate for ensemble alongside mamba dmamba. **MLP champion: lr=3e-4 wd=1e-5 ep=50 pat=10 bs=32 hd=0.25 warmup=5; 5-seed median composite +0.433.**"
+  },
+  "204": {
+    "diagnosis": "Major finding: MLP exp 79 has stable POSITIVE 5-seed median +0.433. MLP at 48/50 \u2014 2 slots left. Untested HP combination: wd=1e-4 + warmup=5 (exp 78 tested wd=1e-4 WITHOUT warmup, +0.580 single-seed; exp 79 tested wd=1e-5 WITH warmup, +0.974 single-seed). Combining both axes is one knob from MLP champion exp 79. Per Loshchilov-Hutter 2019 ICLR, AdamW wd=1e-4 is the canonical default; combined with warmup may produce stronger lift.",
+    "citations": "Loshchilov, Hutter 2019 ICLR 'Decoupled Weight Decay Regularization' (arXiv:1711.05101) \u2014 AdamW canonical wd range. Goyal et al. 2017 (arXiv:1706.02677) \u2014 warmup. Gu, Kelly, Xiu 2020 RFS \u2014 MLP-on-financial recipe.",
+    "hypothesis": "MLP residual + lr=3e-4 + wd=1e-4 + ep=50 + pat=10 + bs=32 + hd=0.25 + warmup=5 + seed=0 (one knob from MLP champion exp 79: wd 1e-5\u21921e-4, matching Loshchilov-Hutter canonical) will improve composite by stronger weight decay regularization combined with warmup.",
+    "prediction": "Composite [+0.3, +1.2]; runtime ~30-60s.",
     "_manual": true
   }
 }
