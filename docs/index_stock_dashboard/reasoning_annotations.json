@@ -2105,6 +2105,7 @@
   "259": {
     "diagnosis": "dMamba lr=1e-3 seed=2024 (#7/10 - 5-seed lock per Lakshminarayanan 2017 \u00a73.2)",
     "citations": "Lakshminarayanan 2017 \u00a73.2",
-    "_manual": true
+    "_manual": true,
+    "verdict": "KEEP. dMamba lr=1e-3 seed=2024 +0.382 \u2014 **5-seed dMamba lr=1e-3 [+0.16, +0.26, +0.38, +0.59, +0.61] median +0.38 mean +0.40 ALL POSITIVE.** New stable champion vs prior lr=5e-4 4-seed median -0.25. Archiving as new winner."
   }
 }
