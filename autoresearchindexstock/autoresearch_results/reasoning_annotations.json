@@ -1939,6 +1939,27 @@
     "citations": "Chen-Guestrin 2016 KDD",
     "hypothesis": "seq=35 untested for XGBoost - one knob from exp 63 seq=60",
     "prediction": "comp [-0.5, +0.5]",
+    "_manual": true,
+    "verdict": "KEEP-PARTIAL. XGBoost seq=35 +0.135 (positive! best XGBoost yet on QQQ). A_sh +0.714 strong. **B_sh -0.356 NEGATIVE \u2014 XGBoost shows OPPOSITE pattern from LSTM: A(1d) better than B(5d).** seq=35 helps XGBoost (exp 63 seq=60 was -0.128)."
+  },
+  "236": {
+    "diagnosis": "User directive 2026-04-29 06:54: pivot to dMamba and latest transformer at seq=35/60 for 5-day prediction analysis. Test if 5d forecast outperforms 1d on best architectures. Start with dMamba seq=35 (champion uses seq=60 \u2014 test the user-requested seq=35 variant).",
+    "citations": "Gu-Dao 2024 COLM Mamba arXiv:2312.00752; Liu 2025 DMamba arXiv:2602.09081; Goyal 2017 \u00a72.4 seq scaling.",
+    "hypothesis": "dMamba seq=35 + champion HPs (expand=2 d_state=32 lr=5e-4 wd=0.1 hd=0.1 warmup=10) + seed=42 \u2014 tests if reduced seq context helps.",
+    "prediction": "comp [-0.5, +1.5] (champion seq=60 was +1.32). B_sh likely strong.",
+    "_manual": true,
+    "verdict": "DISCARD strongly. Comp -1.15 (vs champion seq=60 +1.32). A_sh -0.65, B_sh -0.36. **dMamba REQUIRES seq=60** for SSM selective state. seq=35 collapses. Aligns with Gu-Dao 2024 \u00a74.2 which shows SSM benefits from longer context."
+  },
+  "237": {
+    "verdict": "KEEP-PARTIAL. Comp +0.24, A_sh +1.24 (HIGH), B_sh -2.37 (5d catastrophic for xLSTM \u2014 opposite of LSTM seq=35!), val +0.34. F1=+1.24 F2=**+4.87 RECORD** F3=+2.06 F4=-1.23 F5=+1.18 F6=+1.92 F7=+0.96. 6/7 pos folds. Within-xLSTM new champion (>+0.32 prior best).",
+    "learning": "xLSTM seq=60 strong A_sh; F4 China-oil weakest fold. Hill-climb with matrix-memory expansion per Beck 2024 \u00a73.2.",
+    "_manual": true
+  },
+  "238": {
+    "diagnosis": "xLSTM seq=60 #2/10. exp 237 within-best with F4 China-oil weak (-1.23). Per Beck-P\u00f6ppel-Spanring-Auer-Prudnikova-Kopp-Klambauer-Brandstetter-Hochreiter 2024 NeurIPS xLSTM \u00a73.2, matrix memory in mLSTM scales with hidden^2; doubling hidden 64\u2192128 doubles matrix-memory capacity for the 3-way macro\u00d7VIX\u00d7USD commodity-shock interactions that drive F4 (Cieslak-Pang 2021 RFS).",
+    "citations": "Beck, P\u00f6ppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS \"xLSTM: Extended Long Short-Term Memory\" (arXiv:2405.04517) \u00a73.2 \u2014 matrix-memory scaling with hidden_size. Cieslak, Pang 2021 RFS \"Common Shocks in Stocks and Bonds\" \u2014 commodity-shock 3-way interactions. Hochreiter, Schmidhuber 1997 LSTM capacity \u00a73.1.",
+    "hypothesis": "xLSTM seq=60 + hidden=128 (one knob from exp 237 hidden=64) doubles matrix-memory capacity for commodity-shock interactions, expected to lift F4 from -1.23 toward +0.0.",
+    "prediction": "comp [0.0, +0.7], A_sh [+0.8, +1.5], F4 [-0.5, +0.3], runtime ~10-20min.",
     "_manual": true
   }
 }
