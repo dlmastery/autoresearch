@@ -2099,6 +2099,12 @@
   "258": {
     "diagnosis": "dMamba lr=1e-3 seed=7 (#6/10 - 4-seed lock; testing the lr=1e-3 regime stability)",
     "citations": "Picard 2021; Lakshminarayanan 2017",
+    "_manual": true,
+    "verdict": "KEEP. dMamba lr=1e-3 seed=7 +0.591. **4-seed lr=1e-3 [+0.16, +0.26, +0.61, +0.59] median +0.42 mean +0.40 \u2014 ALL 4 SEEDS POSITIVE.** Most stable dMamba regime found! Beats champion 4-seed median -0.25."
+  },
+  "259": {
+    "diagnosis": "dMamba lr=1e-3 seed=2024 (#7/10 - 5-seed lock per Lakshminarayanan 2017 \u00a73.2)",
+    "citations": "Lakshminarayanan 2017 \u00a73.2",
     "_manual": true
   }
 }
