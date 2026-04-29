@@ -1977,6 +1977,12 @@
     "citations": "Shi, Zhao, Chen 2024 arXiv:2402.18959 \u00a73.2 \u2014 3-layer multi-scale architecture is recommended.",
     "hypothesis": "MambaStock + num_layers=3 + hidden=128 explores depth axis.",
     "prediction": "comp [-0.5, +0.5], runtime ~12-18min.",
+    "_manual": true,
+    "verdict": "DISCARD. xLSTM seq=60 seed=99 -0.34 (vs seed=42 +0.24). 2-seed mean -0.05. Same val instability pattern as other backbones."
+  },
+  "241": {
+    "diagnosis": "xLSTM seq=60 #3/10 seed=0",
+    "citations": "Picard 2021",
     "_manual": true
   }
 }
