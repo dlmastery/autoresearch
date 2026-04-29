@@ -134,8 +134,15 @@ def _atomic_jsonl_append(entry: dict) -> int:
                     continue
         assigned = n + 1
         entry["experiment_num"] = assigned
+        # Sanitize NaN/Infinity to None for JS dashboard compatibility (JSON.parse rejects NaN/Infinity).
+        import math as _math
+        def _clean(o):
+            if isinstance(o, dict): return {k: _clean(v) for k, v in o.items()}
+            if isinstance(o, list): return [_clean(v) for v in o]
+            if isinstance(o, float) and (_math.isnan(o) or _math.isinf(o)): return None
+            return o
         with LOG_PATH.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(entry) + "\n")
+            f.write(json.dumps(_clean(entry), allow_nan=False) + "\n")
             f.flush()
             os.fsync(f.fileno())
         return assigned
