@@ -1992,6 +1992,12 @@
     "citations": "Shi et al. 2024 arXiv:2402.18959 \u00a73.4 multi-scale; Liu 2025 DMamba arXiv:2602.09081 expand ablation \u00a74.2.",
     "hypothesis": "MambaStock 3-layer + expand=4 doubles channel count for richer feature interactions on F3 Taper.",
     "prediction": "comp [-0.2, +0.4], A_sh [+0.5, +1.2], runtime ~15-20min.",
+    "_manual": true,
+    "verdict": "DISCARD. xLSTM seq=60 seed=0 -0.11. 3-seed median -0.11."
+  },
+  "243": {
+    "diagnosis": "xLSTM seq=60 #4/10 seed=7",
+    "citations": "Picard 2021",
     "_manual": true
   }
 }
