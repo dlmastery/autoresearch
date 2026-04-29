@@ -1911,6 +1911,11 @@
   "230": {
     "diagnosis": "LSTM seq=35 #6/10 seed=13 + analyze B-target",
     "citations": "Picard 2021",
+    "_manual": true,
+    "verdict": "KEEP-PARTIAL. Comp +0.84 (positive!), A_sh +0.94, B_sh +0.92. 6-seed LSTM seq=35 [-0.47, -0.11, -0.32, +0.31, +0.53, +0.84] median -0.005, mean +0.13."
+  },
+  "231": {
+    "diagnosis": "LSTM seq=35 #7/10 seed=11",
     "_manual": true
   }
 }
