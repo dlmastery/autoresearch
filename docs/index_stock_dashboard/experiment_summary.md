@@ -422,3 +422,14 @@ roadmap.
 - **Rationale:** Picard 2021 — confirm A_sh +0.94 reproducibility
 - **Prediction:** comp [-0.2, +0.6], A_sh [+0.5, +1.1], runtime ~10-15min
 - **Result:** PENDING
+
+### Exp190: LGBM seed=99 slowest-lr (LGBM 25/25 COMPLETE)
+- **Config delta from exp 189:** seed 42→99
+- **Result:** Composite -0.3270 | A_sh -0.027 NEG | 3/7 pos folds
+- **Status:** DISCARD; **LGBM 25/25 COMPLETE.** All seeds + slowest-lr 2-seed mean ~+0.5 unstable.
+
+### Exp191: DLinear post-rollback baseline seed=0
+- **Config delta from exp 109:** seed 42→0
+- **Rationale:** Establish post-features-rollback DLinear variance
+- **Prediction:** comp [-0.5, +0.5], runtime ~30-60s
+- **Result:** PENDING

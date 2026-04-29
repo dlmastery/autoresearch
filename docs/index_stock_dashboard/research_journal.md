@@ -479,3 +479,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Friedman 2001 §5.2.
 **Hypothesis:** A_sh stays ≥ +0.6 confirms deployable.
 **Prediction:** comp [-0.2, +0.6], A_sh [+0.5, +1.1], runtime ~10-15min.
+
+## Exp190 — LGBM seed=99 slowest-lr (variance check, REJECTED, LGBM 25/25 COMPLETE)
+**Diagnosis:** Final LGBM slot; verify exp 189 +0.94 A_sh.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Friedman 2001 §5.2.
+**Hypothesis:** A_sh stays ≥ +0.6.
+**Prediction:** comp [-0.2, +0.6].
+**Verdict:** DISCARD. Comp -0.33, A_sh NEGATIVE -0.03, 3/7 pos folds. 2-seed slowest-lr A_sh [+0.94, -0.03]. Runtime 662s.
+**Learning:** LGBM family fundamentally seed-unstable. **LGBM 25/25 COMPLETE.** Pivoting to DLinear post-rollback baseline.
+
+## Exp191 — DLinear post-rollback baseline seed=0
+**Diagnosis:** DLinear 4 runs, best +0.80 was with rolled-back features. Need post-rollback variance.
+**Citations:** Zeng-Chen-Zhang-Xu 2023 AAAI arXiv:2205.13504; Picard 2021; Lakshminarayanan 2017.
+**Hypothesis:** Same exp 109 config seed=0; comp ±0.4 establishes post-rollback range.
+**Prediction:** comp [-0.5, +0.5], runtime ~30-60s.
