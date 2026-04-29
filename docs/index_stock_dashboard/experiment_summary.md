@@ -387,3 +387,15 @@ roadmap.
 - **Rationale:** CLAUDE.md "3-seed median > baseline"; Picard 2021
 - **Prediction:** comp [-0.4, +0.7], runtime ~5-10min
 - **Result:** PENDING
+
+### Exp187: LGBM exp 95 seed=0 (3-seed REJECTS)
+- **Config delta from exp 186:** seed 99→0
+- **Result:** Composite **-0.4571** | A_sh -0.0571 NEG | val_sh +1.34 | F2 RECORD +3.33
+- **Status:** DISCARD; 3-seed median -0.110 — LGBM exp 95 lift REJECTED
+- **Learning:** All 3 GBM families show structural val-instability at high capacity.
+
+### Exp188: LGBM depth=5 (untested mid-point, final slot)
+- **Config delta from exp 95:** max_depth 4→5
+- **Rationale:** Ke 2017 §3.1 + Friedman 2001 §5.4 — bracket depth axis
+- **Prediction:** comp [-0.4, +0.6], runtime ~10-15min
+- **Result:** PENDING

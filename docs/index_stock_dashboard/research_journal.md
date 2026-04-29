@@ -437,3 +437,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Ke 2017 §3.1.
 **Hypothesis:** seed=0 locks 3-seed median; ≥+0.1 means real lift.
 **Prediction:** comp [-0.4, +0.7], runtime ~5-10min.
+
+## Exp187 — LGBM exp 95 seed=0 (3-seed median REJECTS lift)
+**Diagnosis:** 3rd seed for median lock per CLAUDE.md.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Ke 2017 §3.1.
+**Hypothesis:** seed=0 locks 3-seed median; ≥+0.1 means real lift.
+**Prediction:** comp [-0.4, +0.7].
+**Verdict:** DISCARD strongly. Comp -0.46, A_sh NEGATIVE -0.06, val_sh +1.34 high. F2 RECORD +3.33. 3-seed median -0.110 — REJECTS lift. Runtime 337s.
+**Learning:** All 3 GBM families (CB, XGB, LGB) show structural val-instability at high capacity. LGBM-best stays median ~0.
+
+## Exp188 — LGBM depth=5 (untested mid-point, final LGBM slot)
+**Diagnosis:** Final LGBM slot. depth axis: 4 (+0.61 single but median ~0), 6 (-0.34). depth=5 untested.
+**Citations:** Ke 2017 NeurIPS §3.1; Friedman 2001 §5.4; Chen-Guestrin 2016 §3.2.
+**Hypothesis:** depth=5 leaf-wise growth (32 leaves) may produce different per-fold than XGBoost depth=5.
+**Prediction:** comp [-0.4, +0.6], runtime ~10-15min.
