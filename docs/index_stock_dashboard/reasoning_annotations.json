@@ -2075,6 +2075,14 @@
     "citations": "Liu, Hu, Zhang, Wang, Wu, Wang, Long 2024 ICLR \"iTransformer: Inverted Transformers Are Effective for Time Series Forecasting\" arXiv:2310.06625 \u00a74.1, Table 4 \u2014 d_model scaling.",
     "hypothesis": "iTransformer + hidden=256 (deeper variate embedding) improves multi-feature variate attention.",
     "prediction": "comp [-1.5, +0.5], A_sh [+0.5, +1.2], runtime ~5-8min.",
+    "_manual": true,
+    "verdict": "DISCARD. iTransformer hidden=256 -0.64. A_sh -0.24, B_sh +1.77 (5d strong!). F1/F2/F3 catastrophic ~-2.5. hidden=256 too large."
+  },
+  "255": {
+    "diagnosis": "iTransformer #2/10 hidden=64 (smaller, opposite direction from rejected hidden=256). Liu 2024 \u00a74.1.",
+    "citations": "Liu 2024 ICLR arXiv:2310.06625 \u00a74.1.",
+    "hypothesis": "hidden=64 (smaller) reduces overfit on early stress folds.",
+    "prediction": "comp [-1.0, +0.5], runtime ~3-5min.",
     "_manual": true
   }
 }
