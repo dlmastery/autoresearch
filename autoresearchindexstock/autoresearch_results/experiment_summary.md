@@ -168,3 +168,18 @@ roadmap.
 - **Rationale:** Lakshminarayanan 2017 §3.2 — 4-seed median for stability
 - **Prediction:** comp [-1.0, +0.6], runtime 22-32min
 - **Result:** PENDING
+
+### Exp171: CatBoost lr=0.05 n_est=1000 seed=7 (4-seed median lock)
+- **Config delta from exp 170:** seed 99→7
+- **Rationale:** Lakshminarayanan 2017 §3.2 — 4-seed median for stability
+- **Prediction:** comp [-1.0, +0.6]
+- **Result:** Composite **-0.0828** | A_sharpe +0.2172 | val_sharpe +0.238
+- **Per-fold A_sharpe:** F1=+0.71 F2=+2.68 F3=+0.18 F4=-0.13 F5=-0.48 F6=+0.97 F7=-0.33
+- **Status:** DISCARD — 4-seed median -0.005 (essentially zero lift)
+- **Learning:** CatBoost lr=0.05 branch exhausted. Pivoting to LSTM.
+
+### Exp172: LSTM 1-layer hidden=256 (capacity axis untested)
+- **Config delta from exp 74:** hidden_size 128→256
+- **Rationale:** Fischer-Krauss 2018 §3.2 — capacity sweep, 256 untested
+- **Prediction:** comp [+0.5, +1.2], runtime 4-6min
+- **Result:** PENDING

@@ -213,3 +213,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 §3.2; Picard 2021 4-seed reliability.
 **Hypothesis:** seed=7 locks 4-seed median; informs deploy-vs-abandon decision.
 **Prediction:** comp [-1.0, +0.6], A_sh [+0.2, +0.6], val_sh wild range.
+
+## Exp171 — CatBoost seed=7 (4-seed median lock — DECISIVE)
+**Diagnosis:** 4-seed median lock per Lakshminarayanan 2017 §3.2.
+**Citations:** Lakshminarayanan 2017 NeurIPS arXiv:1612.01474; Picard 2021.
+**Hypothesis:** seed=7 locks 4-seed median; informs deploy-vs-abandon.
+**Prediction:** comp [-1.0, +0.6].
+**Verdict:** DISCARD. Composite -0.0828. 4-seed distribution [-1.4536, -0.0828, +0.0728, +0.3898] → **median -0.005, mean -0.27**. A_sharpe stable (+0.20/+0.49/+0.47/+0.22) but val_sharpe wild (+0.24/+0.64/+1.49/-1.15).
+**Learning:** CatBoost lr=0.05 lift was largely seed-luck. CLI doesn't expose stability levers (random_strength, ordered_boosting=Plain). Branch exhausted. PIVOT to LSTM (most under-budget at 33/75).
+
+## Exp172 — LSTM 1-layer hidden=256 (capacity axis untested)
+**Diagnosis:** Pivoting to LSTM after CatBoost branch exhaustion. LSTM-best exp 74 (+0.737). hidden_size=256 untested per Fischer-Krauss 2018 §3.2.
+**Citations:** Fischer-Krauss 2018 EJOR §3.2 hidden sweep; Hochreiter-Schmidhuber 1997 LSTM capacity; Goodfellow et al. 2016 §11.3 capacity scaling; He 2016 CVPR.
+**Hypothesis:** 1-layer hidden=256 (vs 128) doubles LSTM cell capacity; ~268k params still safe at n=2538.
+**Prediction:** comp [+0.5, +1.2], A_sh [+0.5, +1.5], runtime 4-6min.
