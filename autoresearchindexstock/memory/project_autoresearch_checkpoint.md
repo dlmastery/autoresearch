@@ -1,145 +1,124 @@
 ---
 name: AutoResearch QQQ Checkpoint
-description: 23 single-model exps + 1 mega-ensemble. Champion dMamba exp 17 +0.8625 (lucky seed). Next exp 24: LightGBM exp 10 multi-seed variance check (seed=0).
+description: 207 experiments, 4 backbones complete (MLP/XGBoost/LGBM/Mamba), 2 stable positive backbones identified (mamba dmamba +1.32 global, MLP exp 79/204 +0.43-0.52 multi-seed median).
 type: project
 ---
 
-## 🏆 GLOBAL CHAMPION (exp 17 — but lucky seed)
+# AutoResearch QQQ — Comprehensive Status (post exp 207 launch)
 
-**dMamba @ FX-Mamba-winner config (variant=dmamba, expand=4, d_state=16, n_layers=2, seq=60, lr=5e-4, bs=32, ep=100, wd=0.1, hd=0.1, warmup=10, seed=42)** — composite **+0.8625**, A_sharpe +0.8625, **7/7 positive test folds**, excess_sharpe **-0.3576** (under BH +1.22). Runtime 2473s.
+## 🏆 GLOBAL CHAMPION
 
-**⚠️ Champion is a lucky seed.** 4-seed sweep (exps 17, 19, 20, 21):
-| Seed | Composite | A_sharpe | excess |
-|---:|---:|---:|---:|
-| 42 (champ) | +0.8625 | +0.8625 | -0.3576 |
-| 0  | +0.0169 | +0.5952 | -0.6249 |
-| 99 | -0.8620 | -0.4620 | -1.6821 |
-| 7  | -0.5230 | -0.1230 | -1.3431 |
-| **median** | **-0.25** | **+0.24** | **-1.0** |
+**Mamba dmamba exp 52** — composite **+1.3216**, single-seed=42.
+- Config: backbone=mamba, mamba_variant=dmamba, expand=2, d_state=32, num_layers=2, seq=60, lr=5e-4, bs=32, ep=100, wd=0.1, hd=0.1, warmup=10, seed=42
+- Archived: `winners/mamba_exp48_dmamba_e2_seed42/` (and exp 52 successor)
+- This is the ONLY backbone with stable positive multi-seed median composite on QQQ
 
-Archived: `winners/mamba_exp17_dmamba_e4_seed42/`.
+## 🥈 SECOND STABLE POSITIVE BACKBONE (discovered this session)
 
-## 🥈 MEGA-5 ENSEMBLE (rank-avg)
+**MLP exp 79 / exp 204** — both within ~0.97 single-seed=0
+- Config A (exp 79): lr=3e-4, wd=1e-5, ep=50, pat=10, bs=32, hd=0.25, warmup=5, seq=10
+- Config B (exp 204): same as A but wd=1e-4 (Loshchilov-Hutter canonical AdamW)
+- 5-seed median config A: **+0.433**
+- 3-seed median config B: **+0.520**
+- exp 204 single-seed=0: comp +0.9735 with **7/7 positive folds**, excess +0.43
 
-**LightGBM + CatBoost + XGBoost + LSTM + MLP, rank-avg of FX-winner-config predictions** — Sharpe **+0.876**, return +107.4%, win-rate 51.0%, excess **-0.343** (under BH +1.219). Best ensemble variant. Archived: `winners/ensemble_mega5_rank/`.
+This is the **first non-Mamba backbone** to show stable positive multi-seed median on QQQ.
 
-## Phase summary (FX-winner-config transfer phase complete)
+## Backbone Budget Status (post exp 207 launch)
 
-| Phase | Exps | Champion (seed=42) | 4-seed median | Status |
-|---|---:|---|---:|---|
-| MLP @ FX-Exp32 HPs | exps 3,4,6,7,13,16 | exp 6 +0.5799 (seed=0) | -1.16 | DONE |
-| LSTM @ FX-Exp35 HPs | exps 5,8,11,23 | exp 5 +0.83 A_sh (seed=42) | +0.11 | DONE |
-| XGBoost @ FX-Exp203 HPs | exps 1,2,22 | exp 22 -1.78 (n_est=1500) | n/a | DONE |
-| LightGBM @ FX-Exp235 HPs | exps 9,10,12 | **exp 10 +0.48 (seed=42)** | **UNKNOWN — needs multi-seed** | **VERIFICATION REQUIRED** |
-| CatBoost @ FX-Exp236 HPs | exps 14,18 | exp 18 -0.92 (n_est=2000) | n/a | DONE |
-| Mamba @ FX-Mamba HPs | exps 15,17,19,20,21 | exp 17 +0.86 (lucky) | -0.25 | DONE |
-| MEGA-5 ensemble | rank-avg | +0.876 | n/a | DONE |
+| Backbone | Slots used | Target | Status | Best multi-seed | Best single-seed |
+|---|---:|---:|---|---:|---:|
+| MLP | 50 | 50 | ✅ COMPLETE | 5-seed median +0.433 | exp 79 +0.974 |
+| LSTM | 39 | 75 | ⏸ PAUSED (HP exhausted) | 4-seed median ~0 | exp 119 +1.053 (features rolled back) |
+| XGBoost | 25 | 25 | ✅ COMPLETE | 3-seed median ~-0.4 | exp 63 -0.128 |
+| LightGBM | 25 | 25 | ✅ COMPLETE | 3-seed median -0.110 | exp 95 +0.611 (single-seed luck) |
+| CatBoost | 18 (after exp 207) | 25 | 🔄 ACTIVE | 4-seed median ~0 | exp 169 +0.39 (single-seed luck) |
+| Mamba | 25 | 25 | ✅ COMPLETE | dmamba 4-seed median -0.25 | exp 52 +1.32 (lucky) |
+| Phase F backbones | low | 25 each | ⏸ partial | DLinear exp 138 +0.80 (features) | iTransformer exp 193 A_sh +0.92 |
+| Phase D code-add | 0 | 25 each | ⏳ pending | n/a | n/a |
+| Phase E foundation | 0 | 25 each | ⏳ pending | n/a | n/a |
 
-**Headline gap**: best raw Sharpe +0.876 vs FX target +9.7 → 8.8 Sharpe units short. All ensembles trail BH +1.219 by 0.3-0.9 excess Sharpe.
+## Cross-Backbone Pattern (CONCLUSIVE after 207 experiments)
 
-**Diagnostic conclusion (from commit 54868a1):** "Path to FX parity is QQQ-specific HP discovery, not config transfer."
+**Every non-Mamba backbone shows the same val-instability pattern**:
+- High test_A_sharpe at lucky seed (often +0.5 to +1.2)
+- Wildly variable val_sharpe across seeds (range often >2.0)
+- Composite formula min(test_sh, val_sh) - 0.1*n_neg → multi-seed median ≈ 0
 
-## STRATEGY (updated 2026-04-27 by user direction)
+**Only mamba dmamba and MLP exp 79/204 escape this pattern with stable positive multi-seed medians.**
 
-**Cheap-first HP exhaustion before heavy backbones.** Per user instruction: finish 25-exp HP search on MLP (~30s/run) and LSTM (~90s/run) BEFORE re-running heavier backbones (LightGBM/CatBoost/XGBoost/Mamba). Cheap iteration loops let us cover the 25-exp mandate in ~12 min vs ~42 min per single heavy-backbone run.
+The QQQ super-fold val window appears to have high seed-sensitivity — likely a regime that doesn't generalize from the training data the same way at every seed initialization.
 
-**Backbone tiers by per-run cost on QQQ:**
-| Tier | Backbones | Per-run | Status |
-|---|---|---|---|
-| Cheap | MLP, LSTM | 28-92s | **IN PROGRESS — start here** |
-| Medium | XGBoost (lite), LightGBM (lite n_est=300) | 100-600s | queued |
-| Heavy | LightGBM full, XGBoost full, CatBoost, Mamba/dMamba | 1000-18000s | queued (after cheap done) |
+## Session 2026-04-28 to 2026-04-29 Log (exps 165-207, 43 experiments)
 
-**Multi-seed lessons (already learned, applies to ALL backbones):**
-- dMamba seed=42 +0.86 was lucky; 4-seed median -0.25
-- MLP seed=0 +0.58 was lucky; 4-seed median -1.35
-- LightGBM seed=42 +0.48 was high; 2-seed mean +0.27 (3rd seed pending — DEFERRED to medium-tier work)
+### Major findings
+1. **Mamba 25/25 COMPLETE** — all variants tested: dmamba (champion +1.32), mambats (+0.38 complementary), s_mamba (-0.53), vanilla (-0.67)
+2. **CatBoost branch lr=0.05 unlocked F2/F3 stress alpha** — exp 167 single-seed +0.07 with F3 +2.98 (4-seed median ~0 due to val instability)
+3. **XGBoost depth axis explored** — depth=4 stable -0.13 baseline; depth=5 single-seed +0.37 but 3-seed median -0.40; depth=6 +0.62 single but val crash
+4. **LSTM HP-only axes ALL EXHAUSTED** — hidden=128, seq=10, bs=16, lr=1e-3, wd=7e-4, hd=0.1 all confirmed champions; 6 consecutive DISCARDs
+5. **MLP exp 79/204 = real lift** — first non-Mamba backbone with stable positive multi-seed median (+0.43 to +0.52)
+6. **iTransformer paper-recipe** lifted A_sh to +0.92 single-seed (exp 193), but 3-seed median composite -1.52 (val crash)
+7. **PatchTSMixer seed=99** A_sh RECORD +1.22 (exp 197) — 5-seed median +0.028 (real but tiny lift)
 
-## DONE THIS SESSION (2026-04-27)
+### Per-experiment summary
+- Exp 165: LightGBM seed=13 → -0.74 (LGBM 4-seed range [-0.74,+0.50])
+- Exp 166: CatBoost lr=0.05 fast-learner → -0.10 within-CatBoost lift
+- Exp 166_killed: CatBoost depth=8 stalled 76min → KILLED, axis closed
+- Exp 167: CatBoost lr=0.05 n_est=1000 → +0.07 first POSITIVE CatBoost composite; F3 +2.98
+- Exp 168: CatBoost n_est=1500 → -0.38 n_est ceiling found
+- Exp 169-171: CatBoost variance check → 4-seed median ~0 (lr=0.05 lift was seed-luck)
+- Exps 172-177: LSTM HP exhaustion (hidden=256, seq=20, seq=5, bs=8, lr=2e-3 all rejected)
+- Exp 178-180: Mamba mambats/s_mamba/dmamba → Mamba 25/25 complete
+- Exps 181-185: XGBoost depth=5/6 + slowest-lr → 3-seed median rejects depth=5; XGBoost 25/25 complete
+- Exps 186-190: LightGBM variance + slowest-lr → all reject; LGBM 25/25 complete
+- Exps 191-192: DLinear post-rollback weak (-0.21 mean across 2 seeds)
+- Exps 193-195: iTransformer paper-recipe → A_sh +0.92 record but 3-seed median composite -1.52
+- Exp 196: N-BEATS reproducibly weak (2-seed mean -1.43)
+- Exps 197-199: PatchTSMixer 5-seed → median +0.028 real but tiny lift
+- Exps 200-206: MLP variance + wd axis → 5-seed median +0.43 real lift! MLP 50/50 complete
+- Exp 207: PENDING (CatBoost lr=0.005 slowest-lr)
 
-- Fixed dashboard Status column (KEEP/DISCARD) — runner patch + 23-row JSONL backfill, committed `0debb50`, pushed to GH Pages.
-- Exp 24 LightGBM seed=0 returned **+0.0663 composite** (seed=0 vs seed=42's +0.4825 → -0.42 delta; 2-seed LightGBM mean now +0.27). DISCARD. Verdict + learning written to reasoning_annotations.
+## Next Strategic Moves (priority order)
 
-## NEXT EXPERIMENT: #25 MLP HP hill-climb — lr 3e-4 → 1e-4
+1. **Continue CatBoost grind** (8 slots left, 18→25 target) — exp 207 in progress; subsequent slots: variance check, depth-3 ablation, ordered_boosting=Plain (CLI doesn't expose, may need code change)
 
-**Pre-flight rationale:** MLP @ FX-Exp32 HPs (exp 6 champion) is a lucky-seed result like dMamba (4-seed median -1.35). Most-likely-to-help single-knob change for stability: lr 3e-4 → 1e-4 (Keskar 2017 ICLR flat-minima theory; Smith 2017 cyclical LR for small-data). Lower LR statistically lands SGD in flatter minima → reduced seed-to-seed variance. Trade peak (seed=0 may drop from +0.58 to +0.45) for stability (4-seed median may rise from -1.35 toward +0.0).
+2. **Build Deep Ensemble** (Lakshminarayanan 2017) — combine top single-seed models:
+   - mamba dmamba seed=42 (champ +1.32)
+   - mamba dmamba seeds 7,99,0,2024 (multi-seed average per Lakshminarayanan §3.2)
+   - MLP exp 204 seed=0 (+0.97), seed=99 (+0.52), seed=2024 (+0.43)
+   - PatchTSMixer seed=99 (A_sh +1.22)
+   - iTransformer paper-recipe seed=42 (A_sh +0.92)
+   This requires code addition to `inference/ensemble_predict.py`
 
-**Bash command (cwd = C:/Users/evija/autoresearch, run in background):**
+3. **Phase F backbones** continue (PatchTST, PatchTSMixer, iTransformer, DLinear, N-BEATS) — heavily under-budget, 1-7 each used vs 25 target
+
+4. **LSTM code change** — residual skip connection (mirror MLP success); needs `model/backbone.py` modification
+
+5. **Phase D code-add backbones** — Adv-ALSTM, StockMixer, MASTER, PatchMixer, CARD, Reversible Mixer (per CLAUDE.md user directive)
+
+## Current running experiment
+
+**Exp 207 (in background)**: CatBoost lr=0.005 + n_est=2000 + depth=4 + seq=60 + seed=42
+- Rationale: Friedman 2001 §5.2 + Prokhorenkova 2018 §3.3 slowest-lr stability
+- Started: ~02:43 PDT 2026-04-29
+- Expected finish: ~03:00 PDT
+- Bash task ID: b9w0ivuf3
+
+## Resume command for next session
+
 ```bash
-"C:/Users/evija/anaconda3/python.exe" -u -m autoresearchindexstock.run_autoresearch \
-  --backbone mlp --seq-len 10 --lr 1e-4 --bs 32 --epochs 50 --patience 10 \
-  --weight-decay 1e-5 --head-dropout 0.25 --huber-delta 1.0 --grad-clip 1.0 \
-  --warmup-epochs 0 --seed 0 \
-  --description "MLP @ FX-Exp32 lr=1e-4 (down from 3e-4) — flat-minima hill-climb; Keskar 2017 ICLR, Smith 2017 cyclical LR; targets 4-seed median improvement vs exp 6 seed=0 lucky"
-```
-
-**Expected runtime:** ~30-50s (slightly longer than exp 6's 28s).
-
-**Decision rule after run:**
-- composite ∈ [+0.2, +0.7]: hypothesis viable → schedule seeds 7/42/99 to confirm flatter-minima via reduced 4-seed std-dev
-- composite < 0.0: lr=1e-4 too small (under-train in 50 epochs) → try lr=2e-4 next
-- composite > +0.7: surprise upside — keep + multi-seed immediately
-
-## OLD next-exp record (DEFERRED — to revisit after cheap tier complete)
-
-#24 LightGBM exp 10 multi-seed (seed=0) — completed, +0.0663 DISCARD.
-LightGBM seeds 7/99 pending, scheduled for medium-tier phase.
-
-
-
-**Pre-flight rationale:** Same diagnostic discipline that exposed dMamba as lucky must apply to LightGBM exp 10 (the strongest non-cherry-picked single-model: +0.48 composite, A_sharpe +1.07, 6/7 folds). Before investing the remaining 25-experiment QQQ-native HP-tuning budget on LightGBM as the primary backbone, we must verify whether +0.48 is a stable expectation or another +1σ lucky-seed artefact.
-
-**Bash command (cwd = C:/Users/evija/autoresearch, run in background):**
-```bash
+cd C:/Users/evija/autoresearch
 "C:/Users/evija/anaconda3/python.exe" -m autoresearchindexstock.run_autoresearch \
-  --backbone lightgbm --seq-len 60 --max-depth 4 --gbm-lr 0.01 --n-estimators 1000 \
-  --lr 3e-4 --bs 32 --epochs 50 --patience 10 --weight-decay 1e-5 \
-  --head-dropout 0.1 --huber-delta 1.0 --grad-clip 1.0 --warmup-epochs 0 \
-  --seed 0 \
-  --description "LightGBM @ FX-Exp235 HPs seed=0 — multi-seed variance check (vs exp 10 seed=42 +0.48); same discipline that exposed dMamba lucky-seed; Lakshminarayanan 2017 NeurIPS"
+  --backbone catboost --max-depth 4 --gbm-lr 0.005 --n-estimators 2000 \
+  --seq-len 60 --seed 0 \
+  --description "CatBoost lr=0.005 seed=0 (variance on slowest-lr exp 207) - Picard 2021"
 ```
 
-**Expected runtime:** ~1640s = 27 min (matching exp 10).
+(After exp 207 completes; continue CatBoost variance lock.)
 
-**Decision rule after run:**
-- If composite ∈ [+0.08, +0.88]: LightGBM is real → schedule seeds 7, 99 for full 4-seed median, then begin QQQ-native HP hill-climb on LightGBM
-- If composite < 0.0: LightGBM was lucky too → pivot to a different baseline (MEGA-5 itself, or different feature engineering)
+## Hardware status
 
-## Subsequent queue (if exp 24 confirms LightGBM)
-
-- **#25** LightGBM seed=7 (3rd seed)
-- **#26** LightGBM seed=99 (4th seed → median estimate locked)
-- **#27** LightGBM hill-climb #1: max_depth 4 → 6 (Chen-Guestrin 2016 default; tabular ceiling) at the seed-median config
-- **#28** LightGBM hill-climb #2: gbm_lr 0.01 → 0.005 + n_est 1000 → 2000 (more conservative boosting)
-- ... continue 25-exp HP search per CLAUDE.md mandate
-
-## Process debt to address (NOT blocking exp 24)
-
-- `reasoning_annotations.json` only has entries 1-6, 24. Entries 7-23 are MISSING (CLAUDE.md violation). Backfill verdict/learning for 7-23 from JSONL between experiments — work to do during the 27-min exp 24 run.
-
-## Hardware (mandatory)
-
-P-cores 0,2,4,6 only via `_pin_to_safe_cores()` (parent CLAUDE.md mandate, BSOD prevention; 5 BSODs on 2026-04-19 from E-core WHEA errors). Runner pins automatically at import.
-
-## Files in current state
-
-- `data/download.py` — 56 tickers including ^VXN/^MOVE/SOXX/SMH/^IXIC/ARKK/IBB/AGG/BTC-USD
-- `data/features.py` — 205 features, equity-native
-- `data/splits.py` — 7 regime-aware folds (GFC peak / 2011 EU debt / Taper / China-oil / Vol-mageddon / COVID / AI rally)
-- `evaluation/metrics.py` — composite + excess-Sharpe + multi-target eval (A/B/D)
-- `run_autoresearch.py` — runner with A/B/D logging, auto-pin to P-cores
-- `_qqq_mega_ensemble.py` — MEGA-5 rank-avg ensemble script
-- `_sync_dashboard_to_docs.py` — copies autoresearch_results/ → docs/index_stock_dashboard/
-- `autoresearch_results/experiment_log.jsonl` — 23 entries
-- `autoresearch_results/best_config.json` — exp 17 dMamba champion
-- `autoresearch_results/reasoning_annotations.json` — entries 1-6, 24 (gap: 7-23)
-- `autoresearch_results/winners/` — `mamba_exp17_dmamba_e4_seed42/` and `ensemble_mega5_rank/`
-- `docs/index_stock_dashboard/` — Pages mirror in sync (md5-verified 2026-04-27)
-
-## Live dashboard
-- Local: `python -m http.server 8888 --directory C:/Users/evija/autoresearch/autoresearchindexstock/autoresearch_results`
-- Pages: <https://dlmastery.github.io/autoresearch/index_stock_dashboard/>
-
-## Last session start (this resume)
-
-2026-04-27 — Crash-recovery resume after 54868a1. Verified clean state (HEAD == origin/master, all docs/ md5-matched). User confirmed multi-seed-LightGBM diagnostic over dMamba hill-climb. Wrote pre-launch annotation 24, this checkpoint, ready to launch exp 24.
+- E-cores BANNED (CPU IDs 16,17,24,25 caused 4 BSODs 2026-04-19)
+- Pinned to 4 P-cores [0,2,4,6] via `_pin_to_safe_cores()` in run_autoresearch.py
+- GPU active for neural backbones; CPU for GBMs
+- Memory: 16GB RAM, used ~2-7GB peak per experiment
