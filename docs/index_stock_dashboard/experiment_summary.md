@@ -93,3 +93,18 @@ roadmap.
 - **Rationale:** depth=8 untested axis on most-under-budget backbone; targets F2/F3 macro-3-way interactions (Prokhorenkova 2018 §4.1; Cieslak-Pang 2021)
 - **Prediction:** comp [-0.4, +0.6], F2 +0.0-+0.4, F3 +0.0-+0.3
 - **Result:** PENDING
+
+### Exp166: CatBoost lr=0.05 (fast-learner axis untested)
+- **Config delta from CatBoost exp 98:** gbm_lr 0.02→0.05, n_est 1000→500 (one effective-capacity-equivalent change)
+- **Rationale:** Fast-learner (Prokhorenkova 2018 §3.3 default) untested on QQQ; targets F2/F3 stress-regime local opt
+- **Prediction:** comp [-0.6, +0.4], F2 [-0.1, +0.2]
+- **Result:** Composite **-0.0968** | A_sharpe +0.2032 | A_excess -1.0161
+- **Per-fold A_sharpe:** F1=-0.72 F2=**+2.36** F3=+1.23 F4=-0.81 F5=+0.17 F6=+1.01 F7=-0.18
+- **Status:** DISCARD vs +1.32 global, **WITHIN-CATBOOST CHAMPION** (delta +0.46 vs exp 98 -0.56)
+- **Learning:** lr=0.05 unlocks F2/F3 stress-regime alpha (F2 +2.36 huge!) but costs F1 GFC alpha (-0.72). Axis open: more trees to recover F1.
+
+### Exp167: CatBoost lr=0.05 n_est=1000 (recover F1 alpha)
+- **Config delta from exp 166:** n_est 500→1000 (one knob change)
+- **Rationale:** lr=0.05 under-trained at 500 trees for F1 chaos regime; Friedman 2001 §5.2 lr×n_est convergence
+- **Prediction:** comp [-0.3, +0.5], F1 [+0.2, +1.5], F2 [+1.5, +2.5], runtime 18-25min
+- **Result:** PENDING

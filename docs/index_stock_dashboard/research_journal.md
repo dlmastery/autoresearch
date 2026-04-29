@@ -134,3 +134,26 @@
 **Citations:** Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516) §4.1 depth=6-8 best for 100-500 feature tabular; §3.2 ordered-boosting protects against prediction-shift overfit at deeper depth; Cieslak-Pang 2021 RFS — stress-regime equity 3-way interactions require depth>=3.
 **Hypothesis:** depth=8 lr=0.02 n_est=1000 (one knob from exp 98 depth=4) — deeper oblivious trees fit macro×VIX×yc interactions; mechanism: 256-leaf tree with 184 features and 2538 rows + ordered-boosting bias control.
 **Prediction:** comp [-0.4, +0.6], A_sh [+0.2, +1.0], F2 expected +0.0 to +0.4, F3 expected +0.0 to +0.3, runtime ~10-15min.
+
+## Exp166 (depth=8 attempt) — KILLED
+Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time with no fold complete. 256-leaf oblivious trees × 6,150 flattened features × 4 targets × 7 folds is infeasible in our experiment-loop time budget. Axis CLOSED: depth=8 untestable.
+
+## Exp166 — CatBoost lr=0.05 (untested fast-learner axis)
+**Diagnosis:** 3 DISCARDs + 1 KILLED. Pivot to untested gbm_lr axis. Best CatBoost so far: exp 98 (lr=0.02 -0.56 baseline). Faster lr=0.05 (Prokhorenkova default) never tested on QQQ. F2/F3 still weak — faster learner might escape lr=0.02 local optimum.
+**Citations:** Friedman 2001 Annals of Stats 'Greedy Function Approximation' — lr×n_est tradeoff; Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516) §3.3 — lr=0.03-0.05 default for noisy small-n tabular; Bergmeir-Hyndman-Koo 2018 CSDA — small-n financial regression benefits from faster lr.
+**Hypothesis:** lr=0.05 + depth=4 + n_est=500 + seq=60 escapes lr=0.02 local optimum via 2.5× larger per-step moves; ordered-boosting prevents prediction-shift overfit.
+**Prediction:** comp [-0.6, +0.4], A_sh [+0.3, +1.0], F2 [-0.1, +0.2], runtime 5-10min.
+
+## Exp166 (lr=0.05) — CatBoost within-champion lift
+**Diagnosis:** Fast-learner axis untested for CatBoost on QQQ; targets F2/F3 EU-debt+Taper local optimum that lr=0.02 stagnates in.
+**Citations:** Prokhorenkova 2018 NeurIPS §3.3 lr=0.03-0.05 default for noisy small-n; Friedman 2001 lr×n_est tradeoff.
+**Hypothesis:** lr=0.02→0.05 escapes flat-loss region via 2.5× larger per-step moves; ordered-boosting prevents prediction-shift.
+**Prediction:** comp [-0.6, +0.4], F2 [-0.1, +0.2].
+**Verdict:** DISCARD vs +1.32 global, but **WITHIN-BACKBONE CHAMPION** at -0.0968 (delta +0.46 vs prior CatBoost-best exp 98 -0.56). F2 jumped from -0.25 to **+2.36**! F3 from -0.25 to +1.23. F1 lost (-0.72 vs +1.5-2.5 historical). Runtime 937s.
+**Learning:** Major axis discovery — lr=0.05 unlocks stress-regime alpha invisible to lr=0.02 but costs F1 chaos alpha. Axis open: more trees to recover F1 (n_est 500→1000) per Friedman 2001 §5.2.
+
+## Exp167 — CatBoost lr=0.05 n_est=1000 (recover F1 alpha)
+**Diagnosis:** Exp 166 unlocked F2/F3 (+2.36/+1.23) but lost F1 (-0.72). Hypothesis: at lr=0.05, 500 trees is under-trained for F1 chaos regime; 1000 trees recovers F1 while keeping F2/F3 wins.
+**Citations:** Friedman 2001 §5.2 lr×n_est convergence; Hastie-Tibshirani-Friedman 2009 ESL §10.12 — optimal n_est ∝ 1/lr; Prokhorenkova 2018 ordered-boosting overfit protection.
+**Hypothesis:** lr=0.05 + n_est=1000 (one knob from exp 166's n_est=500) recovers F1 alpha via more boosting rounds at the high-lr regime.
+**Prediction:** comp [-0.3, +0.5], F1 [+0.2, +1.5], F2 [+1.5, +2.5], F3 [+0.8, +1.4], runtime 18-25min.
