@@ -2067,6 +2067,14 @@
     "citations": "Smith 2017 \u00a73 lr\u00d7n_est tradeoff; Gu-Dao 2024 \u00a74.1.",
     "hypothesis": "lr=7.5e-4 + warmup=10 retains F2 alpha while protecting F1.",
     "prediction": "comp [+0.5, +1.4], runtime ~10-15min.",
+    "_manual": true,
+    "verdict": "DISCARD strongly. dMamba lr=7.5e-4 -0.97. Mid-point catastrophic; non-monotonic between lr=5e-4 (+1.32) and lr=1e-3 (+0.16). 2/7 pos folds."
+  },
+  "254": {
+    "diagnosis": "iTransformer seq=60 #1/10 user directive batch \u2014 hill-climb from exp 193 (paper-recipe lr=5e-5 +0.92 A_sh, comp -1.52). Try d_model=256 (deeper variate embedding) per Liu 2024 ICLR Table 4.",
+    "citations": "Liu, Hu, Zhang, Wang, Wu, Wang, Long 2024 ICLR \"iTransformer: Inverted Transformers Are Effective for Time Series Forecasting\" arXiv:2310.06625 \u00a74.1, Table 4 \u2014 d_model scaling.",
+    "hypothesis": "iTransformer + hidden=256 (deeper variate embedding) improves multi-feature variate attention.",
+    "prediction": "comp [-1.5, +0.5], A_sh [+0.5, +1.2], runtime ~5-8min.",
     "_manual": true
   }
 }
