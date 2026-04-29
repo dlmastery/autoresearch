@@ -1754,6 +1754,15 @@
     "citations": "Friedman 2001 \u00a75.4; Prokhorenkova 2018; ESL \u00a710.12.",
     "hypothesis": "CatBoost depth=5 untested mid-depth axis.",
     "prediction": "Composite [-0.5, +0.3]; runtime ~10-15min.",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -0.72, A_sh **+0.75** (high but val crash), val_sh -0.52 NEG. Per-fold F1=+0.71 F2=+2.38 F3=+1.85 F4=-0.40 F5=+0.92 F6=+2.48 F7=-0.25. 5/7 positive. Same val-instability. Runtime ~15min. depth=5 gives stronger test alpha than depth=4 (+0.75 vs +0.40 baseline) but val crashes worse.",
+    "learning": "CatBoost depth=5 = stronger test, weaker val. depth=4 confirmed most val-stable (despite weaker test). CatBoost 22/25, 3 left."
+  },
+  "212": {
+    "diagnosis": "CatBoost 22/25, 3 left. Untested low n_est for stability test: n_est=300 (between 100 and 500). Per Friedman 2001 \u00a75.2 + Hastie ESL \u00a710.12, fewer trees = less overfit risk. With lr=0.02 + n_est=300 + depth=4 + seq=60 (one knob from exp 98 n_est=1000), tests if undertraining stabilizes val.",
+    "citations": "Friedman 2001 \u00a75.2; ESL \u00a710.12; Prokhorenkova 2018.",
+    "hypothesis": "Lower n_est = more stable val.",
+    "prediction": "Composite [-0.5, +0.3]; runtime ~3-5min.",
     "_manual": true
   }
 }
