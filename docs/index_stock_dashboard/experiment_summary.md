@@ -375,3 +375,15 @@ roadmap.
 - **Rationale:** CLAUDE.md "3-seed median > baseline"; Picard 2021
 - **Prediction:** comp [+0.0, +0.8], runtime ~10-15min
 - **Result:** PENDING
+
+### Exp186: LGBM exp95 seed=99 (variance check)
+- **Config delta from exp 95:** seed 42→99
+- **Result:** Composite -0.1098 | A_sh +0.365 | 5/7 pos folds
+- **Status:** DISCARD; 2-seed mean +0.25, val unstable
+- **Learning:** Need 3rd seed.
+
+### Exp187: LGBM exp 95 seed=0 (3-seed median lock)
+- **Config delta from exp 186:** seed 99→0
+- **Rationale:** CLAUDE.md "3-seed median > baseline"; Picard 2021
+- **Prediction:** comp [-0.4, +0.7], runtime ~5-10min
+- **Result:** PENDING

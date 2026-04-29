@@ -423,3 +423,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Ke 2017 §3.1.
 **Hypothesis:** seed=99 lift within ±0.5 confirms LGBM exp 95 as real.
 **Prediction:** comp [+0.0, +0.8], runtime ~10-15min.
+
+## Exp186 — LGBM exp 95 seed=99 (variance check, 2-seed mean +0.25)
+**Diagnosis:** Confirm exp 95 +0.611 reproducibility per Picard 2021.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Ke 2017 §3.1.
+**Hypothesis:** seed=99 within ±0.5 confirms.
+**Prediction:** comp [+0.0, +0.8].
+**Verdict:** DISCARD. Comp -0.11. 2-seed mean +0.25. Same GBM val-instability. Runtime 337s.
+**Learning:** Need 3rd seed.
+
+## Exp187 — LGBM exp 95 seed=0 (3-seed median lock)
+**Diagnosis:** 2-seed mean +0.25; 3-seed median lock per CLAUDE.md.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Ke 2017 §3.1.
+**Hypothesis:** seed=0 locks 3-seed median; ≥+0.1 means real lift.
+**Prediction:** comp [-0.4, +0.7], runtime ~5-10min.
