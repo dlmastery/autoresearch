@@ -409,3 +409,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Friedman 2001 §5.2; ESL §10.12; Chen-Guestrin 2016 §3.2; Mason 2000 NeurIPS.
 **Hypothesis:** lr=0.005 + n_est=2000 finds smoother-loss flat-minima; matches exp 63 capacity.
 **Prediction:** comp [-0.4, +0.3], runtime ~25-35min.
+
+## Exp185 — XGBoost lr=0.005 n_est=2000 (slowest-lr — XGBoost 25/25 COMPLETE)
+**Diagnosis:** Final XGBoost slot; stability-focused slowest-lr.
+**Citations:** Friedman 2001 §5.2; ESL §10.12; Chen-Guestrin 2016 §3.2; Mason 2000.
+**Hypothesis:** Slower lr finds smoother loss minima.
+**Prediction:** comp [-0.4, +0.3].
+**Verdict:** DISCARD. Comp -0.23, A_sh +0.42, val barely positive +0.07. Runtime 1195s. **XGBoost 25/25 COMPLETE.**
+**Learning:** XGBoost-best stays exp 63 -0.128. Pivot to LightGBM (3 left).
+
+## Exp186 — LightGBM exp 95 seed=99 (variance check on +0.611 single-seed champ)
+**Diagnosis:** LGBM-best exp 95 +0.611 single-seed; needs variance verification.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Ke 2017 §3.1.
+**Hypothesis:** seed=99 lift within ±0.5 confirms LGBM exp 95 as real.
+**Prediction:** comp [+0.0, +0.8], runtime ~10-15min.

@@ -363,3 +363,15 @@ roadmap.
 - **Rationale:** Friedman 2001 §5.2 — slower lr finds flat minima
 - **Prediction:** comp [-0.4, +0.3], runtime ~25-35min
 - **Result:** PENDING
+
+### Exp185: XGBoost lr=0.005 n_est=2000 (XGBoost 25/25 COMPLETE)
+- **Config delta from exp 63:** lr 0.01→0.005, n_est 1000→2000
+- **Rationale:** Friedman 2001 §5.2 slower-lr stability
+- **Result:** Composite -0.2304 | A_sh +0.42 | val barely positive
+- **Status:** DISCARD; **XGBoost 25/25 COMPLETE.** Within-best exp 63 -0.128.
+
+### Exp186: LightGBM exp 95 seed=99 (variance check on +0.611 single-seed)
+- **Config delta from exp 95:** seed 42→99
+- **Rationale:** CLAUDE.md "3-seed median > baseline"; Picard 2021
+- **Prediction:** comp [+0.0, +0.8], runtime ~10-15min
+- **Result:** PENDING
