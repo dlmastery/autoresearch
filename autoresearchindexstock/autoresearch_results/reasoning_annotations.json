@@ -1736,6 +1736,15 @@
     "citations": "Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516). Hochreiter, Schmidhuber 1997 \u00a73.1. Friedman 2001 \u00a75.2.",
     "hypothesis": "CatBoost depth=4 + lr=0.02 + n_est=1000 + seq=30 + seed=42 (one knob from exp 98: seq 60\u219230) tests if reduced flattened-input dimension produces stabler val.",
     "prediction": "Composite [-0.5, +0.4]; runtime ~3-6min.",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -0.69, A_sh +0.23, val NEG. F1=+2.11 F2=+2.81 F3=+2.59 strong but F4/F6/F7 negative drag. Same val-instability. Runtime 666s.",
+    "learning": "CatBoost seq=30 doesn't help val. 20/25, 5 slots left. Try lr=0.03 untested mid-fast."
+  },
+  "210": {
+    "diagnosis": "CatBoost lr axis tested at 0.005, 0.01, 0.02, 0.05; lr=0.03 untested mid-point. Per Friedman 2001 \u00a75.2 + Prokhorenkova 2018 \u00a73.3, lr=0.03 is the canonical CatBoost default for moderate-noise tabular regression.",
+    "citations": "Friedman 2001 \u00a75.2; Prokhorenkova 2018 NeurIPS \u00a73.3.",
+    "hypothesis": "CatBoost lr=0.03 + depth=4 + n_est=1000 + seq=60 (one knob from exp 98 lr=0.02) tests untested mid-lr.",
+    "prediction": "Composite [-0.5, +0.4]; runtime ~6-10min.",
     "_manual": true
   }
 }
