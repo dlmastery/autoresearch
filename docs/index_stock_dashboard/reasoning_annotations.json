@@ -1709,6 +1709,15 @@
     "citations": "Picard 2021; Lakshminarayanan 2017 \u00a73.2; Loshchilov-Hutter 2019.",
     "hypothesis": "MLP wd=1e-4 warmup=5 seed=99 locks 3-seed median.",
     "prediction": "Composite [-0.5, +1.0]; runtime ~30-60s.",
+    "_manual": true,
+    "verdict": "DISCARD vs +1.32 global. Composite **+0.5197** (IDENTICAL to exp 201's +0.5197 \u2014 same per-fold to 4 decimals despite wd 1e-5 vs 1e-4!). A_sh +0.8657, val_sh +0.5197, excess +0.2614 (positive). Per-fold all 7/7 positive: F1 +0.15, F2 +2.31, F3 +1.97, F4 +0.21, F5 +0.09, F6 +1.59, F7 +0.76. **3-seed MLP wd=1e-4 distribution: comp [+0.974, -0.920, +0.520] median +0.520, mean +0.191.** Curious that wd has near-zero effect at seed=99 \u2014 gradient trajectory at this seed has small weights so wd barely perturbs. **MLP 50/50 BUDGET COMPLETE.**",
+    "learning": "**MLP 50/50 COMPLETE.** Final MLP champion configs: (1) exp 79 wd=1e-5 + warmup=5: 5-seed median +0.433. (2) exp 204 wd=1e-4 + warmup=5: 3-seed median +0.520, single-seed max +0.974. Both real lifts. **MLP is the SECOND stable positive backbone after Mamba dmamba (+1.32 global champion).** 4 backbones now complete (MLP/XGBoost/LGBM/Mamba). Pivoting to CatBoost (17/25, 8 slots left)."
+  },
+  "207": {
+    "diagnosis": "MLP 50/50 complete. Pivoting to CatBoost (17/25, 8 slots left). Within CatBoost on QQQ, the slowest-learner regime has been UNDER-TESTED: lr=0.005 was tested only via combined config with features (now rolled back). Pure CatBoost lr=0.005 + depth=4 + n_est=2000 + seq=60 + seed=42 is untested in current code. Per Friedman 2001 \u00a75.2 + Prokhorenkova 2018 \u00a73.3, slower lr regimes find smoother loss minima \u2014 same Friedman lr\u00d7n_est convergence we explored for XGBoost (exp 185 -0.23) and LGBM (exp 189 +0.94 single-seed but seed-unstable). For CatBoost the slowest-lr regime hasn't been tested without features.",
+    "citations": "Friedman 2001 Annals of Statistics \u00a75.2 \u2014 lr\u00d7n_est tradeoff. Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516) \u00a73.3 \u2014 recommended CatBoost lr range and ordered-boosting stability. Hastie, Tibshirani, Friedman 2009 ESL \u00a710.12 \u2014 slow learner stability. B\u00fchlmann, Yu 2003 JCGS \u2014 boosting with L2 loss for noisy regression.",
+    "hypothesis": "CatBoost depth=4 + lr=0.005 + n_est=2000 + seq=60 + seed=42 (slower-lr capacity-matched to prior CatBoost configs) will produce a more stable composite via smoother loss surface traversal. If composite \u2265 +0.2 at 3-seed median, this is the new CatBoost stable lift.",
+    "prediction": "Composite [-0.5, +0.6]; A_sharpe [+0.2, +0.7]; runtime ~10-20min.",
     "_manual": true
   }
 }

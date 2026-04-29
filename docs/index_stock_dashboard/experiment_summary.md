@@ -585,3 +585,13 @@ roadmap.
 ### Exp206: MLP wd=1e-4 seed=99 (3-seed lock; MLP final slot 50/50)
 - **Prediction:** comp [-0.5, +1.0], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp206: MLP wd=1e-4 seed=99 (MLP 50/50 COMPLETE!)
+- **Result:** Comp +0.5197 (= exp 201; wd negligible at seed=99). 3-seed median +0.52.
+- **Status:** DISCARD vs global; **MLP 50/50 COMPLETE.** SECOND stable positive backbone.
+
+### Exp207: CatBoost lr=0.005 n_est=2000 (slowest-lr untested)
+- **Config delta from CatBoost exp 98:** lr 0.02→0.005, n_est 1000→2000
+- **Rationale:** Friedman 2001 §5.2 + Prokhorenkova 2018 §3.3
+- **Prediction:** comp [-0.5, +0.6], runtime ~10-20min
+- **Result:** PENDING

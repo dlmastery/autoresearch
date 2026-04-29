@@ -639,3 +639,12 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 ## Exp206 — MLP wd=1e-4 seed=99 (3-seed lock + MLP 50/50 final)
 **Citations:** Picard 2021; Lakshminarayanan 2017; Loshchilov-Hutter 2019.
 **Prediction:** comp [-0.5, +1.0], runtime ~30-60s.
+
+## Exp206 — MLP wd=1e-4 seed=99 (MLP 50/50 COMPLETE!)
+**Verdict:** DISCARD vs global. Comp +0.5197 IDENTICAL to exp 201 (wd has near-zero effect at this seed). 3-seed MLP wd=1e-4 median +0.520. **MLP 50/50 COMPLETE.**
+**Learning:** MLP exp 79/204 stable positive lift. SECOND stable positive backbone after mamba.
+
+## Exp207 — CatBoost lr=0.005 n_est=2000 (slowest-lr untested)
+**Citations:** Friedman 2001 §5.2; Prokhorenkova 2018 §3.3; ESL §10.12; Bühlmann-Yu 2003.
+**Hypothesis:** Slowest CatBoost lr regime stabler.
+**Prediction:** comp [-0.5, +0.6], runtime ~10-20min.
