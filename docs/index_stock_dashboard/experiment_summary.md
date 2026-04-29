@@ -338,3 +338,16 @@ roadmap.
 - **Rationale:** Picard 2021 + Lakshminarayanan 2017 — confirm reproducibility
 - **Prediction:** comp [+0.0, +0.7], runtime ~15-20min
 - **Result:** PENDING
+
+### Exp183: XGBoost depth=5 seed=0 (variance check, val-crash)
+- **Config delta from exp 182:** seed 42→0
+- **Result:** Composite **-0.4048** | A_sh +0.3384 | val_sh -0.2048 NEG
+- **Per-fold:** F1=+0.27 F2=+2.21 F3=+0.65 F4=-0.40 F5=+0.89 F6=+1.52 F7=-0.56
+- **Status:** DISCARD; same val-instability as CatBoost. 2-seed mean ≈ 0.
+- **Learning:** GBM val-instability structural across XGBoost+CatBoost.
+
+### Exp184: XGBoost depth=5 seed=99 (3-seed median lock)
+- **Config delta from exp 183:** seed 0→99
+- **Rationale:** CLAUDE.md "3-seed median > baseline"; Picard 2021
+- **Prediction:** comp [-0.5, +0.7], median ~0±0.4, runtime ~15-20min
+- **Result:** PENDING

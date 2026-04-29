@@ -381,3 +381,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 §3.2; Chen-Guestrin 2016 §3.2 histogram seed-sensitivity.
 **Hypothesis:** Same exp 182 config, seed 42→0; comp within ±0.4.
 **Prediction:** comp [+0.0, +0.7], val_sh [+0.3, +1.0], runtime ~15-20min.
+
+## Exp183 — XGBoost depth=5 seed=0 (variance check, val-crash)
+**Diagnosis:** Confirm exp 182 +0.37 reproducibility per Picard 2021.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Chen-Guestrin 2016 §3.2.
+**Hypothesis:** Same exp 182 config, seed 42→0; comp within ±0.4.
+**Prediction:** comp [+0.0, +0.7].
+**Verdict:** DISCARD. Comp -0.40, A_sh +0.34, val NEGATIVE -0.20. Same val-instability pattern as CatBoost lr=0.05. 2-seed mean -0.015. Runtime 1014s.
+**Learning:** GBM val-instability at high capacity is STRUCTURAL across XGBoost+CatBoost. Need 3-seed lock.
+
+## Exp184 — XGBoost depth=5 seed=99 (3-seed median lock)
+**Diagnosis:** 2-seed mean ≈ 0; need 3rd seed per CLAUDE.md "3-seed median".
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Chen-Guestrin 2016 §3.2; Friedman 2001 §5.4.
+**Hypothesis:** seed=99 locks 3-seed median; informs depth=5 keep/reject decision.
+**Prediction:** comp [-0.5, +0.7], median expected near 0±0.4, runtime ~15-20min.
