@@ -1905,6 +1905,12 @@
   },
   "229": {
     "diagnosis": "LSTM seq=35 #5/10 seed=2024",
+    "_manual": true,
+    "verdict": "KEEP-PARTIAL. Comp +0.53 (positive!), A_sh +0.63, B_sh +0.73. **MAJOR FINDING: 5-seed LSTM seq=35 B_sh median +0.73 vs A_sh median +0.20 \u2014 5-day target is 3.7x stronger than 1-day. User asked about 5-day forecasting; data confirms it.**"
+  },
+  "230": {
+    "diagnosis": "LSTM seq=35 #6/10 seed=13 + analyze B-target",
+    "citations": "Picard 2021",
     "_manual": true
   }
 }
