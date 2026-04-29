@@ -2093,6 +2093,12 @@
   "257": {
     "diagnosis": "dMamba lr=1e-3 seed=99 (#5/10 - 3-seed lock)",
     "citations": "Picard 2021",
+    "_manual": true,
+    "verdict": "KEEP. dMamba lr=1e-3 seed=99 +0.605 (POSITIVE!). **3-seed dMamba lr=1e-3 distribution [+0.16, +0.26, +0.61] median +0.26 mean +0.34 \u2014 POSITIVE 3-seed median.** More stable than champion lr=5e-4 (4-seed median -0.25, seed=99 catastrophic). lr=1e-3 unlocks the seed=99 case!"
+  },
+  "258": {
+    "diagnosis": "dMamba lr=1e-3 seed=7 (#6/10 - 4-seed lock; testing the lr=1e-3 regime stability)",
+    "citations": "Picard 2021; Lakshminarayanan 2017",
     "_manual": true
   }
 }
