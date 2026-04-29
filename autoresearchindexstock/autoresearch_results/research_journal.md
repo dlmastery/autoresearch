@@ -395,3 +395,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Chen-Guestrin 2016 §3.2; Friedman 2001 §5.4.
 **Hypothesis:** seed=99 locks 3-seed median; informs depth=5 keep/reject decision.
 **Prediction:** comp [-0.5, +0.7], median expected near 0±0.4, runtime ~15-20min.
+
+## Exp184 — XGBoost depth=5 seed=99 (3-seed median REJECTS depth=5)
+**Diagnosis:** 3rd seed for median lock per CLAUDE.md.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Chen-Guestrin 2016 §3.2; Friedman 2001 §5.4.
+**Hypothesis:** seed=99 locks 3-seed median.
+**Prediction:** comp [-0.5, +0.7].
+**Verdict:** DISCARD strongly. Comp -0.56, A_sh +0.23, val NEGATIVE -0.26. F2 RECORD +3.17. 3-seed median -0.40 (NEGATIVE). Runtime 1009s.
+**Learning:** depth=5 lift was seed-luck. Same GBM val-instability pattern. XGBoost-best stays exp 63 -0.128.
+
+## Exp185 — XGBoost depth=4 lr=0.005 n_est=2000 (slowest-lr untested)
+**Diagnosis:** 1 slot left; try stability-focused slowest-learner regime.
+**Citations:** Friedman 2001 §5.2; ESL §10.12; Chen-Guestrin 2016 §3.2; Mason 2000 NeurIPS.
+**Hypothesis:** lr=0.005 + n_est=2000 finds smoother-loss flat-minima; matches exp 63 capacity.
+**Prediction:** comp [-0.4, +0.3], runtime ~25-35min.

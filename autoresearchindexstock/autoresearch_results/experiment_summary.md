@@ -351,3 +351,15 @@ roadmap.
 - **Rationale:** CLAUDE.md "3-seed median > baseline"; Picard 2021
 - **Prediction:** comp [-0.5, +0.7], median ~0±0.4, runtime ~15-20min
 - **Result:** PENDING
+
+### Exp184: XGBoost depth=5 seed=99 (3-seed median REJECTS depth=5)
+- **Config delta from exp 183:** seed 0→99
+- **Result:** Composite **-0.5599** | A_sh +0.23 | val_sh -0.26 | F2 RECORD +3.17
+- **Status:** DISCARD; 3-seed median -0.40 → depth=5 REJECTED
+- **Learning:** XGBoost-best stays exp 63 -0.128. depth=5 was seed-luck.
+
+### Exp185: XGBoost depth=4 lr=0.005 n_est=2000 (slowest-lr untested)
+- **Config delta from exp 63:** lr 0.01→0.005, n_est 1000→2000 (capacity-matched)
+- **Rationale:** Friedman 2001 §5.2 — slower lr finds flat minima
+- **Prediction:** comp [-0.4, +0.3], runtime ~25-35min
+- **Result:** PENDING
