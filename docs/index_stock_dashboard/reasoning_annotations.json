@@ -1817,6 +1817,15 @@
     "citations": "Picard 2021; Lakshminarayanan 2017 \u00a73.2.",
     "hypothesis": "seed=7 4-seed median lock.",
     "prediction": "comp [-1.0, +0.5], runtime ~50-90s.",
+    "_manual": true,
+    "verdict": "DISCARD vs +1.32 global, but POSITIVE comp +0.8863, A_sh +0.99, val +1.28, **6/7 positive folds**, F2 +3.40 RECORD, F6 +1.63, F7 +1.16. **4-seed MLP seq=35 distribution: [+0.55, -1.04, -0.56, +0.89] median -0.007, mean -0.04.** Wide spread; seed=7 hit sweet spot.",
+    "learning": "MLP seq=35 4-seed median essentially 0. Same wide variance as other backbones. seed=7 is best (just like seed=42 for MLP seq=10 was best)."
+  },
+  "219": {
+    "diagnosis": "MLP seq=35 5-seed lock (seed=2024) per user 10-exp directive.",
+    "citations": "Picard 2021; Lakshminarayanan 2017 \u00a73.2.",
+    "hypothesis": "5-seed median.",
+    "prediction": "comp [-0.5, +0.7].",
     "_manual": true
   }
 }
