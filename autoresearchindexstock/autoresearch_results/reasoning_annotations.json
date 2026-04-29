@@ -1900,6 +1900,11 @@
   "228": {
     "diagnosis": "LSTM seq=35 #4/10 seed=7",
     "citations": "Picard 2021",
+    "_manual": true,
+    "verdict": "DISCARD vs global. Comp +0.31 (positive!), A_sh +0.73. 4-seed LSTM seq=35 [-0.47, -0.11, -0.32, +0.31] median -0.22, mean -0.15. Improving but still negative median."
+  },
+  "229": {
+    "diagnosis": "LSTM seq=35 #5/10 seed=2024",
     "_manual": true
   }
 }
