@@ -241,3 +241,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 §3.2; Fischer-Krauss 2018 §3.2; Bengio 1994 IEEE TNN gradient trajectories.
 **Hypothesis:** Same exp 172 config, seed 99→42; A_sh ≥ +0.5 confirms real capacity lift.
 **Prediction:** comp [-0.4, +0.5], A_sh [+0.5, +1.2], F5 [+1.0, +3.5].
+
+## Exp173 — LSTM hidden=256 seed=42 (variance check, capacity hypothesis REJECTED)
+**Diagnosis:** Confirm exp 172 capacity-lift reproducibility per Picard 2021.
+**Citations:** Picard 2021; Lakshminarayanan 2017; Fischer-Krauss 2018; Bengio 1994.
+**Hypothesis:** Same exp 172 config, seed 99→42; A_sh ≥ +0.5 confirms real lift.
+**Prediction:** comp [-0.4, +0.5], A_sh [+0.5, +1.2].
+**Verdict:** DISCARD vs +1.32 global. Comp +0.7488, A_sh +0.85, val_sh +0.96. **6/7 positive folds.** Test alpha REPRODUCIBLE across seeds. BUT exp 74 (hidden=128 seed=99) had A_sh +1.30, excess +0.69 — BETTER than hidden=256. **Capacity bump REJECTED.**
+**Learning:** Hidden=128 is the LSTM sweet-spot at n=2538; doubling adds noise. LSTM-best stays exp 74. Axis closed: hidden_size. Axis open: seq_len, bidirectional, AWD dropout, Lion, layer norm.
+
+## Exp174 — LSTM hidden=128 seq_len=20 (untested seq axis)
+**Diagnosis:** Pivot from rejected capacity axis to seq_len. Only seq=10 tested on LSTM. Fischer-Krauss 2018 §3.4 sweep recommends >10 for noisy financial data.
+**Citations:** Fischer-Krauss 2018 §3.4; Goyal 2017 arXiv:1706.02677; Hochreiter-Schmidhuber 1997 §3.1; Bengio 1994.
+**Hypothesis:** seq=20 (vs 10) captures 20-day momentum/reversal cycles aligned with monthly vol cycles.
+**Prediction:** comp [+0.5, +1.2], A_sh [+0.8, +1.5], runtime ~70-100s.

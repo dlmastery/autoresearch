@@ -198,3 +198,18 @@ roadmap.
 - **Rationale:** Picard 2021 + Lakshminarayanan 2017 — confirm capacity-lift reproducibility
 - **Prediction:** comp [-0.4, +0.5], A_sh [+0.5, +1.2], runtime ~60-90s
 - **Result:** PENDING
+
+### Exp173: LSTM hidden=256 seed=42 (variance check, capacity REJECTED)
+- **Config delta from exp 172:** seed 99→42
+- **Rationale:** Picard 2021 — confirm capacity-lift reproducibility
+- **Prediction:** comp [-0.4, +0.5], A_sh [+0.5, +1.2]
+- **Result:** Composite **+0.7488** | A_sharpe +0.8488 | val_sh +0.9591 | excess +0.2446
+- **Per-fold A_sharpe:** F1=+0.13 F2=+2.30 F3=-0.54 F4=+2.27 F5=+1.71 F6=+0.62 F7=+0.82
+- **Status:** DISCARD vs global; capacity REJECTED — exp 74 hidden=128 had A_sh+1.30 vs hidden=256 A_sh+0.85
+- **Learning:** Hidden=128 is LSTM sweet-spot at n=2538. Pivot to seq_len axis.
+
+### Exp174: LSTM hidden=128 seq_len=20 (untested seq axis)
+- **Config delta from exp 74:** seq_len 10→20
+- **Rationale:** Fischer-Krauss 2018 §3.4 — seq sweep, 20 untested
+- **Prediction:** comp [+0.5, +1.2], A_sh [+0.8, +1.5], runtime ~70-100s
+- **Result:** PENDING
