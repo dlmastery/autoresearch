@@ -353,3 +353,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Chen-Guestrin 2016 KDD arXiv:1603.02754 §3.2; Friedman 2001 §5.4; ESL §10.12.
 **Hypothesis:** depth=6 (vs 4) captures 3-way feature interactions; 64 leaves vs 16.
 **Prediction:** comp [-0.4, +0.5], A_sh [+0.2, +0.8], runtime ~5-10min.
+
+## Exp181 — XGBoost depth=6 (paper default, val crash but RECORD F3)
+**Diagnosis:** Pivot from completed Mamba; Chen-Guestrin 2016 paper default untested.
+**Citations:** Chen-Guestrin 2016 KDD §3.2; Friedman 2001 §5.4; ESL §10.12.
+**Hypothesis:** depth=6 captures 3-way interactions; 64 leaves vs depth=4's 16.
+**Prediction:** comp [-0.4, +0.5].
+**Verdict:** DISCARD. Comp -0.44, A_sh +0.42, val NEGATIVE -0.24. F3 **RECORD +3.51** across all backbones! But F1/F7 weak, val crashed. Same val-instability pattern as CatBoost lr=0.05. Runtime 1632s.
+**Learning:** depth=6 unlocks F3 multi-feature interactions but val unstable. Try depth=5 for capacity-stability mid-point.
+
+## Exp182 — XGBoost depth=5 (mid-point untested)
+**Diagnosis:** Bracket depth axis: 4 stable, 6 alpha-rich+val-crash. Mid=5 untested.
+**Citations:** Friedman 2001 §5.4; Chen-Guestrin 2016 §3.2; ESL §10.12.
+**Hypothesis:** depth=5 retains F3 alpha while preserving val stability.
+**Prediction:** comp [-0.3, +0.4], F3 [+1.5, +3.0], val_sh [+0.0, +0.5], runtime ~10-18min.

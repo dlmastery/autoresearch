@@ -310,3 +310,17 @@ roadmap.
 - **Rationale:** Chen-Guestrin 2016 KDD §3.2 paper default for tabular n>1k
 - **Prediction:** comp [-0.4, +0.5], runtime ~5-10min
 - **Result:** PENDING
+
+### Exp181: XGBoost depth=6 (RECORD F3 +3.51, val crash)
+- **Config delta from exp 63:** max_depth 4→6
+- **Rationale:** Chen-Guestrin 2016 KDD §3.2 paper default
+- **Result:** Composite **-0.44** | A_sh +0.42 | val_sh -0.24 NEG | F3 **+3.51 RECORD**
+- **Per-fold:** F1=-0.25 F2=+1.68 F3=+3.51 F4=+0.16 F5=+0.93 F6=+1.07 F7=-0.57
+- **Status:** DISCARD; same val-crash pattern as CatBoost lr=0.05
+- **Learning:** depth=6 unlocks F3 alpha but val unstable. Try depth=5 mid-point.
+
+### Exp182: XGBoost depth=5 (capacity-stability mid-point)
+- **Config delta from exp 181:** max_depth 6→5
+- **Rationale:** Friedman 2001 §5.4 + ESL §10.12 — bracket depth optimum
+- **Prediction:** comp [-0.3, +0.4], F3 [+1.5, +3.0], runtime ~10-18min
+- **Result:** PENDING
