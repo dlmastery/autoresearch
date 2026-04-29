@@ -1869,6 +1869,15 @@
     "citations": "Picard 2021; Lakshminarayanan 2017",
     "hypothesis": "final seed for 10-seed median",
     "prediction": "comp [-1.5, +1.0]",
+    "_manual": true,
+    "verdict": "DISCARD vs +1.32 global, but POSITIVE comp +0.8126, A_sh +1.17, excess +0.06 (positive). Per-fold strong. **10-SEED MLP seq=35 distribution: median +0.165 (POSITIVE), mean -0.27.** MLP seq=35 user directive 10-exp grind COMPLETE. Median +0.165 < seq=10's 5-seed median +0.43, so seq=10 wins at MLP. seq=35 is real but worse.",
+    "learning": "MLP seq=35 10-seed median +0.165 \u2014 modest positive lift but worse than seq=10 +0.43. seq=10 stays MLP-best. Pivoting to LSTM seq=35 next per user directive (1/6 backbones at seq=35 done)."
+  },
+  "225": {
+    "diagnosis": "MLP seq=35 10/10 complete (median +0.165). Pivot to LSTM seq=35 \u2014 second of 6 cheap-tier winners at seq=35 per user directive. LSTM-best is exp 74 (1-layer, hidden=128, lr=1e-3, bs=16, ep=100, pat=15, wd=7e-4, hd=0.1, seq=10). seq=35 untested for LSTM at this canonical config (earlier session tested seq=20 rejected, seq=5 rejected).",
+    "citations": "Fischer-Krauss 2018 EJOR \u00a73.4 seq sweep; Bengio 1994 IEEE TNN gradient flow; Hochreiter-Schmidhuber 1997 LSTM capacity; Picard 2021 multi-seed.",
+    "hypothesis": "LSTM 1-layer + seq=35 + lr=1e-3 + bs=16 + ep=100 + pat=15 + wd=7e-4 + hd=0.1 + seed=99 (one knob from exp 74's seq=10) tests if 7-week context helps LSTM. Risk: gradient-flow degradation per Bengio 1994 (seq=20 already rejected).",
+    "prediction": "Composite [-1.0, +0.8]; runtime ~80-150s.",
     "_manual": true
   }
 }
