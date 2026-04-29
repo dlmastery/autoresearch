@@ -324,3 +324,17 @@ roadmap.
 - **Rationale:** Friedman 2001 §5.4 + ESL §10.12 — bracket depth optimum
 - **Prediction:** comp [-0.3, +0.4], F3 [+1.5, +3.0], runtime ~10-18min
 - **Result:** PENDING
+
+### Exp182: XGBoost depth=5 (NEW XGBoost WITHIN-CHAMPION +0.37)
+- **Config delta from exp 181:** max_depth 6→5
+- **Rationale:** Friedman 2001 §5.4 + ESL §10.12 — bracket depth optimum
+- **Result:** Composite **+0.3736** | A_sh +0.47 | val_sh +0.79 | excess -0.75
+- **Per-fold:** F1=+1.51 F2=+2.55 F3=+1.30 F4=+0.44 F5=+0.86 F6=+1.46 F7=-0.90 (6/7 pos!)
+- **Status:** DISCARD vs global, **NEW XGBoost CHAMPION** (+0.50 vs exp 63)
+- **Learning:** depth=5 sweet-spot — retains alpha + recovers val. Variance check next.
+
+### Exp183: XGBoost depth=5 seed=0 (variance check)
+- **Config delta from exp 182:** seed 42→0
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017 — confirm reproducibility
+- **Prediction:** comp [+0.0, +0.7], runtime ~15-20min
+- **Result:** PENDING

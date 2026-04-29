@@ -367,3 +367,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Friedman 2001 §5.4; Chen-Guestrin 2016 §3.2; ESL §10.12.
 **Hypothesis:** depth=5 retains F3 alpha while preserving val stability.
 **Prediction:** comp [-0.3, +0.4], F3 [+1.5, +3.0], val_sh [+0.0, +0.5], runtime ~10-18min.
+
+## Exp182 — XGBoost depth=5 (NEW XGBoost CHAMPION +0.37)
+**Diagnosis:** Bracket depth axis: depth=4 stable, depth=6 alpha-rich+val-crash; mid=5 untested.
+**Citations:** Friedman 2001 §5.4; Chen-Guestrin 2016 §3.2; ESL §10.12.
+**Hypothesis:** depth=5 retains F3 alpha + val stability.
+**Prediction:** comp [-0.3, +0.4], F3 [+1.5, +3.0], val [+0.0, +0.5].
+**Verdict:** DISCARD vs +1.32 global, but **XGBOOST WITHIN-CHAMPION** at +0.3736 (delta +0.50 vs exp 63 -0.13). F1=+1.51 F2=+2.55 F3=+1.30 F4=+0.44 F5=+0.86 F6=+1.46 F7=-0.90. 6/7 positive folds. val_sh +0.79 RECOVERED from depth=6's -0.24. Runtime 1003s.
+**Learning:** depth=5 sweet-spot empirically confirmed. Friedman 2001 §5.4 prediction holds. Variance check next per Picard 2021.
+
+## Exp183 — XGBoost depth=5 seed=0 (variance check)
+**Diagnosis:** Confirm exp 182 +0.37 reproducibility per Picard 2021 + Lakshminarayanan 2017.
+**Citations:** Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 §3.2; Chen-Guestrin 2016 §3.2 histogram seed-sensitivity.
+**Hypothesis:** Same exp 182 config, seed 42→0; comp within ±0.4.
+**Prediction:** comp [+0.0, +0.7], val_sh [+0.3, +1.0], runtime ~15-20min.
