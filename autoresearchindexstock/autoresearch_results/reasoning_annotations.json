@@ -1610,6 +1610,15 @@
     "citations": "Picard 2021 arXiv:2109.08203. Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2. Liu et al. 2024 ICLR 'iTransformer' arXiv:2310.06625 \u00a74.1.",
     "hypothesis": "iTransformer paper-recipe seed=99 (one knob from exp 194: seed 0\u219299) locks 3-seed median A_sharpe. If \u2265 +0.4, paper-recipe is real lift. If < +0.2, it's seed-luck.",
     "prediction": "Composite [-2.0, +0.5]; A_sharpe [-0.5, +1.0]; runtime ~1.5-3min.",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -1.43, A_sh +0.21, val_sh -1.23. F1 +0.18, F2 +1.47, F3 +0.79, F4 -1.18, F5 -1.44, F6 +1.39, F7 +0.30. **3-seed iTransformer paper-recipe distribution: A_sh [+0.92, -0.10, +0.21] median +0.21; composites all negative (median -1.52).** iTransformer cannot beat baseline at 3-seed median. iTransformer at 5/25; structural change needed for further lift.",
+    "learning": "iTransformer paper-recipe yields seed-unstable lift; 3-seed median composite NEGATIVE. Pattern matches GBM family. Pivoting to under-explored Phase F backbone N-BEATS (only 1 run) \u2014 different architecture (interpretable basis decomposition) may yield different alpha distribution."
+  },
+  "196": {
+    "diagnosis": "After 3-seed iTransformer rejection, pivoting to N-BEATS which has only 1 run on QQQ (exp 144 -1.43). Per Oreshkin et al. 2020 ICLR \u00a74.2, N-BEATS uses ensembled basis decomposition with bootstrap sampling \u2014 fundamentally different architecture from transformers/MLPs/SSMs. Has seed-dependence via bootstrap. exp 144 was seed=42; try seed=0 for variance baseline. Champion to beat is global mamba +1.32; N-BEATS-best is exp 144 -1.43.",
+    "citations": "Oreshkin, Carpov, Chapados, Bengio 2020 ICLR 'N-BEATS: Neural basis expansion analysis for interpretable time series forecasting' (arXiv:1905.10437) \u00a74.2 \u2014 bootstrap ensembling and basis decomposition; Picard 2021; Lakshminarayanan 2017 \u00a73.2 \u2014 multi-seed for neural ensembles.",
+    "hypothesis": "N-BEATS + lr=1e-3 + ep=100 + pat=20 + bs=32 + seq=10 + seed=0 (one knob from exp 144: seed 42\u21920) will produce a composite within \u00b10.5 of -1.43 if the pattern is consistent or much different if N-BEATS is highly seed-dependent.",
+    "prediction": "Composite [-2.0, +0.0]; A_sharpe [-0.5, +0.5]; runtime ~1-2min.",
     "_manual": true
   }
 }

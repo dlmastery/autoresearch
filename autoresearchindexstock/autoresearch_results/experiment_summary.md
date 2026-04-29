@@ -474,3 +474,12 @@ roadmap.
 ### Exp195: iTransformer seed=99 (3-seed median lock)
 - **Prediction:** comp [-2.0, +0.5], runtime ~1.5-3min
 - **Result:** PENDING
+
+### Exp195: iTransformer seed=99 (3-seed lock)
+- **Result:** Comp -1.43, A_sh +0.21. 3-seed median composite -1.52; iTransformer rejected.
+
+### Exp196: N-BEATS seed=0 (variance baseline)
+- **Config delta from exp 144:** seed 42→0
+- **Rationale:** Oreshkin 2020 ICLR §4.2 bootstrap; Picard 2021
+- **Prediction:** comp [-2.0, +0.0], runtime ~1-2min
+- **Result:** PENDING

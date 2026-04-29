@@ -543,3 +543,11 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021; Lakshminarayanan 2017; Liu 2024.
 **Hypothesis:** seed=99 locks 3-seed median.
 **Prediction:** comp [-2.0, +0.5], A_sh [-0.5, +1.0], runtime ~1.5-3min.
+
+## Exp195 — iTransformer seed=99 (3-seed median locks negative comp)
+**Verdict:** DISCARD. Comp -1.43. 3-seed A_sh median +0.21; all comps negative. iTransformer can't beat baseline.
+
+## Exp196 — N-BEATS seed=0 variance baseline
+**Citations:** Oreshkin 2020 ICLR arXiv:1905.10437 §4.2; Picard 2021; Lakshminarayanan 2017.
+**Hypothesis:** seed=0 establishes N-BEATS variance.
+**Prediction:** comp [-2.0, +0.0], runtime ~1-2min.
