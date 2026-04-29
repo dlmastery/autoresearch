@@ -157,3 +157,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Friedman 2001 §5.2 lr×n_est convergence; Hastie-Tibshirani-Friedman 2009 ESL §10.12 — optimal n_est ∝ 1/lr; Prokhorenkova 2018 ordered-boosting overfit protection.
 **Hypothesis:** lr=0.05 + n_est=1000 (one knob from exp 166's n_est=500) recovers F1 alpha via more boosting rounds at the high-lr regime.
 **Prediction:** comp [-0.3, +0.5], F1 [+0.2, +1.5], F2 [+1.5, +2.5], F3 [+0.8, +1.4], runtime 18-25min.
+
+## Exp167 — CatBoost lr=0.05 n_est=1000 (FIRST POSITIVE COMPOSITE)
+**Diagnosis:** Recover F1 alpha lost in exp 166 by giving fast-learner more trees per Friedman 2001 §5.2.
+**Citations:** Friedman 2001 §5.2 lr×n_est convergence; ESL §10.12; Prokhorenkova 2018 ordered-boosting.
+**Hypothesis:** lr=0.05 + n_est=1000 (vs 500) recovers F1 chaos alpha while keeping F2/F3 wins.
+**Prediction:** comp [-0.3, +0.5], F1 [+0.2, +1.5], F2 [+1.5, +2.5].
+**Verdict:** DISCARD vs +1.32 global, but **CATBOOST WITHIN-CHAMPION** at +0.0728. F1 recovered (-0.72→-0.15), F3 jumped (+1.23→+2.98), 5/7 positive folds. Cumulative within-CatBoost lift +0.63 across 2 experiments. Runtime 1945s.
+**Learning:** lr=0.05 + n_est=1000 confirms Friedman 2001 lr×n_est convergence on QQQ. Within-CatBoost progression monotonic; n_est ceiling not yet hit. Axis open: n_est=1500 to find the turning point.
+
+## Exp168 — CatBoost lr=0.05 n_est=1500 (find n_est ceiling)
+**Diagnosis:** Within-CatBoost monotonic progression -0.56→-0.10→+0.07 suggests n_est ceiling not yet hit. Friedman 2001 §5.2 — find validation-loss turning point.
+**Citations:** Friedman 2001 lr×n_est; ESL §10.12 lr=0.05 n_est=1000-3000 typical; Bühlmann-Yu 2003 JCGS noisy-regression boosting; Prokhorenkova 2018 §3.2 ordered-boosting.
+**Hypothesis:** lr=0.05 + n_est=1500 (one knob from exp 167's 1000) continues monotonic improvement and helps F4 (-1.37) recover.
+**Prediction:** comp [-0.1, +0.5], F4 expected [-0.5, 0.0] recovery, runtime 45-50min.

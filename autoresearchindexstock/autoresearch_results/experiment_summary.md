@@ -108,3 +108,18 @@ roadmap.
 - **Rationale:** lr=0.05 under-trained at 500 trees for F1 chaos regime; Friedman 2001 §5.2 lr×n_est convergence
 - **Prediction:** comp [-0.3, +0.5], F1 [+0.2, +1.5], F2 [+1.5, +2.5], runtime 18-25min
 - **Result:** PENDING
+
+### Exp167: CatBoost lr=0.05 n_est=1000 (recover F1 alpha)
+- **Config delta from exp 166:** n_est 500→1000
+- **Rationale:** Friedman 2001 §5.2 lr×n_est convergence — fast-learner needs more trees for F1 chaos
+- **Prediction:** comp [-0.3, +0.5], F1 [+0.2, +1.5]
+- **Result:** Composite **+0.0728** | A_sharpe +0.3728 | A_excess -0.8466
+- **Per-fold A_sharpe:** F1=-0.15 F2=+2.09 F3=**+2.98** F4=-1.37 F5=+0.94 F6=+1.70 F7=-0.63
+- **Status:** DISCARD vs +1.32 global, **CATBOOST WITHIN-CHAMPION** (cumulative +0.63 across 2 exps)
+- **Learning:** Friedman 2001 lr×n_est convergence holds; n_est ceiling not yet hit. F1 recovered, F3 jumped, 5/7 positive folds.
+
+### Exp168: CatBoost lr=0.05 n_est=1500 (find n_est ceiling)
+- **Config delta from exp 167:** n_est 1000→1500
+- **Rationale:** Find validation-loss turning point per Friedman 2001 §5.2; help F4 recover
+- **Prediction:** comp [-0.1, +0.5], F4 [-0.5, 0.0], runtime 45-50min
+- **Result:** PENDING
