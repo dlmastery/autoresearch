@@ -1926,6 +1926,11 @@
   },
   "233": {
     "diagnosis": "LSTM seq=35 #9/10 seed=5",
+    "_manual": true,
+    "verdict": "DISCARD by composite (-0.48) BUT B_sh +0.96 strong! 5-day forecast still works."
+  },
+  "234": {
+    "diagnosis": "LSTM seq=35 #10/10 FINAL seed=2026",
     "_manual": true
   }
 }
