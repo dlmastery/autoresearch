@@ -1835,6 +1835,15 @@
     "citations": "Picard 2021.",
     "hypothesis": "seed=13.",
     "prediction": "comp [-1.0, +1.0].",
+    "_manual": true,
+    "verdict": "DISCARD strongly. Comp -1.70, A_sh -1.00 (NEG), val -0.26. seed=13 catastrophic. 6-seed MLP seq=35 [+0.55, -1.04, -0.56, +0.89, -0.02, -1.70] median -0.29, mean -0.31.",
+    "learning": "seed=13 is catastrophic for MLP. Same as seed=99 for Mamba \u2014 project-wide bad seed for some seed-data combos."
+  },
+  "221": {
+    "diagnosis": "MLP seq=35 #7/10 user directive seed=11.",
+    "citations": "Picard 2021.",
+    "hypothesis": "alt seed.",
+    "prediction": "comp [-1.0, +1.0].",
     "_manual": true
   }
 }
