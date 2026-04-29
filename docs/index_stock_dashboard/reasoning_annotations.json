@@ -2051,6 +2051,14 @@
   },
   "251": {
     "diagnosis": "xLSTM #9/10 seed=5",
+    "_manual": true,
+    "verdict": "DISCARD vs champion. dMamba d_state=24 -0.34. A_sh +0.24, 6/7 positive folds, F7 -0.80 weak."
+  },
+  "252": {
+    "diagnosis": "dMamba seq=60 #3/10 \u2014 try lr=1e-3 (untested for dMamba; champion uses 5e-4) per Smith 2017 highest-leverage HP axis.",
+    "citations": "Smith 2017 arXiv:1803.09820 \u00a73 lr leverage; Gu-Dao 2024 \u00a74.1.",
+    "hypothesis": "lr=1e-3 (2x champion) tests faster-learning regime.",
+    "prediction": "comp [-0.5, +1.5], runtime ~10-15min.",
     "_manual": true
   }
 }
