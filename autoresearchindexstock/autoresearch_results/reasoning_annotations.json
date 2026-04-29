@@ -1853,6 +1853,14 @@
     "citations": "Picard 2021.",
     "hypothesis": "alt seed.",
     "prediction": "comp [-1.0, +1.0].",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -1.33. 8-seed MLP seq=35 median -0.29, mean -0.36. seq=35 plateau confirmed."
+  },
+  "223": {
+    "diagnosis": "MLP seq=35 #9/10 seed=5",
+    "citations": "Picard 2021",
+    "hypothesis": "alt seed",
+    "prediction": "comp [-1.5, +1.0]",
     "_manual": true
   }
 }
