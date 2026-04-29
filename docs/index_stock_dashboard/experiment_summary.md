@@ -466,3 +466,11 @@ roadmap.
 - **Rationale:** Picard 2021 + Lakshminarayanan 2017
 - **Prediction:** comp [-1.5, +0.5], A_sh [+0.4, +1.1], runtime ~1.5-3min
 - **Result:** PENDING
+
+### Exp194: iTransformer seed=0 (variance crash)
+- **Result:** Comp -2.02, A_sh -0.10. 2-seed mean +0.41 std 0.51.
+- **Status:** DISCARD; iTransformer val-unstable across seeds.
+
+### Exp195: iTransformer seed=99 (3-seed median lock)
+- **Prediction:** comp [-2.0, +0.5], runtime ~1.5-3min
+- **Result:** PENDING

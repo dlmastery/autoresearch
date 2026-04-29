@@ -535,3 +535,11 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Liu 2024 §4.1.
 **Hypothesis:** A_sh stays ≥ +0.5 confirms.
 **Prediction:** comp [-1.5, +0.5], A_sh [+0.4, +1.1], runtime ~1.5-3min.
+
+## Exp194 — iTransformer paper-recipe seed=0 (variance crash)
+**Verdict:** DISCARD strongly. Comp -2.02, A_sh NEGATIVE -0.10. 2-seed A_sh [+0.92, -0.10] mean +0.41. Same GBM val-instability pattern.
+
+## Exp195 — iTransformer paper-recipe seed=99 (3-seed median lock)
+**Citations:** Picard 2021; Lakshminarayanan 2017; Liu 2024.
+**Hypothesis:** seed=99 locks 3-seed median.
+**Prediction:** comp [-2.0, +0.5], A_sh [-0.5, +1.0], runtime ~1.5-3min.

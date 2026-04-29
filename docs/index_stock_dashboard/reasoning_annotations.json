@@ -1601,6 +1601,15 @@
     "citations": "Picard 2021 arXiv 'Torch.manual_seed(3407) is all you need' (arXiv:2109.08203). Lakshminarayanan, Pritzel, Blundell 2017 NeurIPS 'Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles' (arXiv:1612.01474) \u00a73.2. Liu et al. 2024 ICLR 'iTransformer' (arXiv:2310.06625) \u00a74.1 \u2014 paper-recipe HPs.",
     "hypothesis": "iTransformer + lr=5e-5 + warmup=10 + ep=150 + pat=20 + bs=32 + wd=1e-4 + seq=60 + seed=0 (one knob from exp 193: seed 42\u21920) will produce A_sharpe within \u00b10.3 of exp 193's +0.92 if the test alpha is reproducible. If A_sh stays \u2265 +0.5, the paper-recipe is the new iTransformer baseline.",
     "prediction": "Composite in [-1.5, +0.5]; A_sharpe in [+0.4, +1.1]; val_sh in [-1.5, +1.0]; runtime ~1.5-3min.",
+    "_manual": true,
+    "verdict": "DISCARD strongly. Composite -2.0173, A_sh -0.1044 (NEGATIVE), val_sh -1.6173 (very negative), excess -1.3245. Per-fold A_sharpe: F1 +2.28 (RECORD!), F2 -1.52, F3 +1.39, F4 -0.13, F5 -0.35, F6 +0.17, F7 -0.91. 3/7 positive folds. Hypothesis BROKEN on aggregate: A_sh swung from +0.92 (seed=42) to -0.10 (seed=0). 2-seed iTransformer paper-recipe distribution: [+0.92, -0.10] mean +0.41 std 0.51 \u2014 same pattern as GBMs (high test alpha + val instability). Runtime 73s.",
+    "learning": "iTransformer paper-recipe seed-unstable like GBMs. Test signal varies wildly across seeds. Need 3-seed median for definitive answer per CLAUDE.md."
+  },
+  "195": {
+    "diagnosis": "iTransformer paper-recipe 2-seed [+0.92, -0.10] A_sh mean +0.41. Need 3rd seed for median lock per CLAUDE.md '3-seed median > baseline'. seed=99 is the canonical 3rd seed. iTransformer at 4/25 \u2014 21 slots left after this. Champion to beat is global mamba +1.32; iTransformer-best (single-seed) is exp 193 A_sh +0.92.",
+    "citations": "Picard 2021 arXiv:2109.08203. Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2. Liu et al. 2024 ICLR 'iTransformer' arXiv:2310.06625 \u00a74.1.",
+    "hypothesis": "iTransformer paper-recipe seed=99 (one knob from exp 194: seed 0\u219299) locks 3-seed median A_sharpe. If \u2265 +0.4, paper-recipe is real lift. If < +0.2, it's seed-luck.",
+    "prediction": "Composite [-2.0, +0.5]; A_sharpe [-0.5, +1.0]; runtime ~1.5-3min.",
     "_manual": true
   }
 }
