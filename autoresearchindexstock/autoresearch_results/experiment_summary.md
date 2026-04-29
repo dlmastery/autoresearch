@@ -242,3 +242,16 @@ roadmap.
 - **Rationale:** Keskar 2017 ICLR + Smith 2018 + Hoffer 2017 — small bs flat minima
 - **Prediction:** comp [+0.6, +1.3], A_sh [+1.2, +1.7], runtime ~80-120s
 - **Result:** PENDING
+
+### Exp176: LSTM bs=8 (REJECTED)
+- **Config delta from exp 74:** bs 16→8
+- **Rationale:** Keskar 2017 flat-minima
+- **Result:** Composite +0.19 | A_sh +0.29 | val_sh +0.77 | 6/7 pos folds but small
+- **Status:** DISCARD; bs axis closed
+- **Learning:** Flat-minima theory doesn't transfer to QQQ at our n.
+
+### Exp177: LSTM lr=2e-3 (Smith 2017 highest-leverage axis untested)
+- **Config delta from exp 74:** lr 1e-3→2e-3
+- **Rationale:** Smith 2017 §3 — lr most-impactful HP; 2e-3 untested above canonical
+- **Prediction:** comp [-0.3, +1.0], runtime ~50-70s
+- **Result:** PENDING

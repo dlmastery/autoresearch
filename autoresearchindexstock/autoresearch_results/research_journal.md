@@ -283,3 +283,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Keskar 2017 ICLR arXiv:1609.04836; Smith 2018 ICLR arXiv:1711.00489; Loshchilov-Hutter 2019; Hoffer-Hubara-Soudry 2017 NeurIPS arXiv:1705.08741.
 **Hypothesis:** bs=8 induces √2× more SGD noise; finds flatter minima.
 **Prediction:** comp [+0.6, +1.3], A_sh [+1.2, +1.7], runtime ~80-120s.
+
+## Exp176 — LSTM bs=8 (Keskar 2017 flat-minima REJECTED)
+**Diagnosis:** Test bs=8 flat-minima axis.
+**Citations:** Keskar 2017 ICLR; Smith 2018; Loshchilov-Hutter 2019; Hoffer 2017.
+**Hypothesis:** Smaller bs → more SGD noise → flatter minima → better generalization.
+**Prediction:** comp [+0.6, +1.3].
+**Verdict:** DISCARD. Comp +0.19, A_sh +0.29, 6/7 positive folds but small amplitudes. Lost F1 chaos alpha. Runtime 73s.
+**Learning:** bs axis CLOSED — bs=16 champion. Keskar 2017 doesn't transfer to QQQ at n=2538.
+
+## Exp177 — LSTM lr=2e-3 (Smith 2017 highest-leverage axis)
+**Diagnosis:** All HP single-knob axes rejected; pivot to lr (most-impactful per Smith 2017).
+**Citations:** Smith 2017 arXiv:1803.09820 §3; Goyal 2017; Loshchilov-Hutter 2019; Kingma-Ba 2015 §3.
+**Hypothesis:** lr=2e-3 doubles step size, lets LSTM reach deeper minima within early-stop budget.
+**Prediction:** comp [-0.3, +1.0], A_sh [+0.5, +1.5], runtime ~50-70s.
