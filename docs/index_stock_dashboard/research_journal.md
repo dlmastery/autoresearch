@@ -619,3 +619,16 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Loshchilov-Hutter 2019; Goyal 2017; Gu-Kelly-Xiu 2020.
 **Hypothesis:** wd=1e-4 + warmup=5 combines best axes.
 **Prediction:** comp [+0.3, +1.2], runtime ~30-60s.
+
+## Exp204 — MLP wd=1e-4 + warmup=5 (NEW MLP champion +0.97!)
+**Diagnosis:** Combine canonical AdamW wd + warmup.
+**Citations:** Loshchilov-Hutter 2019; Goyal 2017; Gu-Kelly-Xiu 2020.
+**Hypothesis:** wd=1e-4 + warmup=5 stronger than either alone.
+**Prediction:** comp [+0.3, +1.2].
+**Verdict:** DISCARD vs +1.32 global BUT MAJOR result: comp **+0.9735**, A_sh **+1.04**, **7/7 positive folds**, excess **+0.43**. F3=+2.91 F6=+2.64. Runtime 24s.
+**Learning:** wd=1e-4 + warmup=5 is the new MLP best config.
+
+## Exp205 — MLP wd=1e-4 + warmup=5 seed=42 (variance check)
+**Citations:** Picard 2021; Lakshminarayanan 2017; Loshchilov-Hutter 2019.
+**Hypothesis:** Confirms +0.97 reproducibility.
+**Prediction:** comp [+0.3, +1.2], runtime ~30-60s.

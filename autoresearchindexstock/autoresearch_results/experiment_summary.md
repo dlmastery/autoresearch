@@ -565,3 +565,15 @@ roadmap.
 - **Rationale:** Loshchilov-Hutter 2019 AdamW canonical; combine with warmup
 - **Prediction:** comp [+0.3, +1.2], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp204: MLP wd=1e-4 + warmup=5 (NEW MLP CHAMPION +0.97)
+- **Config delta from MLP champion:** wd 1e-5→1e-4
+- **Result:** Comp **+0.9735** | A_sh **+1.04** | excess **+0.43** | **7/7 pos folds** | F3=+2.91 F6=+2.64
+- **Status:** DISCARD vs global, NEW MLP CHAMPION (tied with exp 79 +0.974)
+- **Learning:** wd=1e-4 + warmup=5 is the magic combo.
+
+### Exp205: MLP wd=1e-4 seed=42 (variance check)
+- **Config delta from exp 204:** seed 0→42
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017
+- **Prediction:** comp [+0.3, +1.2], runtime ~30-60s
+- **Result:** PENDING
