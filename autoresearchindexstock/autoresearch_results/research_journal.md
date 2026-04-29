@@ -311,3 +311,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Cai et al. 2024 NeurIPS 'MambaTS' arXiv:2405.16440 §3; Liu 2025 DMamba arXiv:2602.09081; Gu-Dao 2024 §4.2; Wu 2023 ICLR TimesNet.
 **Hypothesis:** mambats season-trend decomposition captures QQQ FOMC/EOM/quad-witching seasonal patterns that dmamba misses.
 **Prediction:** comp [+0.5, +1.6], A_sh [+0.7, +1.5], runtime ~6-12min.
+
+## Exp178 — Mamba mambats variant (complementary to dMamba)
+**Diagnosis:** Pivot from LSTM HP exhaustion to Mamba structural axis; mambats untested.
+**Citations:** Cai 2024 NeurIPS arXiv:2405.16440 §3; Liu 2025 DMamba; Gu-Dao 2024 §4.2; Wu 2023 TimesNet.
+**Hypothesis:** mambats season-trend decomposition captures FOMC/EOM/quad-witching seasonal patterns.
+**Prediction:** comp [+0.5, +1.6], A_sh [+0.7, +1.5].
+**Verdict:** DISCARD vs +1.32 global. Comp +0.42, A_sh +0.62, **excess +0.015 (positive!)**. Per-fold F1=-0.75 F2=+1.42 F3=+2.10 F4=+0.41 F5=-0.07 F6=+0.58 F7=+1.44. 5/7 positive folds. Runtime 107s.
+**Learning:** mambats COMPLEMENTARY to dmamba — gains F3/F7 trend alpha, loses F1 GFC chaos. Suggests ensemble axis. Need variance check.
+
+## Exp179 — Mamba mambats variance check seed=7
+**Diagnosis:** Confirm mambats per-fold pattern reproducibility per Picard 2021 + Lakshminarayanan 2017.
+**Citations:** Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 §3.2; Cai 2024 NeurIPS §3.1 mambats seed-sensitivity.
+**Hypothesis:** Same exp 178 config, seed 42→7; comp [+0.0, +0.7], same per-fold signature.
+**Prediction:** comp [+0.0, +0.7], A_sh [+0.4, +1.0], runtime ~80-130s.

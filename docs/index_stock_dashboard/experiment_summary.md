@@ -269,3 +269,17 @@ roadmap.
 - **Rationale:** Cai 2024 NeurIPS — mambats season-trend decomposition for time-series
 - **Prediction:** comp [+0.5, +1.6], runtime ~6-12min
 - **Result:** PENDING
+
+### Exp178: Mamba mambats variant (untested SSM variant)
+- **Config delta from dMamba exp 52:** mamba_variant dmamba→mambats
+- **Rationale:** Cai 2024 NeurIPS — season-trend decomposition for time-series
+- **Result:** Composite **+0.4193** | A_sh +0.6193 | val_sh +0.7345 | **excess +0.0151 (positive!)**
+- **Per-fold:** F1=-0.75 F2=+1.42 F3=+2.10 F4=+0.41 F5=-0.07 F6=+0.58 F7=+1.44
+- **Status:** DISCARD vs global, but COMPLEMENTARY to dmamba
+- **Learning:** mambats wins F3/F7 trend; dmamba wins F1 chaos. Ensemble axis open.
+
+### Exp179: Mamba mambats variance check seed=7
+- **Config delta from exp 178:** seed 42→7
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017 — confirm pattern reproducibility
+- **Prediction:** comp [+0.0, +0.7], runtime ~80-130s
+- **Result:** PENDING
