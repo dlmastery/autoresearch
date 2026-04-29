@@ -2038,6 +2038,14 @@
   "249": {
     "diagnosis": "xLSTM #8/10 seed=3",
     "citations": "Picard 2021",
+    "_manual": true,
+    "verdict": "DISCARD. dMamba d_state=48 -0.81. Worse than champion d_state=32 +1.32. Gu-Dao 2024 \u00a73.2 sweet spot confirmed at 16-32."
+  },
+  "250": {
+    "diagnosis": "dMamba seq=60 #2/10 d_state=24 \u2014 untested mid-point between champion d_state=32 and exp 48 d_state=16 (+1.19).",
+    "citations": "Gu-Dao 2024 Mamba arXiv:2312.00752 \u00a73.2 \u2014 d_state ablation; 16-32 is sweet spot.",
+    "hypothesis": "d_state=24 between two known good values.",
+    "prediction": "comp [+0.5, +1.4], runtime ~10-15min.",
     "_manual": true
   }
 }
