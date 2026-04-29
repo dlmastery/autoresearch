@@ -648,3 +648,11 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Friedman 2001 §5.2; Prokhorenkova 2018 §3.3; ESL §10.12; Bühlmann-Yu 2003.
 **Hypothesis:** Slowest CatBoost lr regime stabler.
 **Prediction:** comp [-0.5, +0.6], runtime ~10-20min.
+
+## Exp207 — CatBoost slowest-lr lr=0.005 (val crash F2 RECORD +3.89)
+**Verdict:** DISCARD. Comp -1.10, A_sh +0.68, val NEG. F2 RECORD +3.89. Same val pattern. Runtime 43min.
+
+## Exp208 — CatBoost depth=3 (untested shallower)
+**Citations:** Friedman 2001 §5.4; Prokhorenkova 2018 §3.3; ESL §10.12.
+**Hypothesis:** Shallower trees stabler.
+**Prediction:** comp [-0.5, +0.3], runtime ~5-8min.

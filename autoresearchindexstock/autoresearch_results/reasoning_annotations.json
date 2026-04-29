@@ -1718,6 +1718,15 @@
     "citations": "Friedman 2001 Annals of Statistics \u00a75.2 \u2014 lr\u00d7n_est tradeoff. Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516) \u00a73.3 \u2014 recommended CatBoost lr range and ordered-boosting stability. Hastie, Tibshirani, Friedman 2009 ESL \u00a710.12 \u2014 slow learner stability. B\u00fchlmann, Yu 2003 JCGS \u2014 boosting with L2 loss for noisy regression.",
     "hypothesis": "CatBoost depth=4 + lr=0.005 + n_est=2000 + seq=60 + seed=42 (slower-lr capacity-matched to prior CatBoost configs) will produce a more stable composite via smoother loss surface traversal. If composite \u2265 +0.2 at 3-seed median, this is the new CatBoost stable lift.",
     "prediction": "Composite [-0.5, +0.6]; A_sharpe [+0.2, +0.7]; runtime ~10-20min.",
+    "_manual": true,
+    "verdict": "DISCARD strongly. Composite -1.1003, A_sh +0.6796, val_sh -0.9003 (NEG), excess -0.5398. Per-fold A_sharpe: F1 -0.26, F2 **+3.89 (RECORD across all CatBoost runs!)**, F3 +2.00, F4 -1.26, F5 +0.11, F6 +2.40, F7 +0.12. 5/7 positive folds. Hypothesis NOT confirmed: slowest-lr did NOT stabilize val despite Friedman 2001 \u00a75.2 prediction. Same val-instability pattern \u2014 A_sh strong but val crashed. Runtime 2588s = 43.1min.",
+    "learning": "CatBoost at all lr regimes (0.005, 0.01, 0.02, 0.05) shows the same val-instability pattern. The slowest-lr smoother-loss claim doesn't transfer to QQQ super-fold val. CatBoost at 18/25, 7 slots left. Try untested shallower depth axis (depth=3) for stability per Friedman 2001 \u00a75.4."
+  },
+  "208": {
+    "diagnosis": "CatBoost at 18/25 \u2014 7 slots left. The slowest-lr regime tested (exp 207 -1.10) shows same val-instability. Untested axis: depth=3 (shallower than tested 4 and 6). Per Friedman 2001 \u00a75.4, shallower trees produce more stable predictions on noisy data \u2014 depth=3 oblivious-tree CatBoost has 8 leaves vs depth=4's 16. Combined with the standard exp 98 baseline (lr=0.02 n_est=1000), depth=3 is one knob change.",
+    "citations": "Friedman 2001 Annals of Statistics \u00a75.4 \u2014 shallow trees stability. Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516) \u00a73.3 \u2014 depth-stability tradeoff. Hastie, Tibshirani, Friedman 2009 ESL \u00a710.12.",
+    "hypothesis": "CatBoost depth=3 + lr=0.02 + n_est=1000 + seq=60 + seed=42 (one knob from exp 98: depth 4\u21923) will produce a more val-stable composite by reducing tree complexity. If composite \u2265 -0.3 with val_sh > 0, depth=3 is the new stable CatBoost variant.",
+    "prediction": "Composite [-0.5, +0.3]; A_sharpe [+0.1, +0.5]; runtime ~5-8min.",
     "_manual": true
   }
 }

@@ -595,3 +595,13 @@ roadmap.
 - **Rationale:** Friedman 2001 §5.2 + Prokhorenkova 2018 §3.3
 - **Prediction:** comp [-0.5, +0.6], runtime ~10-20min
 - **Result:** PENDING
+
+### Exp207: CatBoost lr=0.005 (val crash but F2 RECORD +3.89)
+- **Result:** Comp -1.10 | A_sh +0.68 | val_sh -0.90 NEG
+- **Status:** DISCARD; same val-instability across all CatBoost lr regimes.
+
+### Exp208: CatBoost depth=3 (untested shallower for stability)
+- **Config delta from exp 98:** max_depth 4→3
+- **Rationale:** Friedman 2001 §5.4 shallow stability
+- **Prediction:** comp [-0.5, +0.3], runtime ~5-8min
+- **Result:** PENDING
