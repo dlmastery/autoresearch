@@ -255,3 +255,17 @@ roadmap.
 - **Rationale:** Smith 2017 §3 — lr most-impactful HP; 2e-3 untested above canonical
 - **Prediction:** comp [-0.3, +1.0], runtime ~50-70s
 - **Result:** PENDING
+
+### Exp177: LSTM lr=2e-3 (REJECTED — destabilized)
+- **Config delta from exp 74:** lr 1e-3→2e-3
+- **Rationale:** Smith 2017 highest-leverage axis untested
+- **Result:** Composite **-1.12** | A_sh +0.05 | val_sh -0.72
+- **Per-fold:** F1=+1.09 F2=-1.05 F3=-0.47 F4=-0.18 F5=+1.49 F6=+0.63 F7=-1.19
+- **Status:** DISCARD strongly — destabilized training
+- **Learning:** LSTM HP-only axes ALL EXHAUSTED (6 consecutive DISCARDs). Pivot to Mamba.
+
+### Exp178: Mamba mambats variant (untested SSM structural variant)
+- **Config delta from dMamba exp 52:** mamba_variant dmamba→mambats
+- **Rationale:** Cai 2024 NeurIPS — mambats season-trend decomposition for time-series
+- **Prediction:** comp [+0.5, +1.6], runtime ~6-12min
+- **Result:** PENDING

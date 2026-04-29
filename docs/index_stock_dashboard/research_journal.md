@@ -297,3 +297,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Smith 2017 arXiv:1803.09820 §3; Goyal 2017; Loshchilov-Hutter 2019; Kingma-Ba 2015 §3.
 **Hypothesis:** lr=2e-3 doubles step size, lets LSTM reach deeper minima within early-stop budget.
 **Prediction:** comp [-0.3, +1.0], A_sh [+0.5, +1.5], runtime ~50-70s.
+
+## Exp177 — LSTM lr=2e-3 (REJECTED — destabilized training)
+**Diagnosis:** Smith 2017 highest-leverage axis untested above 1e-3.
+**Citations:** Smith 2017 §3; Goyal 2017; Loshchilov-Hutter 2019; Kingma-Ba 2015.
+**Hypothesis:** lr=2e-3 lets LSTM reach deeper minima within early-stop budget.
+**Prediction:** comp [-0.3, +1.0].
+**Verdict:** DISCARD strongly. Comp -1.12, A_sh +0.05, val_sh NEGATIVE. F2/F3/F4/F7 all collapsed — destabilized training. Runtime 52s.
+**Learning:** **LSTM HP-only axes ALL EXHAUSTED across 6 consecutive DISCARDs.** Per CLAUDE.md structural-change rule. Pivot to Mamba.
+
+## Exp178 — Mamba mambats variant (untested SSM structural variant)
+**Diagnosis:** LSTM HP exhausted; pivot to Mamba (21/25, global champion). mambats variant NEVER tested on QQQ.
+**Citations:** Cai et al. 2024 NeurIPS 'MambaTS' arXiv:2405.16440 §3; Liu 2025 DMamba arXiv:2602.09081; Gu-Dao 2024 §4.2; Wu 2023 ICLR TimesNet.
+**Hypothesis:** mambats season-trend decomposition captures QQQ FOMC/EOM/quad-witching seasonal patterns that dmamba misses.
+**Prediction:** comp [+0.5, +1.6], A_sh [+0.7, +1.5], runtime ~6-12min.
