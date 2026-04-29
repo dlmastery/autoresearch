@@ -1826,6 +1826,15 @@
     "citations": "Picard 2021; Lakshminarayanan 2017 \u00a73.2.",
     "hypothesis": "5-seed median.",
     "prediction": "comp [-0.5, +0.7].",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -0.02, A_sh +0.53, val_sh +0.18. 5-seed MLP seq=35 distribution [+0.55, -1.04, -0.56, +0.89, -0.02] median -0.02, mean -0.04. seq=35 5-seed median essentially zero \u2014 no real lift over seq=10 5-seed median +0.43.",
+    "learning": "MLP seq=35 doesn't beat seq=10 at multi-seed median. seq=10 remains best."
+  },
+  "220": {
+    "diagnosis": "MLP seq=35 6-seed (seed=13) per user 10-exp directive.",
+    "citations": "Picard 2021.",
+    "hypothesis": "seed=13.",
+    "prediction": "comp [-1.0, +1.0].",
     "_manual": true
   }
 }
