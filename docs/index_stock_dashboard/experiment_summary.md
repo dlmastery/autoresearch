@@ -228,3 +228,17 @@ roadmap.
 - **Rationale:** Bengio 1994 — shorter seq eliminates grad-flow issues
 - **Prediction:** comp [+0.4, +1.0], A_sh [+1.0, +1.6], runtime ~50-70s
 - **Result:** PENDING
+
+### Exp175: LSTM seq=5 (DISCARD)
+- **Config delta from exp 74:** seq_len 10→5
+- **Rationale:** Bengio 1994 — shorter eliminates grad-vanishing
+- **Result:** Composite +0.0161 | A_sh +0.34 | val_sh +0.32 | excess -0.31
+- **Per-fold:** F1=+1.02 F2=-0.46 F3=-1.05 F4=+0.27 F5=+1.70 F6=+0.68 F7=-0.30
+- **Status:** DISCARD; F2/F3 collapse on shorter context
+- **Learning:** seq_len axis fully CLOSED both directions; seq=10 champion.
+
+### Exp176: LSTM bs=8 (Keskar 2017 flat-minima untested)
+- **Config delta from exp 74:** bs 16→8
+- **Rationale:** Keskar 2017 ICLR + Smith 2018 + Hoffer 2017 — small bs flat minima
+- **Prediction:** comp [+0.6, +1.3], A_sh [+1.2, +1.7], runtime ~80-120s
+- **Result:** PENDING

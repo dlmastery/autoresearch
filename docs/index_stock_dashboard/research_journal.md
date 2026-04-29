@@ -269,3 +269,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Bengio 1994 IEEE TNN; Hochreiter-Schmidhuber 1997 §3.1; Fischer-Krauss 2018 §3.4; Vaswani 2017 §3.2.
 **Hypothesis:** seq=5 within QQQ daily autocorr halflife; eliminates grad-flow issues.
 **Prediction:** comp [+0.4, +1.0], A_sh [+1.0, +1.6], runtime ~50-70s.
+
+## Exp175 — LSTM seq=5 (DISCARD — F2/F3 collapse)
+**Diagnosis:** Test seq=5 (shorter, opposite of rejected seq=20).
+**Citations:** Bengio 1994; Hochreiter-Schmidhuber 1997 §3.1; Vaswani 2017.
+**Hypothesis:** seq=5 within autocorr halflife; eliminates grad-flow issues.
+**Prediction:** comp [+0.4, +1.0], A_sh [+1.0, +1.6].
+**Verdict:** DISCARD. Comp +0.0161, A_sh +0.34. F1/F5 held but F2/F3/F7 collapsed. Runtime 40s.
+**Learning:** seq_len axis FULLY CLOSED — seq=10 champion both above and below. Pivot to bs axis.
+
+## Exp176 — LSTM bs=8 (Keskar 2017 flat-minima untested)
+**Diagnosis:** seq axis closed; pivot to bs. bs=16 (canonical) and bs=32 tested; bs=8 UNTESTED.
+**Citations:** Keskar 2017 ICLR arXiv:1609.04836; Smith 2018 ICLR arXiv:1711.00489; Loshchilov-Hutter 2019; Hoffer-Hubara-Soudry 2017 NeurIPS arXiv:1705.08741.
+**Hypothesis:** bs=8 induces √2× more SGD noise; finds flatter minima.
+**Prediction:** comp [+0.6, +1.3], A_sh [+1.2, +1.7], runtime ~80-120s.
