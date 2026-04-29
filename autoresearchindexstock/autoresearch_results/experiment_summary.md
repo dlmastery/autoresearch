@@ -624,3 +624,15 @@ roadmap.
 - **Rationale:** User-requested untested seq axis on MLP; Goyal 2017 §2.4 + Hochreiter-Schmidhuber 1997
 - **Prediction:** comp [+0.0, +1.2], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp215: MLP seq=35 (POSITIVE comp +0.55!)
+- **Config delta from MLP champion exp 79:** seq_len 10→35
+- **Result:** Comp **+0.5475** | A_sh +0.89 | val_sh +0.65 | F2 **RECORD +4.53** | 6/7 pos
+- **Status:** DISCARD vs global, but seq=35 IS HELPING MLP
+- **Learning:** Multi-week context captures F2 EU-debt regime alpha (+4.53)
+
+### Exp216: MLP seq=35 seed=42 (variance check)
+- **Config delta from exp 215:** seed 0→42
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017
+- **Prediction:** comp [-0.3, +0.7], runtime ~50-90s
+- **Result:** PENDING

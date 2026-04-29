@@ -673,3 +673,14 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Goyal 2017 arXiv:1706.02677 §2.4; Hochreiter-Schmidhuber 1997 §3.1; Gu-Kelly-Xiu 2020 RFS; Loshchilov-Hutter 2019; Srivastava 2014 dropout.
 **Hypothesis:** Doubled context (seq=20 vs 10) captures multi-week patterns; risk of overfit at 3,680 input dims.
 **Prediction:** comp [+0.0, +1.2], A_sh [+0.5, +1.3], runtime ~30-60s.
+
+## Exp215 — MLP seq=35 (user directive: +10 cheap-tier winners @ seq=35, MLP first)
+**Diagnosis:** User-extended directive: re-run cheap-tier winners with seq=35 untested.
+**Citations:** Goyal 2017 §2.4; Gu-Kelly-Xiu 2020; He 2016 ResNet; Loshchilov-Hutter 2019.
+**Hypothesis:** seq=35 captures multi-week regime context.
+**Prediction:** comp [-0.5, +1.0].
+**Verdict:** DISCARD vs global, but POSITIVE comp +0.55, A_sh +0.89, F2 **RECORD +4.53**, 6/7 pos folds. seq=35 helps!
+
+## Exp216 — MLP seq=35 seed=42 (variance check #2/10 for MLP seq=35 grind)
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2.
+**Prediction:** comp [-0.3, +0.7], runtime ~50-90s.

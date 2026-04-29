@@ -1149,3 +1149,128 @@ The FX project's confirmed-bad-axes that almost certainly carry over:
 - 50-tree XGBoost smoke composite -1.5423 (A_sharpe +0.5694 vs BH
   +1.2194, excess -0.65) — under-trained baseline, expected. Proper
   1500-tree SOTA baseline running.
+
+## User Directives Log — Session 2026-04-28 to 04-29 (exps 165-216+)
+
+This section captures **every user correction/directive** issued during this
+session so future Claude Code instances inherit the exact rules.
+
+### Dashboard + GitHub artifact rules
+
+1. **DASHBOARD STATUS COLUMN** — must always be `KEEP` or `DISCARD` based on
+   `composite > prev_best_composite`. Runner sets `entry["status"]` on every
+   write. Backfilled 23 historical entries.
+2. **CLASSIFICATION METRICS COLUMNS** — every entry must have precision /
+   recall / f1 / f2 / accuracy / mcc / tp / fp / tn / fn. Backfilled 55/57.
+3. **JSONL JS-COMPATIBLE OUTPUT (CRITICAL)** — JavaScript `JSON.parse()`
+   rejects raw `NaN`/`Infinity` tokens. Runner must sanitise floats to
+   `null` if `math.isnan` or `math.isinf` and write with `allow_nan=False`.
+   74 historical entries had `val_loss: NaN` and silently dropped from JS
+   dashboard, leaving only 139 of 213 visible. Fixed in
+   `run_autoresearch.py`; backup `experiment_log.jsonl.bak_pre_nan_fix`.
+4. **DASHBOARD CACHE-BUST STAMP** — embed a build timestamp in
+   `<title>AutoResearch QQQ Dashboard (build YYYYMMDD-HHMMSS)</title>` so
+   browsers/CDNs invalidate. Bump on every dashboard.html edit.
+5. **PER-EXPERIMENT SYNC + COMMIT RULE** — always run
+   `_sync_dashboard_to_docs.py`, `git add`, `git commit`, `git push origin master`
+   *before launching the next experiment*. Live mirror at the GitHub Pages
+   URL must never lag the local JSONL.
+6. **PLAYWRIGHT VERIFICATION** — when user reports a dashboard issue,
+   verify with the Playwright MCP browser. Validate via DOM rendering
+   check, console-error inspection, navigation. Don't assume "I synced
+   therefore correct".
+
+### Experiment loop rules (research-strict)
+
+7. **ALWAYS START EVERY BACKBONE WITH SOTA ARXIV HP** — first experiment
+   uses recommended HP from latest arXiv paper, citation in reasoning blob.
+8. **CHEAP TIER FIRST, EXPENSIVE LAST** — Order: MLP → LSTM → GBMs
+   (XGBoost / LightGBM / CatBoost) → Mamba → Phase F (PatchTST etc.) →
+   Phase D (stock-specific code adds: Adv-ALSTM, StockMixer, MASTER,
+   PatchMixer, CARD, Reversible Mixer) → Phase E (foundation models —
+   Sundial, TimesFM, Chronos, Moirai). **FOUNDATION MODELS LAST.**
+9. **EACH NEW EXPERIMENT** — start from previous winner, deep per-fold
+   analysis, arxiv search targeting deficiency, full reasoning blob
+   (diagnosis + citations + hypothesis + prediction) BEFORE launch,
+   verdict + learning AFTER.
+10. **DEFICIENCY = WEAKEST PER-FOLD REGIME**, not "seed instability" —
+    target the specific fold where champion's A_sharpe is most negative.
+11. **GPU SATURATION, NOT CPU** — Intel 14th-gen HX has E-core parity
+    errors (5 BSODs on 2026-04-19). All compute saturation on GPU; CPU
+    pinned to 4 P-cores [0,2,4,6] via `_pin_to_safe_cores()`.
+
+### seq_len discipline
+
+12. **PER-BACKBONE seq_len IS NOT UNIFORM** —
+    MLP/LSTM = 10 (FX-port); GBMs/Mamba/iTransformer/PatchTST/PatchTSMixer
+    = 60 (paper-default); DLinear/N-BEATS = 10. Variable per backbone is
+    intentional.
+13. **seq_len ≤ 60 HARD CEILING** — at seq_len > 63 fold val/test windows
+    (smallest = 63 days) cannot fit. Killed exp 58 (seq=120) before launch.
+14. **2026-04-29 user directive: MLP seq AXIS UNDER-EXPLORED** — extended
+    MLP budget +25 (50→75) to test seq=20 then seq=35.
+15. **2026-04-29 user directive: 10 ADDITIONAL EXPERIMENTS PER CHEAP-TIER
+    WINNER AT seq=35** — re-run all cheap-tier within-backbone winners
+    (MLP, LSTM, XGBoost, LightGBM, CatBoost, Mamba) for 10 more
+    experiments at seq_len=35 *with arxiv-driven code rewrites where
+    relevant* (e.g. He 2016 ResNet bottleneck on MLP). Total +60.
+    First result exp 215 (MLP seq=35 seed=0): comp **+0.5475**, A_sh
+    +0.89, F2 RECORD +4.53 — seq=35 IS helping MLP.
+
+### Features rules
+
+16. **ARXIV-CITED FEATURE RESEARCH** — implemented 5 calendar-effect
+    features (Lucca-Moench 2015 pre-FOMC, Boyd-Hu-Jagannathan 2005 NFP,
+    Faust-Wright 2018 CPI, Stivers-Sun 2002 quad-witching).
+17. **FEATURES ROLLED BACK if not useful** — mixed impact: LSTM helped
+    +1.05, dMamba dropped -1.60. Net negative. Rolled back to commit
+    a27bf3a. Re-introduction requires multi-seed median improvement.
+
+### Winner archiving
+
+18. **EVERY GLOBAL CHAMPION GETS A SELF-CONTAINED ARCHIVE** in
+    `autoresearch_results/winners/<backbone>_exp<N>_<desc>/`:
+    - README.md (headline + config table + per-fold + multi-seed + cites)
+    - config.json, experiment_log_entry.json, per_fold_results.json
+    - reproduction/multi_seed_summary.json + trade logs CSV/JSON
+    - code/ frozen snapshot of run_autoresearch.py + model + data + evaluation + CLAUDE.md
+    - inference/predict.py, audit_report.md (14-section), colab notebook
+19. **2026-04-29 user requested archiving be re-run** — helper script
+    `_archive_session_winners.py` creates archives on demand for new
+    champions. Run after every new champion. Currently archived:
+    `mamba_exp52_dmamba_e2_d32_seed42` (global +1.32),
+    `mlp_exp79_residual_seq10_wd1e5_warmup5` (5-seed median +0.43),
+    `mlp_exp204_residual_seq10_wd1e4_warmup5` (single-seed +0.97),
+    `mamba_exp178_mambats_e2_d32_seed42` (complementary +0.42).
+
+### Repository structure
+
+20. **2026-04-29 user directive: PACKAGE autoresearchindexstock AS
+    TOP-LEVEL PROJECT IN dlmastery, NOT pollute autoresearch (forex)** —
+    QQQ project lives in `dlmastery/autoresearchindexstock` (new repo).
+    FX project remains at `dlmastery/autoresearch`. New repo includes
+    `docs/` for GitHub Pages dashboard. Migration via `gh repo create`
+    + initial push from autoresearchindexstock-as-root staging.
+21. **CLAUDE.md must be updated with every user directive** — this
+    section is append-only on each session correction.
+
+### Memory + checkpoint discipline
+
+22. **2026-04-29 user directive: "make sure you follow the details in
+    claude.md please. you should have sharp memory to follow
+    instructions"** — re-read CLAUDE.md `User Directives Log` at every
+    session start. The 7-step research-strict process is non-negotiable.
+    Single-seed "champion" requires **3-seed median > prior baseline**
+    before being archived. Failure cases (e.g. CatBoost lr=0.05 +0.39
+    single-seed → 4-seed median 0.0) documented in research_journal.md.
+
+## GitHub Pages URLs (after 2026-04-29 migration)
+
+Once `dlmastery/autoresearchindexstock` is live with Pages enabled:
+
+- **Dashboard**: <https://dlmastery.github.io/autoresearchindexstock/dashboard/>
+- **Repo root**: <https://github.com/dlmastery/autoresearchindexstock>
+- **JSONL**: <https://dlmastery.github.io/autoresearchindexstock/dashboard/experiment_log.jsonl>
+
+Until migration complete, current URL stays at
+<https://dlmastery.github.io/autoresearch/index_stock_dashboard/>.
