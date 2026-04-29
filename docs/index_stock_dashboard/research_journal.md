@@ -325,3 +325,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 §3.2; Cai 2024 NeurIPS §3.1 mambats seed-sensitivity.
 **Hypothesis:** Same exp 178 config, seed 42→7; comp [+0.0, +0.7], same per-fold signature.
 **Prediction:** comp [+0.0, +0.7], A_sh [+0.4, +1.0], runtime ~80-130s.
+
+## Exp179 — Mamba mambats seed=7 (variance check, 2-seed mean +0.38)
+**Diagnosis:** Confirm mambats reproducibility per Picard 2021.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Cai 2024 §3.1.
+**Hypothesis:** Same exp 178 config, seed 42→7; comp [+0.0, +0.7], same per-fold sig.
+**Prediction:** comp [+0.0, +0.7].
+**Verdict:** DISCARD vs +1.32 global. Comp +0.34, A_sh +0.44, val_sh +0.99. Per-fold F1=-0.96 (still weak), F2=+0.77, F3=+0.18, F4=+0.72, F5=+0.56, F6=+0.91, F7=+0.83. 5/7 pos folds. Runtime 80s.
+**Learning:** mambats reproducibility CONFIRMED at lower amplitude than dmamba. Complementary signal. Try s_mamba next (last untested variant).
+
+## Exp180 — Mamba s_mamba variant (last untested SSM variant)
+**Diagnosis:** Mamba budget 24/25; complete variant-axis sweep with s_mamba.
+**Citations:** Liu 2025 DMamba arXiv:2602.09081 §3.4; Gu-Dao 2024 §2; Wang-Wu et al. 2024 S-Mamba.
+**Hypothesis:** s_mamba's input-dependent selectivity differs from dmamba's decoupled gates; distinct per-fold pattern.
+**Prediction:** comp [-0.7, +1.0], A_sh [+0.3, +1.0], runtime ~6-12min.

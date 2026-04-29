@@ -283,3 +283,17 @@ roadmap.
 - **Rationale:** Picard 2021 + Lakshminarayanan 2017 — confirm pattern reproducibility
 - **Prediction:** comp [+0.0, +0.7], runtime ~80-130s
 - **Result:** PENDING
+
+### Exp179: Mamba mambats seed=7 (variance check)
+- **Config delta from exp 178:** seed 42→7
+- **Rationale:** Picard 2021 — confirm reproducibility
+- **Result:** Composite +0.3421 | A_sh +0.4421 | val_sh +0.9938 | excess -0.1622
+- **Per-fold:** F1=-0.96 F2=+0.77 F3=+0.18 F4=+0.72 F5=+0.56 F6=+0.91 F7=+0.83
+- **Status:** DISCARD; mambats 2-seed mean +0.38 (reproducible at lower amplitude)
+- **Learning:** mambats characterized; complementary to dmamba. Try s_mamba next.
+
+### Exp180: Mamba s_mamba variant (last untested SSM variant)
+- **Config delta from dMamba exp 52:** mamba_variant dmamba→s_mamba
+- **Rationale:** Liu 2025 DMamba §3.4 — s_mamba's input-dependent selectivity
+- **Prediction:** comp [-0.7, +1.0], runtime ~6-12min
+- **Result:** PENDING
