@@ -153,3 +153,18 @@ roadmap.
 - **Rationale:** 3-seed median rule per CLAUDE.md + Picard 2021
 - **Prediction:** comp [-0.4, +0.6], runtime 22-32min
 - **Result:** PENDING
+
+### Exp170: CatBoost lr=0.05 n_est=1000 seed=99 (3-seed median lock)
+- **Config delta from exp 169:** seed 0→99
+- **Rationale:** 3-seed median rule; Picard 2021
+- **Prediction:** comp [-0.4, +0.6]
+- **Result:** Composite **-1.4536** | A_sharpe +0.4732 | val_sharpe **-1.1536** (CRASH)
+- **Per-fold A_sharpe:** F1=+2.38 F2=**+3.74** F3=+2.29 F4=-0.28 F5=-0.57 F6=+0.87 F7=-0.53
+- **Status:** DISCARD strongly — val crashed despite strong test alpha
+- **Learning:** Test alpha seed-stable, val alpha wildly seed-variable. 3-seed median +0.07 — marginal lift.
+
+### Exp171: CatBoost lr=0.05 n_est=1000 seed=7 (4-seed median lock)
+- **Config delta from exp 170:** seed 99→7
+- **Rationale:** Lakshminarayanan 2017 §3.2 — 4-seed median for stability
+- **Prediction:** comp [-1.0, +0.6], runtime 22-32min
+- **Result:** PENDING

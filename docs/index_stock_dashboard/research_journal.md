@@ -199,3 +199,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021 seed-std; Lakshminarayanan 2017 NeurIPS deep ensembles §3.2; Prokhorenkova 2018 §3.2.
 **Hypothesis:** seed=99 locks 3-seed median; if >= +0.10 the lift is decisive.
 **Prediction:** comp [-0.4, +0.6], A_sh [+0.0, +0.6], F2/F3 [+1.0, +2.5], runtime 22-32min.
+
+## Exp170 — CatBoost seed=99 (3-seed median lock — VAL CRASH)
+**Diagnosis:** 3rd seed for median lock per CLAUDE.md.
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Prokhorenkova 2018 §3.2.
+**Hypothesis:** seed=99 locks 3-seed median; if >= +0.10 the lift is decisive.
+**Prediction:** comp [-0.4, +0.6].
+**Verdict:** DISCARD strongly. Composite **-1.4536**. A_sharpe +0.47 (test stable), but val_sharpe CRASHED to -1.15. Per-fold A_sharpe: F1=+2.38, F2=**+3.74** (RECORD!), F3=+2.29 (test alpha is huge!), F4=-0.28, F5=-0.57, F6=+0.87, F7=-0.53. 4/7 positive test folds.
+**Learning:** Major seed-variance insight: A_sharpe stable across seeds (+0.20/+0.49/+0.47), val_sharpe wildly variable (+0.64/+1.49/-1.15). 3-seed median composite +0.0728 — lift is REAL but MARGINAL. Need 4-seed lock.
+
+## Exp171 — CatBoost seed=7 (4-seed median lock)
+**Diagnosis:** 3-seed median +0.07 barely above baseline; need 4th seed per Lakshminarayanan 2017 §3.2 (≥5 ensemble members ideal).
+**Citations:** Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 §3.2; Picard 2021 4-seed reliability.
+**Hypothesis:** seed=7 locks 4-seed median; informs deploy-vs-abandon decision.
+**Prediction:** comp [-1.0, +0.6], A_sh [+0.2, +0.6], val_sh wild range.
