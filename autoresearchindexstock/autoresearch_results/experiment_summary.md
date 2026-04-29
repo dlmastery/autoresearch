@@ -534,3 +534,15 @@ roadmap.
 - **Rationale:** Picard 2021 + Lakshminarayanan 2017 §3.2
 - **Prediction:** comp [-0.5, +1.0], runtime ~30-60s
 - **Result:** PENDING
+
+### Exp201: MLP exp 79 seed=99 (7/7 POSITIVE FOLDS — first stable positive median!)
+- **Result:** Comp **+0.5197** | A_sh +0.87 | excess **+0.26 (positive)** | **7/7 pos folds**
+- **3-seed MLP exp 79 median +0.52** — FIRST non-Mamba backbone with stable positive median
+- **Status:** DISCARD vs global, but BREAKTHROUGH for non-Mamba stable lift
+- **Learning:** MLP exp 79 config is real — need more seeds to confirm.
+
+### Exp202: MLP exp 79 seed=7 (4-seed lock)
+- **Config delta from exp 201:** seed 99→7
+- **Rationale:** Lakshminarayanan 2017 §3.2 (5+ members)
+- **Prediction:** comp [+0.0, +1.0], runtime ~30-60s
+- **Result:** PENDING

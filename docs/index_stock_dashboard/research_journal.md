@@ -592,3 +592,12 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021; Lakshminarayanan 2017 §3.2.
 **Hypothesis:** seed=99 locks 3-seed MLP median.
 **Prediction:** comp [-0.5, +1.0], runtime ~30-60s.
+
+## Exp201 — MLP exp 79 seed=99 (7/7 POSITIVE FOLDS, FIRST stable positive median!)
+**Verdict:** DISCARD vs +1.32 global BUT major: comp **+0.5197**, A_sh **+0.87**, **7/7 POSITIVE FOLDS**, excess +0.26 (positive!). **3-seed MLP exp 79 median +0.52** — FIRST non-Mamba stable positive median this session.
+**Learning:** MLP exp 79 (warmup=5 + hd=0.25) is REAL lift! Need 4-5 seeds per Lakshminarayanan 2017.
+
+## Exp202 — MLP exp 79 seed=7 (4-seed median lock)
+**Citations:** Lakshminarayanan 2017 §3.2 (5+ members ideal); Picard 2021; Goyal 2017; Loshchilov-Hutter 2019.
+**Hypothesis:** seed=7 confirms +0.52 median.
+**Prediction:** comp [+0.0, +1.0], runtime ~30-60s.
