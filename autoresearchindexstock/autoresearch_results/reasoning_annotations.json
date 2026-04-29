@@ -1916,6 +1916,11 @@
   },
   "231": {
     "diagnosis": "LSTM seq=35 #7/10 seed=11",
+    "_manual": true,
+    "verdict": "KEEP-PARTIAL. Comp +0.68, A_sh +0.78, B_sh +1.35. 7-seed LSTM seq=35 mean improving."
+  },
+  "232": {
+    "diagnosis": "LSTM seq=35 #8/10 seed=3",
     "_manual": true
   }
 }
