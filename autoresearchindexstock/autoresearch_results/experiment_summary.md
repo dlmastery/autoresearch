@@ -483,3 +483,13 @@ roadmap.
 - **Rationale:** Oreshkin 2020 ICLR §4.2 bootstrap; Picard 2021
 - **Prediction:** comp [-2.0, +0.0], runtime ~1-2min
 - **Result:** PENDING
+
+### Exp196: N-BEATS seed=0 (reproducibly weak)
+- **Result:** Comp -1.43 (identical to exp 144!), A_sh -0.60. 1/7 pos folds.
+- **Status:** DISCARD; N-BEATS architecture doesn't fit QQQ. 2-seed cluster.
+
+### Exp197: PatchTSMixer seed=99 (3-seed lock)
+- **Config delta from exp 146:** seed 0→99
+- **Rationale:** Ekambaram 2023 KDD; Picard 2021
+- **Prediction:** comp [-2.0, +0.5], runtime ~1-3min
+- **Result:** PENDING

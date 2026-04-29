@@ -551,3 +551,11 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Oreshkin 2020 ICLR arXiv:1905.10437 §4.2; Picard 2021; Lakshminarayanan 2017.
 **Hypothesis:** seed=0 establishes N-BEATS variance.
 **Prediction:** comp [-2.0, +0.0], runtime ~1-2min.
+
+## Exp196 — N-BEATS seed=0 (reproducibly weak)
+**Verdict:** DISCARD. Comp -1.43 (same as exp 144!). 2-seed mean -1.43 — N-BEATS architecture mismatch with QQQ.
+
+## Exp197 — PatchTSMixer seed=99 (3-seed median lock)
+**Citations:** Ekambaram 2023 KDD arXiv:2306.09364; Picard 2021; Lakshminarayanan 2017.
+**Hypothesis:** seed=99 locks 3-seed PatchTSMixer median.
+**Prediction:** comp [-2.0, +0.5], runtime ~1-3min.
