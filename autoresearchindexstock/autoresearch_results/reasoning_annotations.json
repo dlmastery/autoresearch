@@ -1763,6 +1763,15 @@
     "citations": "Friedman 2001 \u00a75.2; ESL \u00a710.12; Prokhorenkova 2018.",
     "hypothesis": "Lower n_est = more stable val.",
     "prediction": "Composite [-0.5, +0.3]; runtime ~3-5min.",
+    "_manual": true,
+    "verdict": "DISCARD. Comp -0.87, A_sh +0.67, val NEG. F2 RECORD +4.91 across all CatBoost. 5/7 pos. Same val pattern.",
+    "learning": "Lower n_est=300 didn't help. CatBoost 23/25, 2 left."
+  },
+  "213": {
+    "diagnosis": "CatBoost lr=0.04 (between 0.03 and 0.05, untested mid-fast) for completeness.",
+    "citations": "Friedman 2001 \u00a75.2; Prokhorenkova 2018 \u00a73.3.",
+    "hypothesis": "lr=0.04 mid-point.",
+    "prediction": "Composite [-0.5, +0.4]; runtime ~6-10min.",
     "_manual": true
   }
 }
