@@ -138,3 +138,18 @@ roadmap.
 - **Rationale:** Picard 2021 — confirm reproducibility before declaring real lift
 - **Prediction:** comp [-0.3, +0.5], F2 [+1.0, +2.5], F3 [+1.0, +3.0]
 - **Result:** PENDING
+
+### Exp169: CatBoost exp167 seed=0 (variance lock)
+- **Config delta from exp 167:** seed 42→0
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017 — confirm reproducibility before deployment
+- **Prediction:** comp [-0.3, +0.5]
+- **Result:** Composite **+0.3898** | A_sharpe +0.4898 | A_excess -0.7296
+- **Per-fold A_sharpe:** F1=+1.06 F2=+1.53 F3=+2.87 F4=+0.23 F5=+0.37 F6=+1.40 F7=-0.60
+- **Status:** DISCARD vs +1.32 global, **NEW CATBOOST CHAMPION** (better than seed=42!)
+- **Learning:** Lift reproducible; F1/F4 weakness was seed=42-specific. 2-seed mean +0.23.
+
+### Exp170: CatBoost lr=0.05 n_est=1000 seed=99 (3-seed median lock)
+- **Config delta from exp 169:** seed 0→99
+- **Rationale:** 3-seed median rule per CLAUDE.md + Picard 2021
+- **Prediction:** comp [-0.4, +0.6], runtime 22-32min
+- **Result:** PENDING

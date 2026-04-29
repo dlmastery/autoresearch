@@ -185,3 +185,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Picard 2021 arXiv:2109.08203 seed-std ~0.5 at n<10k; Lakshminarayanan 2017 NeurIPS deep ensembles; Prokhorenkova 2018 §3.2 ordered-boosting permutation seed-dep.
 **Hypothesis:** Same config as exp 167, seed 42→0; composite within ±0.4 of +0.0728 confirms real lift.
 **Prediction:** comp [-0.3, +0.5], F2 [+1.0, +2.5], F3 [+1.0, +3.0], runtime ~30-35min.
+
+## Exp169 — CatBoost variance lock seed=0 (NEW WITHIN-CATBOOST CHAMPION)
+**Diagnosis:** Confirm exp 167 +0.07 reproducibility per Picard 2021.
+**Citations:** Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 NeurIPS; Prokhorenkova 2018 §3.2 ordered-boosting seed-dep.
+**Hypothesis:** Same config as exp 167, seed 42→0; comp within ±0.4 confirms real lift.
+**Prediction:** comp [-0.3, +0.5], F2 [+1.0, +2.5], F3 [+1.0, +3.0].
+**Verdict:** DISCARD vs +1.32 global, but **NEW CATBOOST CHAMPION** at +0.3898 (BETTER than seed=42's +0.07!). F1 +1.06 (was -0.15), F4 +0.23 (was -1.37), 6/7 positive folds. Two-seed mean +0.23. Runtime 1299s (faster).
+**Learning:** Lift IS reproducible. F1/F4 weakness was seed=42-specific. Cumulative within-CatBoost lift +0.95 across 3 exps. Need 3rd seed for median lock.
+
+## Exp170 — CatBoost lr=0.05 n_est=1000 seed=99 (3-seed median lock)
+**Diagnosis:** 2-seed mean +0.23 ; need 3rd seed per CLAUDE.md "3-seed median > baseline" rule.
+**Citations:** Picard 2021 seed-std; Lakshminarayanan 2017 NeurIPS deep ensembles §3.2; Prokhorenkova 2018 §3.2.
+**Hypothesis:** seed=99 locks 3-seed median; if >= +0.10 the lift is decisive.
+**Prediction:** comp [-0.4, +0.6], A_sh [+0.0, +0.6], F2/F3 [+1.0, +2.5], runtime 22-32min.
