@@ -2032,6 +2032,12 @@
   "248": {
     "diagnosis": "xLSTM #7/10 seed=11",
     "citations": "Picard 2021",
+    "_manual": true,
+    "verdict": "DISCARD. xLSTM seed=11 -1.34. 7-seed median -0.34, mean -0.33."
+  },
+  "249": {
+    "diagnosis": "xLSTM #8/10 seed=3",
+    "citations": "Picard 2021",
     "_manual": true
   }
 }
