@@ -2046,6 +2046,11 @@
     "citations": "Gu-Dao 2024 Mamba arXiv:2312.00752 \u00a73.2 \u2014 d_state ablation; 16-32 is sweet spot.",
     "hypothesis": "d_state=24 between two known good values.",
     "prediction": "comp [+0.5, +1.4], runtime ~10-15min.",
+    "_manual": true,
+    "verdict": "DISCARD. xLSTM seed=3 -0.55. 8-seed median -0.30, mean -0.36."
+  },
+  "251": {
+    "diagnosis": "xLSTM #9/10 seed=5",
     "_manual": true
   }
 }
