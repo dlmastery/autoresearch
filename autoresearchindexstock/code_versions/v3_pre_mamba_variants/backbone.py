@@ -318,14 +318,10 @@ class CurrencyMamba(nn.Module):
     """Mamba-family backbone for return prediction.
 
     Variants:
-      vanilla     — canonical 2-layer Mamba (Gu & Dao 2024)
-      s_mamba     — S-Mamba channel-flipped variant (Liu 2024 arXiv:2403.11144)
-      dmamba      — decomposition: seasonal via Mamba, trend via MLP (Liu 2025 arXiv:2602.09081)
-      mambats     — LTSF-tuned MambaTS (Cai et al. 2024 NeurIPS arXiv:2405.16440)
-      mambastock  — Stock-specific multi-scale + adaptive-temperature (Shi et al. 2024 arXiv:2402.18959)
-      samba       — Mamba + Sliding Window Attention hybrid (Ren et al. 2024 arXiv:2406.07522)
-      hybrid_mamba — Jamba-style interleaved Mamba+Transformer (AI21 2024 arXiv:2403.19887)
-      crossmamba  — Cross-attention between vanilla (time scan) and S-Mamba (variate scan) (Zhao 2024)
+      vanilla  — canonical 2-layer Mamba (Gu & Dao 2024)
+      s_mamba  — S-Mamba channel-flipped variant
+      dmamba   — decomposition: seasonal via Mamba, trend via MLP (arXiv:2602.09081)
+      mambats  — same block with LTSF-tuned hyperparams (Cai et al. 2024)
     """
 
     def __init__(self, n_input_features: int, hidden_size: int = 128,
@@ -350,124 +346,18 @@ class CurrencyMamba(nn.Module):
                 nn.Linear(hidden_size, hidden_size)
             )
 
-        if variant == "mambastock":
-            # Shi et al. 2024 arXiv:2402.18959 — stock-specific Mamba.
-            # Multi-scale aggregator (last + mean + max) + adaptive temperature.
-            self.scale_aggregator = nn.Linear(hidden_size * 3, hidden_size)
-            # Adaptive temperature scales prediction confidence per Shi 2024 §3.3
-            self.temperature = nn.Parameter(torch.ones(1))
-
-        if variant == "samba":
-            # Ren et al. 2024 arXiv:2406.07522 — Mamba + Sliding Window Attention.
-            # SWA layer over a small window; Mamba over global context.
-            # Use multi-head attention with attn_mask = local-window pattern.
-            self.swa_window = 8  # paper-default 8-16 for time series
-            self.swa = nn.MultiheadAttention(
-                embed_dim=hidden_size, num_heads=4,
-                dropout=head_dropout, batch_first=True
-            )
-            self.swa_norm = nn.LayerNorm(hidden_size)
-
-        if variant == "hybrid_mamba":
-            # AI21 Jamba 2024 arXiv:2403.19887 — interleaved Mamba + Transformer.
-            # We replace half the SSM blocks with attention blocks, alternating.
-            self.attn_blocks = nn.ModuleList([
-                nn.MultiheadAttention(embed_dim=hidden_size, num_heads=4,
-                                       dropout=head_dropout, batch_first=True)
-                for _ in range(num_layers)
-            ])
-            self.attn_norms = nn.ModuleList([nn.LayerNorm(hidden_size) for _ in range(num_layers)])
-            self.attn_ff = nn.ModuleList([
-                nn.Sequential(nn.Linear(hidden_size, hidden_size * 4), nn.GELU(),
-                              nn.Linear(hidden_size * 4, hidden_size))
-                for _ in range(num_layers)
-            ])
-
-        if variant == "crossmamba":
-            # Zhao 2024 — cross-attention between time-scan and variate-scan branches.
-            # Run both vanilla (time) and s_mamba (variate) blocks in parallel,
-            # then cross-attend their outputs.
-            self.crossmamba_variate_blocks = nn.ModuleList([
-                SelectiveSSM(hidden_size, d_state=d_state, expand=expand, variant="s_mamba")
-                for _ in range(num_layers)
-            ])
-            self.crossmamba_variate_norms = nn.ModuleList([
-                nn.LayerNorm(hidden_size) for _ in range(num_layers)
-            ])
-            self.cross_attn = nn.MultiheadAttention(
-                embed_dim=hidden_size, num_heads=4,
-                dropout=head_dropout, batch_first=True
-            )
-            self.cross_norm = nn.LayerNorm(hidden_size)
-
         self.heads = _make_heads(hidden_size, dropout=head_dropout, het_loss=het_loss)
 
     def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
         h = self.embed(x)
-
-        if self.variant == "hybrid_mamba":
-            # Alternate Mamba block and attention block per layer
-            for norm, block, attn_norm, attn, ff in zip(
-                self.norms, self.blocks, self.attn_norms, self.attn_blocks, self.attn_ff
-            ):
-                # Mamba half
-                h = h + block(norm(h))
-                # Attention half (post-Mamba)
-                h_a = attn_norm(h)
-                a_out, _ = attn(h_a, h_a, h_a, need_weights=False)
-                h = h + a_out + ff(h_a)
-            h = self.final_norm(h)
-            hidden = h[:, -1, :]
-            return _forward_heads(self.heads, hidden, self.het_loss)
-
-        if self.variant == "crossmamba":
-            # Run both time-scan and variate-scan branches
-            h_time = h
-            h_var = h
-            for norm_t, block_t, norm_v, block_v in zip(
-                self.norms, self.blocks,
-                self.crossmamba_variate_norms, self.crossmamba_variate_blocks
-            ):
-                h_time = h_time + block_t(norm_t(h_time))
-                h_var = h_var + block_v(norm_v(h_var))
-            h_time = self.final_norm(h_time)
-            # Cross-attend: queries=time, keys/values=variate
-            h_attn, _ = self.cross_attn(h_time, h_var, h_var, need_weights=False)
-            h = self.cross_norm(h_time + h_attn)
-            hidden = h[:, -1, :]
-            return _forward_heads(self.heads, hidden, self.het_loss)
-
-        # Default Mamba forward (vanilla, s_mamba, dmamba, mambats, mambastock, samba)
         for norm, block in zip(self.norms, self.blocks):
             h = h + block(norm(h))
         h = self.final_norm(h)
-
-        if self.variant == "samba":
-            # Sliding Window Attention layer after the Mamba stack.
-            # Build local-window attention mask: each position attends to itself
-            # and its swa_window-1 neighbors.
-            L = h.size(1)
-            mask = torch.full((L, L), float('-inf'), device=h.device)
-            for i in range(L):
-                lo = max(0, i - self.swa_window // 2)
-                hi = min(L, i + self.swa_window // 2 + 1)
-                mask[i, lo:hi] = 0.0
-            h_a = self.swa_norm(h)
-            attn_out, _ = self.swa(h_a, h_a, h_a, attn_mask=mask, need_weights=False)
-            h = h + attn_out
 
         if self.variant == "dmamba":
             trend = self.trend_mlp(h.mean(dim=1))
             seasonal = h[:, -1, :]
             hidden = trend + seasonal
-        elif self.variant == "mambastock":
-            # Multi-scale aggregation: last + mean + max
-            last = h[:, -1, :]
-            mean = h.mean(dim=1)
-            max_, _ = h.max(dim=1)
-            hidden = self.scale_aggregator(torch.cat([last, mean, max_], dim=-1))
-            # Adaptive temperature: scale predictions (applied at heads via div)
-            hidden = hidden / self.temperature.clamp(min=0.1)
         else:
             hidden = h[:, -1, :]
 
