@@ -2018,6 +2018,14 @@
   "246": {
     "diagnosis": "xLSTM #6/10 seed=13",
     "citations": "Picard 2021",
+    "_manual": true,
+    "verdict": "DISCARD. HybridMamba baseline -0.10, A_sh +0.20. Better than Samba (-0.15) but still negative."
+  },
+  "247": {
+    "diagnosis": "CrossMamba SOTA-recipe baseline (Zhao 2024 cross-attn time+variate). Last untested variant.",
+    "citations": "Zhao 2024 CrossMamba \u2014 parallel time-scan and variate-scan with cross-attention.",
+    "hypothesis": "Cross-attention between time and variate Mamba captures both temporal and channel patterns.",
+    "prediction": "comp [-0.5, +0.5], runtime ~15-20min.",
     "_manual": true
   }
 }
