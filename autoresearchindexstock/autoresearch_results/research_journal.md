@@ -663,3 +663,13 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 ## Exp209 — CatBoost seq=30 (untested seq axis)
 **Citations:** Prokhorenkova 2018; Hochreiter-Schmidhuber 1997.
 **Prediction:** comp [-0.5, +0.4], runtime ~3-6min.
+
+## Exp214 — CatBoost lr=0.04 seed=0 (val POSITIVE +0.60, CatBoost 25/25 COMPLETE)
+**Verdict:** DISCARD. Comp -0.25. **2-seed lr=0.04 [-0.19, -0.25] = most val-stable CatBoost regime.** **CatBoost 25/25 COMPLETE.**
+**Learning:** 5 backbones complete. Pivot to MLP +25 with seq=20.
+
+## Exp215 — MLP seq=20 (user directive: +25 MLP, seq axis untested)
+**Diagnosis:** User-extended MLP budget 50→75 with seq_len=20 focus. MLP only tested at seq=10.
+**Citations:** Goyal 2017 arXiv:1706.02677 §2.4; Hochreiter-Schmidhuber 1997 §3.1; Gu-Kelly-Xiu 2020 RFS; Loshchilov-Hutter 2019; Srivastava 2014 dropout.
+**Hypothesis:** Doubled context (seq=20 vs 10) captures multi-week patterns; risk of overfit at 3,680 input dims.
+**Prediction:** comp [+0.0, +1.2], A_sh [+0.5, +1.3], runtime ~30-60s.

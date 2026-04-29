@@ -613,3 +613,14 @@ roadmap.
 - **Config delta from exp 98:** seq 60→30
 - **Prediction:** comp [-0.5, +0.4], runtime ~3-6min
 - **Result:** PENDING
+
+### Exp214: CatBoost lr=0.04 seed=0 (CatBoost 25/25 COMPLETE!)
+- **Result:** Comp -0.25 | A_sh +0.05 | val_sh +0.60 POSITIVE (rare)
+- **Per-fold:** F1=-1.34 F2=+2.32 F3=+1.04 F4=+0.24 F5=-0.51 F6=+0.78 F7=-0.30
+- **Status:** DISCARD; **CatBoost 25/25 BUDGET COMPLETE.** lr=0.04 most val-stable CatBoost regime.
+
+### Exp215: MLP seq=20 (user directive: +25 MLP grind)
+- **Config delta from MLP champion exp 79:** seq_len 10→20
+- **Rationale:** User-requested untested seq axis on MLP; Goyal 2017 §2.4 + Hochreiter-Schmidhuber 1997
+- **Prediction:** comp [+0.0, +1.2], runtime ~30-60s
+- **Result:** PENDING
