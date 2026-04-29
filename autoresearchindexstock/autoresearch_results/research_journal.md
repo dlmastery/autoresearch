@@ -339,3 +339,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Liu 2025 DMamba arXiv:2602.09081 §3.4; Gu-Dao 2024 §2; Wang-Wu et al. 2024 S-Mamba.
 **Hypothesis:** s_mamba's input-dependent selectivity differs from dmamba's decoupled gates; distinct per-fold pattern.
 **Prediction:** comp [-0.7, +1.0], A_sh [+0.3, +1.0], runtime ~6-12min.
+
+## Exp180 — Mamba s_mamba variant (REJECTED, Mamba 25/25 COMPLETE)
+**Diagnosis:** Last untested Mamba variant.
+**Citations:** Liu 2025 DMamba §3.4; Gu-Dao 2024 §2.
+**Hypothesis:** s_mamba's input-dependent selectivity distinct.
+**Prediction:** comp [-0.7, +1.0].
+**Verdict:** DISCARD strongly. Comp -0.52, A_sh +0.29, val NEGATIVE -0.23. 4/7 pos folds. Runtime 1348s.
+**Learning:** Mamba variant axis FULLY CLOSED. dmamba=+1.32 (champ), mambats=+0.38, s_mamba=-0.53, vanilla=-0.67. **Mamba 25/25 budget COMPLETE.** Pivot to XGBoost.
+
+## Exp181 — XGBoost depth=6 (Chen-Guestrin 2016 paper default untested)
+**Diagnosis:** Pivot from completed Mamba to XGBoost (4 left). depth=6 NEVER tested on QQQ.
+**Citations:** Chen-Guestrin 2016 KDD arXiv:1603.02754 §3.2; Friedman 2001 §5.4; ESL §10.12.
+**Hypothesis:** depth=6 (vs 4) captures 3-way feature interactions; 64 leaves vs 16.
+**Prediction:** comp [-0.4, +0.5], A_sh [+0.2, +0.8], runtime ~5-10min.

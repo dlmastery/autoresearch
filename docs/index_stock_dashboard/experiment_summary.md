@@ -297,3 +297,16 @@ roadmap.
 - **Rationale:** Liu 2025 DMamba §3.4 — s_mamba's input-dependent selectivity
 - **Prediction:** comp [-0.7, +1.0], runtime ~6-12min
 - **Result:** PENDING
+
+### Exp180: Mamba s_mamba variant (REJECTED)
+- **Config delta from dMamba exp 52:** mamba_variant dmamba→s_mamba
+- **Rationale:** Last untested SSM variant
+- **Result:** Composite -0.5251 | A_sh +0.293 | val NEGATIVE
+- **Per-fold:** F1=-0.50 F2=+0.72 F3=+1.79 F4=-0.32 F5=-0.57 F6=+0.52 F7=+0.74
+- **Status:** DISCARD; **Mamba 25/25 COMPLETE.** dmamba champion variant.
+
+### Exp181: XGBoost depth=6 (Chen-Guestrin 2016 paper default untested)
+- **Config delta from XGBoost exp 63:** max_depth 4→6
+- **Rationale:** Chen-Guestrin 2016 KDD §3.2 paper default for tabular n>1k
+- **Prediction:** comp [-0.4, +0.5], runtime ~5-10min
+- **Result:** PENDING
