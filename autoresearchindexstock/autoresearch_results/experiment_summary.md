@@ -123,3 +123,18 @@ roadmap.
 - **Rationale:** Find validation-loss turning point per Friedman 2001 §5.2; help F4 recover
 - **Prediction:** comp [-0.1, +0.5], F4 [-0.5, 0.0], runtime 45-50min
 - **Result:** PENDING
+
+### Exp168: CatBoost lr=0.05 n_est=1500 (n_est ceiling)
+- **Config delta from exp 167:** n_est 1000→1500
+- **Rationale:** Find Friedman 2001 §5.2 validation-loss turning point
+- **Prediction:** comp [-0.1, +0.5], F4 [-0.5, 0.0]
+- **Result:** Composite **-0.376** | A_sharpe -0.0760 | A_excess -1.2954
+- **Per-fold A_sharpe:** F1=+0.16 F2=+2.03 F3=+1.90 F4=-1.63 F5=-0.43 F6=+1.33 F7=-1.05
+- **Status:** DISCARD vs exp 167 — N_EST CEILING IDENTIFIED at 1000-1100
+- **Learning:** Canonical Friedman §5.2 U-shape; F3/F5 overfit on noise. Champion remains exp 167.
+
+### Exp169: CatBoost exp 167 seed=0 (variance lock)
+- **Config delta from exp 167:** seed 42→0
+- **Rationale:** Picard 2021 — confirm reproducibility before declaring real lift
+- **Prediction:** comp [-0.3, +0.5], F2 [+1.0, +2.5], F3 [+1.0, +3.0]
+- **Result:** PENDING

@@ -171,3 +171,17 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Friedman 2001 lr×n_est; ESL §10.12 lr=0.05 n_est=1000-3000 typical; Bühlmann-Yu 2003 JCGS noisy-regression boosting; Prokhorenkova 2018 §3.2 ordered-boosting.
 **Hypothesis:** lr=0.05 + n_est=1500 (one knob from exp 167's 1000) continues monotonic improvement and helps F4 (-1.37) recover.
 **Prediction:** comp [-0.1, +0.5], F4 expected [-0.5, 0.0] recovery, runtime 45-50min.
+
+## Exp168 — CatBoost lr=0.05 n_est=1500 (n_est CEILING IDENTIFIED)
+**Diagnosis:** Continue Friedman 2001 §5.2 lr×n_est convergence climb; find turning point.
+**Citations:** Friedman 2001 §5.2; ESL §10.12; Bühlmann-Yu 2003; Prokhorenkova 2018.
+**Hypothesis:** n_est=1500 continues monotonic improvement.
+**Prediction:** comp [-0.1, +0.5], F4 recovery to [-0.5, 0.0].
+**Verdict:** DISCARD. Composite -0.376 (delta -0.45 vs exp 167). N_EST CEILING IDENTIFIED — overfit U-shape from n_est=1000→1500. F3 +2.98→+1.90, F5 +0.94→-0.43 (canonical Friedman §5.2 noise-fitting). Champion stays at exp 167.
+**Learning:** n_est optimum at lr=0.05 depth=4 = 1000-1100 (sharp dropoff above). Axis open: variance lock on exp 167 with seed=0 per Picard 2021; depth=5; n_est=1200 fine-tune.
+
+## Exp169 — CatBoost exp 167 seed=0 (variance lock)
+**Diagnosis:** Exp 167's +0.07 single-seed needs reproducibility check before declaring real lift. Picard 2021 + CLAUDE.md "3-seed median > baseline" rule.
+**Citations:** Picard 2021 arXiv:2109.08203 seed-std ~0.5 at n<10k; Lakshminarayanan 2017 NeurIPS deep ensembles; Prokhorenkova 2018 §3.2 ordered-boosting permutation seed-dep.
+**Hypothesis:** Same config as exp 167, seed 42→0; composite within ±0.4 of +0.0728 confirms real lift.
+**Prediction:** comp [-0.3, +0.5], F2 [+1.0, +2.5], F3 [+1.0, +3.0], runtime ~30-35min.
