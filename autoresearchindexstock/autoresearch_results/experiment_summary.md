@@ -514,3 +514,13 @@ roadmap.
 - **Rationale:** Lakshminarayanan 2017 §3.2 (5+ seeds for stable median)
 - **Prediction:** comp [-2.0, +0.5], runtime ~3-7min
 - **Result:** PENDING
+
+### Exp199: PatchTSMixer seed=2024 (5-seed lock)
+- **Result:** Comp +0.028. 5-seed median +0.028, mean -0.54.
+- **Status:** DISCARD; PatchTSMixer characterized — real but tiny lift.
+
+### Exp200: MLP exp 79 seed=42 (variance check on +0.974)
+- **Config delta from exp 79:** seed 0→42
+- **Rationale:** Picard 2021 + Lakshminarayanan 2017 §3.2
+- **Prediction:** comp [+0.4, +1.3], runtime ~30-60s
+- **Result:** PENDING

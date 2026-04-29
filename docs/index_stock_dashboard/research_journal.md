@@ -576,3 +576,11 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Lakshminarayanan 2017 §3.2; Picard 2021; Ekambaram 2023.
 **Hypothesis:** seed=2024 locks 5-seed median.
 **Prediction:** comp [-2.0, +0.5], runtime ~3-7min.
+
+## Exp199 — PatchTSMixer seed=2024 (5-seed lock, median +0.03)
+**Verdict:** DISCARD. Comp +0.028. **5-seed median composite +0.028.** Real but tiny lift. PatchTSMixer characterized.
+
+## Exp200 — MLP exp 79 seed=42 (variance check on +0.974)
+**Citations:** Picard 2021; Lakshminarayanan 2017 §3.2; Goyal 2017; Loshchilov-Hutter 2019.
+**Hypothesis:** seed=42 confirms MLP exp 79 lift.
+**Prediction:** comp [+0.4, +1.3], runtime ~30-60s.
