@@ -1799,6 +1799,15 @@
     "citations": "Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2; Goyal 2017 arXiv:1706.02677 \u00a72.4; Gu-Kelly-Xiu 2020 RFS.",
     "hypothesis": "MLP seq=35 + lr=3e-4 + wd=1e-5 + ep=50 + pat=10 + bs=32 + hd=0.25 + warmup=5 + seed=42 (one knob from exp 215: seed 0\u219242) tests if seq=35 lift is reproducible.",
     "prediction": "Composite [-0.3, +0.7]; A_sharpe [+0.3, +1.0]; runtime ~50-90s.",
+    "_manual": true,
+    "verdict": "DISCARD strongly. Composite -1.0378 (massive drop from exp 215's +0.55), A_sh -0.3055 (NEGATIVE), val_sh -0.6378 (NEGATIVE). Per-fold A_sharpe varied: F1 -0.7, F2 -0.4, F3 +0.5, F4 -1.6, F5 -0.7, F6 +0.7, F7 -0.4. 2/7 positive folds. Hypothesis BROKEN: seq=35 lift is HEAVILY seed-dependent. 2-seed MLP seq=35 distribution: comp [+0.5475, -1.0378] mean -0.245 \u2014 massive variance. Same val-instability pattern as other backbones at higher input dim.",
+    "learning": "MLP seq=35 single-seed lift was seed=0 luck. seed=42 catastrophically failed. The 6,440-input-dim regime is genuinely overparameterized at n_train=2,538. Need more seeds for honest median assessment."
+  },
+  "217": {
+    "diagnosis": "Per user directive: 10 MLP seq=35 experiments. After 2/10: [+0.55, -1.04] mean -0.25. seed=99 is canonical 3rd seed. If 3-seed median > 0, seq=35 has real lift. If < 0, seq=35 fails for MLP same as seq=20 did.",
+    "citations": "Picard 2021 arXiv:2109.08203; Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 \u00a73.2; Goyal 2017 \u00a72.4; Gu-Kelly-Xiu 2020.",
+    "hypothesis": "MLP seq=35 seed=99 (one knob from exp 216 seed=42) locks 3-seed median.",
+    "prediction": "Composite [-0.8, +0.7]; runtime ~50-90s.",
     "_manual": true
   }
 }
