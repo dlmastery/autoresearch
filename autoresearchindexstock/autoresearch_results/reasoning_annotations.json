@@ -1727,6 +1727,15 @@
     "citations": "Friedman 2001 Annals of Statistics \u00a75.4 \u2014 shallow trees stability. Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516) \u00a73.3 \u2014 depth-stability tradeoff. Hastie, Tibshirani, Friedman 2009 ESL \u00a710.12.",
     "hypothesis": "CatBoost depth=3 + lr=0.02 + n_est=1000 + seq=60 + seed=42 (one knob from exp 98: depth 4\u21923) will produce a more val-stable composite by reducing tree complexity. If composite \u2265 -0.3 with val_sh > 0, depth=3 is the new stable CatBoost variant.",
     "prediction": "Composite [-0.5, +0.3]; A_sharpe [+0.1, +0.5]; runtime ~5-8min.",
+    "_manual": true,
+    "verdict": "DISCARD. Composite -0.80, A_sh +0.38, val_sh -0.60 (NEG). Per-fold: F1 -1.19, F2 **+4.63 (RECORD!)**, F3 +2.34, F4 +0.22, F5 +0.46, F6 +0.38, F7 -0.14. 5/7 positive. Hypothesis NOT confirmed \u2014 depth=3 didn't help val despite Friedman 2001 \u00a75.4 prediction. Runtime 767s = 12.8min.",
+    "learning": "CatBoost depth=3 doesn't stabilize val. F2 +4.63 record but 6/7 positive folds masked by val crash. **CatBoost val-instability is NOT depth-fixable.** 19/25, 6 slots left. Try seq=30 (untested seq axis for CatBoost)."
+  },
+  "209": {
+    "diagnosis": "CatBoost at 19/25 \u2014 6 slots left. depth axis explored (3,4,6 all val-unstable); lr axis explored (0.005, 0.01, 0.02, 0.05 all val-unstable); n_est axis explored (500-3000). seq_len axis is INCOMPLETE: all CatBoost experiments used seq=60. Try seq=30 (smaller flattened input ~6,150 features) which may produce different per-feature interaction patterns.",
+    "citations": "Prokhorenkova et al. 2018 NeurIPS 'CatBoost' (arXiv:1706.09516). Hochreiter, Schmidhuber 1997 \u00a73.1. Friedman 2001 \u00a75.2.",
+    "hypothesis": "CatBoost depth=4 + lr=0.02 + n_est=1000 + seq=30 + seed=42 (one knob from exp 98: seq 60\u219230) tests if reduced flattened-input dimension produces stabler val.",
+    "prediction": "Composite [-0.5, +0.4]; runtime ~3-6min.",
     "_manual": true
   }
 }

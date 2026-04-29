@@ -605,3 +605,11 @@ roadmap.
 - **Rationale:** Friedman 2001 §5.4 shallow stability
 - **Prediction:** comp [-0.5, +0.3], runtime ~5-8min
 - **Result:** PENDING
+
+### Exp208: CatBoost depth=3 (DISCARD, F2 RECORD +4.63)
+- **Result:** Comp -0.80, A_sh +0.38, val NEG. F2 RECORD across all CatBoost runs.
+
+### Exp209: CatBoost seq=30 (untested axis)
+- **Config delta from exp 98:** seq 60→30
+- **Prediction:** comp [-0.5, +0.4], runtime ~3-6min
+- **Result:** PENDING

@@ -656,3 +656,10 @@ Initial config (CatBoost depth=8 seq=30 n_est=500) was killed at 76min wall-time
 **Citations:** Friedman 2001 §5.4; Prokhorenkova 2018 §3.3; ESL §10.12.
 **Hypothesis:** Shallower trees stabler.
 **Prediction:** comp [-0.5, +0.3], runtime ~5-8min.
+
+## Exp208 — CatBoost depth=3 (val crash, F2 RECORD +4.63)
+**Verdict:** DISCARD. Comp -0.80, F2 RECORD +4.63 but val NEG. Same pattern.
+
+## Exp209 — CatBoost seq=30 (untested seq axis)
+**Citations:** Prokhorenkova 2018; Hochreiter-Schmidhuber 1997.
+**Prediction:** comp [-0.5, +0.4], runtime ~3-6min.
