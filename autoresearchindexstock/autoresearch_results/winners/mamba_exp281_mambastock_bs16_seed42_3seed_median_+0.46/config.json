@@ -1,0 +1,41 @@
+{
+  "experiment_num": 281,
+  "backbone": "mamba",
+  "mamba_variant": "mambastock",
+  "description": "MambaStock bs=16 — best mambastock 3-seed median +0.46 (single-seed=42 +1.0545)",
+  "config": {
+    "hidden_size": 128,
+    "num_layers": 4,
+    "seq_len": 60,
+    "lr": 5e-4,
+    "batch_size": 16,
+    "epochs": 100,
+    "patience": 20,
+    "weight_decay": 0.1,
+    "warmup_epochs": 10,
+    "head_dropout": 0.1,
+    "huber_delta": 1.0,
+    "grad_clip": 1.0,
+    "seed": 42
+  },
+  "results": {
+    "seed_42": {"composite": 1.0545, "test_pos_folds": 6, "val_sharpe": 1.363, "return_pct": 168.57, "psr": 0.992},
+    "seed_0":  {"composite": 0.4630, "test_pos_folds": 5, "val_sharpe": 1.171, "return_pct": 68.55, "psr": 0.911},
+    "seed_99": {"composite": -0.5285, "test_pos_folds": 6, "val_sharpe": -0.428, "return_pct": 86.73, "psr": 0.946}
+  },
+  "three_seed_lock": {
+    "median": 0.4630,
+    "mean": 0.3297,
+    "sigma": 0.7999,
+    "n_seeds": 3
+  },
+  "vs_baselines": {
+    "mambastock_baseline_exp241": 0.0359,
+    "mambastock_3seed_median_num_layers_4": 0.301,
+    "lift_over_prior_mambastock_3seed": 0.162,
+    "dmamba_global_champion_exp_52_singleseed": 1.3216,
+    "dmamba_global_champion_exp_52_3seed_median": 0.97,
+    "this_vs_global_champion_3seed_median_delta": -0.5070
+  },
+  "status": "best_mambastock_ever_recorded; NOT_global_champion (dmamba exp 52 +0.97 multi-seed remains leader)"
+}
