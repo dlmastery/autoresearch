@@ -29,6 +29,112 @@ PRIMARY: Dict[str, str] = {
     "QQQ": "Invesco QQQ Trust (Nasdaq-100)",
 }
 
+# Panel learning targets: 28+ liquid equity/index assets predicted in
+# parallel via shared trunk per Gu-Kelly-Xiu 2020 RFS "Empirical Asset
+# Pricing via Machine Learning". The QQQ-only setup gives effective
+# n=4,772 daily rows; expanding to a 28+ asset panel multiplies effective
+# n proportionally and enables cross-asset diversification at inference.
+#
+# Selection rationale:
+#   - Top-30 NDX components by 2024 weight (Mag-7 + tier-1 large caps)
+#     to retain QQQ representation while gaining cross-asset diversity.
+#   - 6 broad US/international indices for sub-market diversification
+#     (Hou-Mo-Xue-Zhang 2014 — international predictability).
+#   - Single-stock universe is intentionally LIMITED to top-30 to avoid
+#     small-cap noise dominating the panel; full NDX-100 expansion is a
+#     follow-up if the 30-stock panel works.
+PANEL_NDX_TOP30: Dict[str, str] = {
+    "AAPL":  "Apple",
+    "MSFT":  "Microsoft",
+    "NVDA":  "Nvidia",
+    "AMZN":  "Amazon",
+    "META":  "Meta",
+    "GOOGL": "Alphabet (Class A)",
+    "GOOG":  "Alphabet (Class C)",
+    "TSLA":  "Tesla",
+    "AVGO":  "Broadcom",
+    "COST":  "Costco",
+    "NFLX":  "Netflix",
+    "ADBE":  "Adobe",
+    "AMD":   "AMD",
+    "PEP":   "PepsiCo",
+    "CSCO":  "Cisco",
+    "QCOM":  "Qualcomm",
+    "INTC":  "Intel",
+    "TMUS":  "T-Mobile",
+    "CMCSA": "Comcast",
+    "INTU":  "Intuit",
+    "AMGN":  "Amgen",
+    "AMAT":  "Applied Materials",
+    "TXN":   "Texas Instruments",
+    "BKNG":  "Booking Holdings",
+    "ISRG":  "Intuitive Surgical",
+    "ADP":   "ADP",
+    "GILD":  "Gilead",
+    "SBUX":  "Starbucks",
+    "MDLZ":  "Mondelez",
+    "MU":    "Micron",
+}
+
+# Adjacent indices for sub-market panel diversification per user directive
+# 2026-04-29: SPY/IWM/EEM/EFA/DIA/MDY = US large/small/EM/intl-DM/Dow/midcap.
+PANEL_ADJACENT_INDICES: Dict[str, str] = {
+    "SPY": "SPDR S&P 500 (US large cap)",
+    "IWM": "iShares Russell 2000 (US small cap)",
+    "EEM": "iShares MSCI Emerging Markets",
+    "EFA": "iShares MSCI EAFE (international DM)",
+    "DIA": "SPDR Dow Jones Industrial",
+    "MDY": "SPDR S&P MidCap 400",
+}
+
+# Asia + Europe panels added 2026-04-29 per user directive — these markets
+# CLOSE BEFORE US market open on the same calendar day, giving the model
+# leading-indicator information for the QQQ day-T close prediction.
+#
+# Time-shift edge per Lou, Polk, Skouras 2019 JFE "A tug of war: Overnight
+# versus intraday expected returns" (DOI 10.1016/j.jfineco.2019.05.007) and
+# Boudoukh, Richardson, Whitelaw 2007 RFS "The myth of long-horizon
+# predictability" — Asia close on day T sets at ~01:00-04:00 ET (well
+# before NYSE 09:30 ET open), London close ~11:30 ET (before NYSE close).
+# All cleanly causal for predicting QQQ day-T close.
+PANEL_ASIA_EUROPE_INDICES: Dict[str, str] = {
+    # Asian indices (close 1-5h ET — leading)
+    "^N225":   "Nikkei 225 (Tokyo, close 01:00 ET)",
+    "^HSI":    "Hang Seng (HK, close 04:00 ET)",
+    "^KS11":   "KOSPI (Korea, close 02:30 ET)",
+    "^TWII":   "Taiwan Weighted (close 02:30 ET)",
+    "^STI":    "Straits Times (Singapore, close 05:00 ET)",
+    "^AXJO":   "ASX 200 (Australia, close 02:00 ET)",
+    # European indices (close ~11:30 ET — leading)
+    "^STOXX50E": "Euro Stoxx 50 (close 11:30 ET)",
+    "^FTSE":     "FTSE 100 (close 11:30 ET)",
+    "^GDAXI":    "DAX (close 11:30 ET)",
+    "^FCHI":     "CAC 40 (close 11:30 ET)",
+}
+
+# Asian megacaps (ADRs preferred for clean US-aligned trading days).
+PANEL_ASIA_MEGACAPS: Dict[str, str] = {
+    "TSM":     "TSMC (Taiwan Semiconductor) ADR",
+    "BABA":    "Alibaba ADR",
+    "JD":      "JD.com ADR",
+    "PDD":     "PDD Holdings (Pinduoduo) ADR",
+    "SONY":    "Sony Group ADR",
+    "TM":      "Toyota Motor ADR",
+    "HMC":     "Honda Motor ADR",
+    "BIDU":    "Baidu ADR",
+}
+
+# Combined panel target list = QQQ + 30 NDX top + 6 adjacent + 10 Asia/Europe
+# indices + 8 Asia megacaps = 55 parallel prediction targets.
+# Each gets its own per-asset fold split but shares the trunk over the panel.
+PANEL_TARGETS: Dict[str, str] = {
+    **PRIMARY,
+    **PANEL_NDX_TOP30,
+    **PANEL_ASIA_EUROPE_INDICES,
+    **PANEL_ASIA_MEGACAPS,
+    **PANEL_ADJACENT_INDICES,
+}
+
 # Cross-asset benchmarks for relative-strength + breadth features.
 #   Lo & MacKinlay 1990 — relative-strength reversal between indices.
 BENCHMARKS: Dict[str, str] = {
@@ -252,3 +358,55 @@ def download_all(
                 len(out),
                 sum(len(g) for g in ALL_SIGNALS.values()))
     return out
+
+
+# ---------------------------------------------------------------------------
+# Panel learning support — added 2026-04-29 per user directive.
+# Loads QQQ + 30 NDX top components + 6 adjacent indices = 37 targets.
+# Returns a tidy long-format DataFrame: rows = (date, asset), columns = OHLCV.
+# Per Gu-Kelly-Xiu 2020 RFS panel learning recipe.
+# ---------------------------------------------------------------------------
+
+def download_panel_targets(
+    start: str = DEFAULT_START,
+    end: str = DEFAULT_END,
+    cache_dir: Optional[str] = DEFAULT_CACHE_DIR,
+) -> pd.DataFrame:
+    """Download all 37 panel-learning target assets.
+
+    Returns long-format DataFrame indexed by (date, asset) with columns
+    [open, high, low, close, volume]. Dates are NYSE trading days
+    intersected across all assets (drop-NA on QQQ-aligned days).
+
+    Each ticker that fails to download is logged and skipped. Asset count
+    is not a tight invariant since some PANEL_NDX_TOP30 components may be
+    delisted / split-restructured over the 2004-2025 window; we accept any
+    asset that has >= 1000 trading days of OHLCV.
+    """
+    frames: list[pd.DataFrame] = []
+    for ticker in PANEL_TARGETS:
+        try:
+            df = download_ticker(ticker, start=start, end=end, cache_dir=cache_dir)
+        except Exception as e:  # pragma: no cover
+            logger.warning("[panel] skip %s: %s", ticker, e)
+            continue
+        if df is None or df.empty or len(df) < 1000:
+            logger.warning("[panel] skip %s: insufficient data (%d rows)",
+                           ticker, 0 if df is None else len(df))
+            continue
+        # Make column lowercase + add asset id
+        df = df.rename(columns=str.lower)
+        keep = [c for c in ["open", "high", "low", "close", "volume"] if c in df.columns]
+        df = df[keep].copy()
+        df["asset"] = ticker
+        frames.append(df.reset_index().rename(columns={"Date": "date", "index": "date"}))
+    if not frames:
+        raise RuntimeError("Panel download yielded zero usable assets")
+    panel = pd.concat(frames, ignore_index=True)
+    panel["date"] = pd.to_datetime(panel["date"])
+    panel = panel.sort_values(["asset", "date"]).reset_index(drop=True)
+    n_assets = panel["asset"].nunique()
+    n_dates = panel["date"].nunique()
+    logger.info("[panel] %d assets x %d dates = %d rows",
+                n_assets, n_dates, len(panel))
+    return panel

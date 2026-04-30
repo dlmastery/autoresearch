@@ -1321,3 +1321,141 @@ Once `dlmastery/autoresearchindexstock` is live with Pages enabled:
 
 Until migration complete, current URL stays at
 <https://dlmastery.github.io/autoresearch/index_stock_dashboard/>.
+
+## User Directives Log — Session 2026-04-29 cont'd (panel learning + 5d target)
+
+### Directive 26 (2026-04-29 ~21:00) — Panel learning + 5-day target architecture
+
+User asked forensic audit on why QQQ Sharpe is stuck at +1.32 single-seed
+while FX achieved +9.7. Diagnosis: FX's headline was a **mega-ensemble
+across 28 G10 pairs (~134k panel rows)**; QQQ has 1 asset (4,772 rows)
+which is a 28× n disadvantage. Per-pair FX Sharpe is comparable to QQQ.
+The path to FX-class Sharpe on equity is **portfolio breadth**, not
+better models.
+
+User directive: implement the recommended path:
+
+1. **NDX top components as parallel prediction targets** — 30 stocks
+   (Apple, MS, NVDA, AMZN, META, GOOGL, GOOG, TSLA, AVGO, COST, NFLX,
+   ADBE, AMD, PEP, CSCO, QCOM, INTC, TMUS, CMCSA, INTU, AMGN, AMAT, TXN,
+   BKNG, ISRG, ADP, GILD, SBUX, MDLZ, MU). Effective n → ~50× larger.
+2. **Adjacent indices** — SPY, IWM, EEM, EFA, DIA, MDY (US large/small/
+   EM/intl-DM/Dow/midcap). Sub-market diversification.
+3. **Shared trunk panel learning** per Gu, Kelly, Xiu 2020 RFS
+   "Empirical Asset Pricing via Machine Learning" (NBER WP 25398;
+   arXiv:1807.04365). One backbone trunk over all assets, per-asset
+   prediction head.
+4. **Volatility-weighted basket trading** per Lim, Zohren, Roberts 2019
+   "Enhancing Time Series Momentum Strategies Using Deep Neural Networks"
+   (arXiv:1906.04025). Position size = 1 / realized_vol_20.
+
+### Directive 27 (2026-04-29 ~21:30) — 5-day target as primary
+
+Empirical finding from session experiments: **B (5-day) target is 2-4×
+stronger than A (1-day)** across LSTM/iTransformer at multi-seed.
+- LSTM seq=35 7-seed: A_sh mean +0.40, B_sh mean +0.97
+- iTransformer hidden=256: A -0.24, **B +1.77**
+
+Primary target switches from A (1d) to **B (5d)**, but trades still
+realised on 1-day return per CLAUDE.md. The 5d-prediction-on-1d-trade
+combination uses the stronger 5d signal direction with the realisable 1d
+P&L. Heavily focus on day 1 and day 5 of the forecast horizon.
+
+### Directive 28 (2026-04-29 ~21:45) — Asia/Europe time-shift edge
+
+User asked about Asian markets that close before US open. Major
+data-science point: **Asian/European market closes are LEADING
+INDICATORS for QQQ same-day close**, all causally observable before
+NYSE close (09:30-16:00 ET).
+
+Closing times in ET:
+- Tokyo (^N225, TSE): 01:00 ET (8.5h before NYSE close)
+- Hong Kong (^HSI): 04:00 ET (12h before NYSE close)
+- Seoul (^KS11): 02:30 ET
+- Taiwan (^TWII): 02:30 ET
+- Sydney (^AXJO): 02:00 ET
+- Singapore (^STI): 05:00 ET
+- London (^FTSE), Frankfurt (^GDAXI), Paris (^FCHI), Euro Stoxx 50:
+  ~11:30 ET (4.5h before NYSE close)
+
+Per **Lou, Polk, Skouras 2019 JFE "A tug of war: Overnight versus
+intraday expected returns"** (DOI 10.1016/j.jfineco.2019.05.007) and
+**Boudoukh, Richardson, Whitelaw 2007 RFS** — overnight (Asia/Europe
+session) returns predict daytime US returns.
+
+Added to PANEL_ASIA_EUROPE_INDICES (10 indices) + PANEL_ASIA_MEGACAPS
+(8 ADRs/HK names: TSM, BABA, JD, PDD, SONY, TM, HMC, BIDU). Plus existing
+SPY/IWM/EEM/EFA/DIA/MDY. Total panel = **55 parallel prediction targets**:
+QQQ + 30 NDX top + 10 Asia/Europe indices + 8 Asia megacaps + 6 adjacent
+US indices.
+
+### Directive 29 (2026-04-29 ~21:50) — Update CLAUDE.md with all instructions and tips
+
+This section IS that update. Append-only on each session correction.
+
+## Panel learning architecture (post-2026-04-29 — NEW)
+
+### Data layer (data/download.py)
+
+- `download_panel_targets()` returns long-format DataFrame indexed by
+  (date, asset) with OHLCV columns. 55 assets × ~5,500 dates ≈ ~200k rows
+  (vs 4,772 in QQQ-only mode). 28× more effective n.
+- Late-starting tickers (META 2012 IPO, TSLA 2010, AVGO 2009, etc.) are
+  retained — features.py should treat per-asset history independently.
+
+### Backbone wrapper (TODO — not yet implemented)
+
+- Asset-id embedding added at the input projection layer (one-hot or
+  learnable embedding of dim 16).
+- Trunk processes (asset_emb || features) per Gu-Kelly-Xiu 2020 §3.2.
+- Prediction head outputs per-asset 1d + 5d returns.
+
+### Fold splits (TODO — not yet implemented)
+
+- Per-asset super-fold splits respecting purge=90d, embargo=21d,
+  label_buffer=10d.
+- Train pass over the union of all assets' train days.
+- Val/test evaluated per-asset, then aggregated to basket Sharpe.
+
+### Position sizing (TODO — not yet implemented)
+
+- Per-asset position = sign(prediction) × confidence_gate × (1/realized_vol_20).
+- Cap per-asset weight at 5% of basket capital (concentration limit).
+- Daily rebalance based on prediction sign across all 55 assets.
+
+### Metrics (TODO — not yet implemented)
+
+- **Per-asset Sharpe**: existing A_sharpe / B_sharpe, computed per-asset.
+- **Basket Sharpe**: vol-weighted average of all asset returns × prediction signs.
+- **Diversification ratio**: basket Sharpe / weighted-avg single-asset Sharpe.
+- **Turnover**: average daily position change per asset.
+
+### Citations (full list for the panel-learning architecture)
+
+- Gu, Kelly, Xiu 2020 RFS "Empirical Asset Pricing via Machine Learning"
+  (arXiv:1807.04365) — panel learning recipe.
+- Lim, Zohren, Roberts 2019 "Enhancing Time Series Momentum Strategies
+  Using Deep Neural Networks" (arXiv:1906.04025) — volatility-weighted
+  position sizing.
+- Lou, Polk, Skouras 2019 JFE "A tug of war: Overnight versus intraday
+  expected returns" (DOI 10.1016/j.jfineco.2019.05.007) — time-shift edge.
+- Boudoukh, Richardson, Whitelaw 2007 RFS "The myth of long-horizon
+  predictability" — overnight return predictive power.
+- Lakshminarayanan, Pritzel, Blundell 2017 NeurIPS "Deep Ensembles"
+  (arXiv:1612.01474) — multi-seed inference.
+- Hou, Mo, Xue, Zhang 2014 — international predictability.
+
+### Roll-out plan (sequential)
+
+1. ✓ Data layer: `PANEL_TARGETS` dict + `download_panel_targets()` function
+2. TODO: Per-asset feature engineering (cross-asset features stay shared,
+   per-asset price-return features computed independently)
+3. TODO: Per-asset super-fold splits (extend `splits.py` for panel mode)
+4. TODO: Backbone wrapper with asset-id embedding (extend `model/backbone.py`)
+5. TODO: Training loop for panel mode (`model/train.py`)
+6. TODO: Per-asset evaluation + basket Sharpe metric (`evaluation/metrics.py`)
+7. TODO: Vol-weighted position sizing in trade-log emission
+8. TODO: `--panel-mode` CLI flag in `run_autoresearch.py`
+9. TODO: 10+ research-strict experiments per backbone (cheapest first:
+   MLP → LSTM → GBMs → Mamba) hill-climbing from each within-backbone
+   winner, all in panel mode with B (5d) as primary KEEP/DISCARD target.
