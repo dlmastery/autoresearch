@@ -2226,8 +2226,8 @@
     "citations": "Lakshminarayanan, Pritzel, Blundell 2017 NeurIPS \"Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles\" (arXiv:1612.01474) — 3-seed minimum for credible champion. Picard 2021 (arXiv:2109.08203) — 3-seed median for stable estimate. Bouthillier et al. 2019 ICML reproducibility. Shi 2024 MambaStock (arXiv:2402.18959).",
     "hypothesis": "mambastock num_layers=4 at seed=99 produces composite in [+0.10, +0.80]. If <+0.10, single-seed-luck dominates; if >+0.40, 3-seed median solidly above baseline.",
     "prediction": "composite [+0.05, +0.80], expectation +0.40. test_pos_folds [4, 7]. val_sharpe [+0.20, +1.00]. Elapsed [1500, 3000] sec.",
-    "verdict": "PENDING - running",
-    "learning": "PENDING",
+    "verdict": "DISCARD-AT-WORST-SEED. composite -0.6922. test_pos_folds 3/7. val_sharpe +0.045. hit 45.13%. PSR 0.274. return -32%. elapsed 1050s. Per-fold extreme variance: F1 GFC +2.03, F2 EU debt -2.49, F3 Taper +0.71, F4 China-oil +4.12 (HUGE outlier), F5 Vol-mageddon -0.44, F6 COVID -2.39, F7 AI rally -0.86. Hypothesis predicted [+0.10, +0.80] expectation +0.40, observed -0.69 — far below.",
+    "learning": "3-seed lock for mambastock num_layers=4 COMPLETE: seeds 42/0/99 = +0.977/+0.301/-0.692. 3-seed median +0.301, mean +0.195, range 1.67 (σ ~0.85 EXTREME). The +0.94 single-seed lift at seed=42 was largely seed-luck; true effect size is ~+0.27 over baseline +0.036. The variance is too high for a clean champion claim — half the seeds catastrophically fail (seed=99 hit 3-fold collapse F2/F6/F7). The mambastock variant inherently has higher seed σ than dmamba (which was σ ~0.5 at exp 52 base). Conclusions: (1) mambastock num_layers=4 IS the best mambastock config to date (+0.30 vs +0.036 baseline = +0.27 lift) but unstable; (2) NOT a champion candidate. Next mambastock experiment: try a different axis from num_layers=4 base. Pick lr 5e-4 -> 3e-4 (Smith 2017) — different optimization landscape may stabilize seeds.",
     "_manual": true
   },
   "270": {
@@ -2238,7 +2238,67 @@
     "citations": "Lakshminarayanan, Pritzel, Blundell 2017 NeurIPS (arXiv:1612.01474) — multi-seed lock methodology. Beck et al. 2024 NeurIPS xLSTM (arXiv:2405.04517) — long-sequence lift. Picard 2021 (arXiv:2109.08203) — variance estimation. Bouthillier et al. 2019 ICML reproducibility.",
     "hypothesis": "dmamba seq=90 at seed=0 produces composite in [+0.30, +1.50]. If <+0.30, seed-luck dominates the +0.96 single-seed lift. If >+0.70, real architectural lift confirmed; lock and run seed=99.",
     "prediction": "composite [+0.30, +1.40], expectation +0.80. test_pos_folds [4, 7]. val_sharpe [+0.50, +1.40]. Elapsed [1500, 2500] sec.",
-    "verdict": "PENDING - to launch after mambastock 269 finishes",
+    "verdict": "PARTIAL-CONFIRM-WITH-HIGH-SIGMA. composite -0.2369 vs seed=42 +0.9574 -> -1.19 drop. test_pos_folds 6/7 (F1 GFC -2.17 catastrophic at this seed; other 6 folds positive). val_sharpe -0.137 (NEGATIVE caps composite via min). hit 58.96%. PSR 0.983. return_pct +116.78% (still positive!). excess_sharpe -0.24. bh_sharpe +1.40 (different test window). elapsed 830s. Per-fold: F1 GFC -2.17 (vs seed=42 +7.26 — opposite!), F2 EU debt +6.87 (bigger than seed=42 +5.25), F3 Taper +3.03, F4 China-oil +2.16, F5 Vol-mageddon +2.36, F6 COVID +0.58, F7 AI rally +1.00. Hypothesis predicted [+0.30, +1.40], observed -0.24 — below range.",
+    "learning": "dmamba seq=90 has HIGH seed-dependence: seed=42 +0.96 (lucky-good with F1 +7.26) vs seed=0 -0.24 (F1 -2.17 catastrophic). 2-seed mean +0.36, range 1.19. The seed=42 +0.96 single-seed reading was significantly seed-amplified. BUT 6/7 folds remain positive at seed=0 with strong F2 EU debt +6.87 lift, suggesting seq=90 captures genuine regime patterns; F1 GFC behavior is seed-dependent. The +278% return and 7/7 folds at seed=42 are STILL the best single-seed dmamba result in this hill-climb, but the multi-seed picture is mediocre at +0.36 mean. Need seed=99 for 3-seed median. If 3-seed median > +0.30, seq=90 is a credible ensemble component (real architectural axis with high variance). If <+0.10, single-seed luck dominated and we revert to exp 52 seq=60.",
+    "_manual": true
+  },
+  "271": {
+    "experiment_num": 271,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock num_layers=4 lr 5e-4 -> 3e-4 at seed=42. After 3-seed lock revealed σ=0.85 on num_layers=4, try lower lr to stabilize per Keskar 2017 flat-minima. Smith 2017 (arXiv:1708.07120) 0.5x sweep step. May reduce seed variance even if mean drops slightly.",
+    "citations": "Keskar et al. 2017 ICLR \"On Large-Batch Training: Generalization Gap and Sharp Minima\" (arXiv:1609.04836). Smith 2017 (arXiv:1708.07120) sec 4. Loshchilov-Hutter 2019 (arXiv:1711.05101). Shi 2024 MambaStock (arXiv:2402.18959). Loshchilov, Hutter 2017 ICLR \"SGDR: Stochastic Gradient Descent with Warm Restarts\" (arXiv:1608.03983) — cosine schedule with lower lr produces flat minima.",
+    "hypothesis": "mambastock num_layers=4 + lr=3e-4 at seed=42 produces composite in [+0.50, +1.20]. Mechanism: lower lr finds flatter minima, reduces seed variance. If composite > +0.80, real lift over the 3-seed median +0.30.",
+    "prediction": "composite [+0.30, +1.20], expectation +0.70. test_pos_folds [5, 7]. val_sharpe [+0.50, +1.30]. Elapsed [1500, 2500] sec.",
+    "verdict": "DISCARD-VAL-OVERFIT. composite -0.2571 vs num_layers=4 seed=42 +0.977 -> -1.23 drop. val_sharpe +1.895 (HIGH) but test_pos_folds only 4/7 — severe val->test divergence at lower lr. hit 47.68%. PSR 0.535. return -6.51%. excess_sharpe -1.18. elapsed 1178s. Per-fold: F1 GFC +0.24, F2 EU debt -3.38 (catastrophic), F3 Taper -0.54, F4 China-oil +2.62, F5 Vol-mageddon -0.41, F6 COVID +0.02, F7 AI rally +0.15. Hypothesis predicted [+0.30, +1.20], observed -0.26 — far below.",
+    "learning": "mambastock lr=3e-4 produces severe val/test divergence (val +1.90 / test 4/7 folds positive / return -6.5%). Lower lr finds sharper minima at val window that don t generalize to test. lr is NOT the mambastock bottleneck — it directly hurts at seed=42 dropping from +0.977 to -0.26. Mambastock optimal lr remains 5e-4. Next mambastock axis: try seq_len 60 -> 90 (parallel to dmamba where this lifted +0.96 single-seed). Mambastock multi-scale architecture may also benefit from longer per-sample history.",
+    "_manual": true
+  },
+  "272": {
+    "experiment_num": 272,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock num_layers=4 + seq_len 60 -> 90 at seed=42. After lr axis closed (lr=3e-4 dropped to -0.26), try the same high-leverage axis that worked for dmamba (where seq=90 lifted from +1.32 single-seed to test_sharpe ~+1.75). Mambastock multi-scale + adaptive temperature heads may also benefit from longer per-asset history capturing multi-month regime persistence. Beck 2024 xLSTM monotonic-with-seq prediction.",
+    "citations": "Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS xLSTM (arXiv:2405.04517) sec 4 — monotonic accuracy lift with seq up to 100+ on financial TS. Shi, Lu, Wang, Liu, Tang 2024 \"MambaStock\" (arXiv:2402.18959) — multi-scale Mamba sec 3.2. Nie, Nguyen, Sinthong, Kalagnanam 2023 ICLR PatchTST (arXiv:2211.14730) — minimum seq=60. Fischer & Krauss 2018 EJOR (arXiv:1709.06181) — seq=240 daily S&P. Cai et al. 2024 NeurIPS MambaTS (arXiv:2405.16440) — long-term forecasting.",
+    "hypothesis": "mambastock num_layers=4 seq=90 at seed=42 lifts composite from +0.977 to [+1.10, +1.50]. Mechanism: longer per-asset history captures multi-month regime persistence as in dmamba seq=90. If lift confirmed, run multi-seed lock at seeds 0/99.",
+    "prediction": "composite [+0.50, +1.60], expectation +1.10. test_pos_folds [5, 7]. val_sharpe [+0.80, +1.40]. Elapsed [1500, 2500] sec.",
+    "verdict": "CATASTROPHIC-DISCARD. composite -1.1842 vs mambastock num_layers=4 seed=42 baseline +0.977 -> -2.16 collapse. test_pos_folds 3/7. val_sharpe +1.752 (HIGH), but test return -48.19%. PSR 0.08. excess_sharpe -2.18 (vs bh +1.40). elapsed 1532s. Per-fold catastrophic: F1 GFC -3.14, F2 EU debt -6.87 (inverted from dmamba seq=90 where it was +5.25/+6.87 positive), F3 Taper -4.21, F4 China-oil +0.34, F5 Vol-mageddon -1.59, F6 COVID +0.09, F7 AI rally +0.00. Hypothesis predicted [+0.50, +1.60], observed -1.18 — far below.",
+    "learning": "seq=90 axis transfers POORLY to mambastock. Same val->test divergence pattern as lr=3e-4 (val_sharpe high but test catastrophic). Mambastock multi-scale + adaptive temperature interacts differently with longer sequences than dmamba decomposition: where dmamba seq=90 amplified the F2 EU debt regime signal (+5.25/+6.87), mambastock seq=90 INVERTS that signal to -6.87. The architectures fundamentally differ in how they use sequence context. Mambastock optimal seq remains 60. Three consecutive mambastock DISCARDs (271 lr=3e-4, 272 seq=90, 269 worst-seed) suggest the mambastock num_layers=4 seed=42 +0.977 is on a sharp single-seed peak similar to dmamba exp 52. Next mambastock axis: try wd 0.1 -> 0.05 (Loshchilov-Hutter 2019 0.5x sweep, untested at mambastock baseline).",
+    "_manual": true
+  },
+  "274": {
+    "experiment_num": 274,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock num_layers=4 wd 0.1 -> 0.05 at seed=42. After 3 consecutive mambastock DISCARDs (lr=3e-4, seq=90, seed=99 worst), try wd reduction. Mambastock 3-seed median +0.301 with σ=0.85 — too high. Loshchilov-Hutter 2019 lower wd may stabilize. dmamba wd=0.05 was DISCARD CATASTROPHIC at -0.91, but mambastock has different architecture so behavior may differ.",
+    "citations": "Loshchilov, Hutter 2019 ICLR \"Decoupled Weight Decay Regularization\" (arXiv:1711.05101) sec 4. Andriushchenko et al. 2024 (arXiv:2402.10612) — wd amplifies seed σ. Smith 2017 (arXiv:1708.07120) sec 5. Shi 2024 MambaStock (arXiv:2402.18959).",
+    "hypothesis": "mambastock num_layers=4 + wd=0.05 at seed=42 produces composite in [+0.50, +1.10]. Less shrinkage may preserve signal at the cost of higher variance.",
+    "prediction": "composite [-0.30, +1.10], expectation +0.50. test_pos_folds [4, 7]. Elapsed [1500, 2500] sec.",
+    "verdict": "DISCARD-CATASTROPHIC. composite -0.8278 vs num_layers=4 seed=42 +0.977 -> -1.80 collapse. test_pos_folds 3/7. val_sharpe +0.71. hit 42.67%. PSR 0.19. return -40.16%. excess_sharpe -1.65. elapsed 1151s. Per-fold: F1 GFC +0.78, F2 EU debt -4.87 (catastrophic), F3 Taper -2.09, F4 China-oil +2.74, F5 Vol-mageddon +0.34, F6 COVID -1.81 (catastrophic), F7 AI rally -0.23. Hypothesis predicted [-0.30, +1.10] expectation +0.50, observed -0.83 — at low end.",
+    "learning": "4th consecutive mambastock DISCARD from num_layers=4 baseline (lr=3e-4, seq=90, wd=0.05). Mambastock num_layers=4 +0.977 is on a sharp single-seed peak — every HP perturbation drops it severely. Per CLAUDE.md 3+ DISCARD rule: structural change. Try num_layers=2 (simpler model, less capacity to overfit seed-42-specific basin). The mambastock 3-seed median +0.30 with σ=0.85 is the best mambastock CONFIG-LEVEL champion; further HP exploration around num_layers=4 is exhausted.",
+    "_manual": true
+  },
+  "275": {
+    "experiment_num": 275,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "dmamba bs 32 -> 16 at exp 52 base. After 9 dmamba HP DISCARDs across architectural and optimization axes, try smaller batch. Keskar 2017 (arXiv:1609.04836) demonstrated smaller batches find flatter minima with better generalization. bs=16 gives 2x more gradient updates per epoch — may help SSM gradient flow. Untested at exp 52 base.",
+    "citations": "Keskar, Mudigere, Nocedal, Smelyanskiy, Tang 2017 ICLR \"On Large-Batch Training: Generalization Gap and Sharp Minima\" (arXiv:1609.04836) sec 3.2 — smaller batches find flatter minima. Smith 2017 (arXiv:1708.07120) — bs interacts with lr. Goyal et al. 2017 (arXiv:1706.02677) — linear lr scaling rule (with bs reduction, lr should also reduce, but here we test bs alone first per ONE-config-change rule).",
+    "hypothesis": "dmamba bs 32 -> 16 at exp 52 base lifts composite from +1.3216 to [+1.20, +1.50] at seed=42. Mechanism: smaller batch = flatter minima = better generalization.",
+    "prediction": "composite [+0.80, +1.50], expectation +1.30. test_pos_folds [5, 7]. val_sharpe [+1.20, +1.60]. Elapsed [1500, 2500] sec.",
+    "verdict": "PENDING - to launch",
+    "learning": "PENDING",
+    "_manual": true
+  },
+  "276": {
+    "experiment_num": 276,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock num_layers 4 -> 2 at exp 241 base. After 4 mambastock DISCARDs around num_layers=4 baseline, try simpler model (less capacity may stabilize seed σ). Original mambastock paper Shi 2024 used 3 layers. Going BELOW the baseline to test if 2-layer mambastock with larger hidden produces different results.",
+    "citations": "Shi, Lu, Wang, Liu, Tang 2024 \"MambaStock\" (arXiv:2402.18959). Pascanu, Mikolov, Bengio 2013 ICML \"On the difficulty of training RNNs\" (arXiv:1211.5063) — shallower RNN/SSM has more direct gradient flow. Greff et al. 2017 LSTM Search Space Odyssey (arXiv:1503.04069) — 1-2 layer often competitive at small data. Beck et al. 2024 NeurIPS xLSTM (arXiv:2405.04517) — sometimes single-layer matches deeper stacks.",
+    "hypothesis": "mambastock num_layers=2 at seed=42 produces composite in [-0.20, +0.60]. If composite > +0.30, simpler model = real alternative. If < 0, num_layers=2 too simple.",
+    "prediction": "composite [-0.20, +0.60], expectation +0.20. test_pos_folds [4, 7]. Elapsed [1500, 2500] sec.",
+    "verdict": "PENDING - to launch",
     "learning": "PENDING",
     "_manual": true
   }
