@@ -1393,6 +1393,44 @@ US indices.
 
 This section IS that update. Append-only on each session correction.
 
+### Directive 30 (2026-04-29 ~22:00) — GPU PREFERRED OVER CPU
+
+**Use the GPU as the primary compute device for every neural backbone.**
+This system has:
+- **1 CUDA GPU**: NVIDIA GeForce RTX 4090 Laptop, 16 GB VRAM (verified
+  via `nvidia-smi` and `torch.cuda.device_count() == 1`).
+- **CPU**: 32 logical cores BUT only 4 P-cores `[0, 2, 4, 6]` are usable
+  due to E-core silicon defect (5 BSODs on 2026-04-19 from WHEA parity
+  errors on cores 16/17/24/25). The runner's `_pin_to_safe_cores()`
+  enforces this on every entry.
+
+Every neural backbone (MLP, LSTM, Mamba/dMamba/Samba/HybridMamba/CrossMamba/
+MambaStock, xLSTM, iTransformer, PatchTST, PatchTSMixer, DLinear, N-BEATS,
+panel-mode wrappers) must:
+1. Move model to `DEVICE = torch.device("cuda" if torch.cuda.is_available()
+   else "cpu")` immediately after instantiation.
+2. Move every batch to the same device with `.to(device, non_blocking=True)`.
+3. Use `pin_memory=True` on DataLoaders when CUDA is available.
+
+**GBM backbones** (XGBoost, LightGBM, CatBoost) run on CPU only by default
+because GPU GBM histogram method requires extra build flags and
+yields modest speed gains at our small panel n. Capped to 4 threads to
+respect the E-core ban.
+
+**Mixed precision (bf16 autocast)** is recommended for all non-Mamba
+backbones. Mamba's recurrent scan is FP32-only because dynamic-time
+state updates suffer numerical issues at bf16 (Gu-Dao 2024 §3.4).
+Adding `torch.autocast(device_type='cuda', dtype=torch.bfloat16)` around
+the forward pass yields ~2× throughput on the 4090's tensor cores.
+
+**Multi-GPU**: This system has only 1 CUDA device. `torch.nn.DataParallel`
+and `torch.nn.parallel.DistributedDataParallel` are not used. If a second
+discrete GPU is added later, the runner needs explicit `device_ids` setup
+in `run_autoresearch.py` and `run_panel.py`.
+
+**`AUTORESEARCH_USE_ALL_CORES=1`** environment variable can override the
+4-P-core pin if the user explicitly accepts BSOD risk. Not recommended.
+
 ## Panel learning architecture (post-2026-04-29 — NEW)
 
 ### Data layer (data/download.py)
