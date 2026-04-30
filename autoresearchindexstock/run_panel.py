@@ -367,11 +367,18 @@ def het_loss(pred: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     return (torch.exp(-logvar) * sq + 0.5 * logvar).mean()
 
 
+def huber_loss_2tgt(pred: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    # pred: [B, 4] but only mu_1d (col 0) + mu_5d (col 2) used; logvars ignored
+    # y: [B, 2]
+    mu = pred[:, [0, 2]]
+    return torch.nn.functional.huber_loss(mu, y, delta=1.0)
+
+
 # ---------------------------------------------------------------------------
 # Train + evaluate
 # ---------------------------------------------------------------------------
 
-def train_one_epoch(model, loader, optimizer):
+def train_one_epoch(model, loader, optimizer, loss_fn=het_loss):
     model.train()
     total = 0.0
     n = 0
@@ -379,7 +386,7 @@ def train_one_epoch(model, loader, optimizer):
         x, a, y = x.to(DEVICE), a.to(DEVICE), y.to(DEVICE)
         optimizer.zero_grad()
         pred = model(x, a)
-        loss = het_loss(pred, y)
+        loss = loss_fn(pred, y)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
@@ -472,6 +479,12 @@ def main():
     parser.add_argument("--head-dropout", type=float, default=0.2)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--description", type=str, default="panel-mode baseline")
+    parser.add_argument("--exclude-assets", type=str, default="",
+                        help="Comma-separated list of assets to drop from the panel (e.g. '^HSI,^N225,^AXJO,^STI,^KS11,^TWII')")
+    parser.add_argument("--loss", choices=["het", "huber"], default="het",
+                        help="Training loss: 'het' = Kendall-Gal heteroscedastic; 'huber' = plain Huber on [mu_1d, mu_5d]")
+    parser.add_argument("--weight-decay", type=float, default=1e-5,
+                        help="AdamW weight decay (LSTM QQQ-only sweet spot was 7e-4)")
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -481,6 +494,16 @@ def main():
     # 1. Download panel
     panel = download_panel_targets()
     logger.info("Panel: %d assets, %d total rows", panel.asset.nunique(), len(panel))
+
+    # 1b. Optional asset exclusion (structural-change axis: drop assets with
+    # known time-shift confound or chronic negative Sharpe across seeds).
+    excluded = [a.strip() for a in args.exclude_assets.split(",") if a.strip()]
+    if excluded:
+        before = panel.asset.nunique()
+        panel = panel[~panel.asset.isin(excluded)].copy()
+        after = panel.asset.nunique()
+        logger.info("Excluded %d assets: %s (panel %d → %d)",
+                    len(excluded), excluded, before, after)
 
     # 2. Compute per-asset features + targets (no cross-asset broadcast for
     # this baseline — keeps the tensor lean. Cross-asset features can be
@@ -580,19 +603,21 @@ def main():
     logger.info("Model: %s n_params=%d", args.backbone, n_params)
 
     # 7. Train with early stopping on val loss
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-5)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    loss_fn = huber_loss_2tgt if args.loss == "huber" else het_loss
+    logger.info("Loss function: %s", args.loss)
     best_val = float("inf")
     best_epoch = 0
     patience = 0
     for epoch in range(1, args.epochs + 1):
-        train_loss = train_one_epoch(model, train_loader, optimizer)
+        train_loss = train_one_epoch(model, train_loader, optimizer, loss_fn=loss_fn)
         # Val
         model.eval()
         with torch.no_grad():
             v_total, v_n = 0.0, 0
             for x, a, y in val_loader:
                 x, a, y = x.to(DEVICE), a.to(DEVICE), y.to(DEVICE)
-                v_total += het_loss(model(x, a), y).item() * x.size(0)
+                v_total += loss_fn(model(x, a), y).item() * x.size(0)
                 v_n += x.size(0)
             val_loss = v_total / max(v_n, 1)
         logger.info("Epoch %d train=%.4f val=%.4f", epoch, train_loss, val_loss)
@@ -659,6 +684,10 @@ def main():
     n_neg = sum(1 for s in bsk["per_asset_sharpe"].values() if s < 0)
     composite = float(min(sharpe_unconf, sharpe_conf) - 0.05 * n_neg)
 
+    id_to_asset = {i: a for a, i in asset_to_id.items()}
+    per_asset_named = {id_to_asset[int(aid)]: float(s)
+                       for aid, s in bsk["per_asset_sharpe"].items()}
+
     entry = {
         "backbone": args.backbone,
         "description": args.description,
@@ -671,6 +700,7 @@ def main():
         },
         "n_features": n_features,
         "n_assets": n_assets,
+        "excluded_assets": excluded,
         "n_train_windows": len(train_ds),
         "n_val_windows": len(val_ds),
         "n_test_windows": len(test_ds),
@@ -686,6 +716,7 @@ def main():
             "per_asset_sharpe_median": float(np.median(list(bsk["per_asset_sharpe"].values()))) if bsk["per_asset_sharpe"] else 0.0,
             "per_asset_sharpe_mean": float(np.mean(list(bsk["per_asset_sharpe"].values()))) if bsk["per_asset_sharpe"] else 0.0,
             "n_negative_assets": n_neg,
+            "per_asset_sharpe": per_asset_named,
         },
         "composite": composite,
         "best_epoch": best_epoch,

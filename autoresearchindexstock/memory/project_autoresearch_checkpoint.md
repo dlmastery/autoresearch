@@ -122,3 +122,75 @@ cd C:/Users/evija/autoresearch
 - Pinned to 4 P-cores [0,2,4,6] via `_pin_to_safe_cores()` in run_autoresearch.py
 - GPU active for neural backbones; CPU for GBMs
 - Memory: 16GB RAM, used ~2-7GB peak per experiment
+
+---
+
+## PANEL-MODE WORKSTREAM (parallel to QQQ-only loop)
+
+**Runner:** `python -m autoresearchindexstock.run_panel --backbone {mlp,lstm} ...`
+
+**Logs:** `autoresearch_results/panel_experiment_log.jsonl`,
+`panel_reasoning_annotations.json`, `panel_research_journal.md`,
+`panel_experiment_summary.md`
+
+**Panel:** 55 assets — NDX top-30 + adjacent indices (SPY, IWM, EEM, EFA, DIA, MDY) + Asia/Europe (^N225, ^HSI, ^KS11, ^TWII, ^STI, ^AXJO, ^STOXX50E, ^FTSE, ^GDAXI, ^FCHI) + Asia mega-caps (TSM, BABA, JD, PDD, SONY, TM, HMC, BIDU). 22 features per asset, 97k train windows (39× QQQ-only).
+
+### 5-seed baseline lock (asset_emb_dim=16, hidden=128, lr=3e-4)
+| Seed | gated 5d→1d | 5d→5d | 1d→1d | n_neg |
+|-----:|------------:|------:|------:|------:|
+| 42 | +0.21 | +0.32 | +0.28 | 18 |
+| 0  | +0.23 | +0.63 | +0.05 | 22 |
+| 99 | -0.03 | +0.24 | +0.07 | 23 |
+| 7  | -0.10 | +0.40 | +0.31 | 30 |
+| 2024 | -0.07 | +0.54 | +0.12 | 30 |
+| **median** | **-0.03** | **+0.395** | **+0.124** | **23** |
+| **σ** | 0.15 | 0.16 | 0.12 | 5.0 |
+
+### Locked decisions (post 5-seed baseline)
+1. **Primary autoresearch metric for panel mode = 5d-on-5d** (5/5 seeds positive, median +0.395). Original gated meta-signal +0.21 from 2-seed reading was small-sample illusion (true 5-seed median is -0.03).
+2. **Asia time-shift hypothesis: PARTIALLY FALSIFIED.** Closed-economy indices (^HSI, ^N225, ^AXJO) and JPY-revenue Japan exporters (TM, HMC, SONY) chronically negative. US-dollar-revenue Asian exporters (BABA, TSM, ^TWII) positive. Likely cause: yfinance reports Asian OHLCV in local-time, intraday-close-loc feature undefined cross-session.
+
+### 🔒 PANEL CHAPTER CLOSED (20 experiments, 2 backbones)
+
+**MLP panel chapter (10 experiments):**
+- 5-seed baseline (panel_1-5): 5d-on-5d 5-seed median **+0.3950** (5/5 positive, σ=0.16)
+- HP perturbations (panel_6-10): all DISCARD vs baseline within seed noise floor
+  - HP-1 emb 16→32: -0.004 (flat, ep cap-hit)
+  - HP-2 hidden 128→256: -0.196 (early overfit)
+  - HP-3 lr 3e-4→1e-4: -0.057 (cap-hit)
+  - STRUCT-1 drop 6 Asia indices: -0.112 (time-shift hypothesis falsified)
+  - STRUCT-2 het→Huber: -0.254 (best_ep=1 instant overfit; het loss structurally essential)
+
+**LSTM panel chapter (10 experiments):**
+- 3-seed baseline (L1-L3): 5d-on-5d 3-seed median **+0.3758** (σ=0.02 very tight)
+- HP perturbations (L4-L10):
+  - HP-1 lr 1e-3→5e-4: -0.005 (lr not bottleneck)
+  - HP-2 wd 1e-5→7e-4: 3-seed median +0.318 (FALSIFIED CLAUDE.md QQQ-LSTM transfer; σ exploded 12×)
+  - HP-3 hd 0.25→0.10: -0.337 (collapse; reg sweet spot at hd=0.25)
+  - HP-4 seq 10→20: -0.07 (seq axis closed)
+  - HP-5 num_layers 2→1: +0.008 (marginal, not significant)
+
+**🏆 Overall locked panel champion: MLP 5-seed median 5d-on-5d = +0.395 (5/5 positive seeds)**
+
+**Methodological locks:**
+1. Panel-mode signal is real but at modest effect size (+0.40 ceiling).
+2. Het loss structurally essential; can't replace with plain Huber.
+3. MLP σ=0.16 needs multi-seed for HP comparison; LSTM σ=0.02 enables single-seed HP.
+4. CLAUDE.md QQQ-LSTM recipes partially transfer to panel: hd=0.25 yes, wd=7e-4 NO (data-scale dependent per Andriushchenko 2024).
+5. Time-shift hypothesis (Lou-Polk-Skouras 2019) partially falsified — closed-economy Asia indices net-positive via basket diversification despite per-asset Sharpe negative.
+6. 5d-on-5d is the right primary metric for panel mode (5/5 positive across all MLP seeds; 3/3 across all LSTM-default seeds).
+
+### Pivot to deep-ensemble work (next)
+
+Per task #41 (Lakshminarayanan 2017): build inference script that averages predictions across the 5 MLP-panel-baseline seeds (42, 0, 99, 7, 2024). Expected variance reduction: σ_ensemble = σ/√5 ≈ 0.07 (vs σ=0.16 single-seed). Required code: (a) save MLP panel checkpoints (currently overwritten); (b) inference script `panel_ensemble_predict.py`. NO new training experiments needed — uses existing-or-rerun checkpoints.
+
+### Resume command (panel mode — for re-running baselines if needed)
+
+```bash
+cd C:/Users/evija/autoresearch
+"C:/Users/evija/anaconda3/python.exe" -m autoresearchindexstock.run_panel \
+  --backbone mlp --seed 42 --hidden 128 --num-layers 1 \
+  --asset-emb-dim 16 --lr 3e-4 --bs 256 --epochs 25 \
+  --patience 8 --head-dropout 0.2 --seq-len 10 \
+  --description "Panel MLP rebuild for ensemble seed=42"
+```
