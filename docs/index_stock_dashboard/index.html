@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AutoResearch QQQ Dashboard (build 20260429-062100)</title>
+<title>AutoResearch QQQ Dashboard (build 20260430-180000 + glossary)</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
@@ -80,6 +80,96 @@
     <div class="metrics" id="winner-metrics"></div>
   </div>
 </div>
+
+<details style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px;margin-bottom:14px">
+  <summary style="color:#58a6ff;cursor:pointer;font-weight:600;font-size:0.95em;letter-spacing:0.3px">📖 Metrics Glossary — what every column / number means (click to expand)</summary>
+  <div style="margin-top:14px;font-size:0.85em;line-height:1.55;color:#c9d1d9">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px">
+
+      <div>
+        <div style="color:#3fb950;font-weight:600;font-size:0.95em;margin-bottom:4px">📊 Headline metrics</div>
+        <ul style="list-style:none;padding-left:0;margin-top:6px">
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Composite</b> — KEEP/DISCARD decision metric. Formula: <code style="background:#0d1117;padding:1px 4px;border-radius:3px">min(test_sharpe, val_sharpe) − 0.05 × n_negative_folds</code>. Punishes models that look great on test but fail on val (or vice-versa) AND models with regime-specific failures. Higher = better.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Test Sharpe</b> — annualised <a href="https://en.wikipedia.org/wiki/Sharpe_ratio" target="_blank" style="color:#58a6ff">Sharpe ratio</a> on the held-out test fold (union of 7 regime windows: GFC, EU debt, taper, China-oil, vol-mageddon, COVID, AI rally). <code>√252 × mean(daily_returns) / std(daily_returns)</code>. Sharpe > 1 = strong; > 2 = exceptional; QQQ buy-and-hold ≈ 1.22.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Val Sharpe</b> — Sharpe on validation set (used for early-stopping + composite). Strong divergence from test Sharpe = overfitting.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Train Sharpe</b> — Sharpe on training data. Diagnostic only — train sharpe much greater than test sharpe = severe overfit.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">$Equity</b> — final portfolio value if you started with $1,000 and traded the strategy across all 7 test folds. $3,144 in exp 52 = $1k → $3.1k = +214%.</li>
+        </ul>
+      </div>
+
+      <div>
+        <div style="color:#3fb950;font-weight:600;font-size:0.95em;margin-bottom:4px">🎯 Direction-prediction (classification)</div>
+        <ul style="list-style:none;padding-left:0;margin-top:6px">
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Hit%</b> — directional accuracy: percent of trade-days where <code>sign(prediction) = sign(actual_return)</code>. 50% = coin-flip; 52-55% in finance is genuinely tradeable.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Prec / Rec</b> — Precision / Recall on the UP-direction class. Precision = "of all UP predictions, how many were right." Recall = "of all actual UP days, how many did we catch."</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">F1 / F2</b> — F-scores. F1 = harmonic mean of precision and recall. F2 weights recall 2× more than precision (penalises missed UP-days harder; useful in trending markets).</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">MCC</b> — <a href="https://en.wikipedia.org/wiki/Phi_coefficient" target="_blank" style="color:#58a6ff">Matthews Correlation Coefficient</a>, a balanced accuracy metric robust to class imbalance. Range −1 to +1; 0 = random; > 0.1 = real signal in finance.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Acc</b> — overall accuracy = (TP + TN) / total. Same as hit% but explicit.</li>
+        </ul>
+      </div>
+
+      <div>
+        <div style="color:#3fb950;font-weight:600;font-size:0.95em;margin-bottom:4px">📐 Statistical reliability</div>
+        <ul style="list-style:none;padding-left:0;margin-top:6px">
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">PSR</b> — <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1821643" target="_blank" style="color:#58a6ff">Probabilistic Sharpe Ratio</a> (Bailey & López de Prado 2012). Probability that the OBSERVED Sharpe is greater than 0 given the sample size, skewness, and kurtosis. PSR &gt; 0.95 = "very confident the Sharpe is positive, not noise." PSR = 1.000 means we are statistically certain. Critical because in-sample Sharpes can be inflated by skew/kurtosis or short windows.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">IC</b> — Information Coefficient = Pearson correlation between predicted return and actual return. Range −1 to +1. > 0.05 = real signal in equity prediction; > 0.10 = strong (Grinold-Kahn rule of thumb).</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">excess_sharpe</b> — Strategy Sharpe MINUS buy-and-hold Sharpe over the same window. >0 = strategy beats holding the index. exp 52 +0.10 means +0.10 Sharpe over QQQ buy-and-hold (1.22 → 1.32).</li>
+        </ul>
+      </div>
+
+      <div>
+        <div style="color:#3fb950;font-weight:600;font-size:0.95em;margin-bottom:4px">🤖 Uncertainty heads (Kendall-Gal 2017)</div>
+        <ul style="list-style:none;padding-left:0;margin-top:6px">
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Conf</b> — Confidence = <code>1 − epistemic_uncertainty</code>. The model's "I know the answer" signal. High conf + correct = good; high conf + wrong = dangerous overconfidence.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Ale</b> — Aleatoric uncertainty (data noise estimate). Predicted log-variance from the het-loss head, exp-transformed. High aleatoric on a regime = "this period is genuinely noisy / unpredictable" (e.g. crisis windows). Optimal range 0.05-0.15.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">epistemic</b> — Model's "what I don't know yet" signal (typically MC-Dropout variance). High epistemic on a regime = "I haven't seen enough data of this type" — useful for regime-shift detection.</li>
+        </ul>
+      </div>
+
+      <div>
+        <div style="color:#3fb950;font-weight:600;font-size:0.95em;margin-bottom:4px">🧪 Experiment tracking</div>
+        <ul style="list-style:none;padding-left:0;margin-top:6px">
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">T+/V+</b> — count of positive folds in TEST / VALIDATION. <code>7/7</code> on test = perfect regime coverage; <code>3/7</code> = model fails on 4 of 7 regimes. Critical for ensemble and risk control.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Status</b> — KEEP (composite improved) / DISCARD (composite regressed) / CRASH (training failed).</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">Time</b> — wall-clock training time. ~30 min typical for Mamba 100-epoch run on RTX 4090 Laptop.</li>
+        </ul>
+      </div>
+
+      <div>
+        <div style="color:#3fb950;font-weight:600;font-size:0.95em;margin-bottom:4px">🎯 Targets (A / B / D)</div>
+        <ul style="list-style:none;padding-left:0;margin-top:6px">
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">A — fwd_ret_1d</b> (PRIMARY) — 1-day forward log-return. Drives KEEP/DISCARD. The trade is realised on this return.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">B — fwd_ret_5d</b> — 5-day forward return (auxiliary head, jointly trained). Tracked because longer horizons are sometimes more stable.</li>
+          <li style="margin-bottom:8px"><b style="color:#58a6ff">D — vol-adjusted 1d</b> — <code>fwd_ret_1d / rolling_vol_20</code>. Orthogonalises trend from skill — high D-Sharpe = real edge, not just trend-following. The TRADE is always on raw 1d return; D's prediction only sets DIRECTION.</li>
+        </ul>
+      </div>
+
+      <div style="grid-column:1/-1">
+        <div style="color:#3fb950;font-weight:600;font-size:0.95em;margin-bottom:4px">📁 7-Fold walk-forward regime windows</div>
+        <ul style="list-style:none;padding-left:0;margin-top:6px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:6px">
+          <li><b style="color:#f85149">F1</b> GFC peak crash (Lehman + Mar-2009 bottom)</li>
+          <li><b style="color:#d29922">F2</b> 2011 US-downgrade + EU debt crisis</li>
+          <li><b style="color:#d29922">F3</b> Taper tantrum and 2014 H1</li>
+          <li><b style="color:#f85149">F4</b> China devaluation and oil crash 2015-2016</li>
+          <li><b style="color:#d29922">F5</b> 2018 Vol-mageddon + Q4 sell-off</li>
+          <li><b style="color:#f85149">F6</b> COVID crash and V-recovery 2020</li>
+          <li><b style="color:#3fb950">F7</b> Inflation bear, AI rally and 2025</li>
+        </ul>
+        <div style="color:#8b949e;font-size:0.8em;margin-top:6px">Each fold tests a structurally different regime. A model with all 7 folds positive = robust across crisis types; few-fold positive = regime-specialised.</div>
+      </div>
+
+      <div style="grid-column:1/-1">
+        <div style="color:#3fb950;font-weight:600;font-size:0.95em;margin-bottom:4px">🎛️ Decision rules (CLAUDE.md research-strict)</div>
+        <ul style="list-style:none;padding-left:0;margin-top:6px;font-size:0.85em">
+          <li style="margin-bottom:6px"><b style="color:#58a6ff">KEEP</b> — composite &gt; previous global champion AND all 7 test folds positive.</li>
+          <li style="margin-bottom:6px"><b style="color:#58a6ff">NEAR-MISS</b> — composite within 0.12 of champion (between 1.20 and 1.32 currently). Worth multi-seed lock.</li>
+          <li style="margin-bottom:6px"><b style="color:#58a6ff">DISCARD</b> — otherwise. Composite + per-fold both regressed.</li>
+          <li style="margin-bottom:6px"><b style="color:#58a6ff">Multi-seed lock</b> — single-seed lifts require ≥3 seeds with median &gt; baseline before declaring champion. dmamba seed=42 has a "lucky basin" — both seq=90 (+0.96) and bs=16 (+1.51) at single-seed COLLAPSED to 3-seed median +0.14 / -0.24. Multi-seed median is the credible metric.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</details>
 
 <div class="section-title">Experiment Log <span style="color:#484f58;font-size:0.7em;font-weight:400">(click row for per-window breakdown, click header to sort)</span></div>
 <div id="backbone-tabs" style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap"></div>
