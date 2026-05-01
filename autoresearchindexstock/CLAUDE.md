@@ -1497,3 +1497,173 @@ in `run_autoresearch.py` and `run_panel.py`.
 9. TODO: 10+ research-strict experiments per backbone (cheapest first:
    MLP → LSTM → GBMs → Mamba) hill-climbing from each within-backbone
    winner, all in panel mode with B (5d) as primary KEEP/DISCARD target.
+
+## User Directives Log — Session 2026-04-30 (dmamba+mambastock 25-each hill-climb)
+
+### Directive 31 (2026-04-30 ~07:50) — Stop panel exploration; pivot to dmamba 25-experiment hill-climb from exp 52 winner
+
+User: *"can we stop these and do 25 experiments hill climb on d-mamba from
+winner configuration only and winner target - following all the arxiv
+literature. looks like we exhausted so many things - not much left. lets go
+back to the winner and use exact same configuration and hill climb please."*
+
+**Mandate:**
+- **STOP** panel/MLP/LSTM exploration immediately. Panel chapter closed
+  with MLP champion 5-seed median 5d-on-5d +0.395 (5/5 positive) and LSTM
+  3-seed median +0.376.
+- **25 dmamba experiments** hill-climbing from the EXACT exp 52 winner
+  config (composite +1.3216 single-seed=42; multi-seed median +0.97):
+  `mamba-variant=dmamba, expand=2, d-state=32, seq=60, lr=5e-4, bs=32,
+  epochs=100, patience=20, weight_decay=0.1, warmup=10, head_dropout=0.1,
+  huber_delta=1.0, grad_clip=1.0, seed=42`.
+- **Winner target = target A (fwd_ret_1d composite)** — the QQQ primary
+  KEEP/DISCARD metric, NOT the panel-mode 5d-on-5d.
+- Each experiment must follow the 7-step research-strict protocol:
+  diagnose → cite → hypothesize → predict numeric range → run ONE config
+  change → analyze vs prediction → checkpoint.
+- Plan all 25 in advance with arxiv citation per experiment in
+  `dmamba_hillclimb_plan.md`.
+
+**Result so far (24/25 done; 0 multi-seed wins):**
+- ALL HP perturbations DISCARD vs exp 52 multi-seed median +0.97
+- ALL 4 variant switches CATASTROPHIC DISCARD (samba/hybrid_mamba/
+  crossmamba/mambats)
+- exp 52 EXACTLY REPRODUCED at patience=30 (+1.3216 IDENTICAL)
+- Single-seed lifts at seed=42 (seq=90 +0.96, bs=16 +1.51, huber=0.5 +0.69)
+  all FALSIFIED at multi-seed (3-seed medians: +0.14, +0.14, pending)
+- 5 ensemble candidates identified: expand=1, hd=0.2, grad_clip=0.5,
+  grad_clip=2.0, huber=0.5
+- **dmamba seed=42 has a "lucky basin"** that doesn't generalize — single
+  seed comparisons at this seed are noise-dominated for any HP change.
+
+### Directive 32 (2026-04-30 ~07:55) — MambaStock 25-experiment hill-climb in PARALLEL with dmamba
+
+User: *"lets do mambastock variant as well - implement paralellly"*
+
+**Mandate:**
+- Run **25 mambastock experiments** in parallel with the dmamba 25-grind
+  on the same GPU. RTX 4090 Laptop has 16 GB VRAM — two ~1.3 GB Mamba
+  models fit easily; CUDA timeshares the SM (~88% util when both running).
+- Start from mambastock champion exp 241 config (num_layers=3, hidden=128,
+  composite +0.036) and hill-climb with arxiv-cited single-config changes.
+- Same research-strict 7-step protocol per experiment.
+
+**Result so far (12/25 done; new mambastock champion archived):**
+- num_layers=4 lifted single-seed=42 to +0.977 (vs +0.036 baseline)
+- bs=16 transfer test (Keskar 2017) lifted single-seed=42 to **+1.0545**
+- Multi-seed lock: seed=42 +1.05, seed=0 +0.46, seed=99 -0.53
+- **3-seed median +0.4630 (vs prior mambastock 3-seed median +0.30 = +0.16
+  LIFT, +54% relative improvement)**
+- ARCHIVED at `winners/mamba_exp281_mambastock_bs16_seed42_3seed_median_+0.46/`
+  with README + config.json
+- Below +0.50 strict champion threshold but BEST mambastock ever recorded
+- Keskar 2017 flat-minima effect transfers MORE robustly to mambastock
+  than to dmamba (where it produced lucky-basin then collapsed)
+
+### Directive 33 (2026-04-30 ~08:00 + recurring) — Push updated dashboard to GitHub on every commit
+
+User: *"do not forget to push the updated dashboard to github along with
+updated results"* (and also "update dashboard now please with latest")
+
+**Mandate (already in MLOps section but reinforced):**
+- Every commit that touches experiment state MUST run
+  `python autoresearchindexstock/_sync_dashboard_to_docs.py` BEFORE the
+  commit. The script copies `autoresearch_results/dashboard.html`,
+  `experiment_log.jsonl`, `best_config.json`, `reasoning_annotations.json`,
+  `*.md` reports, and `trade_logs/*.csv` into `docs/index_stock_dashboard/`.
+- After commit, push to `master` so GitHub Pages rebuilds within ~60s at
+  <https://dlmastery.github.io/autoresearch/index_stock_dashboard/>.
+- Cadence: every ~5 experiments OR after any milestone (new champion,
+  hypothesis falsified, axis fully mapped). The dashboard is the public
+  institutional memory; staleness is a regression.
+- The commit ritual:
+  ```bash
+  python autoresearchindexstock/_sync_dashboard_to_docs.py
+  git add -A autoresearchindexstock/autoresearch_results/ docs/index_stock_dashboard/
+  git commit -F .commit_msg.txt
+  git push origin master
+  ```
+
+### Directive 34 (2026-04-30 ~17:30) — Add metrics glossary to dashboard
+
+User: *"update the documentation in dashboard to clearly explain what best
+sharpee, psr etc.,. means."*
+
+**Mandate:**
+- Every metric column in the dashboard has a clear, plain-English
+  explanation accessible without leaving the page.
+- Added a collapsible **📖 Metrics Glossary** section to `dashboard.html`
+  (above the experiment log) covering:
+  - **Headline metrics**: Composite (formula + decision rule), Test/Val/
+    Train Sharpe, $Equity (with $1k start interpretation)
+  - **Direction prediction (classification)**: Hit%, Precision, Recall,
+    F1, F2, MCC (with Wikipedia link), Accuracy
+  - **Statistical reliability**: PSR (Bailey-López de Prado 2012, with
+    SSRN link), IC (Information Coefficient with Grinold-Kahn rule),
+    excess_sharpe (vs buy-and-hold)
+  - **Uncertainty heads** (Kendall-Gal 2017): Confidence, Aleatoric,
+    Epistemic — with optimal range guidance
+  - **Experiment tracking**: T+/V+ (positive folds), Status, Time
+  - **Targets**: A (1d primary), B (5d auxiliary), D (vol-adjusted 1d)
+  - **7-fold walk-forward regime windows** (color-coded by crisis
+    severity): GFC, EU debt, Taper, China-oil, Vol-mageddon, COVID,
+    AI rally
+  - **Decision rules**: KEEP / NEAR-MISS / DISCARD / Multi-seed lock —
+    with the "lucky basin" caveat about seed=42
+- Each definition includes formula, value range, and interpretation
+  ("Sharpe > 1 = strong; > 2 = exceptional; QQQ buy-and-hold ≈ 1.22").
+- References to Wikipedia / SSRN / arXiv where appropriate.
+- The glossary is `<details>`-collapsible so it doesn't crowd the
+  dashboard but is one click away.
+
+### Directive 35 (2026-04-30 ~18:30) — Capture all guidance in CLAUDE.md
+
+User: *"can you please update claude.md to ensure all my guidance goes
+there"*
+
+**Mandate:** Every user directive received during a session — not just
+the in-session conversation — must be captured in this CLAUDE.md
+`User Directives Log` so a future Claude Code session reading only this
+file picks up the user's intent. Includes:
+- The exact user wording in italics + timestamp
+- The mandate distilled into actionable rules
+- Result/status when applicable
+- Cross-references to related files (winners archive, dashboard, etc.)
+
+This directive applies retroactively too — any guidance heard in any
+session should be log-entered as a numbered Directive (28, 29, ...).
+A session that handles a user request without recording it in CLAUDE.md
+is a regression of institutional memory.
+
+## Hill-climb session learnings — 2026-04-30 (post 24+ experiments)
+
+### Locked truths after the 25-each grind
+1. **dmamba exp 52 +1.32 single-seed / +0.97 multi-seed median is the
+   LOCKED QQQ champion.** No HP perturbation, no architectural variant
+   switch produced a credible multi-seed lift.
+2. **Reproducibility CONFIRMED.** patience=30 produces composite +1.3216
+   IDENTICAL to exp 52 — the training pipeline is deterministic at fixed
+   seed.
+3. **dmamba seed=42 has a "lucky basin"** that doesn't generalize.
+   Multiple HP changes produced impressive single-seed=42 lifts (seq=90
+   +0.96, bs=16 +1.51) that collapsed at seed=0 / seed=99 (3-seed medians
+   +0.14, +0.14). Multi-seed median is the only credible candidate metric.
+4. **Mambastock bs=16 num_layers=4 = NEW BEST MAMBASTOCK** (3-seed median
+   +0.46, +0.16 lift over prior +0.30). Keskar 2017 flat-minima effect
+   transfers more robustly to mambastock than to dmamba.
+5. **Five dmamba ensemble candidates** identified (single-seed positive
+   variants below the +1.32 threshold): expand=1 (+0.43, crisis-strong),
+   hd=0.2 (+0.59, F4 China-oil unique positive), grad_clip=0.5 (+0.41,
+   3 strong crisis regimes), grad_clip=2.0 (+0.47, F2/F3 strong),
+   huber=0.5 (+0.69 / +273% return / excess +0.28 = 3× over bh).
+6. **All 4 dmamba VARIANT switches CATASTROPHIC** (samba -0.10,
+   hybrid_mamba -1.01, crossmamba -1.62, mambats -0.67). The dmamba
+   decomposition is uniquely suited to QQQ.
+7. **Both directions of every dmamba HP axis hurt** — exp 52 is at a
+   sharp local optimum at single-seed=42. Symmetric drops on bs (16/64),
+   wd (0.05/0.2), warmup (5/20), hd (0.05/0.2), grad_clip (0.5/2.0),
+   d_state (16/64), expand (1/4).
+8. **Single-seed comparisons in dmamba are noise-dominated** at seed=42
+   (σ ≈ 0.5+). Any HP effect of magnitude < ~0.5 is undetectable at
+   single seed. Multi-seed locks at 3+ seeds are the only credible
+   evaluation.
