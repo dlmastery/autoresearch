@@ -2675,5 +2675,41 @@
     "key_meta_finding": "dmamba seed=42 has a lucky basin — multi-seed median is the only credible candidate metric",
     "next_recommended_extension": "huber=0.5 seed=99 lock (would complete 3-seed median for the only robust candidate)",
     "_manual": true
+  },
+  "296": {
+    "experiment_num": 296,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock hidden 128 -> 192 at bs=16 champion base (Bao 2017 KDD).",
+    "citations": "Bao, Lucas, Sridhar 2017 KDD. Shi 2024 MambaStock. Beck 2024 xLSTM.",
+    "hypothesis": "composite [+0.50, +1.50].",
+    "prediction": "composite [+0.50, +1.50].",
+    "verdict": "DISCARD-OVERFIT. composite -0.4040 vs bs=16 champion +1.0545 -> -1.46 collapse. test_pos_folds 2/7 (only F1 GFC +4.70 huge and F4 +1.59 positive). val_sharpe +1.01 high but 5/7 test folds negative — severe val/test divergence. PSR 0.58. return -1.5%. elapsed 3356s. Per-fold: F1 +4.70, F2 -0.49, F3 -1.13, F4 +1.59, F5 -0.21, F6 -1.60, F7 -0.29. Bigger model = more capacity = overfits non-crisis regimes.",
+    "learning": "Hidden=192 too much capacity at QQQ small-N. mambastock hidden=128 sweet spot confirmed. F1 GFC peak shows 4.70 sharpe (huge!) suggesting model captures crisis-onset regime exceptionally well — but loses 5 other regimes. Possibly useful as an ensemble crisis-detector. Next: warmup 10 -> 5 (Liu 2019 RAdam short warmup at small bs).",
+    "_manual": true
+  },
+  "297": {
+    "experiment_num": 297,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock warmup 10 -> 5 at bs=16 champion base.",
+    "citations": "Liu 2019 RAdam (arXiv:1908.03265); Goyal 2017; Smith 2017; Shi 2024.",
+    "hypothesis": "composite [+0.50, +1.40].",
+    "prediction": "composite [+0.50, +1.40].",
+    "verdict": "WEAK-POSITIVE-DISCARD. composite +0.0596 vs bs=16 champion +1.0545 -> -0.99. test_pos_folds 4/7. val_sharpe +0.44. PSR 0.77. return +26.51%. excess_sharpe -0.86. elapsed 3417s. Per-fold: F1 GFC +3.22, F2 EU debt +1.97, F3 Taper -2.69 (catastrophic), F4 -0.23, F5 +1.25, F6 +0.28, F7 -0.22. Hypothesis predicted [+0.50, +1.40] expectation +1.10, observed +0.06 — far below.",
+    "learning": "warmup=5 produces F3 Taper -2.69 catastrophic — short warmup destabilizes mid-volatility regimes. F1+F2 still strong but lost F3 entirely. mambastock warmup sweet spot remains 10 (=champion baseline). Next: hd=0.05 + grad_clip=0.5 at bs=16 base.",
+    "_manual": true
+  },
+  "298": {
+    "experiment_num": 298,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock patience 20 -> 30 at bs=16 champion base.",
+    "citations": "Smith 2017; Shi 2024 MambaStock.",
+    "hypothesis": "composite [+0.50, +1.40].",
+    "prediction": "composite [+0.50, +1.40].",
+    "verdict": "🎯 EXACT REPRODUCTION OF BS=16 CHAMPION. composite +1.0545 IDENTICAL to exp 281 bs=16 num_layers=4 single-seed=42. All metrics match: test_pos 6/7 IDENTICAL, val_sharpe +1.363 IDENTICAL, return +168.57% IDENTICAL, PSR 0.992. All per-fold values match. patience=30 produces same result because best_epoch reached well before patience triggered. Hypothesis predicted [+0.50, +1.40], observed +1.0545 — matches champion exactly.",
+    "learning": "🎯 REPRODUCIBILITY OF BS=16 MAMBASTOCK CHAMPION CONFIRMED. patience=30 produces 100% identical metrics — deterministic training pipeline at fixed seed. Same as dmamba patience=30 vs exp 52 reproduction. Patience axis irrelevant for any value >= 20. Mambastock patience axis CLOSED.",
+    "_manual": true
   }
 }
