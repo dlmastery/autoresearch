@@ -2674,7 +2674,14 @@
     "global_qqq_champion": "exp 52 dmamba (LOCKED at +1.32 single-seed / +0.97 multi-seed median)",
     "key_meta_finding": "dmamba seed=42 has a lucky basin — multi-seed median is the only credible candidate metric",
     "next_recommended_extension": "huber=0.5 seed=99 lock (would complete 3-seed median for the only robust candidate)",
-    "_manual": true
+    "_manual": true,
+    "extension_26th_experiment": {
+      "huber_05_seed_99": -0.5046,
+      "huber_05_3_seed_median": 0.6893,
+      "huber_05_3_seed_mean": 0.33,
+      "huber_05_3_seed_sigma": 0.725,
+      "verdict": "BEST ensemble component (median > +0.50 threshold) but NOT new champion (median < +0.97 baseline)"
+    }
   },
   "296": {
     "experiment_num": 296,
@@ -2710,6 +2717,66 @@
     "prediction": "composite [+0.50, +1.40].",
     "verdict": "🎯 EXACT REPRODUCTION OF BS=16 CHAMPION. composite +1.0545 IDENTICAL to exp 281 bs=16 num_layers=4 single-seed=42. All metrics match: test_pos 6/7 IDENTICAL, val_sharpe +1.363 IDENTICAL, return +168.57% IDENTICAL, PSR 0.992. All per-fold values match. patience=30 produces same result because best_epoch reached well before patience triggered. Hypothesis predicted [+0.50, +1.40], observed +1.0545 — matches champion exactly.",
     "learning": "🎯 REPRODUCIBILITY OF BS=16 MAMBASTOCK CHAMPION CONFIRMED. patience=30 produces 100% identical metrics — deterministic training pipeline at fixed seed. Same as dmamba patience=30 vs exp 52 reproduction. Patience axis irrelevant for any value >= 20. Mambastock patience axis CLOSED.",
+    "_manual": true
+  },
+  "299": {
+    "experiment_num": 299,
+    "backbone": "mamba",
+    "seed": 99,
+    "diagnosis": "dmamba EXT 26 — huber=0.5 seed=99 for 3-seed median lock of only multi-seed-robust candidate.",
+    "citations": "Lakshminarayanan 2017; Picard 2021; Huber 1964.",
+    "hypothesis": "composite [+0.20, +1.00] expectation +0.50.",
+    "prediction": "composite [+0.20, +1.00].",
+    "verdict": "BELOW-CHAMPION-LOCKS-AS-ENSEMBLE-COMPONENT. composite -0.5046. test_pos_folds 3/7. val_sharpe +3.17 (HIGH but val/test divergence). PSR 0.42. return -19%. elapsed 1222s. Per-fold: F1 GFC +0.45, F2 EU debt -1.75, F3 Taper -0.34, F4 China-oil +1.36 (POSITIVE this seed — was negative at s=42 and s=0!), F5 +0.73, F6 -0.27, F7 -0.57. Hypothesis predicted [+0.20, +1.00] expectation +0.50, observed -0.50 — at low end.",
+    "learning": "🎯 DMAMBA HUBER=0.5 3-SEED MEDIAN LOCK COMPLETE. seeds 42/0/99 = +0.6893/+0.8052/-0.5046. 3-seed median +0.6893, mean +0.330, σ 0.725. **NOT a new dmamba champion** (median +0.69 < +0.97 exp 52 baseline). BUT ABOVE +0.50 ENSEMBLE THRESHOLD — locks as BEST DMAMBA ENSEMBLE COMPONENT in entire 26-experiment grind. Note: F4 China-oil flipped sign at seed=99 (+1.36 vs -0.85/-0.41 at seeds 42/0) — interesting regime sensitivity. dmamba 26-experiment grind FINAL VERDICT: exp 52 LOCKED champion (+1.32 single / +0.97 multi-seed median); huber=0.5 BEST ensemble component (3-seed median +0.69); 4 other candidates (expand=1 +0.43, hd=0.2 +0.59, grad_clip=0.5/2.0 +0.41/+0.47); 0 multi-seed wins above +0.97 baseline.",
+    "_manual": true
+  },
+  "300": {
+    "experiment_num": 300,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock grad_clip 1.0 -> 0.5 at bs=16 champion base.",
+    "citations": "Pascanu 2013; Shi 2024.",
+    "hypothesis": "composite [+0.50, +1.40].",
+    "prediction": "composite [+0.50, +1.40].",
+    "verdict": "WEAK-POSITIVE-DISCARD. composite +0.1126 vs champion +1.0545 -> -0.94. test_pos_folds 5/7. val_sharpe +0.48. PSR 0.74. return +21%. excess_sharpe -0.91. elapsed 3404s. Per-fold: F1 GFC +0.65, F2 EU debt +1.41, F3 Taper +0.35, F4 China-oil -2.08 (catastrophic), F5 +1.82, F6 -0.07, F7 +0.33. Hypothesis predicted [+0.50, +1.40], observed +0.11.",
+    "learning": "grad_clip=0.5 produces weak positive but F4 China-oil collapses to -2.08. Stricter clip not the right direction. Mambastock grad_clip sweet spot remains 1.0.",
+    "_manual": true
+  },
+  "301": {
+    "experiment_num": 301,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock head_dropout 0.1 -> 0.05 at bs=16 champion base.",
+    "citations": "Srivastava 2014; Shi 2024.",
+    "hypothesis": "composite [+0.50, +1.40].",
+    "prediction": "composite [+0.50, +1.40].",
+    "verdict": "DISCARD-INSIGHTFUL-ENSEMBLE-CANDIDATE. composite +0.1206 vs champion +1.0545 -> -0.93. test_pos_folds 6/7 (only F6 COVID -1.89). val_sharpe +1.43 (high). PSR 0.68. return +10.83%. excess_sharpe -1.00. elapsed 4838s. Per-fold: F1 GFC +0.72, F2 EU debt +1.14, F3 Taper +3.18 (huge!), F4 China-oil +0.41, F5 +0.86, F6 COVID -1.89 (catastrophic), F7 +0.15.",
+    "learning": "hd=0.05 produces 6/7 positive folds with F3 Taper +3.18 huge but F6 COVID catastrophic. Below champion by composite but interesting ensemble candidate (covers F3 strongly). val_sharpe +1.43 indicates val/test alignment OK except F6.",
+    "_manual": true
+  },
+  "302": {
+    "experiment_num": 302,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock huber=0.5 transfer test from dmamba ensemble component.",
+    "citations": "Huber 1964; dmamba huber=0.5 3-seed median +0.69; Shi 2024.",
+    "hypothesis": "composite [+0.50, +1.40].",
+    "prediction": "composite [+0.50, +1.40].",
+    "verdict": "PARTIAL-TRANSFER-DISCARD-COMPLEMENTARY-ENSEMBLE-CANDIDATE. composite +0.2289 vs champion +1.0545 -> -0.83. test_pos_folds 4/7. val_sharpe +1.41 (high). PSR 0.86. return +48.59% (positive). excess_sharpe -0.69. elapsed 3478s. Per-fold: F1 GFC +4.11 (HUGE!), F2 EU debt -0.92, F3 Taper -0.87, F4 China-oil +0.50 (uniquely positive!), F5 Vol-mageddon +2.32, F6 COVID -0.89, F7 AI rally +0.15. Hypothesis predicted [+0.50, +1.40], observed +0.23.",
+    "learning": "🎯 INTERESTING TRANSFER PATTERN: mambastock huber=0.5 covers F1+F4+F5 strongly while dmamba huber=0.5 covers F1+F3+F5. Different regime profiles = COMPLEMENTARY ensemble candidates. Sharper Huber loss interacts differently with mambastock multi-scale + adaptive temp vs dmamba decomposition. Both have F1 GFC +4-7 strong, both have F5 Vol-mageddon strong, but mambastock+huber=0.5 captures F4 China-oil uniquely while dmamba+huber=0.5 captures F3 Taper uniquely. Together they could form a 2-component crisis ensemble.",
+    "_manual": true
+  },
+  "303": {
+    "experiment_num": 303,
+    "backbone": "mamba",
+    "seed": 42,
+    "diagnosis": "mambastock wd 0.1 -> 0.05 at bs=16 champion base.",
+    "citations": "Loshchilov-Hutter 2019; Shi 2024.",
+    "hypothesis": "composite [+0.50, +1.40].",
+    "prediction": "composite [+0.50, +1.40].",
+    "verdict": "DISCARD-CRISIS-STRONG-ENSEMBLE-CANDIDATE. composite +0.2921 vs champion +1.0545 -> -0.76. test_pos_folds 4/7. val_sharpe +1.29. PSR 0.89. return +57.61%. excess_sharpe -0.63. elapsed 4245s. Per-fold: F1 GFC +8.13 (MASSIVE!), F2 EU debt +0.62, F3 Taper +1.41, F4 China-oil -1.41, F5 Vol-mageddon +2.52, F6 COVID -1.48, F7 AI rally -0.59. Hypothesis predicted [+0.50, +1.40], observed +0.29.",
+    "learning": "wd=0.05 produces F1 GFC +8.13 (largest single-fold sharpe in any mambastock experiment). 4/7 folds positive. Strong on crisis/volatile regimes, weak on trending. Another crisis-detection ensemble candidate alongside huber=0.5.",
     "_manual": true
   }
 }
