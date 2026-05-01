@@ -2625,5 +2625,55 @@
     "verdict": "PENDING - to launch",
     "learning": "PENDING",
     "_manual": true
+  },
+  "295": {
+    "experiment_num": 295,
+    "backbone": "mamba",
+    "seed": 0,
+    "diagnosis": "FINAL DMAMBA SLOT 25/25 — multi-seed lock for huber=0.5 candidate.",
+    "citations": "Lakshminarayanan 2017 (arXiv:1612.01474); Picard 2021 (arXiv:2109.08203); Huber 1964; Smith 2017.",
+    "hypothesis": "composite [+0.20, +1.20].",
+    "prediction": "composite [+0.10, +1.10] expectation +0.50.",
+    "verdict": "🎯 CONFIRMS-LIFT-MULTI-SEED-ROBUST. composite +0.8052 — actually HIGHER than seed=42 +0.6893! test_pos_folds 6/7 (only F4 -0.41). val_sharpe +1.14. hit 52.98%. PSR 0.97. return +112.22%. excess_sharpe -0.31 (vs bh +1.22). elapsed 1953s. Per-fold: F1 GFC +1.46, F2 EU debt +1.21, F3 Taper +1.69, F4 China-oil -0.41 (only negative — same fold as seed=42 huber=0.5), F5 Vol-mageddon +2.48, F6 COVID +0.43, F7 AI rally +0.64. Hypothesis predicted [+0.10, +1.10] expectation +0.50, observed +0.81 — at upper end of range.",
+    "learning": "🎯 BREAKTHROUGH: dmamba huber=0.5 is the FIRST HP variant with BOTH seeds > +0.50! 2-seed mean +0.7472. Unlike seq=90 (+0.96 single → -0.24 multi-seed) and bs=16 (+1.51 single → +0.14 multi-seed) which had lucky-basin pattern, huber=0.5 LIFTS from +0.69 (s=42) to +0.81 (s=0). Both seeds: 6/7 positive folds, F4 China-oil consistently negative across BOTH seeds (-0.85 / -0.41) — F4 is a structural weakness of huber=0.5. F1/F2/F3/F5/F7 all positive both seeds. THE BEST DMAMBA ENSEMBLE CANDIDATE in entire 25-grind. 2-seed mean +0.75 is below exp 52 multi-seed median +0.97 by 0.22, but the multi-seed robustness makes this a CREDIBLE ensemble component. Recommend: future hill-climb continues with huber=0.5 seed=99 lock (would extend dmamba budget by 1).",
+    "_manual": true
+  },
+  "DMAMBA_25_25_FINAL_SUMMARY": {
+    "session": "2026-04-30 to 2026-05-01",
+    "goal": "User directive: hill-climb 25 experiments from exp 52 winner config (composite +1.3216)",
+    "baseline_locked": {
+      "config": "dmamba expand=2 d_state=32 seq=60 lr=5e-4 bs=32 wd=0.1 hd=0.1 warmup=10 huber=1.0 grad_clip=1.0",
+      "single_seed_42": 1.3216,
+      "multi_seed_3seed_median": 0.97
+    },
+    "experiments_done": 25,
+    "multi_seed_wins": 0,
+    "reproducibility_confirmed": "patience=30 produced composite +1.3216 IDENTICAL to exp 52 (deterministic pipeline)",
+    "falsified_hypotheses": {
+      "d_state=64 (Gu-Dao 2024 monotonic)": "-0.73 catastrophic",
+      "lr=3e-4 (Smith 2017 0.5x)": "-0.60 destabilizes regimes",
+      "wd=0.05 (Loshchilov-Hutter 2019)": "-0.91 catastrophic",
+      "warmup=20 (Goyal 2017)": "-1.04 catastrophic",
+      "bs=64 (Goyal 2017 larger)": "-1.08 catastrophic",
+      "hd=0.05 (Srivastava 2014 less reg)": "-1.46 catastrophic",
+      "seq=90 (Beck 2024 monotonic)": "single-seed +0.96 LUCKY; 3-seed median -0.24 FALSIFIED",
+      "bs=16 (Keskar 2017 flat-minima)": "single-seed +1.51 LUCKY; 3-seed median +0.14 FALSIFIED",
+      "samba variant (Ren 2024)": "-0.10",
+      "mambats variant (Cai 2024)": "-0.67",
+      "hybrid_mamba (AI21 Jamba 2024)": "-1.01 catastrophic",
+      "crossmamba (Zhao 2024)": "-1.62 catastrophic"
+    },
+    "positive_dmamba_ensemble_candidates": {
+      "expand=1": "+0.43 (crisis-strong F1+3.84 F2+6.29)",
+      "hd=0.2": "+0.59 (F4 China-oil uniquely +1.27)",
+      "grad_clip=0.5": "+0.41 (F1+F2+F3 strong crisis)",
+      "grad_clip=2.0": "+0.47 (F2+4.36 F3+2.68)",
+      "huber=0.5": "+0.69 single / +0.81 seed=0 / 2-seed mean +0.75 ROBUST"
+    },
+    "best_robust_candidate": "huber=0.5 (2-seed mean +0.75; first variant with both seeds > +0.50)",
+    "global_qqq_champion": "exp 52 dmamba (LOCKED at +1.32 single-seed / +0.97 multi-seed median)",
+    "key_meta_finding": "dmamba seed=42 has a lucky basin — multi-seed median is the only credible candidate metric",
+    "next_recommended_extension": "huber=0.5 seed=99 lock (would complete 3-seed median for the only robust candidate)",
+    "_manual": true
   }
 }
