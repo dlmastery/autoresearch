@@ -699,22 +699,33 @@ def main() -> None:
     # Reuses prev_best_composite captured above the JSONL append so status and
     # is_champion stay in sync (KEEP <=> is_champion).
     is_champion = composite > prev_best_composite
-    if is_champion:
+    if is_champion and not is_gbm:
         BEST_PATH.write_text(json.dumps(entry, indent=2), encoding="utf-8")
-        if not is_gbm:
-            torch.save({
-                "model_state_dict": model.state_dict(),
-                "config": entry["config"],
-                "scaler_mean": scaler.mean_,
-                "scaler_scale": scaler.scale_,
-                "feature_columns": list(train_feat.columns),
-                "target_columns": ["fwd_ret_1d", "fwd_ret_5d"],
-                "n_features": n_features,
-                "composite": composite,
-                "description": args.description,
-                "backbone": args.backbone,
-                "experiment_num": exp_num,
-            }, BEST_MODEL_PATH)
+        ckpt_payload = {
+            "model_state_dict": model.state_dict(),
+            "config": entry["config"],
+            "scaler_mean": scaler.mean_,
+            "scaler_scale": scaler.scale_,
+            "feature_columns": list(train_feat.columns),
+            "target_columns": ["fwd_ret_1d", "fwd_ret_5d"],
+            "n_features": n_features,
+            "composite": composite,
+            "description": args.description,
+            "backbone": args.backbone,
+            "experiment_num": exp_num,
+        }
+        torch.save(ckpt_payload, BEST_MODEL_PATH)
+        # Per CLAUDE.md Directive 42 (2026-05-02): every champion gets a
+        # PERMANENT archive in winners/ so OOS inference can be re-run later.
+        # The runner-side best_model.pt gets overwritten by the next champion;
+        # without this archive, only the LAST champion is recoverable.
+        winner_dir = RESULTS_DIR / "winners" / f"{args.backbone}_exp{exp_num}_auto"
+        winner_dir.mkdir(parents=True, exist_ok=True)
+        torch.save(ckpt_payload, winner_dir / "model_checkpoint.pt")
+        (winner_dir / "config.json").write_text(json.dumps(entry, indent=2), encoding="utf-8")
+        print(f"[archive] saved checkpoint to {winner_dir.relative_to(RESULTS_DIR.parent)}")
+    elif is_champion and is_gbm:
+        BEST_PATH.write_text(json.dumps(entry, indent=2), encoding="utf-8")
 
     # Heart-beat off
     try: RUNNING_PATH.unlink()

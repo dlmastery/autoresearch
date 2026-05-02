@@ -1667,3 +1667,64 @@ is a regression of institutional memory.
    (σ ≈ 0.5+). Any HP effect of magnitude < ~0.5 is undetectable at
    single seed. Multi-seed locks at 3+ seeds are the only credible
    evaluation.
+
+
+## User Directives Log — Session 2026-05-02 (OOS inference + dashboard polish)
+
+### Directive 36 — OOS live-data inference on champion checkpoint
+User: *download data nov 2025 - apr 2026, run inference on the global winner, generate CSV, no training, no peeking*
+
+Built run_oos_inference.py: loads best_model.pt + training-set scaler + 205 feature_columns. Downloads QQQ + 56 macros via yfinance bypassing the 2025-12-31 cap. Computes 205 backward-only features. For each predict-day Dec 1 2025-Apr 29 2026, runs 60-day sliding-window forward pass under torch.no_grad(), takes sign(mu_1d) as trade direction, books P&L = direction*actual_ret_1d. Generated oos_predictions_nov25_apr26.csv (122 preds), oos_dec25_apr26.csv (103 preds Dec-Apr only), oos_predictions_holepunch_2007_apr26.csv (1506 preds across all 7 historical test folds + 20 post-Dec OOS for full backtest validation).
+
+Result: Strategy Sharpe +1.56, BH +0.83, Excess +0.73 over Dec 2025-Apr 2026.
+
+### Directive 37 — Hole-punch training visualization
+User: *include training data in run + punch holes*
+
+Updated run_oos_inference.py with hole-punching mode: scans every date 2007-2026, skips train/val/embargo/buffer windows, predicts only on test fold windows + post-fold OOS. 1506 predictions emitted; per-fold breakdown (F3 Taper +2.48 best, F2 EU debt -0.57 worst).
+
+### Directive 38 — OOS top-30 table at absolute bottom of dashboard
+User: *also run this oos on top 30 winners ... separate oos section at the bottom very clearly*
+
+Built run_oos_top30.py: scans top-30 by composite, finds available checkpoints, runs OOS for each, saves per-experiment CSV + master oos_top30_table.json with equity curves. Currently 3 archived checkpoints exist (exp 17, 48, 276); 27 marked missing (would need retrain).
+
+Striking finding: exp 17 (lowest train composite +0.86) has BEST OOS Sharpe +3.92. Exp 276 (highest train composite +1.51) has mid OOS +1.56. Exp 48 (+1.19 train) has NEGATIVE OOS Sharpe -0.28.
+
+Dashboard: added 🛰️ OOS Live-Data Inference + 📋 OOS Top-30 panels at ABSOLUTE bottom (after detail-panel + fold-info). Sortable columns. Per-row click loads experiment details into main OOS Live-Data box (cards/winner/methodology/equity all match). Per-row CSV download button.
+
+### Directive 39 — Metrics glossary + train-Sharpe gap
+User: *update the documentation in dashboard to clearly explain what best sharpe, psr etc means*
+
+Added collapsible 📖 Metrics Glossary above experiment log: definitions for Composite, Test/Val/Train Sharpe, , Hit%, Precision/Recall/F1/F2, MCC, PSR (Bailey-López de Prado 2012), IC, Excess Sharpe, Confidence/Aleatoric/Epistemic (Kendall-Gal 2017), targets A/B/D, 7-fold regime windows, KEEP/NEAR-MISS/DISCARD decision rules with multi-seed lock methodology. Linked Wikipedia/SSRN/arXiv references.
+
+Also identified: Train Sharpe column in dashboard is BLANK because the runner does not currently log train_sharpe to JSONL. Documented as a runner-side gap; would require retraining experiments after adding train Sharpe computation.
+
+### Directive 40 — TRAINING DATA GAP (audit finding 2026-05-02)
+User: *did you fix the training data to include data till 2025-9 with proper holes punched*
+
+AUDIT FOUND: All current checkpoints are trained with fold 7 train_end = 2023-09-30. Oct 2023-Dec 2025 is held out as fold 7 val/test. Model has NEVER seen Oct 2023-present during training. The OOS Dec 2025-Apr 2026 inference therefore carries a ~2-year-gap penalty from training cutoff.
+
+NOT YET FIXED. The proper fix is a production-train mode: train range 2004-01-01 → 2025-09-30, hold out only 2025-10-01 → 2026-04-30 (the OOS window) plus a 90-day purge. This requires one extra training run per champion config. User to confirm before implementing.
+
+### Directive 41 — Comprehensive snapshot zip for upload
+User: *zip everything ... checkpoint everything before zipping ... update all the docs before zipping*
+
+This commit is the snapshot point. Everything: 310 experiments JSONL, dashboard.html with OOS panels, all winner archives, OOS predictions/summaries, CLAUDE.md, checkpoint, this directives log. Zip target: autoresearch_qqq_snapshot_<YYYYMMDD>.zip with autoresearchindexstock/ + docs/index_stock_dashboard/ + key autoresearch/ subdirs (model, data, run_autoresearch.py, splits/features), excluding .git, __pycache__, .data_cache.
+
+
+### Directive 42 (2026-05-02) — Permanently archive every champion checkpoint
+
+User: *can you update claude.md to ensure you have last 30 winners kept in seperate directories - i see you are still not keeping them properly so i can run oos later*
+
+ROOT CAUSE: only best_model.pt was saved at champion time; subsequent champions overwrite it. Of the top-30 by composite (310 experiments total), only 3 had their checkpoints archived in winners/ (exp 17, 48 manually archived; exp 276 because it is the most-recent best_model.pt). The true multi-seed champion exp 52 is NOT recoverable without retrain.
+
+FIX (applied 2026-05-02 to run_autoresearch.py): every time a new champion is detected (composite > prev_best, neural backbone), the runner now ALSO writes the checkpoint to:
+
+    autoresearch_results/winners/<backbone>_exp<N>_auto/model_checkpoint.pt
+    autoresearch_results/winners/<backbone>_exp<N>_auto/config.json
+
+This is in addition to the existing best_model.pt overwrite. Going forward, EVERY champion is recoverable for retrospective OOS inference, ensemble construction, deep ensembles per Lakshminarayanan 2017, etc.
+
+Caveat: pre-2026-05-02 champions (303 of them) cannot be retroactively archived without retraining each. The OOS table dashboard will continue to show "missing — retrain to enable" for them until they are explicitly retrained.
+
+The auto-archive directory naming is _auto suffix to distinguish from the curated archives (e.g. mamba_exp52_dmamba_e2_d32_seed42/) that include extra documentation. Both naming conventions live in winners/ side by side.

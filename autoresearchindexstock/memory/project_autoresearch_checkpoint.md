@@ -1,17 +1,55 @@
 ---
 name: AutoResearch QQQ Checkpoint
-description: 207 experiments, 4 backbones complete (MLP/XGBoost/LGBM/Mamba), 2 stable positive backbones identified (mamba dmamba +1.32 global, MLP exp 79/204 +0.43-0.52 multi-seed median).
+description: 310 experiments. dMamba 26-grind + MambaStock 25-grind closed. Global champion exp 52 dmamba +1.32 single-seed / +0.97 multi-seed median (LOCKED). OOS Dec 2025-Apr 2026 inference complete on 3 archived checkpoints; exp 17 Sharpe +3.92 BEST OOS.
 type: project
 ---
 
-# AutoResearch QQQ — Comprehensive Status (post exp 207 launch)
+# AutoResearch QQQ — Comprehensive Status (post 2026-05-02 OOS milestone)
 
-## 🏆 GLOBAL CHAMPION
+## 🏆 GLOBAL CHAMPION (LOCKED)
 
-**Mamba dmamba exp 52** — composite **+1.3216**, single-seed=42.
-- Config: backbone=mamba, mamba_variant=dmamba, expand=2, d_state=32, num_layers=2, seq=60, lr=5e-4, bs=32, ep=100, wd=0.1, hd=0.1, warmup=10, seed=42
-- Archived: `winners/mamba_exp48_dmamba_e2_seed42/` (and exp 52 successor)
-- This is the ONLY backbone with stable positive multi-seed median composite on QQQ
+**Mamba dmamba exp 52** — composite **+1.3216** single-seed=42 / **+0.97 multi-seed median** (3-seed: seeds 42 / 0 / 7 = +1.32 / +0.19 / +0.97).
+- Config: backbone=mamba, mamba_variant=dmamba, expand=2, d_state=32, num_layers=2, seq=60, lr=5e-4, bs=32, ep=100, wd=0.1, hd=0.1, warmup=10, huber=1.0, grad_clip=1.0, seed=42
+- Reproducibility CONFIRMED at patience=30 (exp 292 produced composite +1.3216 IDENTICAL to exp 52)
+- Archive: `winners/mamba_exp52_dmamba_e2_d32_seed42/` (README + config; **model_checkpoint.pt MISSING** — was overwritten in best_model.pt by later experiments; would need retrain to restore)
+- This is the GLOBAL QQQ CHAMPION across 310 experiments
+
+## 🥈 BEST DMAMBA ENSEMBLE COMPONENT (LOCKED)
+
+**Mamba dmamba exp 294 (huber=0.5)** — 3-seed median **+0.6893** (seeds 42 / 0 / 99 = +0.69 / +0.81 / -0.50).
+- ONLY multi-seed-robust dmamba HP variant in entire 26-grind
+- Both seeds 42 AND 0 above the +0.50 ensemble threshold
+- F1+F3+F5 strong crisis-regime coverage
+- Below exp 52 +0.97 baseline by 0.28 — qualifies as ensemble component, not new champion
+
+## 🥉 MAMBASTOCK CHAMPION (4-seed locked +0.26)
+
+**MambaStock exp 281 (bs=16, num_layers=4)** — 3-seed median +0.46 / **4-seed median +0.26** (seeds 42 / 0 / 99 / 2024 = +1.05 / +0.46 / -0.69 / +0.06).
+- Best MambaStock config across 25 experiments
+- ARCHIVED at `winners/mamba_exp281_mambastock_bs16_seed42_3seed_median_+0.46/` (README + config.json; no checkpoint)
+- +0.22 above MambaStock baseline (+0.036), high σ (0.73) confirmed
+- Below dmamba +0.97 multi-seed champion
+
+## 🛰️ OUT-OF-SAMPLE INFERENCE (Dec 2025 → Apr 2026, 2026-05-02)
+
+Pure forward inference on `best_model.pt` (currently exp 276 dmamba bs=16, single-seed +1.5094). NO retraining, NO peeking. Training-set scaler applied as-is. 60-day sliding window forward pass (no_grad).
+
+| Rank by train | Exp | Train Comp | OOS Sharpe | OOS Excess | OOS Ret% | Hit% |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 276 | +1.51 | **+1.56** | +0.73 | +10.6% | 50.0% |
+| 4 | 48 | +1.19 | **−0.28** | −1.11 | −1.9% | 55.1% |
+| 17 | 17 | +0.86 | **🎯 +3.92** | +3.09 | +25.9% | 56.1% |
+
+**Striking inversion:** lowest train composite (+0.86 exp 17) has the BEST OOS Sharpe (+3.92). Top train composite (+1.51 exp 276) is mid-OOS. Suggests train-time overfit on the +1.51 candidate.
+
+**TRAINING DATA GAP** (audit found 2026-05-02): All checkpoints were trained with fold 7 train-end at **2023-09-30**. The Oct 2023 - Dec 2025 window is val + test for fold 7 — model has NEVER seen this data during training. OOS Dec 2025-Apr 2026 thus has a 2-year gap from training cutoff. **Production-mode retrain (train through 2025-09-30, hold out only Oct 2025-Apr 2026)** is the next step to fairly validate live performance — not yet done.
+
+Files:
+- `oos_predictions_nov25_apr26.csv` (122 predictions Nov-Apr)
+- `oos_predictions_holepunch_2007_apr26.csv` (1506 predictions across all 7 historical test folds + 20 post-Dec OOS)
+- `oos_dec25_apr26.csv` (103 predictions Dec-Apr only)
+- `oos_exp276.csv`, `oos_exp48.csv`, `oos_exp17.csv` (per-checkpoint OOS)
+- `oos_summary_dec25_apr26.json`, `oos_summary_nov25_apr26.json`, `oos_top30_table.json`
 
 ## 🥈 SECOND STABLE POSITIVE BACKBONE (discovered this session)
 
