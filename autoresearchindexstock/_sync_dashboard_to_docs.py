@@ -35,6 +35,15 @@ for name in OPTIONAL:
     if src.exists():
         shutil.copy2(src, DST / name)
 
+# OOS (out-of-sample live-data inference) artifacts — auto-detect oos_*.json/csv
+n_oos = 0
+for pattern in ("oos_*.json", "oos_*.csv"):
+    for f in SRC.glob(pattern):
+        shutil.copy2(f, DST / f.name)
+        n_oos += 1
+if n_oos:
+    print(f"  [oos] copied {n_oos} OOS artifacts (json + csv)")
+
 # Trade logs + manifest
 trade_src = SRC / "trade_logs"
 trade_dst = DST / "trade_logs"

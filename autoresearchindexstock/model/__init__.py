@@ -13,5 +13,5 @@ from autoresearch.model.backbone import (  # noqa: F401
 from autoresearch.model.train import (  # noqa: F401
     create_contiguous_datasets,
     find_contiguous_segments,
-    train_one_epoch,
+    train_one_fold,
 )

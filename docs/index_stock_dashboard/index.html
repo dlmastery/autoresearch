@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AutoResearch QQQ Dashboard (build 20260430-180000 + glossary)</title>
+<title>AutoResearch QQQ Dashboard (build 20260502-094000 + OOS panel)</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
@@ -206,6 +206,27 @@
   </thead>
   <tbody id="exp-body"></tbody>
 </table>
+</div>
+
+<!-- ============================================================
+     OOS Live-Data Inference Panel
+     Loaded from oos_summary_*.json. Renders only when a summary
+     file exists (i.e. after a winner OOS run has been executed).
+     Stays at the bottom; doesn't disturb the experiment log layout.
+     ============================================================ -->
+<div id="oos-section" style="display:none;background:#0d2818;border:2px solid #3fb950;border-radius:8px;padding:18px;margin:24px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <h2 id="oos-title" style="color:#3fb950;font-size:1.2em">🛰️ OOS Live-Data Inference</h2>
+    <span style="color:#8b949e;font-size:0.78em">Auto-refreshes every 30s</span>
+  </div>
+  <div id="oos-subtitle" style="color:#8b949e;font-size:0.88em;margin:6px 0 16px 0"></div>
+  <div class="grid" id="oos-cards" style="margin-bottom:18px"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:0.85em;line-height:1.55;margin-bottom:18px">
+    <div id="oos-winner" style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px"></div>
+    <div id="oos-methodology" style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px"></div>
+  </div>
+  <div style="font-weight:600;color:#58a6ff;font-size:0.9em;margin-bottom:6px">Equity Curve — Strategy vs Buy-and-Hold over the OOS window</div>
+  <div id="oos-chart" style="overflow-x:auto"></div>
 </div>
 
 <div class="detail-panel" id="detail-panel">
@@ -1157,6 +1178,111 @@ async function refresh() {
 
 refresh();
 setInterval(refresh, REFRESH_MS);
+
+// ============================================================
+// OOS (out-of-sample) inference panel — appears at the bottom
+// of the dashboard. Loads oos_summary_*.json and renders the
+// latest live-data backtest of the current best_model.pt.
+// Only the most-recent file is rendered. Refresh on every poll.
+// ============================================================
+async function loadOOS() {
+  // Try the most-recent OOS summary; current convention: oos_summary_dec25_apr26.json
+  // Add new files here as new OOS runs land.
+  const candidates = [
+    'oos_summary_dec25_apr26.json',
+    'oos_summary_nov25_apr26.json',
+  ];
+  for (const f of candidates) {
+    try {
+      const r = await fetch(f + '?t=' + Date.now());
+      if (!r.ok) continue;
+      const data = await r.json();
+      renderOOS(data, f);
+      return;
+    } catch (e) { /* keep trying */ }
+  }
+  document.getElementById('oos-section').style.display = 'none';
+}
+
+function renderOOS(d, source) {
+  const sec = document.getElementById('oos-section');
+  if (!sec) return;
+  sec.style.display = 'block';
+  const m = d.metrics;
+  const win = d.winner_used;
+  const meth = d.methodology;
+  const tr = d.time_range;
+  const sharpeColor = (v) => v == null ? '#8b949e' : (v > 1.0 ? '#3fb950' : v > 0 ? '#58a6ff' : '#f85149');
+  const sign = (v) => (v >= 0 ? '+' : '') + v.toFixed(2);
+
+  document.getElementById('oos-title').textContent =
+    `🛰️ OOS Live-Data Inference — ${tr.predict_start} to ${tr.predict_end}`;
+  document.getElementById('oos-subtitle').textContent =
+    `Pure inference on the current best_model.pt — no retraining, no peeking. ${d.n_predictions} predictions, ${d.n_with_actuals} with realised actuals. (Source: ${source})`;
+
+  document.getElementById('oos-cards').innerHTML = `
+    <div class="card"><div class="label">Strategy Sharpe</div><div class="value" style="color:${sharpeColor(m.strategy_annual_sharpe)}">${sign(m.strategy_annual_sharpe)}</div></div>
+    <div class="card"><div class="label">Buy-Hold Sharpe</div><div class="value" style="color:${sharpeColor(m.buy_hold_annual_sharpe)}">${sign(m.buy_hold_annual_sharpe)}</div></div>
+    <div class="card"><div class="label">Excess Sharpe</div><div class="value" style="color:${sharpeColor(m.excess_sharpe)}">${sign(m.excess_sharpe)}</div></div>
+    <div class="card"><div class="label">Strategy Return</div><div class="value" style="color:${sharpeColor(m.strategy_total_return_pct)}">${sign(m.strategy_total_return_pct)}%</div></div>
+    <div class="card"><div class="label">Buy-Hold Return</div><div class="value" style="color:${sharpeColor(m.buy_hold_total_return_pct)}">${sign(m.buy_hold_total_return_pct)}%</div></div>
+    <div class="card"><div class="label">Excess Return</div><div class="value" style="color:${sharpeColor(m.excess_return_pct)}">${sign(m.excess_return_pct)}%</div></div>
+    <div class="card"><div class="label">Hit Rate</div><div class="value">${m.hit_rate_pct.toFixed(1)}%</div></div>
+    <div class="card"><div class="label">Max Drawdown</div><div class="value" style="color:#f85149">${sign(m.strategy_max_drawdown_pct)}%</div></div>
+  `;
+
+  document.getElementById('oos-winner').innerHTML = `
+    <div style="font-weight:600;color:#58a6ff;margin-bottom:6px">Winner Used</div>
+    <div>Experiment ${win.experiment_num} — ${win.description}</div>
+    <div style="color:#8b949e;font-family:monospace;margin-top:4px">${win.config}</div>
+    <div style="margin-top:6px"><b>Train composite:</b> ${win.train_composite}</div>
+    <div style="color:#d29922;margin-top:4px"><b>⚠ Caveat:</b> ${win.caveat || 'none'}</div>
+  `;
+
+  document.getElementById('oos-methodology').innerHTML = `
+    <div style="font-weight:600;color:#58a6ff;margin-bottom:6px">Methodology</div>
+    <div><b>Training data cap:</b> ${meth.training_data_cap}</div>
+    <div><b>OOS window:</b> ${meth.oos_window}</div>
+    <div><b>Note:</b> ${meth.note}</div>
+    <div><b>Features:</b> ${meth.features} (training-set StandardScaler applied — no peeking)</div>
+    <div><b>Pipeline:</b> ${meth.predict_pipeline}</div>
+    <div style="margin-top:6px">
+      <a href="${d.csv_link}" download style="background:#238636;color:#fff;text-decoration:none;padding:4px 10px;border-radius:4px;font-weight:600">📥 Download predictions CSV</a>
+    </div>
+  `;
+
+  // Equity curve as inline SVG
+  const eq = d.equity_curve;
+  if (eq && eq.dates && eq.dates.length > 0) {
+    const W = 800, H = 240, M = {l: 50, r: 20, t: 20, b: 30};
+    const innerW = W - M.l - M.r, innerH = H - M.t - M.b;
+    const allVals = [...eq.strategy_cumulative_pct, ...eq.buy_hold_cumulative_pct, 0];
+    const yMin = Math.min(...allVals), yMax = Math.max(...allVals);
+    const yPad = (yMax - yMin) * 0.05 || 1;
+    const x = (i) => M.l + (i / (eq.dates.length - 1)) * innerW;
+    const y = (v) => M.t + innerH - ((v - (yMin - yPad)) / ((yMax + yPad) - (yMin - yPad))) * innerH;
+    const path = (vals, color) => `<polyline fill="none" stroke="${color}" stroke-width="2" points="${vals.map((v,i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')}"/>`;
+    const yAxis = `<line x1="${M.l}" y1="${M.t}" x2="${M.l}" y2="${M.t + innerH}" stroke="#30363d"/>`;
+    const xAxis = `<line x1="${M.l}" y1="${M.t + innerH}" x2="${M.l + innerW}" y2="${M.t + innerH}" stroke="#30363d"/>`;
+    const yTick0 = `<line x1="${M.l}" y1="${y(0)}" x2="${M.l + innerW}" y2="${y(0)}" stroke="#484f58" stroke-dasharray="2,3"/>`;
+    const yLabels = [yMin, 0, yMax].filter(v => v >= yMin && v <= yMax).map(v =>
+      `<text x="${M.l - 5}" y="${y(v).toFixed(1)}" fill="#8b949e" font-size="11" text-anchor="end" alignment-baseline="middle">${v.toFixed(1)}%</text>`
+    ).join('');
+    const xLabel0 = `<text x="${M.l}" y="${M.t + innerH + 18}" fill="#8b949e" font-size="11">${eq.dates[0]}</text>`;
+    const xLabelEnd = `<text x="${M.l + innerW}" y="${M.t + innerH + 18}" fill="#8b949e" font-size="11" text-anchor="end">${eq.dates[eq.dates.length - 1]}</text>`;
+    document.getElementById('oos-chart').innerHTML = `
+      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="background:#0d1117;border:1px solid #30363d;border-radius:6px">
+        ${yAxis}${xAxis}${yTick0}${yLabels}${xLabel0}${xLabelEnd}
+        ${path(eq.buy_hold_cumulative_pct, '#8b949e')}
+        ${path(eq.strategy_cumulative_pct, '#3fb950')}
+        <text x="${M.l + 10}" y="${M.t + 14}" fill="#3fb950" font-size="12" font-weight="600">— Strategy</text>
+        <text x="${M.l + 90}" y="${M.t + 14}" fill="#8b949e" font-size="12">— Buy &amp; Hold</text>
+      </svg>`;
+  }
+}
+
+loadOOS();
+setInterval(loadOOS, 30000);
 </script>
 </body>
 </html>
