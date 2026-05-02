@@ -325,22 +325,22 @@
     <table id="oos-top30-table" style="margin-bottom:0;width:100%;font-size:0.82em">
       <thead style="position:sticky;top:0;z-index:5;background:#161b22">
         <tr>
-          <th>#</th>
-          <th>Exp</th>
-          <th>Status</th>
-          <th>Description</th>
-          <th title="Train-time composite (in-sample)">Tr Comp</th>
-          <th title="Train-time val sharpe">Tr Val-Sh</th>
-          <th title="Train-time positive folds">Tr 7+</th>
-          <th title="OOS strategy annualised Sharpe">OOS Shp</th>
-          <th title="OOS buy-and-hold Sharpe over same window">OOS BH-Shp</th>
-          <th title="OOS Sharpe minus buy-and-hold Sharpe">OOS Excess</th>
-          <th title="OOS strategy total return %">OOS Ret%</th>
-          <th title="OOS buy-and-hold total return %">OOS BH-Ret%</th>
-          <th title="OOS direction-prediction hit rate">OOS Hit%</th>
-          <th title="Probabilistic Sharpe Ratio (Bailey-López de Prado 2012)">OOS PSR</th>
-          <th title="Maximum drawdown of strategy equity curve">OOS MaxDD</th>
-          <th title="Equity curve sparkline — click for full chart">Equity</th>
+          <th data-osort="rank" style="cursor:pointer">#</th>
+          <th data-osort="experiment_num" style="cursor:pointer">Exp</th>
+          <th data-osort="checkpoint_status" style="cursor:pointer">Status</th>
+          <th data-osort="description" style="cursor:pointer">Description</th>
+          <th data-osort="train_composite" style="cursor:pointer" title="Train-time composite (in-sample)">Tr Comp</th>
+          <th data-osort="train_val_sharpe" style="cursor:pointer" title="Train-time val sharpe">Tr Val-Sh</th>
+          <th data-osort="train_test_pos_folds" style="cursor:pointer" title="Train-time positive folds">Tr 7+</th>
+          <th data-osort="oos_strategy_annual_sharpe" style="cursor:pointer" title="OOS strategy annualised Sharpe">OOS Shp</th>
+          <th data-osort="oos_buy_hold_annual_sharpe" style="cursor:pointer" title="OOS buy-and-hold Sharpe over same window">OOS BH-Shp</th>
+          <th data-osort="oos_excess_sharpe" style="cursor:pointer" title="OOS Sharpe minus buy-and-hold Sharpe">OOS Excess</th>
+          <th data-osort="oos_strategy_total_return_pct" style="cursor:pointer" title="OOS strategy total return %">OOS Ret%</th>
+          <th data-osort="oos_buy_hold_total_return_pct" style="cursor:pointer" title="OOS buy-and-hold total return %">OOS BH-Ret%</th>
+          <th data-osort="oos_hit_rate_pct" style="cursor:pointer" title="OOS direction-prediction hit rate">OOS Hit%</th>
+          <th data-osort="oos_psr" style="cursor:pointer" title="Probabilistic Sharpe Ratio (Bailey-López de Prado 2012)">OOS PSR</th>
+          <th data-osort="oos_max_drawdown_pct" style="cursor:pointer" title="Maximum drawdown of strategy equity curve">OOS MaxDD</th>
+          <th title="Equity curve sparkline — click row for full details up top">Equity</th>
           <th title="Per-experiment OOS predictions CSV">CSV</th>
         </tr>
       </thead>
@@ -348,7 +348,8 @@
     </table>
   </div>
   <div style="color:#8b949e;font-size:0.75em;margin-top:8px">
-    <b>Note:</b> "missing" = checkpoint not archived in <code>winners/</code>; would require retrain to enable. Only 3 of the top-30 currently have weights on disk. Click sparkline for full equity chart.
+    <b>Click a column header to sort.</b> Click a row to load that experiment's details into the main OOS Live-Data Inference panel above (cards + winner info + methodology + equity curve).
+    Click the CSV button to download per-experiment predictions. <b>Missing</b> = checkpoint not archived (would require retrain to enable).
   </div>
 </div>
 
@@ -1361,10 +1362,15 @@ function sparklineSVG(curve, w=80, h=24) {
   </svg>`;
 }
 
+// Sort state for top-30 table
+let _oosTop30Sort = {key: 'rank', dir: 'asc'};
+
 function renderOOSTop30(data) {
   const sec = document.getElementById('oos-top30-section');
   if (!sec) return;
   sec.style.display = 'block';
+  window._oosTop30 = data;
+
   document.getElementById('oos-top30-summary').innerHTML =
     `OOS window: <b>${data.oos_window.start} → ${data.oos_window.end}</b> | ` +
     `Top-30 by train composite | ` +
@@ -1372,29 +1378,83 @@ function renderOOSTop30(data) {
     `<b style="color:#d29922">${data.n_total_top30 - data.n_completed}</b> missing checkpoint (would require retrain) | ` +
     `Generated: ${data.oos_run_at.slice(0, 19)}`;
 
+  // Wire up sortable headers (one-time)
+  document.querySelectorAll('#oos-top30-table th[data-osort]').forEach(th => {
+    if (th.__oosWired) return;
+    th.__oosWired = true;
+    th.addEventListener('click', () => {
+      const k = th.dataset.osort;
+      if (_oosTop30Sort.key === k) {
+        _oosTop30Sort.dir = _oosTop30Sort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        _oosTop30Sort.key = k;
+        _oosTop30Sort.dir = 'desc';
+      }
+      drawOOSTop30Body();
+    });
+  });
+
+  drawOOSTop30Body();
+}
+
+function drawOOSTop30Body() {
+  const data = window._oosTop30;
+  if (!data) return;
   const sharpeColor = (v) => v == null || isNaN(v) ? '#8b949e' : (v > 1.0 ? '#3fb950' : v > 0 ? '#58a6ff' : '#f85149');
   const fmt = (v, d=4) => v == null || isNaN(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(d);
   const fmtPct = (v) => v == null || isNaN(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%';
+
+  // Sort
+  const k = _oosTop30Sort.key, dir = _oosTop30Sort.dir;
+  const rows = data.table.slice().sort((a, b) => {
+    const va = a[k], vb = b[k];
+    const an = va == null || isNaN(va);
+    const bn = vb == null || isNaN(vb);
+    if (an && bn) return 0;
+    if (an) return 1;       // null/NaN always goes to bottom
+    if (bn) return -1;
+    if (typeof va === 'string' || typeof vb === 'string') {
+      return dir === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    }
+    return dir === 'asc' ? va - vb : vb - va;
+  });
+
+  // Update header sort indicators
+  document.querySelectorAll('#oos-top30-table th[data-osort]').forEach(th => {
+    th.style.color = th.dataset.osort === k ? '#58a6ff' : '#8b949e';
+    th.querySelector('.sort-arrow')?.remove();
+    if (th.dataset.osort === k) {
+      const arrow = document.createElement('span');
+      arrow.className = 'sort-arrow';
+      arrow.textContent = dir === 'asc' ? ' ▲' : ' ▼';
+      arrow.style.fontSize = '0.7em';
+      th.appendChild(arrow);
+    }
+  });
+
   const tbody = document.getElementById('oos-top30-body');
   tbody.innerHTML = '';
-  data.table.forEach(r => {
+  rows.forEach(r => {
     const row = document.createElement('tr');
     const status = r.checkpoint_status === 'available' ?
       `<span style="color:#3fb950">✓ run</span>` :
       `<span style="color:#d29922" title="Checkpoint not archived; retrain to enable">⚠ missing</span>`;
     const statusClass = r.oos_status === 'completed' ? 'keep' : (r.checkpoint_status === 'missing' ? '' : 'discard');
     if (statusClass) row.className = statusClass;
-    const sparkId = `spark-${r.experiment_num}`;
     const sparkHTML = r.oos_equity_curve ? sparklineSVG(r.oos_equity_curve) : '<span style="color:#484f58;font-size:0.75em">—</span>';
     const csvLink = r.oos_csv ?
-      `<a href="${r.oos_csv}" download style="background:#238636;color:#fff;text-decoration:none;padding:2px 8px;border-radius:3px;font-size:0.78em">📊 CSV</a>` :
+      `<a href="${r.oos_csv}" download onclick="event.stopPropagation()" style="background:#238636;color:#fff;text-decoration:none;padding:2px 8px;border-radius:3px;font-size:0.78em">📊 CSV</a>` :
       '<span style="color:#484f58">—</span>';
+
+    row.style.cursor = 'pointer';
+    row.title = 'Click to load this experiment\'s details into the main OOS Live-Data Inference panel above';
+    row.onclick = () => loadOOSDetailsForRow(r.experiment_num);
 
     row.innerHTML = `
       <td>${r.rank}</td>
       <td><b>${r.experiment_num}</b></td>
       <td>${status}</td>
-      <td style="font-size:0.78em;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.description.replace(/"/g,'&quot;')}">${r.description}</td>
+      <td style="font-size:0.78em;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${(r.description||'').replace(/"/g,'&quot;')}">${r.description||''}</td>
       <td style="color:${sharpeColor(r.train_composite)}">${fmt(r.train_composite)}</td>
       <td>${fmt(r.train_val_sharpe)}</td>
       <td>${r.train_test_pos_folds == null ? '—' : r.train_test_pos_folds}/7</td>
@@ -1406,12 +1466,111 @@ function renderOOSTop30(data) {
       <td>${r.oos_hit_rate_pct == null ? '—' : r.oos_hit_rate_pct.toFixed(1) + '%'}</td>
       <td>${r.oos_psr == null ? '—' : Number(r.oos_psr).toFixed(3)}</td>
       <td style="color:#f85149">${fmtPct(r.oos_max_drawdown_pct)}</td>
-      <td onclick="openOOSRowModal(${r.experiment_num})" style="cursor:pointer">${sparkHTML}</td>
+      <td>${sparkHTML}</td>
       <td>${csvLink}</td>
     `;
     tbody.appendChild(row);
   });
-  window._oosTop30 = data;
+}
+
+// When a top-30 row is clicked, populate the main OOS Live-Data Inference
+// panel above with that experiment's details. Falls back to noting the row
+// has no OOS data if the checkpoint is missing.
+function loadOOSDetailsForRow(expNum) {
+  const data = window._oosTop30;
+  if (!data) return;
+  const r = data.table.find(x => x.experiment_num === expNum);
+  if (!r) return;
+  // Scroll to the OOS section
+  document.getElementById('oos-section').scrollIntoView({behavior:'smooth', block:'start'});
+
+  if (r.oos_status !== 'completed' || !r.oos_equity_curve) {
+    // No OOS data — show a friendly placeholder in the main panel
+    document.getElementById('oos-title').textContent =
+      `🛰️ OOS — exp ${expNum} (rank #${r.rank}) — NO OOS DATA`;
+    document.getElementById('oos-subtitle').textContent =
+      `${r.description}. Status: ${r.oos_status}. Train composite: ${r.train_composite}. To enable OOS for this experiment, the model checkpoint must be retrained and saved.`;
+    document.getElementById('oos-cards').innerHTML = '';
+    document.getElementById('oos-winner').innerHTML =
+      `<div style="color:#d29922;font-weight:600">⚠ Checkpoint missing</div>
+       <div style="margin-top:6px"><b>Experiment:</b> ${expNum}</div>
+       <div><b>Description:</b> ${r.description||''}</div>
+       <div><b>Backbone:</b> ${r.backbone||'?'} | <b>Seed:</b> ${r.seed||'?'}</div>
+       <div><b>Train composite:</b> ${r.train_composite}</div>
+       <div><b>Train val Sharpe:</b> ${r.train_val_sharpe}</div>
+       <div><b>Train +folds:</b> ${r.train_test_pos_folds||'—'}/7</div>`;
+    document.getElementById('oos-methodology').innerHTML =
+      `<div style="color:#8b949e">Run <code>python -m autoresearchindexstock.run_autoresearch ...</code> with this experiment's exact config to regenerate the checkpoint, then rerun <code>run_oos_top30.py</code> to populate this slot.</div>`;
+    document.getElementById('oos-chart').innerHTML = '';
+    return;
+  }
+
+  // OOS data exists — build the same card grid as the modal (matches the
+  // main OOS Live-Data Inference panel layout).
+  const sharpeColor = (v) => v == null || isNaN(v) ? '#8b949e' : (v > 1.0 ? '#3fb950' : v > 0 ? '#58a6ff' : '#f85149');
+  const fmt = (v) => v == null || isNaN(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(2);
+  const fmt4 = (v) => v == null || isNaN(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(4);
+
+  document.getElementById('oos-title').textContent =
+    `🛰️ OOS Live-Data Inference — exp ${expNum} (rank #${r.rank})`;
+  document.getElementById('oos-subtitle').textContent =
+    `${r.description} — ${r.oos_n_predictions} predictions, ${r.oos_n_with_actuals} with realised actuals. (Selected from Top-30 table — click another row to switch.)`;
+
+  document.getElementById('oos-cards').innerHTML = `
+    <div class="card"><div class="label">Strategy Sharpe</div><div class="value" style="color:${sharpeColor(r.oos_strategy_annual_sharpe)}">${fmt4(r.oos_strategy_annual_sharpe)}</div></div>
+    <div class="card"><div class="label">Buy-Hold Sharpe</div><div class="value" style="color:${sharpeColor(r.oos_buy_hold_annual_sharpe)}">${fmt4(r.oos_buy_hold_annual_sharpe)}</div></div>
+    <div class="card"><div class="label">Excess Sharpe</div><div class="value" style="color:${sharpeColor(r.oos_excess_sharpe)}">${fmt4(r.oos_excess_sharpe)}</div></div>
+    <div class="card"><div class="label">Strategy Return</div><div class="value" style="color:${sharpeColor(r.oos_strategy_total_return_pct)}">${fmt(r.oos_strategy_total_return_pct)}%</div></div>
+    <div class="card"><div class="label">Buy-Hold Return</div><div class="value" style="color:${sharpeColor(r.oos_buy_hold_total_return_pct)}">${fmt(r.oos_buy_hold_total_return_pct)}%</div></div>
+    <div class="card"><div class="label">Excess Return</div><div class="value" style="color:${sharpeColor(r.oos_excess_return_pct)}">${fmt(r.oos_excess_return_pct)}%</div></div>
+    <div class="card"><div class="label">Hit Rate</div><div class="value">${r.oos_hit_rate_pct == null ? '—' : Number(r.oos_hit_rate_pct).toFixed(1)+'%'}</div></div>
+    <div class="card"><div class="label">PSR</div><div class="value">${r.oos_psr == null ? '—' : Number(r.oos_psr).toFixed(3)}</div></div>
+    <div class="card"><div class="label">Max Drawdown</div><div class="value" style="color:#f85149">${fmt(r.oos_max_drawdown_pct)}%</div></div>
+  `;
+
+  document.getElementById('oos-winner').innerHTML = `
+    <div style="font-weight:600;color:#58a6ff;margin-bottom:6px">Winner Used (exp ${r.experiment_num})</div>
+    <div><b>Description:</b> ${r.description||''}</div>
+    <div><b>Backbone:</b> ${r.backbone||'?'} | <b>Seed:</b> ${r.seed||'?'}</div>
+    <div><b>Train composite:</b> ${r.train_composite}</div>
+    <div><b>Train val Sharpe:</b> ${r.train_val_sharpe}</div>
+    <div><b>Train positive folds:</b> ${r.train_test_pos_folds||'—'}/7</div>
+    <div><b>Checkpoint source:</b> <code style="font-size:0.78em">${r.oos_checkpoint_source||'?'}</code></div>
+  `;
+
+  document.getElementById('oos-methodology').innerHTML = `
+    <div style="font-weight:600;color:#58a6ff;margin-bottom:6px">OOS Methodology</div>
+    <div><b>OOS window:</b> ${data.oos_window.start} → ${data.oos_window.end}</div>
+    <div><b>Predictions:</b> ${r.oos_n_predictions} (${r.oos_n_with_actuals} with realised actuals)</div>
+    <div><b>Pipeline:</b> sliding 60-day feature window → forward pass (no_grad) → sign(mu_1d) sets trade direction</div>
+    <div><b>Scaler:</b> training-set mean+std applied (no peeking)</div>
+    <div><b>Inference only:</b> no retraining; checkpoint frozen</div>
+    <div style="margin-top:6px"><a href="${r.oos_csv}" download style="background:#238636;color:#fff;text-decoration:none;padding:4px 10px;border-radius:4px;font-weight:600">📥 Download predictions CSV</a></div>
+  `;
+
+  // Equity chart — same SVG render as the main panel
+  const eq = r.oos_equity_curve;
+  const W = 800, H = 240, M = {l:50, r:20, t:20, b:30};
+  const innerW = W - M.l - M.r, innerH = H - M.t - M.b;
+  const allVals = [...eq.strategy_pct, ...eq.buy_hold_pct, 0];
+  const yMin = Math.min(...allVals), yMax = Math.max(...allVals);
+  const yPad = (yMax - yMin) * 0.05 || 1;
+  const x = (i) => M.l + (i / (eq.dates.length - 1)) * innerW;
+  const y = (v) => M.t + innerH - ((v - (yMin - yPad)) / ((yMax + yPad) - (yMin - yPad))) * innerH;
+  const path = (vals, color) => `<polyline fill="none" stroke="${color}" stroke-width="2" points="${vals.map((v,i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')}"/>`;
+  document.getElementById('oos-chart').innerHTML = `
+    <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="background:#0d1117;border:1px solid #30363d;border-radius:6px;max-width:100%">
+      <line x1="${M.l}" y1="${M.t}" x2="${M.l}" y2="${M.t + innerH}" stroke="#30363d"/>
+      <line x1="${M.l}" y1="${M.t + innerH}" x2="${M.l + innerW}" y2="${M.t + innerH}" stroke="#30363d"/>
+      <line x1="${M.l}" y1="${y(0)}" x2="${M.l + innerW}" y2="${y(0)}" stroke="#484f58" stroke-dasharray="2,3"/>
+      ${[yMin, 0, yMax].filter(v => v >= yMin && v <= yMax).map(v => `<text x="${M.l - 5}" y="${y(v).toFixed(1)}" fill="#8b949e" font-size="11" text-anchor="end" alignment-baseline="middle">${v.toFixed(1)}%</text>`).join('')}
+      <text x="${M.l}" y="${M.t + innerH + 18}" fill="#8b949e" font-size="11">${eq.dates[0]}</text>
+      <text x="${M.l + innerW}" y="${M.t + innerH + 18}" fill="#8b949e" font-size="11" text-anchor="end">${eq.dates[eq.dates.length - 1]}</text>
+      ${path(eq.buy_hold_pct, '#8b949e')}
+      ${path(eq.strategy_pct, '#3fb950')}
+      <text x="${M.l + 10}" y="${M.t + 14}" fill="#3fb950" font-size="12" font-weight="600">— Strategy</text>
+      <text x="${M.l + 90}" y="${M.t + 14}" fill="#8b949e" font-size="12">— Buy &amp; Hold</text>
+    </svg>`;
 }
 
 window.openOOSRowModal = function(expNum) {
