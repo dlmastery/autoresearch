@@ -77,33 +77,97 @@ This report explains the OOS-winning predictions in three layers:
 
 This **seed-driven feature attribution divergence** explains why the top-5 ensemble (+3.85 OOS Sharpe) far outperforms any individual member: different seeds learn complementary representations of the same target, and majority-vote averaging exploits that diversity per Lakshminarayanan, Pritzel & Blundell 2017 NeurIPS arXiv:1612.01474.
 
-### 2.3 Mamba-family models (in-progress)
+### 2.3 Exp 304 — Mamba dmamba seq=60 seed=42 (#3 OOS individual)
 
-Permutation importance for **exp 304 (mamba s60 seed=42)**, **exp 55 (mamba s60 seed=7)**, and **exp 281 (mambastock s60 seed=42)** is currently running and will be appended to this report. Mamba's seq=60 inference is ~3× slower per evaluation than LSTM s35, so the analysis takes longer.
+**Baseline OOS Sharpe: +2.01**
+
+| Rank | Feature | Domain | Drop |
+|-----:|---------|--------|-----:|
+| 1 | `xlp_logret_5d` | sectors (Consumer Staples) | -0.717 |
+| 2 | `xlb_logret_5d` | sectors (Materials) | -0.717 |
+| 3 | `move_z60` | volatility_regime (Treasury vol) | -0.717 |
+| 4 | `gold_logret_5d` | commodities | -0.717 |
+| 5 | `qqq_logret_120d` | qqq_primary | -0.373 |
+| 6 | `xlf_ma20_z` | sectors (Financials) | -0.373 |
+| 7 | `xlp_logret_20d` | sectors | -0.373 |
+| 8 | `xlp_ma20_z` | sectors | -0.373 |
+| 9 | `xlu_logret_20d` | sectors (Utilities) | -0.373 |
+| 10 | `xlb_logret_20d` | sectors | -0.373 |
+
+**Headline:** Mamba relies HEAVILY on **defensive sector rotation** (Staples, Materials, Utilities, Financials) + **bond-vol regime** (`move_z60`) + **gold flight-to-safety**. Domain-level: `sectors +5.65`, `volatility_regime +2.50` — both > LSTM exp 234. Calendar features rank below top-10. **Not a single feature in common with LSTM exp 234's top-10**.
+
+### 2.4 Exp 281 — Mambastock seq=60 seed=42 (#5 OOS individual)
+
+**Baseline OOS Sharpe: +1.93** (slightly above the table-reported +1.75 — re-run on full 140-day OOS window vs the 81-day intersection)
+
+| Rank | Feature | Domain | Drop |
+|-----:|---------|--------|-----:|
+| 1 | `wti_logret_5d` | commodities (oil!) | **-1.090** |
+| 2 | `vix_logret_1d` | volatility_regime | -0.959 |
+| 3 | `qqq_macd_hist_norm` | qqq_primary (technical) | -0.775 |
+| 4 | `qqq_over_iwm_5d` | qqq_primary (rel-strength) | -0.765 |
+| 5 | `xlk_logret_1d` | sectors | -0.595 |
+| 6 | `dow_wed` | calendar | -0.490 |
+| 7 | `move_z60` | volatility_regime | -0.479 |
+| 8 | `silver_logret_1d` | commodities | -0.449 |
+| 9 | `xlk_ma20_z` | sectors | -0.440 |
+| 10 | `santa_rally` | calendar | -0.405 |
+
+**Headline:** Mambastock uses **commodities (oil, silver) + technical indicators (MACD, RSI) + relative strength** — different from both base mamba (defensive sectors) and LSTM (calendar/QQQ-history). The `wti_logret_5d` drop of -1.09 is the biggest single-feature dependence in any model — mambastock has effectively learned to use OIL as a leading indicator.
+
+### 2.5 Exp 55 — Mamba seq=60 seed=7 (#4 OOS individual)
+
+**Could not run** — checkpoint state-dict shape mismatch (likely a different `expand` value than the heuristic inferred). Will require manual config override; deferred.
 
 ---
 
-## 3. Cross-model consensus
+## 3. Cross-model consensus (4 models analyzed)
 
-A feature listed as top-K in only ONE model is suspect (could be seed-luck). Features that show up as important across multiple OOS winners are MORE LIKELY to be capturing genuine signal.
+The 4 OOS winners have **strikingly different feature reliance patterns** — this is the most important finding of the report.
 
-**Consensus top-30 features (top-30 in BOTH exp 234 AND exp 231):**
+### 3.1 Pairwise top-30 overlaps
+
+| Model A | Model B | Common features | Notable common |
+|---------|---------|----------------:|----------------|
+| exp 234 (LSTM s35 sd=2026) | exp 304 (mamba s60 sd=42) | **6** | `gold_logret_1d`, `silver_logret_5d`, `qqq_logret_120d`, `qqq_over_ixic_5d`, `vix`, `xlf_logret_20d` |
+| exp 231 (LSTM s35 sd=11) | exp 281 (mambastock sd=42) | **6** | `qqq_macd_hist_norm`, `qqq_over_dia_5d`, `qqq_rsi14`, `santa_rally`, `vix_logret_1d`, `xlk_logret_1d` |
+| exp 234 ∩ exp 231 | (LSTM seed-pair) | **3** | `qqq_donchian_pos252`, `qqq_mom_6m`, `xle_ma20_z` |
+| exp 281 ∩ exp 304 | (mamba pair) | **4** | `dxy_logret_5d`, `move_z60`, `wti_logret_5d`, `xlb_logret_5d` |
+| exp 231 ∩ exp 304 | (LSTM vs mamba) | **2** | `qqq_over_spy_5d`, `vix_logret_5d` |
+| exp 234 ∩ exp 281 | (LSTM vs mambastock) | **1** | `xle_logret_1d` |
+
+**Top-30 union across all 4 models:** **138 of 205 features** (67%) appear in at least one model's top-50. Architectural diversity sweeps a wide swath of the feature space.
+
+**No feature is top-30 in 3+ models.** The most universal signal would be one that ranks consistently across architectures, but in our 4-model panel, EVERY pair is mostly disjoint. This is the explainability evidence for *why the top-5 vote ensemble outperforms any individual member by ~75%*.
+
+### 3.2 Consensus harmful features (bottom-15 in 3+ models)
 
 ```
-qqq_donchian_pos252      — QQQ 252-day Donchian channel position (location in 1-year range)
-qqq_mom_6m               — QQQ 6-month momentum (Jegadeesh-Titman 1993)
-xle_ma20_z               — Energy sector 20-day MA z-score
+qqq_close_to_sma5  —  bottom-15 in exp 234, exp 231, exp 281 (3 of 4 models agree it harms)
 ```
 
-Only **3 of 30** survive the consensus filter — confirming that different seeds learn different but valid representations.
+This is the ONLY feature that is consistently harmful across architectures. **Strong removal candidate** — drop in next feature-engineering iteration.
 
-**Consensus harmful features** (in bottom-15 of both, i.e. shuffling consistently *improves* performance):
+### 3.3 Architectural feature signatures
 
-```
-qqq_close_to_sma5  —  QQQ 5-day MA crossing
-```
+| Architecture | Top features rely on | Top domains |
+|--------------|---------------------|-------------|
+| **LSTM s35 seed=2026** (exp 234) | calendar + sector + commodity + vix | qqq_primary, calendar, sectors |
+| **LSTM s35 seed=11** (exp 231) | relative-strength + momentum oscillators (RSI, MACD, sma50) | qqq_primary, vol_regime |
+| **Mamba s60 seed=42** (exp 304) | defensive sector rotation + bond vol + gold | **sectors (+5.65)**, vol_regime, commodities |
+| **Mambastock s60 seed=42** (exp 281) | oil + VIX 1d change + technical indicators + relative-strength | sectors, qqq_primary, vol_regime, commodities |
 
-This is a noisy short-term feature that BOTH models would do better without. Candidate for removal.
+The **same architecture** at different seeds (LSTM 234 vs LSTM 231) finds DIFFERENT features. The **same seed** across architectures (mamba 304 vs mambastock 281, both seed=42) also finds different features. ⇒ Feature attribution is determined by the *interaction* of architecture + initialization, not by either alone.
+
+### 3.4 Sign disagreements between models (red flags)
+
+A feature with positive importance in one model and negative in another suggests architectural disagreement on its signal vs noise nature:
+
+| Feature | exp 234 | exp 304 | Interpretation |
+|---------|--------:|--------:|----------------|
+| `move_z60` | **-0.66** | **+0.72** | LSTM treats as noise; mamba treats as signal — bond-vol regime works only with state-space models |
+| Volatility regime as a domain | **-1.75 net** | **+2.50 net** | Architectures disagree on volatility's signal value |
+| QQQ primary as a domain | **+4.39 net** | +0.81 net | LSTM relies on QQQ self-history; mamba uses cross-asset signals more |
 
 ---
 

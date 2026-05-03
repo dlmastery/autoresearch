@@ -1,0 +1,681 @@
+{
+  "method": "Breiman 2001 + Fisher, Rudin & Dominici 2019 (arXiv:1801.01489)",
+  "oos_window": {
+    "start": "2025-10-01",
+    "end": "2026-04-30"
+  },
+  "models": [
+    {
+      "exp": 234,
+      "label": "LSTM s35 seed=2026 (#1 OOS)",
+      "baseline_sharpe": 1.5627,
+      "n_features": 205,
+      "top10": [
+        {
+          "feature": "month",
+          "domain": "calendar",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 0.8407,
+          "sharpe_drop": 0.7219,
+          "rank": 1
+        },
+        {
+          "feature": "dec_effect",
+          "domain": "calendar",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 0.8523,
+          "sharpe_drop": 0.7103,
+          "rank": 2
+        },
+        {
+          "feature": "sec_xlk_logret_5d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 0.9268,
+          "sharpe_drop": 0.6359,
+          "rank": 3
+        },
+        {
+          "feature": "silver_logret_5d",
+          "domain": "commodities",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 0.9683,
+          "sharpe_drop": 0.5943,
+          "rank": 4
+        },
+        {
+          "feature": "tlt_logret_5d",
+          "domain": "bonds_credit",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 0.9951,
+          "sharpe_drop": 0.5676,
+          "rank": 5
+        },
+        {
+          "feature": "dax_logret_5d",
+          "domain": "intl_risk",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 0.9973,
+          "sharpe_drop": 0.5653,
+          "rank": 6
+        },
+        {
+          "feature": "xle_logret_1d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.0095,
+          "sharpe_drop": 0.5532,
+          "rank": 7
+        },
+        {
+          "feature": "vxn_z60",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.0154,
+          "sharpe_drop": 0.5473,
+          "rank": 8
+        },
+        {
+          "feature": "vix",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.0581,
+          "sharpe_drop": 0.5046,
+          "rank": 9
+        },
+        {
+          "feature": "qqq_logret_1d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.0701,
+          "sharpe_drop": 0.4925,
+          "rank": 10
+        }
+      ],
+      "bottom10_negative": [
+        {
+          "feature": "qqq_rev_1m",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.5893,
+          "sharpe_drop": -0.0267,
+          "rank": 136
+        },
+        {
+          "feature": "qqq_gk_vol_20d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.5956,
+          "sharpe_drop": -0.0329,
+          "rank": 137
+        },
+        {
+          "feature": "skew",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.5956,
+          "sharpe_drop": -0.0329,
+          "rank": 138
+        },
+        {
+          "feature": "shy_logret_20d",
+          "domain": "bonds_credit",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.5956,
+          "sharpe_drop": -0.0329,
+          "rank": 139
+        },
+        {
+          "feature": "qqq_over_spy_5d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.6017,
+          "sharpe_drop": -0.039,
+          "rank": 140
+        },
+        {
+          "feature": "qqq_logret_252d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.6117,
+          "sharpe_drop": -0.049,
+          "rank": 141
+        },
+        {
+          "feature": "qqq_mom_12_2",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.6117,
+          "sharpe_drop": -0.049,
+          "rank": 142
+        },
+        {
+          "feature": "ief_logret_5d",
+          "domain": "bonds_credit",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.6117,
+          "sharpe_drop": -0.049,
+          "rank": 143
+        },
+        {
+          "feature": "tlt_logret_20d",
+          "domain": "bonds_credit",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.6125,
+          "sharpe_drop": -0.0498,
+          "rank": 144
+        },
+        {
+          "feature": "xli_logret_5d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5627,
+          "permuted_sharpe": 1.6162,
+          "sharpe_drop": -0.0536,
+          "rank": 145
+        }
+      ],
+      "csv": "oos_feature_importance_exp234.csv"
+    },
+    {
+      "exp": 231,
+      "label": "LSTM s35 seed=11  (#2 OOS)",
+      "baseline_sharpe": 2.1105,
+      "n_features": 205,
+      "top10": [
+        {
+          "feature": "qqq_over_spy_5d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.3823,
+          "sharpe_drop": 0.7282,
+          "rank": 1
+        },
+        {
+          "feature": "qqq_close_to_sma50",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.4671,
+          "sharpe_drop": 0.6434,
+          "rank": 2
+        },
+        {
+          "feature": "qqq_mom_12_2",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.4904,
+          "sharpe_drop": 0.6201,
+          "rank": 3
+        },
+        {
+          "feature": "xli_logret_1d",
+          "domain": "sectors",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.4904,
+          "sharpe_drop": 0.6201,
+          "rank": 4
+        },
+        {
+          "feature": "eem_logret_5d",
+          "domain": "benchmarks",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.4904,
+          "sharpe_drop": 0.6201,
+          "rank": 5
+        },
+        {
+          "feature": "qqq_rsi14",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.5026,
+          "sharpe_drop": 0.6079,
+          "rank": 6
+        },
+        {
+          "feature": "vix_logret_5d",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.5086,
+          "sharpe_drop": 0.6019,
+          "rank": 7
+        },
+        {
+          "feature": "qqq_over_soxx_5d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.5199,
+          "sharpe_drop": 0.5906,
+          "rank": 8
+        },
+        {
+          "feature": "xli_ma20_z",
+          "domain": "sectors",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.5293,
+          "sharpe_drop": 0.5812,
+          "rank": 9
+        },
+        {
+          "feature": "copper_logret_5d",
+          "domain": "commodities",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 1.5442,
+          "sharpe_drop": 0.5664,
+          "rank": 10
+        }
+      ],
+      "bottom10_negative": [
+        {
+          "feature": "vix_over_vix3m",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1111,
+          "sharpe_drop": -0.0006,
+          "rank": 110
+        },
+        {
+          "feature": "qqq_bb_z20",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1129,
+          "sharpe_drop": -0.0023,
+          "rank": 111
+        },
+        {
+          "feature": "xlb_logret_20d",
+          "domain": "sectors",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.118,
+          "sharpe_drop": -0.0075,
+          "rank": 112
+        },
+        {
+          "feature": "xlp_logret_5d",
+          "domain": "sectors",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1309,
+          "sharpe_drop": -0.0204,
+          "rank": 113
+        },
+        {
+          "feature": "silver_logret_20d",
+          "domain": "commodities",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1382,
+          "sharpe_drop": -0.0277,
+          "rank": 114
+        },
+        {
+          "feature": "wti_logret_20d",
+          "domain": "commodities",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1415,
+          "sharpe_drop": -0.031,
+          "rank": 115
+        },
+        {
+          "feature": "dax_logret_5d",
+          "domain": "intl_risk",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1435,
+          "sharpe_drop": -0.033,
+          "rank": 116
+        },
+        {
+          "feature": "soxx_logret_5d",
+          "domain": "industry_tilts",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1505,
+          "sharpe_drop": -0.04,
+          "rank": 117
+        },
+        {
+          "feature": "month_cos",
+          "domain": "calendar",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1541,
+          "sharpe_drop": -0.0436,
+          "rank": 118
+        },
+        {
+          "feature": "xlp_logret_1d",
+          "domain": "sectors",
+          "baseline_sharpe": 2.1105,
+          "permuted_sharpe": 2.1623,
+          "sharpe_drop": -0.0518,
+          "rank": 119
+        }
+      ],
+      "csv": "oos_feature_importance_exp231.csv"
+    },
+    {
+      "exp": 304,
+      "label": "Mamba s60 seed=42 (best mamba OOS)",
+      "baseline_sharpe": 1.5036,
+      "n_features": 205,
+      "top10": [
+        {
+          "feature": "xlp_logret_5d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 0.7862,
+          "sharpe_drop": 0.7174,
+          "rank": 1
+        },
+        {
+          "feature": "xlb_logret_5d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 0.7862,
+          "sharpe_drop": 0.7174,
+          "rank": 2
+        },
+        {
+          "feature": "move_z60",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 0.7862,
+          "sharpe_drop": 0.7174,
+          "rank": 3
+        },
+        {
+          "feature": "gold_logret_5d",
+          "domain": "commodities",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 0.7862,
+          "sharpe_drop": 0.7174,
+          "rank": 4
+        },
+        {
+          "feature": "qqq_logret_120d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 1.1307,
+          "sharpe_drop": 0.373,
+          "rank": 5
+        },
+        {
+          "feature": "xlf_ma20_z",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 1.1307,
+          "sharpe_drop": 0.373,
+          "rank": 6
+        },
+        {
+          "feature": "xlp_logret_20d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 1.1307,
+          "sharpe_drop": 0.373,
+          "rank": 7
+        },
+        {
+          "feature": "xlp_ma20_z",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 1.1307,
+          "sharpe_drop": 0.373,
+          "rank": 8
+        },
+        {
+          "feature": "xlu_logret_20d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 1.1307,
+          "sharpe_drop": 0.373,
+          "rank": 9
+        },
+        {
+          "feature": "xlb_logret_20d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 1.1307,
+          "sharpe_drop": 0.373,
+          "rank": 10
+        }
+      ],
+      "bottom10_negative": [
+        {
+          "feature": "qqq_over_dia_5d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 1.8085,
+          "sharpe_drop": -0.3048,
+          "rank": 204
+        },
+        {
+          "feature": "sector_dispersion_20d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.5036,
+          "permuted_sharpe": 1.8085,
+          "sharpe_drop": -0.3048,
+          "rank": 205
+        }
+      ],
+      "csv": "oos_feature_importance_exp304.csv"
+    },
+    {
+      "exp": 281,
+      "label": "Mambastock s60 seed=42",
+      "baseline_sharpe": 1.9263,
+      "n_features": 205,
+      "top10": [
+        {
+          "feature": "wti_logret_5d",
+          "domain": "commodities",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 0.836,
+          "sharpe_drop": 1.0903,
+          "rank": 1
+        },
+        {
+          "feature": "vix_logret_1d",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 0.9678,
+          "sharpe_drop": 0.9585,
+          "rank": 2
+        },
+        {
+          "feature": "qqq_macd_hist_norm",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.1518,
+          "sharpe_drop": 0.7745,
+          "rank": 3
+        },
+        {
+          "feature": "qqq_over_iwm_5d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.1612,
+          "sharpe_drop": 0.7651,
+          "rank": 4
+        },
+        {
+          "feature": "xlk_logret_1d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.3316,
+          "sharpe_drop": 0.5947,
+          "rank": 5
+        },
+        {
+          "feature": "dow_wed",
+          "domain": "calendar",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.4364,
+          "sharpe_drop": 0.4899,
+          "rank": 6
+        },
+        {
+          "feature": "move_z60",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.4473,
+          "sharpe_drop": 0.479,
+          "rank": 7
+        },
+        {
+          "feature": "silver_logret_1d",
+          "domain": "commodities",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.4775,
+          "sharpe_drop": 0.4487,
+          "rank": 8
+        },
+        {
+          "feature": "xlk_ma20_z",
+          "domain": "sectors",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.4862,
+          "sharpe_drop": 0.4401,
+          "rank": 9
+        },
+        {
+          "feature": "santa_rally",
+          "domain": "calendar",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.5209,
+          "sharpe_drop": 0.4053,
+          "rank": 10
+        }
+      ],
+      "bottom10_negative": [
+        {
+          "feature": "qqq_logret_120d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9289,
+          "sharpe_drop": -0.0027,
+          "rank": 172
+        },
+        {
+          "feature": "xlf_logret_1d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9289,
+          "sharpe_drop": -0.0027,
+          "rank": 173
+        },
+        {
+          "feature": "xli_logret_20d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9289,
+          "sharpe_drop": -0.0027,
+          "rank": 174
+        },
+        {
+          "feature": "vxn_logret_1d",
+          "domain": "volatility_regime",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9289,
+          "sharpe_drop": -0.0027,
+          "rank": 175
+        },
+        {
+          "feature": "var_ratio_5_1",
+          "domain": "autoregressive",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9289,
+          "sharpe_drop": -0.0027,
+          "rank": 176
+        },
+        {
+          "feature": "month_cos",
+          "domain": "calendar",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9289,
+          "sharpe_drop": -0.0027,
+          "rank": 177
+        },
+        {
+          "feature": "xlv_logret_1d",
+          "domain": "sectors",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9302,
+          "sharpe_drop": -0.004,
+          "rank": 178
+        },
+        {
+          "feature": "qqq_over_ixic_5d",
+          "domain": "qqq_primary",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.932,
+          "sharpe_drop": -0.0058,
+          "rank": 179
+        },
+        {
+          "feature": "copper_logret_5d",
+          "domain": "commodities",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9665,
+          "sharpe_drop": -0.0402,
+          "rank": 180
+        },
+        {
+          "feature": "spy_logret_5d",
+          "domain": "benchmarks",
+          "baseline_sharpe": 1.9263,
+          "permuted_sharpe": 1.9665,
+          "sharpe_drop": -0.0402,
+          "rank": 181
+        }
+      ],
+      "csv": "oos_feature_importance_exp281.csv"
+    }
+  ],
+  "domain_aggregation": {
+    "commodities": {
+      "mean_drop": 0.4148,
+      "max_drop": 1.0903,
+      "n_features_in_topbot": 8
+    },
+    "volatility_regime": {
+      "mean_drop": 0.4192,
+      "max_drop": 0.9585,
+      "n_features_in_topbot": 9
+    },
+    "qqq_primary": {
+      "mean_drop": 0.2824,
+      "max_drop": 0.7745,
+      "n_features_in_topbot": 18
+    },
+    "calendar": {
+      "mean_drop": 0.3802,
+      "max_drop": 0.7219,
+      "n_features_in_topbot": 6
+    },
+    "sectors": {
+      "mean_drop": 0.2989,
+      "max_drop": 0.7174,
+      "n_features_in_topbot": 21
+    },
+    "benchmarks": {
+      "mean_drop": 0.2899,
+      "max_drop": 0.6201,
+      "n_features_in_topbot": 2
+    },
+    "bonds_credit": {
+      "mean_drop": 0.109,
+      "max_drop": 0.5676,
+      "n_features_in_topbot": 4
+    },
+    "intl_risk": {
+      "mean_drop": 0.2661,
+      "max_drop": 0.5653,
+      "n_features_in_topbot": 2
+    },
+    "autoregressive": {
+      "mean_drop": -0.0027,
+      "max_drop": -0.0027,
+      "n_features_in_topbot": 1
+    },
+    "industry_tilts": {
+      "mean_drop": -0.04,
+      "max_drop": -0.04,
+      "n_features_in_topbot": 1
+    }
+  }
+}

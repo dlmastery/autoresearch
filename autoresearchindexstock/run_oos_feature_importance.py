@@ -282,9 +282,26 @@ def main():
     }
 
     for meta in MODELS_TO_ANALYZE:
-        result = analyze_one(meta, feats_full, targets_full, rng)
-        if result:
-            summary["models"].append(result)
+        existing_csv = RESULTS / f"oos_feature_importance_exp{meta['exp']}.csv"
+        if existing_csv.exists():
+            print(f"[skip] exp{meta['exp']}: existing CSV — load summary from disk")
+            df = pd.read_csv(existing_csv)
+            top10 = df.head(10).to_dict("records")
+            bot10 = df[df["sharpe_drop"] < 0].head(10).to_dict("records") if (df["sharpe_drop"] < 0).any() else []
+            baseline = float(df["baseline_sharpe"].iloc[0]) if "baseline_sharpe" in df.columns else 0
+            summary["models"].append({
+                "exp": meta["exp"], "label": meta["label"], "baseline_sharpe": round(baseline, 4),
+                "n_features": len(df), "top10": top10, "bottom10_negative": bot10,
+                "csv": existing_csv.name,
+            })
+            continue
+        try:
+            result = analyze_one(meta, feats_full, targets_full, rng)
+            if result:
+                summary["models"].append(result)
+        except Exception as e:
+            print(f"[error] exp{meta['exp']}: {e}")
+            import traceback; traceback.print_exc()
 
     # Cross-model domain aggregation: average drop per domain across all models
     domain_drops = {}
