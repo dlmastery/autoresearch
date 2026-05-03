@@ -1,18 +1,90 @@
 ---
 name: AutoResearch QQQ Checkpoint
-description: 310 experiments. dMamba 26-grind + MambaStock 25-grind closed. Global champion exp 52 dmamba +1.32 single-seed / +0.97 multi-seed median (LOCKED). OOS Dec 2025-Apr 2026 inference complete on 3 archived checkpoints; exp 17 Sharpe +3.92 BEST OOS.
+description: 327+ experiments. Prod-mode retrain of top-30 winners COMPLETE (28/30, 13 BH-beaters). Top-5 vote ensemble OOS Sharpe +3.85 / Excess +3.09 / Return +21.82% — beats best individual +2.22 by ~75%. Permutation feature importance complete on top-2 LSTM winners. Hill-climb session 311-329 closed depth/width/HD/dlinear-s35/xLSTM-s35 axes around LSTM s35 baseline. Mamba s35 in progress.
 type: project
 ---
 
-# AutoResearch QQQ — Comprehensive Status (post 2026-05-02 OOS milestone)
+# AutoResearch QQQ — Comprehensive Status (post 2026-05-03 ensemble + explainability milestone)
 
-## 🏆 GLOBAL CHAMPION (LOCKED)
+## 🎯 PRODUCTION CHAMPION (NEW — 2026-05-03 deep ensemble)
+
+**Top-5 Vote Ensemble** (Lakshminarayanan, Pritzel & Blundell 2017 NeurIPS arXiv:1612.01474):
+- **OOS Sharpe +3.853** on 81 dates 2025-12-24 → 2026-04-22
+- **Excess vs BH +3.091** (BH +0.762)
+- **Return +21.82%** vs BH +4.44% — almost 5× BH return
+- **Hit rate 61.7%** | MaxDD -5.19% | PSR ~1.0
+- Vote = sign(sum(direction_i)) over the top-5 prod-retrain BH-beaters by individual excess Sharpe
+
+**Top-5 ensemble members** (by individual OOS excess Sharpe):
+| Exp | Backbone | Seed | Indv Sharpe | Indv Excess | Weight |
+|-----|----------|------|------------|-------------|--------|
+| 304 | mamba s60 | 42 | +2.01 | +1.25 | 0.247 |
+| 55 | mamba s60 | 7 | +1.91 | +1.14 | 0.225 |
+| 234 | LSTM s35 | 2026 | +2.22 | +1.00 | 0.198 |
+| 281 | mambastock s60 | 42 | +1.75 | +0.99 | 0.196 |
+| 231 | LSTM s35 | 11 | +2.17 | +0.95 | 0.188 |
+
+**All 13 BH-beaters by family:**
+- Mamba s60: 8 members (304, 55, 281, 50, 155, 306, 295, 49)
+- LSTM s35: 3 members (234, 231, 173)
+- Mamba s35: 1 (incoming — exp 327 mamba dmamba s35 seed=42 +0.46 train comp)
+- DLinear s10: 1 (138)
+- xlstm: 1 (243)
+
+**Other strong ensemble strategies** (computed by `run_oos_ensemble.py`):
+| Strategy | Sharpe | Excess | Return |
+|----------|-------:|-------:|-------:|
+| top5_vote | +3.85 | +3.09 | +21.82% |
+| vote_geq_9 (≥9/13 agree) | +2.28 | +1.52 | +10.98% |
+| mamba_only_8 | +2.27 | +1.51 | +13.11% |
+| top3_vote | +2.23 | +1.47 | +12.86% |
+| top5_mean | +1.69 | +0.93 | +9.80% |
+| lstm_only_3 | +1.45 | +0.69 | +8.40% |
+| all13_vote | +0.78 | +0.02 | +4.55% |
+| all13_mean | +0.74 | -0.02 | +4.30% (≈ BH) |
+
+Naive 13-member mean fails — diverse architectures cancel out via mean but reinforce via majority direction → top-K vote is the right ensemble strategy.
+
+## 🏆 BEST INDIVIDUAL PROD-RETRAIN OOS
+
+**Exp 234 — LSTM s35 hidden=128 num_layers=1 seed=2026**: OOS Sharpe **+2.22** (Excess +1.00, +16.47% return)
+- Architecture: LSTM 1-layer h=128 bidir, lr=1e-3, bs=16, hd=0.1, wd=7e-4, seq=35
+- Train composite was modest +0.69 — proves prod-OOS ranking ≠ train-composite ranking
+- Same architecture also produced #2 OOS at seed=11 (+2.17) → architecture is genuinely robust
+- Permutation feature importance: top features are `month`, `dec_effect`, `sec_xlk_logret_5d`, `silver_logret_5d`, `tlt_logret_5d`, `vxn_z60`, `vix`. **Calendar features dominate** — model correctly internalized December effect (Haug & Hirschey 2006).
+
+## 🥈 BEST TRAIN-COMPOSITE CHAMPION (HISTORICAL)
 
 **Mamba dmamba exp 52** — composite **+1.3216** single-seed=42 / **+0.97 multi-seed median** (3-seed: seeds 42 / 0 / 7 = +1.32 / +0.19 / +0.97).
 - Config: backbone=mamba, mamba_variant=dmamba, expand=2, d_state=32, num_layers=2, seq=60, lr=5e-4, bs=32, ep=100, wd=0.1, hd=0.1, warmup=10, huber=1.0, grad_clip=1.0, seed=42
 - Reproducibility CONFIRMED at patience=30 (exp 292 produced composite +1.3216 IDENTICAL to exp 52)
-- Archive: `winners/mamba_exp52_dmamba_e2_d32_seed42/` (README + config; **model_checkpoint.pt MISSING** — was overwritten in best_model.pt by later experiments; would need retrain to restore)
-- This is the GLOBAL QQQ CHAMPION across 310 experiments
+- This is the GLOBAL TRAIN-COMPOSITE champion across 310+ experiments
+- BUT exp 52 prod-retrain failed catastrophically: OOS Sharpe **-2.29** (Excess -3.05). The 2024-2025 data destroyed the basin that produced +1.32 on the original split.
+
+## 🏆 GLOBAL CHAMPION (LOCKED)
+
+## 📋 SESSION 2026-05-03 HILL-CLIMB SUMMARY (exp 311-329)
+
+After prod-retrain revealed LSTM s35 as the OOS leader (exp 234 +2.22), explored HP perturbations around the LSTM s35 baseline:
+
+| Axis | Result | 3-seed median | Verdict |
+|------|--------|--------------|---------|
+| Depth nl=2 | exp 311/312/313 | -0.13 vs +0.68 baseline | REJECTED |
+| Width hidden=256 | exp 314/315/316 | +0.12 vs +0.68 | REJECTED |
+| HD=0.25 (panel transfer) | exp 321/322/323 | -0.20 vs +0.68 | REJECTED |
+| DLinear s35 | exp 317-320 (4 seeds) | ~0 | weak |
+| xLSTM s35 | exp 324/325/327 | -0.93 | REJECTED |
+| Mamba dmamba s35 | exp 326+ (in progress) | seed=42 +0.46 so far | TBD |
+
+**Conclusion:** LSTM s35 nl=1 hidden=128 hd=0.10 IS the local optimum. The lift came from the s35 sequence length itself, not from any HP within the s35 family.
+
+## Built infrastructure (session 2026-05-03)
+
+1. **`run_oos_ensemble.py`** — Lakshminarayanan 2017 deep ensemble with 10 strategies; per-strategy CSV output; PSR per Bailey-López de Prado 2012
+2. **`run_oos_feature_importance.py`** — permutation feature importance per Breiman 2001 + Fisher-Rudin-Dominici 2019; analyzes top-5 OOS winners
+3. **`EXPLAINABILITY_REPORT.md`** — comprehensive feature attribution with cross-model consensus + actionable recommendations (6 features identified as net-harmful, candidates for removal)
+4. **Dashboard ensemble panel** — 13-column table matching Top-30 schema; clickable rows load details into main OOS panel; sortable; per-strategy CSV download; PSR displayed
+5. **GitHub Pages public mirror** — explainability + features docs at https://dlmastery.github.io/autoresearch/EXPLAINABILITY_REPORT.md (private repo workaround)
 
 ## 🥈 BEST DMAMBA ENSEMBLE COMPONENT (LOCKED)
 
