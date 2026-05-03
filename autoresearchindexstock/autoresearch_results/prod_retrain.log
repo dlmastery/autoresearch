@@ -181,3 +181,230 @@ C:\Users\evija\anaconda3\Lib\site-packages\torch\nn\modules\rnn.py:123: UserWarn
 2026-05-02 19:56:09,779 INFO [exp155] ep20 train=-4.6043 val=-3.9456 patience=3/20
 2026-05-02 19:59:38,679 INFO [exp155] ep25 train=-4.9186 val=-3.9398 patience=8/20
 2026-05-02 20:02:45,519 INFO [exp155] ep30 train=-5.1410 val=-3.8277 patience=1/20
+2026-05-02 20:05:49,220 INFO [exp155] ep35 train=-5.3312 val=-3.9340 patience=4/20
+2026-05-02 20:08:40,303 INFO [exp155] ep40 train=-5.3575 val=-3.8638 patience=9/20
+2026-05-02 20:11:49,036 INFO [exp155] ep45 train=-5.5464 val=-3.8495 patience=14/20
+2026-05-02 20:14:41,131 INFO [exp155] ep50 train=-5.5776 val=-3.8054 patience=19/20
+2026-05-02 20:15:21,389 INFO [exp155] checkpoint saved -> winners\exp155_prod_retrain
+2026-05-02 20:15:25,678 INFO [exp155] OOS Sharpe=1.5995 BH=0.7622 excess=0.8373
+2026-05-02 20:15:25,681 INFO [rank 13/30] exp155 completed in 1934s
+2026-05-02 20:15:25,692 INFO [exp268] backbone=mamba seq=90 seed=42
+2026-05-02 20:15:25,704 INFO [exp268] split: train=4650 val=64 oos=140
+2026-05-02 20:15:25,748 ERROR [rank 14/30] exp268 FAILED: datasets should not be an empty iterable
+Traceback (most recent call last):
+  File "C:\Users\evija\autoresearch\autoresearchindexstock\retrain_top30_prod.py", line 352, in main
+    metrics = retrain_one(e, raw, feats_full, targets_full)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\evija\autoresearch\autoresearchindexstock\retrain_top30_prod.py", line 167, in retrain_one
+    val_ds = create_contiguous_datasets(val_df_scaled, vl_t, seq_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\evija\autoresearch\autoresearch\model\train.py", line 126, in create_contiguous_datasets
+    return torch.utils.data.ConcatDataset(datasets)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\evija\anaconda3\Lib\site-packages\torch\utils\data\dataset.py", line 328, in __init__
+    assert len(self.datasets) > 0, "datasets should not be an empty iterable"  # type: ignore[arg-type]
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: datasets should not be an empty iterable
+2026-05-02 20:15:25,781 INFO [exp243] backbone=xlstm seq=60 seed=7
+2026-05-02 20:15:25,792 INFO [exp243] split: train=4650 val=64 oos=140
+2026-05-02 20:22:58,270 INFO [exp243] ep5 train=-4.0625 val=-3.4747 patience=1/15
+2026-05-02 20:30:21,179 INFO [exp243] ep10 train=-4.6787 val=-3.5026 patience=1/15
+2026-05-02 20:37:52,070 INFO [exp243] ep15 train=-4.9108 val=-3.9554 patience=0/15
+2026-05-02 20:45:59,189 INFO [exp243] ep20 train=-5.1022 val=-3.9097 patience=5/15
+2026-05-02 20:54:06,425 INFO [exp243] ep25 train=-5.1957 val=-3.6790 patience=10/15
+2026-05-02 21:01:54,611 INFO [exp243] ep30 train=-5.3417 val=-3.9585 patience=0/15
+2026-05-02 21:09:48,408 INFO [exp243] ep35 train=-5.3965 val=-3.7989 patience=5/15
+2026-05-02 21:17:57,634 INFO [exp243] ep40 train=-5.5300 val=-3.7932 patience=10/15
+2026-05-02 21:25:33,831 INFO [exp243] checkpoint saved -> winners\exp243_prod_retrain
+2026-05-02 21:25:40,798 INFO [exp243] OOS Sharpe=1.5948 BH=0.7622 excess=0.8326
+2026-05-02 21:25:40,801 INFO [rank 15/30] exp243 completed in 4215s
+2026-05-02 21:25:40,811 INFO [exp218] backbone=mlp seq=35 seed=7
+2026-05-02 21:25:40,822 INFO [exp218] split: train=4650 val=64 oos=140
+2026-05-02 21:25:48,731 INFO [exp218] ep5 train=-3.0487 val=-2.8131 patience=0/10
+2026-05-02 21:25:55,653 INFO [exp218] ep10 train=-4.2460 val=-3.6079 patience=1/10
+2026-05-02 21:26:02,263 INFO [exp218] ep15 train=-4.6634 val=-3.8246 patience=3/10
+2026-05-02 21:26:08,948 INFO [exp218] ep20 train=-4.8214 val=-3.8591 patience=0/10
+2026-05-02 21:26:15,727 INFO [exp218] ep25 train=-4.9808 val=-3.6618 patience=5/10
+2026-05-02 21:26:22,576 INFO [exp218] checkpoint saved -> winners\exp218_prod_retrain
+2026-05-02 21:26:22,730 INFO [exp218] OOS Sharpe=-0.1722 BH=1.2169 excess=-1.3892
+2026-05-02 21:26:22,732 INFO [rank 16/30] exp218 completed in 42s
+2026-05-02 21:26:22,742 INFO [exp17] backbone=mamba seq=60 seed=42
+2026-05-02 21:26:22,752 INFO [exp17] split: train=4650 val=64 oos=140
+2026-05-02 21:29:51,988 INFO [exp17] ep5 train=-3.8418 val=-2.7798 patience=0/20
+2026-05-02 21:32:53,742 INFO [exp17] ep10 train=-4.0166 val=-3.6197 patience=0/20
+2026-05-02 21:36:10,749 INFO [exp17] ep15 train=-4.5623 val=-3.9031 patience=0/20
+2026-05-02 21:39:19,518 INFO [exp17] ep20 train=-4.6098 val=-3.0824 patience=5/20
+2026-05-02 21:42:38,363 INFO [exp17] ep25 train=-4.7924 val=-3.4534 patience=1/20
+2026-05-02 21:45:52,635 INFO [exp17] ep30 train=-5.2607 val=-3.9054 patience=6/20
+2026-05-02 21:49:06,892 INFO [exp17] ep35 train=-5.3168 val=-3.7039 patience=11/20
+2026-05-02 21:52:13,584 INFO [exp17] ep40 train=-5.4431 val=-3.6934 patience=3/20
+2026-05-02 21:55:34,134 INFO [exp17] ep45 train=-5.4569 val=-3.8596 patience=4/20
+2026-05-02 21:58:54,210 INFO [exp17] ep50 train=-5.6314 val=-3.6744 patience=9/20
+2026-05-02 22:02:12,364 INFO [exp17] ep55 train=-5.6314 val=-3.7730 patience=14/20
+2026-05-02 22:05:34,924 INFO [exp17] ep60 train=-5.6473 val=-3.8138 patience=19/20
+2026-05-02 22:06:12,337 INFO [exp17] checkpoint saved -> winners\exp17_prod_retrain
+2026-05-02 22:06:16,218 INFO [exp17] OOS Sharpe=-0.3876 BH=0.7622 excess=-1.1499
+2026-05-02 22:06:16,221 INFO [rank 17/30] exp17 completed in 2393s
+2026-05-02 22:06:16,231 INFO [exp230] backbone=lstm seq=35 seed=13
+2026-05-02 22:06:16,241 INFO [exp230] split: train=4650 val=64 oos=140
+C:\Users\evija\anaconda3\Lib\site-packages\torch\nn\modules\rnn.py:123: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.1 and num_layers=1
+  warnings.warn(
+2026-05-02 22:06:33,240 INFO [exp230] ep5 train=-4.2846 val=-3.3429 patience=1/15
+2026-05-02 22:06:50,680 INFO [exp230] ep10 train=-4.5688 val=-3.7781 patience=4/15
+2026-05-02 22:07:06,548 INFO [exp230] ep15 train=-4.8822 val=-3.7512 patience=9/15
+2026-05-02 22:07:22,383 INFO [exp230] ep20 train=-5.1129 val=-3.8626 patience=4/15
+2026-05-02 22:07:38,672 INFO [exp230] ep25 train=-5.3251 val=-3.8709 patience=9/15
+2026-05-02 22:07:54,369 INFO [exp230] ep30 train=-5.4931 val=-3.6254 patience=14/15
+2026-05-02 22:07:57,213 INFO [exp230] checkpoint saved -> winners\exp230_prod_retrain
+2026-05-02 22:07:57,405 INFO [exp230] OOS Sharpe=-0.3503 BH=1.2169 excess=-1.5672
+2026-05-02 22:07:57,407 INFO [rank 18/30] exp230 completed in 101s
+2026-05-02 22:07:57,418 INFO [exp304] backbone=mamba seq=60 seed=42
+2026-05-02 22:07:57,429 INFO [exp304] split: train=4650 val=64 oos=140
+2026-05-02 22:20:32,914 INFO [exp304] ep5 train=-4.0830 val=-3.5710 patience=0/20
+2026-05-02 22:33:20,705 INFO [exp304] ep10 train=-4.4245 val=-3.4271 patience=3/20
+2026-05-02 22:45:57,842 INFO [exp304] ep15 train=-4.7714 val=-3.4489 patience=2/20
+2026-05-02 22:59:00,036 INFO [exp304] ep20 train=-4.9670 val=-3.8121 patience=7/20
+2026-05-02 23:11:40,813 INFO [exp304] ep25 train=-5.1005 val=-3.9050 patience=3/20
+2026-05-02 23:24:12,632 INFO [exp304] ep30 train=-5.2060 val=-3.6463 patience=3/20
+2026-05-02 23:37:23,112 INFO [exp304] ep35 train=-5.4254 val=-3.7091 patience=8/20
+2026-05-02 23:50:07,862 INFO [exp304] ep40 train=-5.5185 val=-3.0311 patience=13/20
+2026-05-03 00:02:46,770 INFO [exp304] ep45 train=-5.6335 val=-3.5182 patience=18/20
+2026-05-03 00:07:58,792 INFO [exp304] checkpoint saved -> winners\exp304_prod_retrain
+2026-05-03 00:08:05,269 INFO [exp304] OOS Sharpe=2.0117 BH=0.7622 excess=1.2494
+2026-05-03 00:08:05,274 INFO [rank 19/30] exp304 completed in 7208s
+2026-05-03 00:08:05,286 INFO [exp224] backbone=mlp seq=35 seed=2026
+2026-05-03 00:08:05,298 INFO [exp224] split: train=4650 val=64 oos=140
+2026-05-03 00:08:12,271 INFO [exp224] ep5 train=-3.0848 val=-2.8341 patience=0/10
+2026-05-03 00:08:19,078 INFO [exp224] ep10 train=-4.2024 val=-3.2396 patience=1/10
+2026-05-03 00:08:26,125 INFO [exp224] ep15 train=-4.6769 val=-3.8889 patience=3/10
+2026-05-03 00:08:33,813 INFO [exp224] ep20 train=-4.8895 val=-3.8900 patience=8/10
+2026-05-03 00:08:36,762 INFO [exp224] checkpoint saved -> winners\exp224_prod_retrain
+2026-05-03 00:08:36,925 INFO [exp224] OOS Sharpe=-1.5094 BH=1.2169 excess=-2.7263
+2026-05-03 00:08:36,927 INFO [rank 20/30] exp224 completed in 32s
+2026-05-03 00:08:36,939 INFO [exp295] backbone=mamba seq=60 seed=0
+2026-05-03 00:08:36,950 INFO [exp295] split: train=4650 val=64 oos=140
+2026-05-03 00:11:51,334 INFO [exp295] ep5 train=-3.7300 val=-2.8927 patience=0/20
+2026-05-03 00:14:57,990 INFO [exp295] ep10 train=-4.2691 val=-3.4284 patience=3/20
+2026-05-03 00:18:23,737 INFO [exp295] ep15 train=-4.4485 val=-3.5611 patience=1/20
+2026-05-03 00:21:31,026 INFO [exp295] ep20 train=-4.7478 val=-3.4056 patience=6/20
+2026-05-03 00:24:54,397 INFO [exp295] ep25 train=-4.9491 val=-3.9637 patience=0/20
+2026-05-03 00:28:01,847 INFO [exp295] ep30 train=-5.1836 val=-3.6993 patience=5/20
+2026-05-03 00:31:21,239 INFO [exp295] ep35 train=-5.3391 val=-3.6786 patience=10/20
+2026-05-03 00:34:41,907 INFO [exp295] ep40 train=-5.4602 val=-3.8731 patience=15/20
+2026-05-03 00:37:51,835 INFO [exp295] checkpoint saved -> winners\exp295_prod_retrain
+2026-05-03 00:37:55,331 INFO [exp295] OOS Sharpe=1.2311 BH=0.7622 excess=0.4688
+2026-05-03 00:37:55,334 INFO [rank 21/30] exp295 completed in 1758s
+2026-05-03 00:37:55,345 INFO [exp138] backbone=dlinear seq=10 seed=42
+2026-05-03 00:37:55,355 INFO [exp138] split: train=4650 val=64 oos=140
+2026-05-03 00:38:01,607 INFO [exp138] ep5 train=-4.3323 val=-3.4464 patience=1/20
+2026-05-03 00:38:07,814 INFO [exp138] ep10 train=-4.5049 val=-3.4904 patience=4/20
+2026-05-03 00:38:13,984 INFO [exp138] ep15 train=-4.8322 val=-3.7699 patience=1/20
+2026-05-03 00:38:20,258 INFO [exp138] ep20 train=-5.0342 val=-3.4950 patience=3/20
+2026-05-03 00:38:27,397 INFO [exp138] ep25 train=-5.1916 val=-3.7878 patience=8/20
+2026-05-03 00:38:34,614 INFO [exp138] ep30 train=-5.2547 val=-3.6774 patience=13/20
+2026-05-03 00:38:41,702 INFO [exp138] ep35 train=-5.3120 val=-3.8024 patience=2/20
+2026-05-03 00:38:48,462 INFO [exp138] ep40 train=-5.4223 val=-3.7612 patience=7/20
+2026-05-03 00:38:54,706 INFO [exp138] ep45 train=-5.5127 val=-3.7447 patience=12/20
+2026-05-03 00:39:00,616 INFO [exp138] ep50 train=-5.5957 val=-3.7408 patience=17/20
+2026-05-03 00:39:04,213 INFO [exp138] checkpoint saved -> winners\exp138_prod_retrain
+2026-05-03 00:39:04,399 INFO [exp138] OOS Sharpe=1.3492 BH=0.9522 excess=0.3971
+2026-05-03 00:39:04,402 INFO [rank 22/30] exp138 completed in 69s
+2026-05-03 00:39:04,414 INFO [exp173] backbone=lstm seq=10 seed=42
+2026-05-03 00:39:04,424 INFO [exp173] split: train=4650 val=64 oos=140
+C:\Users\evija\anaconda3\Lib\site-packages\torch\nn\modules\rnn.py:123: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.1 and num_layers=1
+  warnings.warn(
+2026-05-03 00:39:21,024 INFO [exp173] ep5 train=-4.1756 val=-3.2230 patience=1/15
+2026-05-03 00:39:44,762 INFO [exp173] ep10 train=-4.6382 val=-3.6797 patience=4/15
+2026-05-03 00:40:03,416 INFO [exp173] ep15 train=-4.8154 val=-3.8497 patience=0/15
+2026-05-03 00:40:20,058 INFO [exp173] ep20 train=-5.0587 val=-3.8471 patience=5/15
+2026-05-03 00:40:43,548 INFO [exp173] ep25 train=-5.2664 val=-3.7562 patience=10/15
+2026-05-03 00:41:02,728 INFO [exp173] checkpoint saved -> winners\exp173_prod_retrain
+2026-05-03 00:41:03,030 INFO [exp173] OOS Sharpe=1.3608 BH=0.9522 excess=0.4086
+2026-05-03 00:41:03,033 INFO [rank 23/30] exp173 completed in 119s
+2026-05-03 00:41:03,045 INFO [exp74] backbone=lstm seq=10 seed=99
+2026-05-03 00:41:03,056 INFO [exp74] split: train=4650 val=64 oos=140
+C:\Users\evija\anaconda3\Lib\site-packages\torch\nn\modules\rnn.py:123: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.1 and num_layers=1
+  warnings.warn(
+2026-05-03 00:41:17,746 INFO [exp74] ep5 train=-4.2986 val=-3.5962 patience=3/15
+2026-05-03 00:41:35,791 INFO [exp74] ep10 train=-4.5731 val=-2.7170 patience=8/15
+2026-05-03 00:41:53,849 INFO [exp74] ep15 train=-4.8976 val=-3.7800 patience=13/15
+2026-05-03 00:41:59,302 INFO [exp74] checkpoint saved -> winners\exp74_prod_retrain
+2026-05-03 00:41:59,507 INFO [exp74] OOS Sharpe=0.3487 BH=0.9522 excess=-0.6035
+2026-05-03 00:41:59,509 INFO [rank 24/30] exp74 completed in 56s
+2026-05-03 00:41:59,521 INFO [exp49] backbone=mamba seq=60 seed=0
+2026-05-03 00:41:59,532 INFO [exp49] split: train=4650 val=64 oos=140
+2026-05-03 00:45:04,835 INFO [exp49] ep5 train=-3.7300 val=-2.8927 patience=0/20
+2026-05-03 00:48:20,827 INFO [exp49] ep10 train=-4.2691 val=-3.4284 patience=3/20
+2026-05-03 00:51:32,916 INFO [exp49] ep15 train=-4.4485 val=-3.5611 patience=1/20
+2026-05-03 00:54:49,809 INFO [exp49] ep20 train=-4.7478 val=-3.4056 patience=6/20
+2026-05-03 00:58:00,151 INFO [exp49] ep25 train=-4.9491 val=-3.9637 patience=0/20
+2026-05-03 01:01:16,928 INFO [exp49] ep30 train=-5.1836 val=-3.6993 patience=5/20
+2026-05-03 01:04:39,620 INFO [exp49] ep35 train=-5.3391 val=-3.6786 patience=10/20
+2026-05-03 01:07:51,283 INFO [exp49] ep40 train=-5.4602 val=-3.8731 patience=15/20
+2026-05-03 01:11:03,683 INFO [exp49] checkpoint saved -> winners\exp49_prod_retrain
+2026-05-03 01:11:08,174 INFO [exp49] OOS Sharpe=1.2311 BH=0.7622 excess=0.4688
+2026-05-03 01:11:08,178 INFO [rank 25/30] exp49 completed in 1749s
+2026-05-03 01:11:08,191 INFO [exp234] backbone=lstm seq=35 seed=2026
+2026-05-03 01:11:08,200 INFO [exp234] split: train=4650 val=64 oos=140
+C:\Users\evija\anaconda3\Lib\site-packages\torch\nn\modules\rnn.py:123: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.1 and num_layers=1
+  warnings.warn(
+2026-05-03 01:11:26,621 INFO [exp234] ep5 train=-4.4871 val=-3.8647 patience=0/15
+2026-05-03 01:11:44,777 INFO [exp234] ep10 train=-4.5905 val=-3.7487 patience=1/15
+2026-05-03 01:12:00,472 INFO [exp234] ep15 train=-4.9119 val=-3.7371 patience=1/15
+2026-05-03 01:12:14,490 INFO [exp234] ep20 train=-5.1171 val=-3.4404 patience=6/15
+2026-05-03 01:12:30,763 INFO [exp234] ep25 train=-5.3911 val=-3.8320 patience=11/15
+2026-05-03 01:12:44,461 INFO [exp234] checkpoint saved -> winners\exp234_prod_retrain
+2026-05-03 01:12:44,694 INFO [exp234] OOS Sharpe=2.2186 BH=1.2169 excess=1.0017
+2026-05-03 01:12:44,696 INFO [rank 26/30] exp234 completed in 97s
+2026-05-03 01:12:44,710 INFO [exp294] backbone=mamba seq=60 seed=42
+2026-05-03 01:12:44,720 INFO [exp294] split: train=4650 val=64 oos=140
+2026-05-03 01:15:59,237 INFO [exp294] ep5 train=-3.7673 val=-2.8762 patience=1/20
+2026-05-03 01:19:23,935 INFO [exp294] ep10 train=-3.7230 val=-3.3830 patience=0/20
+2026-05-03 01:22:33,083 INFO [exp294] ep15 train=-4.2234 val=-3.8030 patience=3/20
+2026-05-03 01:25:51,897 INFO [exp294] ep20 train=-4.5769 val=-3.7916 patience=3/20
+2026-05-03 01:29:02,773 INFO [exp294] ep25 train=-4.9260 val=-3.7857 patience=4/20
+2026-05-03 01:32:10,888 INFO [exp294] ep30 train=-5.1331 val=-3.9418 patience=9/20
+2026-05-03 01:35:23,442 INFO [exp294] ep35 train=-5.3197 val=-3.8698 patience=14/20
+2026-05-03 01:38:36,113 INFO [exp294] ep40 train=-5.4386 val=-3.8205 patience=19/20
+2026-05-03 01:39:17,439 INFO [exp294] checkpoint saved -> winners\exp294_prod_retrain
+2026-05-03 01:39:21,802 INFO [exp294] OOS Sharpe=0.4949 BH=0.7622 excess=-0.2673
+2026-05-03 01:39:21,805 INFO [rank 27/30] exp294 completed in 1597s
+2026-05-03 01:39:21,819 INFO [exp231] backbone=lstm seq=35 seed=11
+2026-05-03 01:39:21,830 INFO [exp231] split: train=4650 val=64 oos=140
+C:\Users\evija\anaconda3\Lib\site-packages\torch\nn\modules\rnn.py:123: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.1 and num_layers=1
+  warnings.warn(
+2026-05-03 01:39:40,378 INFO [exp231] ep5 train=-4.5042 val=-3.4764 patience=1/15
+2026-05-03 01:39:56,744 INFO [exp231] ep10 train=-4.6380 val=-2.6140 patience=1/15
+2026-05-03 01:40:10,538 INFO [exp231] ep15 train=-4.8437 val=-3.3820 patience=1/15
+2026-05-03 01:40:25,598 INFO [exp231] ep20 train=-5.0455 val=-3.8614 patience=6/15
+2026-05-03 01:40:44,250 INFO [exp231] ep25 train=-5.3099 val=-3.8616 patience=11/15
+2026-05-03 01:40:57,316 INFO [exp231] checkpoint saved -> winners\exp231_prod_retrain
+2026-05-03 01:40:57,518 INFO [exp231] OOS Sharpe=2.1681 BH=1.2169 excess=0.9512
+2026-05-03 01:40:57,521 INFO [rank 28/30] exp231 completed in 96s
+2026-05-03 01:40:57,535 INFO [exp306] backbone=mamba seq=60 seed=42
+2026-05-03 01:40:57,546 INFO [exp306] split: train=4650 val=64 oos=140
+2026-05-03 01:53:49,086 INFO [exp306] ep5 train=-4.0708 val=-3.5593 patience=0/20
+2026-05-03 02:06:32,224 INFO [exp306] ep10 train=-4.5366 val=-3.9480 patience=0/20
+2026-05-03 02:19:31,913 INFO [exp306] ep15 train=-4.7163 val=-3.4247 patience=5/20
+2026-05-03 02:32:12,984 INFO [exp306] ep20 train=-4.9136 val=-3.9513 patience=0/20
+2026-05-03 02:44:44,819 INFO [exp306] ep25 train=-5.0050 val=-3.9082 patience=3/20
+2026-05-03 02:57:35,698 INFO [exp306] ep30 train=-5.1673 val=-3.9379 patience=8/20
+2026-05-03 03:10:09,603 INFO [exp306] ep35 train=-5.3065 val=-3.7425 patience=13/20
+2026-05-03 03:23:01,566 INFO [exp306] ep40 train=-5.3726 val=-3.9413 patience=18/20
+2026-05-03 03:28:10,932 INFO [exp306] checkpoint saved -> winners\exp306_prod_retrain
+2026-05-03 03:28:18,332 INFO [exp306] OOS Sharpe=1.2857 BH=0.7622 excess=0.5235
+2026-05-03 03:28:18,337 INFO [rank 29/30] exp306 completed in 6441s
+2026-05-03 03:28:18,353 INFO [exp95] backbone=lightgbm seq=60 seed=42
+2026-05-03 03:28:18,363 INFO [exp95] split: train=4650 val=64 oos=140
+2026-05-03 03:28:18,396 ERROR [rank 30/30] exp95 FAILED: 'GBMWrapper' object has no attribute 'parameters'
+Traceback (most recent call last):
+  File "C:\Users\evija\autoresearch\autoresearchindexstock\retrain_top30_prod.py", line 352, in main
+    metrics = retrain_one(e, raw, feats_full, targets_full)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\evija\autoresearch\autoresearchindexstock\retrain_top30_prod.py", line 174, in retrain_one
+    optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.get("lr", 3e-4),
+                                  ^^^^^^^^^^^^^^^^
+AttributeError: 'GBMWrapper' object has no attribute 'parameters'
+2026-05-03 03:28:18,413 INFO [done] 28/30 retrains completed, 2 failed
+[CPU SAFETY] Pinned to 4 P-core threads [0, 2, 4, 6] (WHEA errors on E-cores 16,17,24,25). Override with AUTORESEARCH_USE_ALL_CORES=1.
+[CPU SAFETY] Pinned to 4 P-core threads [0, 2, 4, 6] (WHEA errors on E-cores 16,17,24,25). Override with AUTORESEARCH_USE_ALL_CORES=1.

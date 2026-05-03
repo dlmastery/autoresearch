@@ -1,9 +1,9 @@
 {
   "started_at": "2026-05-02T17:11:33.235130+00:00",
   "n_total": 30,
-  "n_completed": 12,
-  "n_failed": 0,
-  "current_exp": 155,
+  "n_completed": 28,
+  "n_failed": 2,
+  "current_exp": null,
   "results_so_far": [
     {
       "exp": 276,
@@ -76,7 +76,104 @@
       "rank": 12,
       "oos_sharpe": 1.9068,
       "elapsed_sec": 2276.2476115226746
+    },
+    {
+      "exp": 155,
+      "rank": 13,
+      "oos_sharpe": 1.5995,
+      "elapsed_sec": 1934.3733263015747
+    },
+    {
+      "exp": 243,
+      "rank": 15,
+      "oos_sharpe": 1.5948,
+      "elapsed_sec": 4215.02004981041
+    },
+    {
+      "exp": 218,
+      "rank": 16,
+      "oos_sharpe": -0.1722,
+      "elapsed_sec": 41.92093348503113
+    },
+    {
+      "exp": 17,
+      "rank": 17,
+      "oos_sharpe": -0.3876,
+      "elapsed_sec": 2393.47883272171
+    },
+    {
+      "exp": 230,
+      "rank": 18,
+      "oos_sharpe": -0.3503,
+      "elapsed_sec": 101.17636060714722
+    },
+    {
+      "exp": 304,
+      "rank": 19,
+      "oos_sharpe": 2.0117,
+      "elapsed_sec": 7207.855998516083
+    },
+    {
+      "exp": 224,
+      "rank": 20,
+      "oos_sharpe": -1.5094,
+      "elapsed_sec": 31.640722274780273
+    },
+    {
+      "exp": 295,
+      "rank": 21,
+      "oos_sharpe": 1.2311,
+      "elapsed_sec": 1758.3956892490387
+    },
+    {
+      "exp": 138,
+      "rank": 22,
+      "oos_sharpe": 1.3492,
+      "elapsed_sec": 69.05750775337219
+    },
+    {
+      "exp": 173,
+      "rank": 23,
+      "oos_sharpe": 1.3608,
+      "elapsed_sec": 118.61902976036072
+    },
+    {
+      "exp": 74,
+      "rank": 24,
+      "oos_sharpe": 0.3487,
+      "elapsed_sec": 56.462722063064575
+    },
+    {
+      "exp": 49,
+      "rank": 25,
+      "oos_sharpe": 1.2311,
+      "elapsed_sec": 1748.657056093216
+    },
+    {
+      "exp": 234,
+      "rank": 26,
+      "oos_sharpe": 2.2186,
+      "elapsed_sec": 96.505530834198
+    },
+    {
+      "exp": 294,
+      "rank": 27,
+      "oos_sharpe": 0.4949,
+      "elapsed_sec": 1597.0950722694397
+    },
+    {
+      "exp": 231,
+      "rank": 28,
+      "oos_sharpe": 2.1681,
+      "elapsed_sec": 95.70219039916992
+    },
+    {
+      "exp": 306,
+      "rank": 29,
+      "oos_sharpe": 1.2857,
+      "elapsed_sec": 6440.80180978775
     }
   ],
-  "current_rank": 13
+  "current_rank": 30,
+  "finished_at": "2026-05-03T10:28:18.411160+00:00"
 }
