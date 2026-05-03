@@ -333,66 +333,229 @@
 <!-- Deep Ensemble panel — Lakshminarayanan 2017 -->
 <div id="oos-ensemble-section" style="background:#1a0d28;border:2px solid #fbbf24;border-radius:8px;padding:18px;margin:12px 0">
   <h3 style="color:#fbbf24;font-size:1.15em;margin-bottom:6px">🎯 OOS Deep Ensemble — Lakshminarayanan 2017</h3>
-  <div style="color:#8b949e;font-size:0.85em;margin-bottom:10px">Average / vote across the 13 prod-retrain BH-beaters. Ensembling reduces variance per Lakshminarayanan, Pritzel & Blundell 2017 NeurIPS arXiv:1612.01474. Reads <code>oos_ensemble_summary.json</code>.</div>
-  <div id="oos-ensemble-table-wrap" style="overflow-x:auto">
-    <table style="font-size:0.85em;width:100%">
-      <thead><tr><th>Strategy</th><th>Description</th><th>Sharpe</th><th>Excess vs BH</th><th>Return%</th><th>Hit%</th><th>MaxDD%</th></tr></thead>
-      <tbody id="oos-ensemble-tbody"><tr><td colspan="7" style="color:#8b949e">loading...</td></tr></tbody>
+  <div style="color:#8b949e;font-size:0.85em;margin-bottom:10px">Average / vote across the prod-retrain BH-beaters. Ensembling reduces variance per Lakshminarayanan, Pritzel &amp; Blundell 2017 NeurIPS arXiv:1612.01474. <b>Click a row</b> to load that strategy's details into the OOS Live-Data Inference panel above. Reads <code>oos_ensemble_summary.json</code> + <code>oos_ensemble_&lt;strategy&gt;.csv</code>.</div>
+  <div id="oos-ensemble-summary" style="color:#8b949e;font-size:0.85em;margin-bottom:10px"></div>
+  <div style="overflow-x:auto;max-height:560px;overflow-y:auto;border:1px solid #30363d;border-radius:6px">
+    <table id="oos-ensemble-table" style="margin-bottom:0;width:100%;font-size:0.82em">
+      <thead style="position:sticky;top:0;z-index:5;background:#161b22">
+        <tr>
+          <th data-esort="rank" style="cursor:pointer">#</th>
+          <th data-esort="strategy" style="cursor:pointer">Strategy</th>
+          <th>Description</th>
+          <th data-esort="strategy_annual_sharpe" style="cursor:pointer" title="OOS strategy Sharpe (annualised)">Sharpe</th>
+          <th data-esort="buy_hold_annual_sharpe" style="cursor:pointer">BH Sharpe</th>
+          <th data-esort="excess_sharpe" style="cursor:pointer" title="Strategy − BH Sharpe">Excess</th>
+          <th data-esort="strategy_total_return_pct" style="cursor:pointer">Return%</th>
+          <th data-esort="buy_hold_total_return_pct" style="cursor:pointer">BH Ret%</th>
+          <th data-esort="hit_rate_pct" style="cursor:pointer">Hit%</th>
+          <th data-esort="psr" style="cursor:pointer" title="Probabilistic Sharpe Ratio (Bailey-López de Prado 2012)">PSR</th>
+          <th data-esort="max_drawdown_pct" style="cursor:pointer">MaxDD%</th>
+          <th>Equity</th>
+          <th>CSV</th>
+        </tr>
+      </thead>
+      <tbody id="oos-ensemble-tbody"><tr><td colspan="13" style="color:#8b949e">loading...</td></tr></tbody>
     </table>
   </div>
 </div>
 <script>
+let _ensembleData = null;
+let _ensembleSort = {key:'strategy_annual_sharpe', dir:'desc'};
+const _ensembleLabels = {
+  'top5_vote': 'Top-5 vote (sign of sum of top-5 directions)',
+  'top3_vote': 'Top-3 vote (sign of sum of top-3 directions)',
+  'mamba_only_8': 'Mamba-family only (8 members)',
+  'vote_geq_9': 'High-conf filter (≥9/13 agree on direction)',
+  'top5_mean': 'Top-5 mean prediction',
+  'top3_mean': 'Top-3 mean prediction',
+  'lstm_only_3': 'LSTM-family only (3 members)',
+  'all13_vote': 'All-13 vote (full ensemble majority vote)',
+  'all13_mean_pred': 'All-13 mean prediction',
+  'all13_weighted': 'All-13 weighted by individual excess Sharpe',
+};
+
+function _ensembleSparkline(eq) {
+  if (!eq || !eq.strategy_pct || !eq.strategy_pct.length) return '<span style="color:#484f58;font-size:0.75em">—</span>';
+  const W = 80, H = 22;
+  const v = eq.strategy_pct;
+  const lo = Math.min(...v), hi = Math.max(...v);
+  const range = hi - lo || 1;
+  const pts = v.map((y, i) => `${(i / (v.length - 1) * W).toFixed(1)},${(H - ((y - lo) / range) * H).toFixed(1)}`).join(' ');
+  const color = v[v.length - 1] >= 0 ? '#3fb950' : '#f85149';
+  return `<svg width="${W}" height="${H}" style="vertical-align:middle"><polyline fill="none" stroke="${color}" stroke-width="1.5" points="${pts}"/></svg>`;
+}
+
 async function loadEnsembleSummary() {
   try {
     const r = await fetch('oos_ensemble_summary.json?t=' + Date.now());
     if (!r.ok) return;
-    const d = await r.json();
-    const tbody = document.getElementById('oos-ensemble-tbody');
-    if (!d.strategies) { tbody.innerHTML = '<tr><td colspan="7" style="color:#8b949e">no strategies</td></tr>'; return; }
-    const order = ['top5_vote', 'top3_vote', 'mamba_only_8', 'vote_geq_9', 'top5_mean', 'top3_mean', 'lstm_only_3', 'all13_vote', 'all13_mean_pred', 'all13_weighted'];
-    const labels = {
-      'top5_vote': 'Top-5 vote (sign of sum of top-5 directions)',
-      'top3_vote': 'Top-3 vote (sign of sum of top-3 directions)',
-      'mamba_only_8': 'Mamba-family only (8 members)',
-      'vote_geq_9': 'High-conf filter (≥9/13 agree)',
-      'top5_mean': 'Top-5 mean prediction',
-      'top3_mean': 'Top-3 mean prediction',
-      'lstm_only_3': 'LSTM-family only (3 members)',
-      'all13_vote': 'All-13 vote (full ensemble vote)',
-      'all13_mean_pred': 'All-13 mean prediction',
-      'all13_weighted': 'All-13 weighted by excess sharpe',
-    };
-    tbody.innerHTML = '';
-    let bestSh = -99;
-    Object.values(d.strategies).forEach(s => { if(s.strategy_annual_sharpe > bestSh) bestSh = s.strategy_annual_sharpe; });
-    order.forEach(k => {
-      const s = d.strategies[k];
-      if (!s) return;
-      const isBest = s.strategy_annual_sharpe === bestSh;
-      const exColor = s.excess_sharpe > 0 ? '#3fb950' : '#f85149';
-      const tr = document.createElement('tr');
-      if (isBest) tr.style.background = '#2a1f0f';
-      tr.innerHTML = `
-        <td style="font-weight:600;color:${isBest ? '#fbbf24' : '#e6edf3'}">${k}${isBest ? ' ⭐' : ''}</td>
-        <td style="color:#8b949e">${labels[k] || ''}</td>
-        <td style="color:${isBest ? '#fbbf24' : '#e6edf3'};font-weight:600">${s.strategy_annual_sharpe.toFixed(3)}</td>
-        <td style="color:${exColor};font-weight:600">${s.excess_sharpe >= 0 ? '+' : ''}${s.excess_sharpe.toFixed(3)}</td>
-        <td>${s.strategy_total_return_pct >= 0 ? '+' : ''}${s.strategy_total_return_pct.toFixed(2)}%</td>
-        <td>${s.hit_rate_pct.toFixed(1)}%</td>
-        <td style="color:#f85149">${s.max_drawdown_pct.toFixed(2)}%</td>`;
-      tbody.appendChild(tr);
-    });
-    // Footer with metadata
-    const tr = document.createElement('tr');
-    tr.style.background = '#161b22';
-    tr.style.fontSize = '0.78em';
-    tr.style.color = '#8b949e';
-    tr.innerHTML = `<td colspan="7" style="padding:8px">
-      ${d.n_members} members · ${d.n_common_dates} common OOS dates · ${d.oos_window?.start} → ${d.oos_window?.end} · BH baseline Sharpe ${(d.strategies.all13_mean_pred?.buy_hold_annual_sharpe || 0).toFixed(3)}
-    </td>`;
-    document.getElementById('oos-ensemble-tbody').appendChild(tr);
+    _ensembleData = await r.json();
+    document.getElementById('oos-ensemble-summary').innerHTML =
+      `<b>${_ensembleData.n_members}</b> BH-beater members · <b>${_ensembleData.n_common_dates}</b> common OOS dates · ` +
+      `${_ensembleData.oos_window?.start} → ${_ensembleData.oos_window?.end} · ` +
+      `BH baseline Sharpe ${(_ensembleData.strategies.all13_mean_pred?.buy_hold_annual_sharpe || 0).toFixed(3)} · ` +
+      `${Object.keys(_ensembleData.strategies).length} strategies tested.`;
+    drawEnsembleTable();
   } catch(e) { console.error('ensemble load failed', e); }
 }
+
+function drawEnsembleTable() {
+  if (!_ensembleData || !_ensembleData.strategies) return;
+  const sharpeColor = (v) => v == null || isNaN(v) ? '#8b949e' : (v > 1.5 ? '#3fb950' : v > 0 ? '#58a6ff' : '#f85149');
+  const fmt = (v, d=3) => v == null || isNaN(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(d);
+  const fmtPct = (v) => v == null || isNaN(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%';
+  const rows = Object.entries(_ensembleData.strategies).map(([k, s]) => ({strategy: k, ...s}));
+
+  // Sort
+  const sk = _ensembleSort.key, sdir = _ensembleSort.dir;
+  rows.sort((a, b) => {
+    if (sk === 'rank') return 0;
+    const va = a[sk], vb = b[sk];
+    const an = va == null || isNaN(va);
+    const bn = vb == null || isNaN(vb);
+    if (an && bn) return 0;
+    if (an) return 1;
+    if (bn) return -1;
+    if (typeof va === 'string' || typeof vb === 'string') {
+      return sdir === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    }
+    return sdir === 'asc' ? va - vb : vb - va;
+  });
+  rows.forEach((r, i) => r.rank = i + 1);
+
+  const bestSh = Math.max(...rows.map(r => r.strategy_annual_sharpe || -99));
+  document.querySelectorAll('#oos-ensemble-table th[data-esort]').forEach(th => {
+    th.style.color = th.dataset.esort === sk ? '#fbbf24' : '#8b949e';
+    th.querySelector('.esort-arrow')?.remove();
+    if (th.dataset.esort === sk) {
+      const arrow = document.createElement('span');
+      arrow.className = 'esort-arrow';
+      arrow.textContent = sdir === 'asc' ? ' ▲' : ' ▼';
+      arrow.style.fontSize = '0.7em';
+      th.appendChild(arrow);
+    }
+  });
+
+  const tbody = document.getElementById('oos-ensemble-tbody');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const isBest = r.strategy_annual_sharpe === bestSh;
+    const row = document.createElement('tr');
+    if (isBest) row.style.background = '#2a1f0f';
+    row.style.cursor = 'pointer';
+    row.title = `Click to load ${r.strategy} details into the OOS Live-Data Inference panel above`;
+    row.onclick = () => loadEnsembleDetails(r.strategy);
+    const csvLink = r.csv ?
+      `<a href="${r.csv}" download onclick="event.stopPropagation()" style="background:#fbbf24;color:#0d1117;text-decoration:none;padding:2px 8px;border-radius:3px;font-size:0.78em;font-weight:600">📊 CSV</a>` :
+      '<span style="color:#484f58">—</span>';
+    row.innerHTML = `
+      <td>${i+1}</td>
+      <td style="font-weight:600;color:${isBest ? '#fbbf24' : '#e6edf3'}">${r.strategy}${isBest ? ' ⭐' : ''}</td>
+      <td style="color:#8b949e;font-size:0.78em;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${_ensembleLabels[r.strategy]||''}">${_ensembleLabels[r.strategy]||''}</td>
+      <td style="color:${sharpeColor(r.strategy_annual_sharpe)};font-weight:600">${fmt(r.strategy_annual_sharpe)}</td>
+      <td>${fmt(r.buy_hold_annual_sharpe)}</td>
+      <td style="color:${sharpeColor(r.excess_sharpe)};font-weight:600">${fmt(r.excess_sharpe)}</td>
+      <td style="color:${sharpeColor(r.strategy_total_return_pct)}">${fmtPct(r.strategy_total_return_pct)}</td>
+      <td style="color:#8b949e">${fmtPct(r.buy_hold_total_return_pct)}</td>
+      <td>${r.hit_rate_pct == null ? '—' : Number(r.hit_rate_pct).toFixed(1) + '%'}</td>
+      <td>${r.psr == null ? '—' : Number(r.psr).toFixed(3)}</td>
+      <td style="color:#f85149">${fmtPct(r.max_drawdown_pct)}</td>
+      <td>${_ensembleSparkline(r.equity_curve)}</td>
+      <td>${csvLink}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+document.querySelectorAll('#oos-ensemble-table th[data-esort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const k = th.dataset.esort;
+    if (_ensembleSort.key === k) _ensembleSort.dir = _ensembleSort.dir === 'asc' ? 'desc' : 'asc';
+    else { _ensembleSort = {key: k, dir: 'desc'}; }
+    drawEnsembleTable();
+  });
+});
+
+// Load ensemble strategy details into the main OOS panel
+function loadEnsembleDetails(strategyName) {
+  if (!_ensembleData || !_ensembleData.strategies) return;
+  const s = _ensembleData.strategies[strategyName];
+  if (!s) return;
+  document.getElementById('oos-section').style.display = '';
+  document.getElementById('oos-section').scrollIntoView({behavior:'smooth', block:'start'});
+
+  const sharpeColor = (v) => v == null || isNaN(v) ? '#8b949e' : (v > 1.5 ? '#3fb950' : v > 0 ? '#58a6ff' : '#f85149');
+  const fmt = (v) => v == null || isNaN(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(2);
+  const fmt4 = (v) => v == null || isNaN(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(4);
+
+  document.getElementById('oos-title').textContent =
+    `🎯 OOS Deep Ensemble — strategy "${strategyName}"`;
+  document.getElementById('oos-subtitle').textContent =
+    `${_ensembleLabels[strategyName] || ''} — ${s.n_predictions} predictions, ${s.n_with_actuals} with realised actuals. ${_ensembleData.n_members} members · ${_ensembleData.n_common_dates} common dates. (Selected from ensemble table — click another row to switch.)`;
+
+  document.getElementById('oos-cards').innerHTML = `
+    <div class="card"><div class="label">Strategy Sharpe</div><div class="value" style="color:${sharpeColor(s.strategy_annual_sharpe)}">${fmt4(s.strategy_annual_sharpe)}</div></div>
+    <div class="card"><div class="label">Buy-Hold Sharpe</div><div class="value" style="color:${sharpeColor(s.buy_hold_annual_sharpe)}">${fmt4(s.buy_hold_annual_sharpe)}</div></div>
+    <div class="card"><div class="label">Excess Sharpe</div><div class="value" style="color:${sharpeColor(s.excess_sharpe)}">${fmt4(s.excess_sharpe)}</div></div>
+    <div class="card"><div class="label">Strategy Return</div><div class="value" style="color:${sharpeColor(s.strategy_total_return_pct)}">${fmt(s.strategy_total_return_pct)}%</div></div>
+    <div class="card"><div class="label">Buy-Hold Return</div><div class="value" style="color:${sharpeColor(s.buy_hold_total_return_pct)}">${fmt(s.buy_hold_total_return_pct)}%</div></div>
+    <div class="card"><div class="label">Excess Return</div><div class="value" style="color:${sharpeColor(s.excess_return_pct)}">${fmt(s.excess_return_pct)}%</div></div>
+    <div class="card"><div class="label">Hit Rate</div><div class="value">${s.hit_rate_pct == null ? '—' : Number(s.hit_rate_pct).toFixed(1)+'%'}</div></div>
+    <div class="card"><div class="label">PSR</div><div class="value">${s.psr == null ? '—' : Number(s.psr).toFixed(3)}</div></div>
+    <div class="card"><div class="label">Max Drawdown</div><div class="value" style="color:#f85149">${fmt(s.max_drawdown_pct)}%</div></div>
+  `;
+
+  // Members card
+  const membersHtml = (_ensembleData.members || []).map(m =>
+    `<div style="font-size:0.82em">exp ${m.experiment_num} ${m.backbone} seed=${m.seed} indv-Sharpe ${m.individual_oos_sharpe?.toFixed(2)} excess ${m.individual_excess_sharpe?.toFixed(2)} weight ${m.ensemble_weight?.toFixed(3)}</div>`
+  ).join('');
+  document.getElementById('oos-winner').innerHTML = `
+    <div style="font-weight:600;color:#fbbf24;margin-bottom:6px">Ensemble Strategy: ${strategyName}</div>
+    <div><b>Description:</b> ${_ensembleLabels[strategyName] || ''}</div>
+    <div><b>Method:</b> Lakshminarayanan, Pritzel &amp; Blundell 2017 NeurIPS arXiv:1612.01474</div>
+    <div><b>Members (${_ensembleData.n_members}):</b></div>
+    <div style="max-height:140px;overflow-y:auto;background:#0d1117;border:1px solid #30363d;border-radius:4px;padding:6px;margin-top:4px">
+      ${membersHtml}
+    </div>
+  `;
+
+  document.getElementById('oos-methodology').innerHTML = `
+    <div style="font-weight:600;color:#fbbf24;margin-bottom:6px">Ensemble Methodology</div>
+    <div><b>OOS window:</b> ${_ensembleData.oos_window?.start} → ${_ensembleData.oos_window?.end}</div>
+    <div><b>Predictions:</b> ${s.n_predictions} (${s.n_with_actuals} with realised actuals)</div>
+    <div><b>Aggregation:</b> ${strategyName.includes('vote') ? 'majority vote (sign of sum of member directions)' : strategyName.includes('weighted') ? 'weighted by individual excess Sharpe' : 'unweighted mean of member predictions'}</div>
+    <div><b>Member checkpoints:</b> ${_ensembleData.n_members} prod-retrain BH-beaters (forward-only, never saw OOS during training)</div>
+    <div><b>Inference only:</b> read pre-computed predictions from <code>oos_exp&lt;N&gt;_prod.csv</code>; combine; no retraining</div>
+    <div style="margin-top:6px"><a href="${s.csv}" download style="background:#fbbf24;color:#0d1117;text-decoration:none;padding:4px 10px;border-radius:4px;font-weight:600">📥 Download ${strategyName}.csv</a></div>
+  `;
+
+  // Equity chart
+  const eq = s.equity_curve;
+  if (eq && eq.dates.length > 0) {
+    const W = 800, H = 240, M = {l:50, r:20, t:20, b:30};
+    const innerW = W - M.l - M.r, innerH = H - M.t - M.b;
+    const allVals = [...eq.strategy_pct, ...eq.buy_hold_pct, 0];
+    const yMin = Math.min(...allVals), yMax = Math.max(...allVals);
+    const yPad = (yMax - yMin) * 0.05 || 1;
+    const x = (i) => M.l + (i / (eq.dates.length - 1)) * innerW;
+    const y = (v) => M.t + innerH - ((v - (yMin - yPad)) / ((yMax + yPad) - (yMin - yPad))) * innerH;
+    const path = (vals, color) => `<polyline fill="none" stroke="${color}" stroke-width="2" points="${vals.map((v,i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')}"/>`;
+    document.getElementById('oos-chart').innerHTML = `
+      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="background:#0d1117;border:1px solid #30363d;border-radius:6px;max-width:100%">
+        <line x1="${M.l}" y1="${M.t}" x2="${M.l}" y2="${M.t + innerH}" stroke="#30363d"/>
+        <line x1="${M.l}" y1="${M.t + innerH}" x2="${M.l + innerW}" y2="${M.t + innerH}" stroke="#30363d"/>
+        <line x1="${M.l}" y1="${y(0)}" x2="${M.l + innerW}" y2="${y(0)}" stroke="#484f58" stroke-dasharray="2,3"/>
+        ${[yMin, 0, yMax].filter(v => v >= yMin && v <= yMax).map(v => `<text x="${M.l - 5}" y="${y(v).toFixed(1)}" fill="#8b949e" font-size="11" text-anchor="end" alignment-baseline="middle">${v.toFixed(1)}%</text>`).join('')}
+        <text x="${M.l}" y="${M.t + innerH + 18}" fill="#8b949e" font-size="11">${eq.dates[0]}</text>
+        <text x="${M.l + innerW}" y="${M.t + innerH + 18}" fill="#8b949e" font-size="11" text-anchor="end">${eq.dates[eq.dates.length - 1]}</text>
+        ${path(eq.buy_hold_pct, '#8b949e')}
+        ${path(eq.strategy_pct, '#fbbf24')}
+        <text x="${M.l + 10}" y="${M.t + 14}" fill="#fbbf24" font-size="12" font-weight="600">— Ensemble (${strategyName})</text>
+        <text x="${M.l + 200}" y="${M.t + 14}" fill="#8b949e" font-size="12">— Buy &amp; Hold</text>
+      </svg>`;
+  }
+}
+
 loadEnsembleSummary();
 setInterval(loadEnsembleSummary, 60000);
 </script>

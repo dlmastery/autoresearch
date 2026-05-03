@@ -57,8 +57,10 @@ def annualized_sharpe(pnl: pd.Series) -> float:
     return float(pnl.mean() / pnl.std() * np.sqrt(252))
 
 
-def compute_strategy(df: pd.DataFrame, signal_col: str, actual_col: str) -> dict:
-    """Given a signal column (mean pred or vote), compute strategy returns + metrics."""
+def compute_strategy(df: pd.DataFrame, signal_col: str, actual_col: str,
+                     strategy_name: str = None, results_dir: Path = None) -> dict:
+    """Given a signal column (mean pred or vote), compute strategy returns + metrics.
+    If strategy_name given, also writes per-strategy CSV."""
     signal = df[signal_col]
     actual = df[actual_col]
     direction = np.sign(signal).fillna(0).astype(int)
@@ -72,6 +74,32 @@ def compute_strategy(df: pd.DataFrame, signal_col: str, actual_col: str) -> dict
     correct = (direction == np.sign(actual)).astype(int)
     sh = annualized_sharpe(valid)
     bh = annualized_sharpe(bh_pnl) if len(bh_pnl) else 0.0
+    # Probabilistic Sharpe Ratio per Bailey-López de Prado 2012
+    n = len(valid)
+    psr = 0.0
+    if n > 1 and valid.std() > 0:
+        from scipy import stats
+        skew = float(valid.skew())
+        kurt = float(valid.kurtosis())
+        # PSR vs zero-Sharpe benchmark
+        sigma_sh = np.sqrt((1 - skew * sh + ((kurt - 1) / 4) * sh ** 2) / (n - 1))
+        psr = float(stats.norm.cdf(sh / sigma_sh)) if sigma_sh > 0 else 0.0
+
+    # Per-strategy CSV — matches OOS Top-30 trade-log schema
+    if strategy_name and results_dir is not None:
+        csv_path = results_dir / f"oos_ensemble_{strategy_name}.csv"
+        out = pd.DataFrame({
+            "date": [d.strftime("%Y-%m-%d") for d in df.index],
+            "ensemble_signal": signal.values,
+            "pred_direction": direction.values,
+            "actual_ret_1d": actual.values,
+            "correct": correct.values,
+            "strategy_pnl": strategy_pnl.values,
+            "cumulative_pnl": cum_strat.values,
+            "cumulative_buy_hold": cum_bh.values,
+        })
+        out.to_csv(csv_path, index=False, float_format="%.6f")
+
     return {
         "n_predictions": int(len(direction)),
         "n_with_actuals": int(len(valid)),
@@ -83,6 +111,8 @@ def compute_strategy(df: pd.DataFrame, signal_col: str, actual_col: str) -> dict
         "excess_return_pct": round(float(valid.sum() - bh_pnl.sum()) * 100, 4),
         "hit_rate_pct": round(float(correct.mean()) * 100, 2),
         "max_drawdown_pct": round(float((cum_strat - cum_strat.cummax()).min() * 100), 4),
+        "psr": round(psr, 4),
+        "csv": f"oos_ensemble_{strategy_name}.csv" if strategy_name else None,
         "equity_curve": {
             "dates": [d.strftime("%Y-%m-%d") for d in cum_strat.dropna().index],
             "strategy_pct": [round(v * 100, 4) for v in cum_strat.fillna(0).tolist()],
@@ -159,7 +189,8 @@ def main():
         (f"mamba_only_{len(mamba_members)}", "ensemble_mamba_mean"),
         (f"vote_geq_{high_conf_threshold}", "ensemble_high_conf"),
     ]:
-        strategies[name] = compute_strategy(merged, signal_col, "actual")
+        strategies[name] = compute_strategy(merged, signal_col, "actual",
+                                             strategy_name=name, results_dir=RESULTS)
         print(f"[ensemble] {name:>20}: Sharpe={strategies[name].get('strategy_annual_sharpe'):>+6.3f} "
               f"excess={strategies[name].get('excess_sharpe'):>+6.3f} "
               f"return={strategies[name].get('strategy_total_return_pct'):>+6.2f}% "

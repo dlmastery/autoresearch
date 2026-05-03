@@ -124,6 +124,8 @@
       "excess_return_pct": -0.1344,
       "hit_rate_pct": 54.32,
       "max_drawdown_pct": -11.6444,
+      "psr": 1.0,
+      "csv": "oos_ensemble_all13_mean_pred.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -387,6 +389,8 @@
       "excess_return_pct": 0.1122,
       "hit_rate_pct": 55.56,
       "max_drawdown_pct": -12.3682,
+      "psr": 1.0,
+      "csv": "oos_ensemble_all13_vote.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -650,6 +654,8 @@
       "excess_return_pct": -0.1344,
       "hit_rate_pct": 54.32,
       "max_drawdown_pct": -11.6444,
+      "psr": 1.0,
+      "csv": "oos_ensemble_all13_weighted.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -913,6 +919,8 @@
       "excess_return_pct": 5.3592,
       "hit_rate_pct": 55.56,
       "max_drawdown_pct": -7.631,
+      "psr": 1.0,
+      "csv": "oos_ensemble_top5_mean.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -1176,6 +1184,8 @@
       "excess_return_pct": -0.1362,
       "hit_rate_pct": 51.85,
       "max_drawdown_pct": -7.3603,
+      "psr": 1.0,
+      "csv": "oos_ensemble_top3_mean.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -1439,6 +1449,8 @@
       "excess_return_pct": 17.38,
       "hit_rate_pct": 61.73,
       "max_drawdown_pct": -5.1866,
+      "psr": 0.0,
+      "csv": "oos_ensemble_top5_vote.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -1702,6 +1714,8 @@
       "excess_return_pct": 8.4254,
       "hit_rate_pct": 56.79,
       "max_drawdown_pct": -5.1866,
+      "psr": 1.0,
+      "csv": "oos_ensemble_top3_vote.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -1965,6 +1979,8 @@
       "excess_return_pct": 3.9626,
       "hit_rate_pct": 55.56,
       "max_drawdown_pct": -9.7177,
+      "psr": 1.0,
+      "csv": "oos_ensemble_lstm_only_3.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -2228,6 +2244,8 @@
       "excess_return_pct": 8.6698,
       "hit_rate_pct": 56.79,
       "max_drawdown_pct": -6.7299,
+      "psr": 0.0,
+      "csv": "oos_ensemble_mamba_only_8.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",
@@ -2491,6 +2509,8 @@
       "excess_return_pct": 6.5424,
       "hit_rate_pct": 32.1,
       "max_drawdown_pct": -5.7489,
+      "psr": 1.0,
+      "csv": "oos_ensemble_vote_geq_9.csv",
       "equity_curve": {
         "dates": [
           "2025-12-24",

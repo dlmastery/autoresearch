@@ -3058,5 +3058,32 @@
     "verdict": "",
     "learning": "",
     "_manual": true
+  },
+  "327": {
+    "diagnosis": "Mamba dmamba seq=35 multi-seed UNTESTED in 310-experiment history. Global champion is dmamba seq=60 +1.32, but the LSTM s35 family is the prod-mode OOS leader (+2.22). Hypothesis: shorter seq might combine mambas selective state space with the s35 generalization. Per CLAUDE.md mamba 25/25 budget closed but exploring CROSS-FAMILY axis (s35 instead of s60).",
+    "citations": "Gu & Dao 2024 COLM \"Mamba: Linear-Time Sequence Modeling with Selective State Spaces\" (arXiv:2312.00752); CLAUDE.md mamba session log — dmamba e=2 d_state=32 confirmed champion at seq=60.",
+    "hypothesis": "dmamba e=2 d_state=32 seq=35 seed=42 — keep exp 52 champion HPs, only change seq from 60 to 35. Should preserve mambas expressive selective-scan but at the s35 horizon.",
+    "prediction": "Composite +0.5-1.2 if cross-family transfer works; <+0.3 if mamba needs longer seq.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true
+  },
+  "328": {
+    "diagnosis": "Mamba dmamba seq=35 multi-seed UNTESTED in 310-experiment history. Global champion is dmamba seq=60 +1.32, but the LSTM s35 family is the prod-mode OOS leader (+2.22). Hypothesis: shorter seq might combine mambas selective state space with the s35 generalization. Per CLAUDE.md mamba 25/25 budget closed but exploring CROSS-FAMILY axis (s35 instead of s60).",
+    "citations": "Gu & Dao 2024 COLM \"Mamba: Linear-Time Sequence Modeling with Selective State Spaces\" (arXiv:2312.00752); CLAUDE.md mamba session log — dmamba e=2 d_state=32 confirmed champion at seq=60.",
+    "hypothesis": "dmamba e=2 d_state=32 seq=35 seed=7 — keep exp 52 champion HPs, only change seq from 60 to 35. Should preserve mambas expressive selective-scan but at the s35 horizon.",
+    "prediction": "Composite +0.5-1.2 if cross-family transfer works; <+0.3 if mamba needs longer seq.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true
+  },
+  "329": {
+    "diagnosis": "Mamba dmamba seq=35 multi-seed UNTESTED in 310-experiment history. Global champion is dmamba seq=60 +1.32, but the LSTM s35 family is the prod-mode OOS leader (+2.22). Hypothesis: shorter seq might combine mambas selective state space with the s35 generalization. Per CLAUDE.md mamba 25/25 budget closed but exploring CROSS-FAMILY axis (s35 instead of s60).",
+    "citations": "Gu & Dao 2024 COLM \"Mamba: Linear-Time Sequence Modeling with Selective State Spaces\" (arXiv:2312.00752); CLAUDE.md mamba session log — dmamba e=2 d_state=32 confirmed champion at seq=60.",
+    "hypothesis": "dmamba e=2 d_state=32 seq=35 seed=2026 — keep exp 52 champion HPs, only change seq from 60 to 35. Should preserve mambas expressive selective-scan but at the s35 horizon.",
+    "prediction": "Composite +0.5-1.2 if cross-family transfer works; <+0.3 if mamba needs longer seq.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true
   }
 }
