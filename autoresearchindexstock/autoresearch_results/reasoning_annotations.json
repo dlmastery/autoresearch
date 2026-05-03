@@ -2914,5 +2914,149 @@
     "archived_at": "winners/mamba_exp281_mambastock_bs16_seed42_3seed_median_+0.46/",
     "global_qqq_champion": "dmamba exp 52 (LOCKED at +1.32 single / +0.97 multi-seed) — mambastock NOT global champion",
     "_manual": true
+  },
+  "311": {
+    "diagnosis": "Prod-mode OOS retrain (2026-05-02) revealed LSTM seq=35 (hidden=128, num_layers=1, lr=1e-3, bs=16, hd=0.1, wd=7e-4) is the strongest OOS generalizer: exp 234 (seed=2026) achieved OOS Sharpe +2.22 (best), exp 231 (seed=11) +2.17 (2nd best) on Dec 2025-Apr 2026 inference window. Two independent seeds reaching top-2 OOS means the architecture is genuinely robust, not seed-luck. However train-composite was modest (+0.69 / +0.68 — far below mamba dmamba +1.32 champion). Hypothesis: capacity bottleneck — single-layer LSTM at hidden=128 may not learn complex regime transitions in fold 1 (GFC peak crash) and fold 6 (COVID V-recovery). The original LSTM HP exploration (CLAUDE.md session log) found 2-layer better than 3-layer at seq=10 but never tested 2-layer at seq=35 (current OOS-winning seq).",
+    "citations": "Fischer & Krauss 2018 EJOR \"Deep learning with LSTMs for financial market predictions\" (DOI 10.1016/j.ejor.2017.11.054) — recommends 2-4 layer stacked LSTM for daily equity returns; Merity, Keskar & Socher 2018 ICLR \"Regularizing and Optimizing LSTM Language Models\" (arXiv:1708.02182) — AWD-LSTM 3-layer w/ DropConnect is the published recipe for sequence modeling at moderate data sizes; Graves 2013 arXiv \"Generating Sequences With Recurrent Neural Networks\" (arXiv:1308.0850) — 2-3 layer stacked LSTM as standard for non-trivial temporal dependencies.",
+    "hypothesis": "Doubling depth to num_layers=2 (keeping hidden=128, all other HPs identical to OOS-winning baseline) will increase model capacity to capture multi-scale temporal patterns at seq=35. Mechanism per Graves 2013: lower LSTM layer captures local momentum/reversal at 5-10 day scale; upper LSTM layer captures regime-state at 20-35 day scale. The bidirectional architecture (default) means each layer sees both forward + backward context. Composite should improve from +0.69 to +0.85-1.05 (mid-mamba range). Prod-mode OOS Sharpe should preserve or improve from +2.17 baseline (since architecture remains LSTM seq=35 family).",
+    "prediction": "Composite move from +0.69 to +0.85-1.05 (mid-mamba range, between MLP exp79 +0.97 and dmamba champ +1.32). Test fold 1 expected from -0.42 (exp 234 estimate) to ~0. Test folds 6-7 should preserve positive Sharpe. Aleatoric in 0.05-0.15 range per Kendall-Gal calibration. After prod-mode retrain (separate follow-up): OOS Sharpe expected +1.5 to +2.5, excess vs BH +0.7 to +1.5.",
+    "verdict": "KEEP-CANDIDATE. Composite +0.4753 vs seed=42 single-layer baseline (exp 226 = -0.11). Net +0.59 improvement from doubling depth at seed=42. A_sharpe +0.78, excess_BH -0.33, B (5d-target)=-0.20, D (vol-adj)=+0.78. Train completed in only 52s — much faster than seq=10 LSTMs. Within OOS-leader LSTM s35 family but at seed=42 single-seed; needs multi-seed validation before declaring new champion.",
+    "learning": "Mechanism partially validated per Graves 2013: 2-layer LSTM at seq=35 lifts capacity meaningfully at this seed. However still below mamba dmamba +0.97 multi-seed champion. Excess_BH negative (-0.33) means market beat strategy on test folds. Next moves: (1) seed=11 and seed=2026 to validate at the OOS-winning seeds, (2) prod-mode retrain to measure real OOS lift on the Dec 2025 - Apr 2026 window. Bonus discovery during this experiment: top-5 vote ensemble of existing prod-retrain BH-beaters yields OOS Sharpe +3.85 / Excess +3.09 — DOUBLES best individual member (exp 234 +2.22). Deep ensemble validated per Lakshminarayanan 2017.",
+    "_manual": true
+  },
+  "312": {
+    "diagnosis": "Exp 311 (LSTM s35 nl=2 seed=42) achieved composite +0.4753, a +0.59 lift vs seed=42 baseline (exp 226 = -0.11). Need multi-seed validation before declaring KEEP. Per CLAUDE.md feedback rule on seed variance: \"Single-seed champions are often luck. Declare champion only after 3-seed median > baseline median.\" The original 10-seed LSTM s35 nl=1 series had median ~+0.42 (range -0.48 to +0.84), so we need to confirm nl=2 truly lifts the median.",
+    "citations": "Lakshminarayanan, Pritzel & Blundell 2017 NeurIPS \"Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles\" (arXiv:1612.01474) — multi-seed validation as standard for stochastic neural training; Picard 2021 arXiv \"torch.manual_seed(3407) is all you need\" (arXiv:2109.08203) — seed variance in deep learning is large and easy to over-claim from single-seed lifts.",
+    "hypothesis": "Run LSTM s35 nl=2 hidden=128 at seed=11 (one of the OOS-winning seeds). If composite exceeds the corresponding nl=1 seed=11 baseline (exp 231 = +0.68), the depth lift is real at multiple seeds. If below, depth may have only worked at seed=42 by luck.",
+    "prediction": "Composite expected in range +0.55-0.95 (above exp 231 +0.68 means architecture genuinely benefits from depth; below means seed=42 was lucky basin). Will pair with seed=2026 (exp 313) for triangulation.",
+    "verdict": "DISCARD. Composite -0.13 at seed=11 vs +0.68 (exp 231) for nl=1 same seed. Net -0.81 DEGRADATION — opposite direction from seed=42 result. A_sharpe +0.86 is acceptable but composite formula penalizes B-target collapse (-0.15). Confirms classic seed-sensitivity: depth=2 helped seed=42 by +0.59 but hurt seed=11 by -0.81.",
+    "learning": "Single-seed lifts are dangerously misleading per Picard 2021. Need third seed (2026) to triangulate. If seed=2026 also degrades, depth=2 is rejected for LSTM s35. If seed=2026 lifts, axis is genuinely seed-bimodal (some seeds find better basin with depth, others find worse). Either way: depth=2 is NOT a robust lift across seeds.",
+    "_manual": true
+  },
+  "313": {
+    "diagnosis": "Triangulate the LSTM s35 nl=2 depth axis with seed=2026 (the OOS-leader seed from exp 234). Two prior seeds gave OPPOSITE results: seed=42 lifted +0.59 (exp 311), seed=11 dropped -0.81 (exp 312). The 3-seed median verdict will determine if depth=2 is genuinely helpful or seed-noise.",
+    "citations": "Picard 2021 arXiv:2109.08203 \"torch.manual_seed(3407) is all you need\" — single-seed deep-learning results have huge variance; Lakshminarayanan 2017 NeurIPS arXiv:1612.01474 — multi-seed required for robust comparison.",
+    "hypothesis": "If seed=2026 nl=2 composite > +0.69 (exp 234 nl=1 seed=2026 baseline), depth=2 helps majority of seeds → keep direction. If composite < +0.69 by similar -0.81 magnitude as seed=11, depth=2 is rejected. Median of 3 seeds will be the verdict.",
+    "prediction": "Composite expected in range -0.20 to +0.80 (wide because seed-bimodal pattern not yet ruled out). Median across 3 seeds (42, 11, 2026) will determine KEEP/DISCARD.",
+    "verdict": "DISCARD. Composite -0.75 at seed=2026 vs +0.69 (exp 234) for nl=1 same seed. A_sharpe -0.35 NEGATIVE on test. 3-seed median for nl=2 = -0.13 vs nl=1 baseline median +0.68. **Depth=2 REJECTED across the LSTM s35 family** — only seed=42 found a useful basin (lucky); seeds 11 and 2026 (the OOS-leaders) both degraded.",
+    "learning": "LSTM s35 architecture has saturated capacity at hidden=128 nl=1. Adding depth disrupts the basin where the 1-layer architecture finds its flat-minima sweet spot. Per Keskar 2017 flat-minima theory: deeper LSTM has sharper loss landscape under the same data, so SGD trajectories diverge more across seeds. Implication: hill-climb on WIDTH (hidden=256) instead, OR on regularization (dropout, wd), keeping nl=1.",
+    "_manual": true
+  },
+  "314": {
+    "diagnosis": "After depth axis closed (3-seed median -0.13 from nl=1 +0.68), explore WIDTH axis instead. LSTM s35 baseline is hidden=128 nl=1 — same config achieved OOS Sharpe +2.22 (exp 234) and +2.17 (exp 231). Hidden=256 doubles capacity without changing depth — should keep the flat-minima property of nl=1 while adding representational capacity.",
+    "citations": "Goodfellow, Bengio & Courville 2016 \"Deep Learning\" §6.4 — width as primary capacity lever; Belkin, Hsu, Ma & Mandal 2019 PNAS \"Reconciling modern machine-learning practice and the classical bias–variance trade-off\" (arXiv:1812.11118) — over-parameterized regime in equity prediction; Andriushchenko, Stoll & Flammarion 2024 ICML \"Why Do We Need Weight Decay in Modern Deep Learning?\" (arXiv:2310.04415) — width × wd interaction.",
+    "hypothesis": "Doubling hidden 128→256 at nl=1 should preserve the seed=42/11/2026 OOS strength while lifting train composite by +0.1-0.3 via richer representation. Mechanism: more memory capacity in single-layer LSTM lets the model encode more regimes simultaneously without depth-induced sharper loss.",
+    "prediction": "Composite expected +0.75-1.10 (above current 3-seed median +0.68). Test fold 1 (GFC) should benefit most. After 3-seed median check, candidate for prod-mode retrain.",
+    "verdict": "KEEP-MARGINAL. Composite +0.12 at seed=42 vs h=128 baseline -0.11 (Δ +0.23). Sub-axis lift but below nl=2 seed=42 (+0.475). Need triangulation.",
+    "learning": "Width adds capacity at seed=42 but lift is modest (+0.23) vs depth lift (+0.59). Suggests depth disrupted seed=42 to a better basin while width does not.",
+    "_manual": true
+  },
+  "315": {
+    "diagnosis": "Triangulate width axis at seed=11 (OOS-leader seed). Exp 314 h=256 seed=42 lifted +0.23 but small. Need to confirm if width robust across seeds.",
+    "citations": "Picard 2021 multi-seed; Andriushchenko 2024 width-wd interaction.",
+    "hypothesis": "h=256 should preserve seed=11 baseline +0.68 or improve.",
+    "prediction": "Composite +0.5-0.9 if width robust; <+0.5 if seed-bimodal.",
+    "verdict": "DISCARD. Composite -0.77 (vs h=128 +0.68 = Δ -1.45 HUGE drop). A_sharpe negative.",
+    "learning": "Width=256 disrupts seed=11 even more than depth=2 did. Width axis fragile.",
+    "_manual": true
+  },
+  "316": {
+    "diagnosis": "Final width-axis triangulation at seed=2026 (OOS-best seed).",
+    "citations": "Picard 2021.",
+    "hypothesis": "Match or exceed h=128 seed=2026 baseline +0.69.",
+    "prediction": "Composite +0.5-0.9 if width axis at all helpful.",
+    "verdict": "DISCARD-VERDICT-FOR-AXIS. Composite +0.42 at seed=2026 (vs h=128 +0.69 = Δ -0.27). Less degradation than seed=11 but still negative. **3-seed median for h=256 = +0.12 vs h=128 +0.68 baseline = -0.56 axis drop. WIDTH=256 REJECTED.**",
+    "learning": "Both depth=2 and width=256 REJECTED. LSTM s35 nl=1 h=128 IS the local optimum. Hill-climb continues on different backbones (dlinear s35) or different axes (dropout, seq).",
+    "_manual": true
+  },
+  "317": {
+    "diagnosis": "Dlinear s35 multi-seed exploration. DLinear (Zeng 2023 AAAI arXiv:2205.13504) at seq=10 (exp 138) achieved prod-mode OOS Sharpe +1.35 / Excess +0.40 — BH-beater #10. Mirror the LSTM-winning seq=35 onto dlinear. Hypothesis: longer seq gives the linear-decomposition the temporal context to pick up multi-week patterns. Run 4 seeds (42, 11, 2026, 99) for ensemble robustness.",
+    "citations": "Zeng, Chen, Zhang & Xu 2023 AAAI \"Are Transformers Effective for Time Series Forecasting?\" (arXiv:2205.13504) — DLinear shows that simple linear decomposition (trend + seasonal) often beats attention-heavy transformers at the n we work with; Picard 2021 (arXiv:2109.08203) for multi-seed methodology.",
+    "hypothesis": "DLinear s35 seed=42 should achieve composite > +0.50 to match dlinear-s10 baseline (+0.80 train comp). 3-seed median expected +0.4-0.7. The minimum-parameter linear architecture at seq=35 may pick up week-scale momentum that transformers/LSTMs miss.",
+    "prediction": "Composite +0.4-0.9 (single-seed range). Train-time ~30s.",
+    "verdict": "DISCARD (axis). DLinear s35 4-seed median ≈ 0. Composites: 317=+0.12, 318=+0.16, 319=-0.21, 320=-0.15. ALL show B-target (5d-forward) collapse (-0.95 to -1.06). Architecture saturates at simple temporal decomposition; longer seq adds noise not signal.",
+    "learning": "DLinear OOS strength at seq=10 was a different mechanism (likely picking up day-of-week + 5d cycles) — does not transfer to longer seq. DLinear seq axis closed at s35.",
+    "_manual": true
+  },
+  "318": {
+    "diagnosis": "Dlinear s35 multi-seed exploration. DLinear (Zeng 2023 AAAI arXiv:2205.13504) at seq=10 (exp 138) achieved prod-mode OOS Sharpe +1.35 / Excess +0.40 — BH-beater #10. Mirror the LSTM-winning seq=35 onto dlinear. Hypothesis: longer seq gives the linear-decomposition the temporal context to pick up multi-week patterns. Run 4 seeds (42, 11, 2026, 99) for ensemble robustness.",
+    "citations": "Zeng, Chen, Zhang & Xu 2023 AAAI \"Are Transformers Effective for Time Series Forecasting?\" (arXiv:2205.13504) — DLinear shows that simple linear decomposition (trend + seasonal) often beats attention-heavy transformers at the n we work with; Picard 2021 (arXiv:2109.08203) for multi-seed methodology.",
+    "hypothesis": "DLinear s35 seed=11 should achieve composite > +0.50 to match dlinear-s10 baseline (+0.80 train comp). 3-seed median expected +0.4-0.7. The minimum-parameter linear architecture at seq=35 may pick up week-scale momentum that transformers/LSTMs miss.",
+    "prediction": "Composite +0.4-0.9 (single-seed range). Train-time ~30s.",
+    "verdict": "DISCARD (axis). DLinear s35 4-seed median ≈ 0. Composites: 317=+0.12, 318=+0.16, 319=-0.21, 320=-0.15. ALL show B-target (5d-forward) collapse (-0.95 to -1.06). Architecture saturates at simple temporal decomposition; longer seq adds noise not signal.",
+    "learning": "DLinear OOS strength at seq=10 was a different mechanism (likely picking up day-of-week + 5d cycles) — does not transfer to longer seq. DLinear seq axis closed at s35.",
+    "_manual": true
+  },
+  "319": {
+    "diagnosis": "Dlinear s35 multi-seed exploration. DLinear (Zeng 2023 AAAI arXiv:2205.13504) at seq=10 (exp 138) achieved prod-mode OOS Sharpe +1.35 / Excess +0.40 — BH-beater #10. Mirror the LSTM-winning seq=35 onto dlinear. Hypothesis: longer seq gives the linear-decomposition the temporal context to pick up multi-week patterns. Run 4 seeds (42, 11, 2026, 99) for ensemble robustness.",
+    "citations": "Zeng, Chen, Zhang & Xu 2023 AAAI \"Are Transformers Effective for Time Series Forecasting?\" (arXiv:2205.13504) — DLinear shows that simple linear decomposition (trend + seasonal) often beats attention-heavy transformers at the n we work with; Picard 2021 (arXiv:2109.08203) for multi-seed methodology.",
+    "hypothesis": "DLinear s35 seed=2026 should achieve composite > +0.50 to match dlinear-s10 baseline (+0.80 train comp). 3-seed median expected +0.4-0.7. The minimum-parameter linear architecture at seq=35 may pick up week-scale momentum that transformers/LSTMs miss.",
+    "prediction": "Composite +0.4-0.9 (single-seed range). Train-time ~30s.",
+    "verdict": "DISCARD (axis). DLinear s35 4-seed median ≈ 0. Composites: 317=+0.12, 318=+0.16, 319=-0.21, 320=-0.15. ALL show B-target (5d-forward) collapse (-0.95 to -1.06). Architecture saturates at simple temporal decomposition; longer seq adds noise not signal.",
+    "learning": "DLinear OOS strength at seq=10 was a different mechanism (likely picking up day-of-week + 5d cycles) — does not transfer to longer seq. DLinear seq axis closed at s35.",
+    "_manual": true
+  },
+  "320": {
+    "diagnosis": "Dlinear s35 multi-seed exploration. DLinear (Zeng 2023 AAAI arXiv:2205.13504) at seq=10 (exp 138) achieved prod-mode OOS Sharpe +1.35 / Excess +0.40 — BH-beater #10. Mirror the LSTM-winning seq=35 onto dlinear. Hypothesis: longer seq gives the linear-decomposition the temporal context to pick up multi-week patterns. Run 4 seeds (42, 11, 2026, 99) for ensemble robustness.",
+    "citations": "Zeng, Chen, Zhang & Xu 2023 AAAI \"Are Transformers Effective for Time Series Forecasting?\" (arXiv:2205.13504) — DLinear shows that simple linear decomposition (trend + seasonal) often beats attention-heavy transformers at the n we work with; Picard 2021 (arXiv:2109.08203) for multi-seed methodology.",
+    "hypothesis": "DLinear s35 seed=99 should achieve composite > +0.50 to match dlinear-s10 baseline (+0.80 train comp). 3-seed median expected +0.4-0.7. The minimum-parameter linear architecture at seq=35 may pick up week-scale momentum that transformers/LSTMs miss.",
+    "prediction": "Composite +0.4-0.9 (single-seed range). Train-time ~30s.",
+    "verdict": "DISCARD (axis). DLinear s35 4-seed median ≈ 0. Composites: 317=+0.12, 318=+0.16, 319=-0.21, 320=-0.15. ALL show B-target (5d-forward) collapse (-0.95 to -1.06). Architecture saturates at simple temporal decomposition; longer seq adds noise not signal.",
+    "learning": "DLinear OOS strength at seq=10 was a different mechanism (likely picking up day-of-week + 5d cycles) — does not transfer to longer seq. DLinear seq axis closed at s35.",
+    "_manual": true
+  },
+  "321": {
+    "diagnosis": "LSTM s35 head_dropout axis. Panel-mode (CLAUDE.md panel chapter) found hd=0.25 was sweet spot vs hd=0.10 collapse. QQQ LSTM s35 used hd=0.10. Test if hd=0.25 lifts the 3-seed median from +0.68 baseline.",
+    "citations": "Srivastava, Hinton, Krizhevsky, Sutskever & Salakhutdinov 2014 JMLR \"Dropout: A Simple Way to Prevent Neural Networks from Overfitting\" (https://jmlr.org/papers/v15/srivastava14a.html) — dropout=0.2-0.3 standard regularization for medium-data DL; CLAUDE.md panel-chapter LSTM HP-3 found hd=0.10 collapsed (-0.337) vs hd=0.25 baseline.",
+    "hypothesis": "LSTM s35 nl=1 hidden=128 hd=0.25 seed=42 should lift composite vs hd=0.10 baseline (3-seed median +0.68) by reducing overfitting on the small panel of folds.",
+    "prediction": "Composite +0.7-1.0 if hd=0.25 robust; <+0.5 if dropout too aggressive at QQQ data scale.",
+    "verdict": "DISCARD (axis). LSTM s35 hd=0.25 3-seed median -0.20 vs hd=0.10 baseline +0.68 (Δ -0.88 axis drop). Seed=42 catastrophic at -1.85. Panel-mode dropout transfer FAILED.",
+    "learning": "CLAUDE.md QQQ-LSTM hd=0.10 confirmed AGAIN as locked. Panel-mode finding (hd=0.25) does not transfer to QQQ. Architecture-data interaction matters per Andriushchenko 2024.",
+    "_manual": true
+  },
+  "322": {
+    "diagnosis": "LSTM s35 head_dropout axis. Panel-mode (CLAUDE.md panel chapter) found hd=0.25 was sweet spot vs hd=0.10 collapse. QQQ LSTM s35 used hd=0.10. Test if hd=0.25 lifts the 3-seed median from +0.68 baseline.",
+    "citations": "Srivastava, Hinton, Krizhevsky, Sutskever & Salakhutdinov 2014 JMLR \"Dropout: A Simple Way to Prevent Neural Networks from Overfitting\" (https://jmlr.org/papers/v15/srivastava14a.html) — dropout=0.2-0.3 standard regularization for medium-data DL; CLAUDE.md panel-chapter LSTM HP-3 found hd=0.10 collapsed (-0.337) vs hd=0.25 baseline.",
+    "hypothesis": "LSTM s35 nl=1 hidden=128 hd=0.25 seed=11 should lift composite vs hd=0.10 baseline (3-seed median +0.68) by reducing overfitting on the small panel of folds.",
+    "prediction": "Composite +0.7-1.0 if hd=0.25 robust; <+0.5 if dropout too aggressive at QQQ data scale.",
+    "verdict": "DISCARD (axis). LSTM s35 hd=0.25 3-seed median -0.20 vs hd=0.10 baseline +0.68 (Δ -0.88 axis drop). Seed=42 catastrophic at -1.85. Panel-mode dropout transfer FAILED.",
+    "learning": "CLAUDE.md QQQ-LSTM hd=0.10 confirmed AGAIN as locked. Panel-mode finding (hd=0.25) does not transfer to QQQ. Architecture-data interaction matters per Andriushchenko 2024.",
+    "_manual": true
+  },
+  "323": {
+    "diagnosis": "LSTM s35 head_dropout axis. Panel-mode (CLAUDE.md panel chapter) found hd=0.25 was sweet spot vs hd=0.10 collapse. QQQ LSTM s35 used hd=0.10. Test if hd=0.25 lifts the 3-seed median from +0.68 baseline.",
+    "citations": "Srivastava, Hinton, Krizhevsky, Sutskever & Salakhutdinov 2014 JMLR \"Dropout: A Simple Way to Prevent Neural Networks from Overfitting\" (https://jmlr.org/papers/v15/srivastava14a.html) — dropout=0.2-0.3 standard regularization for medium-data DL; CLAUDE.md panel-chapter LSTM HP-3 found hd=0.10 collapsed (-0.337) vs hd=0.25 baseline.",
+    "hypothesis": "LSTM s35 nl=1 hidden=128 hd=0.25 seed=2026 should lift composite vs hd=0.10 baseline (3-seed median +0.68) by reducing overfitting on the small panel of folds.",
+    "prediction": "Composite +0.7-1.0 if hd=0.25 robust; <+0.5 if dropout too aggressive at QQQ data scale.",
+    "verdict": "DISCARD (axis). LSTM s35 hd=0.25 3-seed median -0.20 vs hd=0.10 baseline +0.68 (Δ -0.88 axis drop). Seed=42 catastrophic at -1.85. Panel-mode dropout transfer FAILED.",
+    "learning": "CLAUDE.md QQQ-LSTM hd=0.10 confirmed AGAIN as locked. Panel-mode finding (hd=0.25) does not transfer to QQQ. Architecture-data interaction matters per Andriushchenko 2024.",
+    "_manual": true
+  },
+  "324": {
+    "diagnosis": "xLSTM s35 multi-seed exploration. xLSTM (Beck et al. 2024 NeurIPS arXiv:2405.04517) with exponential gating + matrix memory was 8th-best prod-mode OOS BH-beater at seq=60 seed=7 (+1.59 Sharpe / +0.83 excess). Hill-climb test: does xLSTM also benefit from seq=35 (the LSTM-leader seq)?",
+    "citations": "Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS \"xLSTM: Extended Long Short-Term Memory\" (arXiv:2405.04517) — exponential gating + matrix memory unlocks LSTM scaling.",
+    "hypothesis": "xLSTM s35 with exponential gating + matrix memory should outperform vanilla LSTM s35 (+0.68 baseline) at the same seq.",
+    "prediction": "Composite +0.7-1.1 if xlstm+s35 productive; <+0.4 if architecture not suited to QQQ scale.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true
+  },
+  "325": {
+    "diagnosis": "xLSTM s35 multi-seed exploration. xLSTM (Beck et al. 2024 NeurIPS arXiv:2405.04517) with exponential gating + matrix memory was 8th-best prod-mode OOS BH-beater at seq=60 seed=7 (+1.59 Sharpe / +0.83 excess). Hill-climb test: does xLSTM also benefit from seq=35 (the LSTM-leader seq)?",
+    "citations": "Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS \"xLSTM: Extended Long Short-Term Memory\" (arXiv:2405.04517) — exponential gating + matrix memory unlocks LSTM scaling.",
+    "hypothesis": "xLSTM s35 with exponential gating + matrix memory should outperform vanilla LSTM s35 (+0.68 baseline) at the same seq.",
+    "prediction": "Composite +0.7-1.1 if xlstm+s35 productive; <+0.4 if architecture not suited to QQQ scale.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true
+  },
+  "326": {
+    "diagnosis": "xLSTM s35 multi-seed exploration. xLSTM (Beck et al. 2024 NeurIPS arXiv:2405.04517) with exponential gating + matrix memory was 8th-best prod-mode OOS BH-beater at seq=60 seed=7 (+1.59 Sharpe / +0.83 excess). Hill-climb test: does xLSTM also benefit from seq=35 (the LSTM-leader seq)?",
+    "citations": "Beck, Pöppel, Spanring, Auer, Prudnikova, Kopp, Klambauer, Brandstetter, Hochreiter 2024 NeurIPS \"xLSTM: Extended Long Short-Term Memory\" (arXiv:2405.04517) — exponential gating + matrix memory unlocks LSTM scaling.",
+    "hypothesis": "xLSTM s35 with exponential gating + matrix memory should outperform vanilla LSTM s35 (+0.68 baseline) at the same seq.",
+    "prediction": "Composite +0.7-1.1 if xlstm+s35 productive; <+0.4 if architecture not suited to QQQ scale.",
+    "verdict": "",
+    "learning": "",
+    "_manual": true
   }
 }

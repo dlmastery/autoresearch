@@ -330,6 +330,73 @@
   <div id="oos-chart" style="overflow-x:auto"></div>
 </div>
 
+<!-- Deep Ensemble panel — Lakshminarayanan 2017 -->
+<div id="oos-ensemble-section" style="background:#1a0d28;border:2px solid #fbbf24;border-radius:8px;padding:18px;margin:12px 0">
+  <h3 style="color:#fbbf24;font-size:1.15em;margin-bottom:6px">🎯 OOS Deep Ensemble — Lakshminarayanan 2017</h3>
+  <div style="color:#8b949e;font-size:0.85em;margin-bottom:10px">Average / vote across the 13 prod-retrain BH-beaters. Ensembling reduces variance per Lakshminarayanan, Pritzel & Blundell 2017 NeurIPS arXiv:1612.01474. Reads <code>oos_ensemble_summary.json</code>.</div>
+  <div id="oos-ensemble-table-wrap" style="overflow-x:auto">
+    <table style="font-size:0.85em;width:100%">
+      <thead><tr><th>Strategy</th><th>Description</th><th>Sharpe</th><th>Excess vs BH</th><th>Return%</th><th>Hit%</th><th>MaxDD%</th></tr></thead>
+      <tbody id="oos-ensemble-tbody"><tr><td colspan="7" style="color:#8b949e">loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+<script>
+async function loadEnsembleSummary() {
+  try {
+    const r = await fetch('oos_ensemble_summary.json?t=' + Date.now());
+    if (!r.ok) return;
+    const d = await r.json();
+    const tbody = document.getElementById('oos-ensemble-tbody');
+    if (!d.strategies) { tbody.innerHTML = '<tr><td colspan="7" style="color:#8b949e">no strategies</td></tr>'; return; }
+    const order = ['top5_vote', 'top3_vote', 'mamba_only_8', 'vote_geq_9', 'top5_mean', 'top3_mean', 'lstm_only_3', 'all13_vote', 'all13_mean_pred', 'all13_weighted'];
+    const labels = {
+      'top5_vote': 'Top-5 vote (sign of sum of top-5 directions)',
+      'top3_vote': 'Top-3 vote (sign of sum of top-3 directions)',
+      'mamba_only_8': 'Mamba-family only (8 members)',
+      'vote_geq_9': 'High-conf filter (≥9/13 agree)',
+      'top5_mean': 'Top-5 mean prediction',
+      'top3_mean': 'Top-3 mean prediction',
+      'lstm_only_3': 'LSTM-family only (3 members)',
+      'all13_vote': 'All-13 vote (full ensemble vote)',
+      'all13_mean_pred': 'All-13 mean prediction',
+      'all13_weighted': 'All-13 weighted by excess sharpe',
+    };
+    tbody.innerHTML = '';
+    let bestSh = -99;
+    Object.values(d.strategies).forEach(s => { if(s.strategy_annual_sharpe > bestSh) bestSh = s.strategy_annual_sharpe; });
+    order.forEach(k => {
+      const s = d.strategies[k];
+      if (!s) return;
+      const isBest = s.strategy_annual_sharpe === bestSh;
+      const exColor = s.excess_sharpe > 0 ? '#3fb950' : '#f85149';
+      const tr = document.createElement('tr');
+      if (isBest) tr.style.background = '#2a1f0f';
+      tr.innerHTML = `
+        <td style="font-weight:600;color:${isBest ? '#fbbf24' : '#e6edf3'}">${k}${isBest ? ' ⭐' : ''}</td>
+        <td style="color:#8b949e">${labels[k] || ''}</td>
+        <td style="color:${isBest ? '#fbbf24' : '#e6edf3'};font-weight:600">${s.strategy_annual_sharpe.toFixed(3)}</td>
+        <td style="color:${exColor};font-weight:600">${s.excess_sharpe >= 0 ? '+' : ''}${s.excess_sharpe.toFixed(3)}</td>
+        <td>${s.strategy_total_return_pct >= 0 ? '+' : ''}${s.strategy_total_return_pct.toFixed(2)}%</td>
+        <td>${s.hit_rate_pct.toFixed(1)}%</td>
+        <td style="color:#f85149">${s.max_drawdown_pct.toFixed(2)}%</td>`;
+      tbody.appendChild(tr);
+    });
+    // Footer with metadata
+    const tr = document.createElement('tr');
+    tr.style.background = '#161b22';
+    tr.style.fontSize = '0.78em';
+    tr.style.color = '#8b949e';
+    tr.innerHTML = `<td colspan="7" style="padding:8px">
+      ${d.n_members} members · ${d.n_common_dates} common OOS dates · ${d.oos_window?.start} → ${d.oos_window?.end} · BH baseline Sharpe ${(d.strategies.all13_mean_pred?.buy_hold_annual_sharpe || 0).toFixed(3)}
+    </td>`;
+    document.getElementById('oos-ensemble-tbody').appendChild(tr);
+  } catch(e) { console.error('ensemble load failed', e); }
+}
+loadEnsembleSummary();
+setInterval(loadEnsembleSummary, 60000);
+</script>
+
 <!-- Top-30 OOS table — separate sub-panel under the OOS umbrella -->
 <div id="oos-top30-section" style="display:none;background:#0d2818;border:2px solid #3fb950;border-radius:8px;padding:18px;margin:12px 0">
   <h3 style="color:#3fb950;font-size:1.1em;margin-bottom:6px">📋 OOS Top-30 — Per-Winner Inference Results</h3>
