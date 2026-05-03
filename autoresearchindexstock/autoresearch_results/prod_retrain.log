@@ -1,0 +1,183 @@
+2026-05-02 10:11:15,099 INFO [setup] downloading market data 2004 \u2192 2026-04-30
+2026-05-02 10:11:32,828 INFO [download] 56 tickers fetched
+C:\Users\evija\anaconda3\Lib\site-packages\pandas\core\arraylike.py:399: RuntimeWarning: invalid value encountered in log
+  result = getattr(ufunc, method)(*inputs, **kwargs)
+2026-05-02 10:11:33,216 INFO [features] dropping 26 post-2009 columns: xlre_logret_1d, xlre_logret_5d, xlre_logret_20d, xlre_ma20_z, xlc_logret_1d, xlc_logret_5d, xlc_logret_20d, xlc_ma20_z, vix9d_over_vix, vix_over_vix6m ...
+2026-05-02 10:11:33,230 INFO [features] 4859 rows × 205 features (after late-column drop)
+2026-05-02 10:11:33,234 INFO [setup] features (4859, 205) targets (5591, 4)
+2026-05-02 10:11:33,238 INFO [exp276] backbone=mamba seq=60 seed=42
+2026-05-02 10:11:33,253 INFO [exp276] split: train=4650 val=64 oos=140
+2026-05-02 10:17:46,972 INFO [exp276] ep5 train=-3.9911 val=-3.3999 patience=1/20
+2026-05-02 10:23:40,091 INFO [exp276] ep10 train=-4.2226 val=-3.5958 patience=1/20
+2026-05-02 10:30:01,297 INFO [exp276] ep15 train=-4.7470 val=-3.9308 patience=0/20
+2026-05-02 10:36:01,415 INFO [exp276] ep20 train=-4.9066 val=-3.7363 patience=5/20
+2026-05-02 10:42:02,926 INFO [exp276] ep25 train=-5.1090 val=-3.7804 patience=2/20
+2026-05-02 10:47:53,902 INFO [exp276] ep30 train=-5.2764 val=-3.8530 patience=7/20
+2026-05-02 10:54:09,104 INFO [exp276] ep35 train=-5.3489 val=-3.9696 patience=0/20
+2026-05-02 11:00:40,375 INFO [exp276] ep40 train=-5.4643 val=-3.9549 patience=5/20
+2026-05-02 11:07:20,286 INFO [exp276] ep45 train=-5.5624 val=-3.8746 patience=10/20
+2026-05-02 11:13:41,885 INFO [exp276] ep50 train=-5.5856 val=-3.9377 patience=15/20
+2026-05-02 11:20:11,694 INFO [exp276] ep55 train=-5.6882 val=-3.9482 patience=1/20
+2026-05-02 11:26:33,583 INFO [exp276] ep60 train=-5.7155 val=-3.8107 patience=6/20
+2026-05-02 11:33:04,361 INFO [exp276] ep65 train=-5.7370 val=-3.8128 patience=11/20
+2026-05-02 11:39:36,513 INFO [exp276] ep70 train=-5.7750 val=-3.8384 patience=16/20
+2026-05-02 11:44:44,439 INFO [exp276] checkpoint saved -> winners\exp276_prod_retrain
+2026-05-02 11:44:48,138 INFO [exp276] OOS Sharpe=0.4468 BH=0.7622 excess=-0.3154
+2026-05-02 11:44:48,143 INFO [rank 1/30] exp276 completed in 5595s
+2026-05-02 11:44:48,148 INFO [exp52] backbone=mamba seq=60 seed=42
+2026-05-02 11:44:48,179 INFO [exp52] split: train=4650 val=64 oos=140
+2026-05-02 11:48:01,369 INFO [exp52] ep5 train=-3.9116 val=-3.3429 patience=0/20
+2026-05-02 11:51:08,640 INFO [exp52] ep10 train=-4.1141 val=-2.5848 patience=2/20
+2026-05-02 11:54:39,359 INFO [exp52] ep15 train=-4.5258 val=-3.2472 patience=3/20
+2026-05-02 11:57:51,817 INFO [exp52] ep20 train=-4.5863 val=-3.9590 patience=0/20
+2026-05-02 12:01:05,611 INFO [exp52] ep25 train=-4.9139 val=-3.9711 patience=0/20
+2026-05-02 12:04:10,693 INFO [exp52] ep30 train=-5.2230 val=-3.6771 patience=5/20
+2026-05-02 12:07:36,694 INFO [exp52] ep35 train=-5.3353 val=-3.9418 patience=10/20
+2026-05-02 12:10:49,740 INFO [exp52] ep40 train=-5.4778 val=-3.2717 patience=15/20
+2026-05-02 12:14:00,133 INFO [exp52] ep45 train=-5.4801 val=-3.9572 patience=2/20
+2026-05-02 12:17:13,143 INFO [exp52] ep50 train=-5.4980 val=-3.7142 patience=7/20
+2026-05-02 12:20:21,885 INFO [exp52] ep55 train=-5.6102 val=-3.8752 patience=12/20
+2026-05-02 12:23:39,251 INFO [exp52] ep60 train=-5.6416 val=-3.2711 patience=17/20
+2026-05-02 12:25:39,623 INFO [exp52] checkpoint saved -> winners\exp52_prod_retrain
+2026-05-02 12:25:43,218 INFO [exp52] OOS Sharpe=-2.2913 BH=0.7622 excess=-3.0536
+2026-05-02 12:25:43,222 INFO [rank 2/30] exp52 completed in 2455s
+2026-05-02 12:25:43,229 INFO [exp292] backbone=mamba seq=60 seed=42
+2026-05-02 12:25:43,239 INFO [exp292] split: train=4650 val=64 oos=140
+2026-05-02 12:28:56,383 INFO [exp292] ep5 train=-3.7673 val=-2.8762 patience=1/30
+2026-05-02 12:32:11,659 INFO [exp292] ep10 train=-3.7230 val=-3.3830 patience=0/30
+2026-05-02 12:35:50,943 INFO [exp292] ep15 train=-4.2234 val=-3.8030 patience=3/30
+2026-05-02 12:38:53,082 INFO [exp292] ep20 train=-4.5769 val=-3.7916 patience=3/30
+2026-05-02 12:42:35,235 INFO [exp292] ep25 train=-4.9260 val=-3.7857 patience=4/30
+2026-05-02 12:45:48,536 INFO [exp292] ep30 train=-5.1331 val=-3.9418 patience=9/30
+2026-05-02 12:49:08,950 INFO [exp292] ep35 train=-5.3197 val=-3.8698 patience=14/30
+2026-05-02 12:52:20,141 INFO [exp292] ep40 train=-5.4386 val=-3.8205 patience=19/30
+2026-05-02 12:55:44,203 INFO [exp292] ep45 train=-5.5025 val=-3.7003 patience=24/30
+2026-05-02 12:58:57,944 INFO [exp292] ep50 train=-5.5692 val=-3.7577 patience=29/30
+2026-05-02 12:59:42,376 INFO [exp292] checkpoint saved -> winners\exp292_prod_retrain
+2026-05-02 12:59:46,709 INFO [exp292] OOS Sharpe=0.4949 BH=0.7622 excess=-0.2673
+2026-05-02 12:59:46,712 INFO [rank 3/30] exp292 completed in 2043s
+2026-05-02 12:59:46,719 INFO [exp48] backbone=mamba seq=60 seed=42
+2026-05-02 12:59:46,728 INFO [exp48] split: train=4650 val=64 oos=140
+2026-05-02 13:02:49,658 INFO [exp48] ep5 train=-3.7673 val=-2.8762 patience=1/20
+2026-05-02 13:06:14,511 INFO [exp48] ep10 train=-3.7230 val=-3.3830 patience=0/20
+2026-05-02 13:09:21,913 INFO [exp48] ep15 train=-4.2234 val=-3.8030 patience=3/20
+2026-05-02 13:12:43,497 INFO [exp48] ep20 train=-4.5769 val=-3.7916 patience=3/20
+2026-05-02 13:15:58,343 INFO [exp48] ep25 train=-4.9260 val=-3.7857 patience=4/20
+2026-05-02 13:19:13,444 INFO [exp48] ep30 train=-5.1331 val=-3.9418 patience=9/20
+2026-05-02 13:22:25,362 INFO [exp48] ep35 train=-5.3197 val=-3.8698 patience=14/20
+2026-05-02 13:25:45,050 INFO [exp48] ep40 train=-5.4386 val=-3.8205 patience=19/20
+2026-05-02 13:26:19,194 INFO [exp48] checkpoint saved -> winners\exp48_prod_retrain
+2026-05-02 13:26:22,964 INFO [exp48] OOS Sharpe=0.4949 BH=0.7622 excess=-0.2673
+2026-05-02 13:26:22,967 INFO [rank 4/30] exp48 completed in 1596s
+2026-05-02 13:26:22,973 INFO [exp281] backbone=mamba seq=60 seed=42
+2026-05-02 13:26:22,983 INFO [exp281] split: train=4650 val=64 oos=140
+2026-05-02 13:39:00,510 INFO [exp281] ep5 train=-4.0702 val=-3.3643 patience=0/20
+2026-05-02 13:51:51,703 INFO [exp281] ep10 train=-4.3651 val=-3.3394 patience=3/20
+2026-05-02 14:04:58,823 INFO [exp281] ep15 train=-4.7548 val=-3.9595 patience=3/20
+2026-05-02 14:17:43,016 INFO [exp281] ep20 train=-4.9779 val=-3.6672 patience=8/20
+2026-05-02 14:30:14,440 INFO [exp281] ep25 train=-5.1349 val=-3.8984 patience=13/20
+2026-05-02 14:42:55,073 INFO [exp281] ep30 train=-5.2815 val=-3.2506 patience=18/20
+2026-05-02 14:47:57,393 INFO [exp281] checkpoint saved -> winners\exp281_prod_retrain
+2026-05-02 14:48:04,199 INFO [exp281] OOS Sharpe=1.7540 BH=0.7622 excess=0.9917
+2026-05-02 14:48:04,206 INFO [rank 5/30] exp281 completed in 4901s
+2026-05-02 14:48:04,212 INFO [exp298] backbone=mamba seq=60 seed=42
+2026-05-02 14:48:04,222 INFO [exp298] split: train=4650 val=64 oos=140
+2026-05-02 15:00:45,213 INFO [exp298] ep5 train=-4.0867 val=-3.3858 patience=0/30
+2026-05-02 15:13:10,946 INFO [exp298] ep10 train=-4.5050 val=-3.9332 patience=0/30
+2026-05-02 15:25:45,618 INFO [exp298] ep15 train=-4.9237 val=-3.4813 patience=1/30
+2026-05-02 15:38:19,676 INFO [exp298] ep20 train=-4.9933 val=-2.9365 patience=6/30
+2026-05-02 15:51:17,579 INFO [exp298] ep25 train=-5.1474 val=-3.9597 patience=0/30
+2026-05-02 16:03:57,039 INFO [exp298] ep30 train=-5.2522 val=-3.9324 patience=5/30
+2026-05-02 16:16:55,994 INFO [exp298] ep35 train=-5.4573 val=-3.9666 patience=0/30
+2026-05-02 16:29:55,860 INFO [exp298] ep40 train=-5.5424 val=-3.2731 patience=5/30
+2026-05-02 16:42:32,098 INFO [exp298] ep45 train=-5.6196 val=-3.7984 patience=10/30
+2026-05-02 16:55:17,243 INFO [exp298] ep50 train=-5.6727 val=-3.7847 patience=15/30
+2026-05-02 17:07:37,808 INFO [exp298] ep55 train=-5.7003 val=-3.7860 patience=20/30
+2026-05-02 17:20:04,242 INFO [exp298] ep60 train=-5.7298 val=-3.9117 patience=25/30
+2026-05-02 17:32:58,843 INFO [exp298] checkpoint saved -> winners\exp298_prod_retrain
+2026-05-02 17:33:07,392 INFO [exp298] OOS Sharpe=-0.6662 BH=0.7622 excess=-1.4284
+2026-05-02 17:33:07,397 INFO [rank 6/30] exp298 completed in 9903s
+2026-05-02 17:33:07,404 INFO [exp119] backbone=lstm seq=10 seed=99
+2026-05-02 17:33:07,415 INFO [exp119] split: train=4650 val=64 oos=140
+C:\Users\evija\anaconda3\Lib\site-packages\torch\nn\modules\rnn.py:123: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.1 and num_layers=1
+  warnings.warn(
+2026-05-02 17:33:26,593 INFO [exp119] ep5 train=-4.2986 val=-3.5962 patience=3/15
+2026-05-02 17:33:46,091 INFO [exp119] ep10 train=-4.5731 val=-2.7170 patience=8/15
+2026-05-02 17:34:01,070 INFO [exp119] ep15 train=-4.8976 val=-3.7800 patience=13/15
+2026-05-02 17:34:06,568 INFO [exp119] checkpoint saved -> winners\exp119_prod_retrain
+2026-05-02 17:34:06,787 INFO [exp119] OOS Sharpe=0.3487 BH=0.9522 excess=-0.6035
+2026-05-02 17:34:06,789 INFO [rank 7/30] exp119 completed in 59s
+2026-05-02 17:34:06,796 INFO [exp50] backbone=mamba seq=60 seed=7
+2026-05-02 17:34:06,806 INFO [exp50] split: train=4650 val=64 oos=140
+2026-05-02 17:37:21,654 INFO [exp50] ep5 train=-3.7467 val=-3.2947 patience=0/20
+2026-05-02 17:40:32,641 INFO [exp50] ep10 train=-3.9460 val=-3.2195 patience=1/20
+2026-05-02 17:43:51,274 INFO [exp50] ep15 train=-4.2378 val=-3.9100 patience=2/20
+2026-05-02 17:47:11,444 INFO [exp50] ep20 train=-4.6043 val=-3.9456 patience=3/20
+2026-05-02 17:50:19,521 INFO [exp50] ep25 train=-4.9186 val=-3.9398 patience=8/20
+2026-05-02 17:53:49,339 INFO [exp50] ep30 train=-5.1410 val=-3.8277 patience=1/20
+2026-05-02 17:56:51,449 INFO [exp50] ep35 train=-5.3312 val=-3.9340 patience=4/20
+2026-05-02 18:00:23,425 INFO [exp50] ep40 train=-5.3575 val=-3.8638 patience=9/20
+2026-05-02 18:03:35,329 INFO [exp50] ep45 train=-5.5464 val=-3.8495 patience=14/20
+2026-05-02 18:06:50,902 INFO [exp50] ep50 train=-5.5776 val=-3.8054 patience=19/20
+2026-05-02 18:07:30,041 INFO [exp50] checkpoint saved -> winners\exp50_prod_retrain
+2026-05-02 18:07:33,658 INFO [exp50] OOS Sharpe=1.5995 BH=0.7622 excess=0.8373
+2026-05-02 18:07:33,661 INFO [rank 8/30] exp50 completed in 2007s
+2026-05-02 18:07:33,668 INFO [exp263] backbone=mamba seq=60 seed=42
+2026-05-02 18:07:33,678 INFO [exp263] split: train=4650 val=64 oos=140
+2026-05-02 18:13:56,868 INFO [exp263] ep5 train=-3.7064 val=-3.1859 patience=0/20
+2026-05-02 18:20:25,124 INFO [exp263] ep10 train=-4.1214 val=-3.6740 patience=0/20
+2026-05-02 18:26:41,305 INFO [exp263] ep15 train=-4.5171 val=-3.9656 patience=0/20
+2026-05-02 18:33:04,639 INFO [exp263] ep20 train=-5.0577 val=-3.6470 patience=5/20
+2026-05-02 18:39:26,143 INFO [exp263] ep25 train=-5.2571 val=-3.2967 patience=1/20
+2026-05-02 18:45:51,420 INFO [exp263] ep30 train=-5.3531 val=-3.5608 patience=6/20
+2026-05-02 18:52:08,558 INFO [exp263] ep35 train=-5.5116 val=-3.8908 patience=11/20
+2026-05-02 18:58:22,126 INFO [exp263] ep40 train=-5.5144 val=-3.8339 patience=16/20
+2026-05-02 19:03:29,132 INFO [exp263] checkpoint saved -> winners\exp263_prod_retrain
+2026-05-02 19:03:37,455 INFO [exp263] OOS Sharpe=-2.1184 BH=0.7622 excess=-2.8806
+2026-05-02 19:03:37,460 INFO [rank 9/30] exp263 completed in 3364s
+2026-05-02 19:03:37,467 INFO [exp79] backbone=mlp seq=10 seed=0
+2026-05-02 19:03:37,477 INFO [exp79] split: train=4650 val=64 oos=140
+2026-05-02 19:03:45,943 INFO [exp79] ep5 train=-2.9929 val=-2.6934 patience=0/10
+2026-05-02 19:03:53,564 INFO [exp79] ep10 train=-3.9116 val=-3.6379 patience=0/10
+2026-05-02 19:03:59,862 INFO [exp79] ep15 train=-4.4426 val=-3.7949 patience=2/10
+2026-05-02 19:04:06,262 INFO [exp79] ep20 train=-4.6598 val=-3.8113 patience=1/10
+2026-05-02 19:04:12,545 INFO [exp79] ep25 train=-4.7625 val=-3.7879 patience=6/10
+2026-05-02 19:04:17,612 INFO [exp79] checkpoint saved -> winners\exp79_prod_retrain
+2026-05-02 19:04:17,799 INFO [exp79] OOS Sharpe=-0.0196 BH=0.9522 excess=-0.9718
+2026-05-02 19:04:17,802 INFO [rank 10/30] exp79 completed in 40s
+2026-05-02 19:04:17,810 INFO [exp204] backbone=mlp seq=10 seed=0
+2026-05-02 19:04:17,820 INFO [exp204] split: train=4650 val=64 oos=140
+2026-05-02 19:04:25,566 INFO [exp204] ep5 train=-2.9929 val=-2.6934 patience=0/10
+2026-05-02 19:04:34,385 INFO [exp204] ep10 train=-3.9112 val=-3.6271 patience=0/10
+2026-05-02 19:04:43,766 INFO [exp204] ep15 train=-4.4628 val=-3.8257 patience=2/10
+2026-05-02 19:04:52,312 INFO [exp204] ep20 train=-4.6746 val=-3.6183 patience=1/10
+2026-05-02 19:04:58,835 INFO [exp204] ep25 train=-4.7995 val=-3.8371 patience=1/10
+2026-05-02 19:05:05,475 INFO [exp204] ep30 train=-4.9005 val=-3.7905 patience=3/10
+2026-05-02 19:05:12,106 INFO [exp204] ep35 train=-5.0447 val=-3.8128 patience=8/10
+2026-05-02 19:05:14,855 INFO [exp204] checkpoint saved -> winners\exp204_prod_retrain
+2026-05-02 19:05:15,041 INFO [exp204] OOS Sharpe=0.1185 BH=0.9522 excess=-0.8337
+2026-05-02 19:05:15,043 INFO [rank 11/30] exp204 completed in 57s
+2026-05-02 19:05:15,051 INFO [exp55] backbone=mamba seq=60 seed=7
+2026-05-02 19:05:15,062 INFO [exp55] split: train=4650 val=64 oos=140
+2026-05-02 19:08:21,387 INFO [exp55] ep5 train=-3.6775 val=-3.0718 patience=0/20
+2026-05-02 19:11:42,888 INFO [exp55] ep10 train=-4.2191 val=-3.6081 patience=0/20
+2026-05-02 19:14:54,661 INFO [exp55] ep15 train=-4.4703 val=-2.7663 patience=2/20
+2026-05-02 19:18:29,968 INFO [exp55] ep20 train=-4.8450 val=-3.7401 patience=1/20
+2026-05-02 19:21:41,987 INFO [exp55] ep25 train=-5.0516 val=-3.6154 patience=2/20
+2026-05-02 19:25:02,365 INFO [exp55] ep30 train=-5.2082 val=-3.9665 patience=0/20
+2026-05-02 19:28:11,824 INFO [exp55] ep35 train=-5.2802 val=-3.8825 patience=5/20
+2026-05-02 19:31:32,941 INFO [exp55] ep40 train=-5.4160 val=-3.9715 patience=2/20
+2026-05-02 19:34:37,762 INFO [exp55] ep45 train=-5.4903 val=-3.1679 patience=7/20
+2026-05-02 19:37:50,202 INFO [exp55] ep50 train=-5.5266 val=-3.9312 patience=12/20
+2026-05-02 19:41:04,009 INFO [exp55] ep55 train=-5.5767 val=-3.6652 patience=17/20
+2026-05-02 19:43:07,311 INFO [exp55] checkpoint saved -> winners\exp55_prod_retrain
+2026-05-02 19:43:11,296 INFO [exp55] OOS Sharpe=1.9068 BH=0.7622 excess=1.1445
+2026-05-02 19:43:11,299 INFO [rank 12/30] exp55 completed in 2276s
+2026-05-02 19:43:11,308 INFO [exp155] backbone=mamba seq=60 seed=7
+2026-05-02 19:43:11,318 INFO [exp155] split: train=4650 val=64 oos=140
+2026-05-02 19:46:33,079 INFO [exp155] ep5 train=-3.7467 val=-3.2947 patience=0/20
+2026-05-02 19:49:48,883 INFO [exp155] ep10 train=-3.9460 val=-3.2195 patience=1/20
+2026-05-02 19:53:03,027 INFO [exp155] ep15 train=-4.2378 val=-3.9100 patience=2/20
+2026-05-02 19:56:09,779 INFO [exp155] ep20 train=-4.6043 val=-3.9456 patience=3/20
+2026-05-02 19:59:38,679 INFO [exp155] ep25 train=-4.9186 val=-3.9398 patience=8/20
+2026-05-02 20:02:45,519 INFO [exp155] ep30 train=-5.1410 val=-3.8277 patience=1/20
