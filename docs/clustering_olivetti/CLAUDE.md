@@ -914,7 +914,61 @@ Append-only. New session insights go at the bottom, date-stamped. Never delete.
 - **Conditional vs unconditional ARI MUST be distinguished in artifacts.** Exp 149's 0.8740 was almost auto-promoted as "the champion" because the headline number is bigger. But it's measured on a 317/400 subset; comparing it to 0.7346 measured on 400/400 is a category error. Future audit-report sections must distinguish "deployment-mode (with rejection)" from "unconditional academic benchmark".
 - **Backbone scale saturation is real and measurable at small n.** Don't waste compute on larger pretrained backbones below n ≈ 1 000. ViT-S/14 is the right default. This rule generalises beyond DINOv2 (likely true for CLIP, SAM, BLIP families too — untested).
 - **The "next try" lines in post-run learning blobs are load-bearing.** Exp 71's learning blob explicitly said "next try: 5-seed median ensemble via co-association". 152 experiments later, that exact experiment (Exp 147) became the new champion. The discipline of writing concrete next-try predictions in *every* learning blob compounds over a project lifetime.
-- **The runner's `best_config.json` promotion logic needs guarding by `n_noise == 0 AND n_pred_clusters == K_true`.** Without this guard, deployment-mode results with sample rejection can incorrectly displace the unconditional champion. Apply the fix in the next code-version snapshot.
+- **The runner's `best_config.json` promotion logic needs guarding by `n_noise == 0 AND n_pred_clusters == K_true`.** Without this guard, deployment-mode results with sample rejection can incorrectly displace the unconditional champion. **Applied 2026-05-03** in `common.log_experiment` (see "Common Mistakes" table).
+
+---
+
+## Master TODO List (live, as of 2026-05-03 — keep current)
+
+This section is the single source of truth for what is queued, what is in flight, and what is done. Mirror in `forensic_checkpoint.md` for crash-recovery. After every experiment, update both files.
+
+### Highest priority (next session — pre-run blobs in forensic_checkpoint.md)
+
+- [ ] **Exp 150** — Co-association ensemble + cluster_qr final stage (deterministic-champion candidate). Predicted ARI 0.71-0.75. Full pre-run reasoning blob + runner code in `forensic_checkpoint.md` §"Next-experiment queue". Run command: `python run_exp150_coassoc_clusterqr.py`.
+- [ ] **Exp 151** — Co-association ensemble + silhouette-rejection (deployment-ready pipeline). Predicted conditional ARI > 0.92. Full pre-run reasoning blob + runner code in `forensic_checkpoint.md` §"Next-experiment queue". Run command: `python run_exp151_ensemble_silreject.py`.
+
+### Medium priority (axes worth exploring)
+
+- [ ] **Exp 152** — DINOv2 ViT-G/14 (1.1 B params, 1536-dim). Tests further saturation per Kaplan 2020. Predicted ARI ~0.62.
+- [ ] **Exp 153** — 10-seed CSPA (vs 5-seed). Predicted +0.005-0.010 ARI; diminishing returns.
+- [ ] **Exp 154** — Spherical KMeans + 5-seed CSPA on L2-normalised DINOv2.
+- [ ] **Exp 155** — UMAP(5) + 5-seed CSPA on co-association. Tests CSPA pattern transfer to non-Spectral pipelines.
+- [ ] **Bootstrap CI** — 1000-resample bootstrap on 400 samples; report ARI 95% CI for Exp 147.
+
+### Low priority
+
+- [ ] DINOv2 + CLIP feature concatenation + Spectral ensemble.
+- [ ] CSPA on Ward (deterministic — should be a no-op; useful negative result).
+- [ ] FaceNet triplet-loss subject-supervised baseline (out-of-scope but useful upper bound).
+- [ ] USPS digits transferability of Exp 147 recipe.
+
+### Code/infrastructure improvements
+
+- [ ] Verify the `best_config.json` selection-rule guard works (synthetic test with n_noise=10).
+- [ ] Add Colab notebook to `winners/spectral_coassoc_ensemble_5seed_exp147/colab_train_and_infer.ipynb`.
+- [ ] Add `inference/predict.py` to the same archive.
+- [ ] Add 14-section `audit_report.md` to the same archive.
+- [ ] Add `reproduction/reproduce_log.txt`.
+- [ ] Update `winners/spectral_hc_cosine_seed99_(variance_c_exp71/README.md` with "Superseded by Exp 147" header.
+
+### Documentation gaps
+
+- [ ] `paper.md` §11.4 table — replace "FMI 0.7424 (approximate)" with exact value from `experiment_log_entry.json` for Exp 147.
+- [ ] `medium_article.md` §11 (original article body) — note that the predicted ensemble experiment ran and succeeded.
+- [ ] `autoresearch_report.md` §8 Recommendations — mark §8.1 item 2 (5-seed co-association ensemble) as DONE; advance §8.2 with the new TODO items.
+- [ ] `README.md` — update "Three research findings" → "Four research findings".
+
+### Audit/compliance
+
+- [ ] Re-run `python third_party_audit.py` against the 152-experiment state.
+- [ ] Verify dashboard JS error count = 0 in real browser (Playwright snapshot).
+- [ ] `git diff origin/master` audit — confirm clustering_olivetti is clean.
+
+### Known cross-project state — DO NOT TOUCH
+
+- `generalized_ml_autoresearch/examples/fraud_ecommerce/` has uncommitted changes from another Claude Code session. Leave for the fraud_ecommerce session to commit.
+- `stash@{0}` contains earlier fraud_ecommerce changes. Do NOT pop or drop.
+- Remote `master` may have new commits from `autoresearchindexstock` (QQQ) work. Rebase if needed.
 
 ---
 
