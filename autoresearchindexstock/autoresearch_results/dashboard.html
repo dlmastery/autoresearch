@@ -53,10 +53,16 @@
 </style>
 </head>
 <body>
-<h1>AutoResearch &mdash; QQQ Index Stock Dashboard</h1>
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:6px">
+  <h1 style="margin:0">AutoResearch &mdash; QQQ Index Stock Dashboard</h1>
+  <a href="docs.html" style="background:linear-gradient(135deg,#fbbf24 0%,#3fb950 100%);color:#0d1117;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:700;font-size:0.9em;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(251,191,36,0.3)">📚 All Documentation →</a>
+</div>
 <div class="subtitle">QQQ (Nasdaq-100 ETF) — equity-index variant of the FX autoresearch loop. Optimisation target: <b style="color:#58a6ff">A — fwd_ret_1d</b>. Plotted side-by-side: A (1d return), B (5d return), D (vol-adjusted 1d). 7-fold walk-forward 2007 → 2025-12 (no 2026 data). Buy-and-hold baseline tracked alongside strategy Sharpe. &mdash; <span id="last-update">loading...</span>
-  &nbsp;|&nbsp; <a href="autoresearch_report.md" style="color:#58a6ff">Full Report</a>
-  &nbsp;|&nbsp; <a href="experiment_summary.md" style="color:#58a6ff">Summary</a>
+  &nbsp;|&nbsp; <a href="docs.html#TRADING_STRATEGIES.md" style="color:#fbbf24;font-weight:600">🎯 Trading Strategies</a>
+  &nbsp;|&nbsp; <a href="docs.html#EXPLAINABILITY_REPORT.md" style="color:#3fb950">🧠 Explainability</a>
+  &nbsp;|&nbsp; <a href="docs.html#FEATURES_AND_DATA.md" style="color:#58a6ff">📊 Features &amp; Data</a>
+  &nbsp;|&nbsp; <a href="autoresearch_report.md" style="color:#8b949e">Report</a>
+  &nbsp;|&nbsp; <a href="experiment_summary.md" style="color:#8b949e">Summary</a>
 </div>
 <div class="status-bar">
   <div class="status-dot" id="status-dot"></div>

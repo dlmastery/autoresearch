@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QQQ AutoResearch — Documentation</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  body {
+    background: #0d1117; color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    margin: 0; padding: 0;
+  }
+  .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  nav {
+    background: #161b22; border-right: 1px solid #30363d;
+    padding: 18px 14px; overflow-y: auto;
+  }
+  nav h1 { font-size: 1.05em; color: #58a6ff; margin: 0 0 14px 0; }
+  nav .nav-link {
+    display: block; padding: 10px 12px; margin-bottom: 6px;
+    background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+    color: #e6edf3; text-decoration: none; font-size: 0.85em;
+    transition: all 0.15s;
+  }
+  nav .nav-link:hover { border-color: #58a6ff; background: #161b22; }
+  nav .nav-link.active { border-color: #fbbf24; background: #1a0d28; color: #fbbf24; }
+  nav .nav-link .desc { color: #8b949e; font-size: 0.78em; margin-top: 3px; }
+  nav .back-link {
+    display: block; padding: 8px 12px; margin-bottom: 18px;
+    background: #238636; color: #fff; border-radius: 6px;
+    text-decoration: none; font-weight: 600; text-align: center;
+  }
+  main {
+    padding: 28px 38px; max-width: 980px;
+    overflow-y: auto;
+  }
+  main h1 { color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
+  main h2 { color: #fbbf24; margin-top: 28px; }
+  main h3 { color: #3fb950; margin-top: 22px; }
+  main code {
+    background: #161b22; padding: 2px 6px; border-radius: 3px;
+    color: #e6edf3; font-size: 0.9em;
+  }
+  main pre {
+    background: #161b22; padding: 12px; border-radius: 6px;
+    overflow-x: auto; border: 1px solid #30363d;
+  }
+  main pre code { background: none; padding: 0; }
+  main table {
+    border-collapse: collapse; margin: 14px 0; font-size: 0.88em;
+    width: 100%;
+  }
+  main th, main td {
+    padding: 8px 10px; text-align: left;
+    border: 1px solid #30363d;
+  }
+  main th { background: #161b22; color: #58a6ff; font-weight: 600; }
+  main tr:nth-child(even) { background: #161b22; }
+  main blockquote {
+    border-left: 4px solid #58a6ff; padding-left: 14px;
+    color: #8b949e; margin: 14px 0;
+  }
+  main a { color: #58a6ff; }
+  main a:hover { color: #fbbf24; }
+  main img { max-width: 100%; border-radius: 6px; }
+  .loading { color: #8b949e; padding: 40px 20px; text-align: center; }
+  .error { color: #f85149; padding: 20px; background: #2a0d0d; border-radius: 6px; }
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { border-right: none; border-bottom: 1px solid #30363d; max-height: 200px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav>
+    <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+    <h1>📚 Documentation</h1>
+
+    <div style="color:#8b949e;font-size:0.78em;margin-bottom:14px;line-height:1.5">
+      QQQ AutoResearch project — comprehensive docs covering data, features,
+      explainability, and trading strategies for the OOS-validated production champion.
+    </div>
+
+    <a class="nav-link" href="#" onclick="loadDoc('TRADING_STRATEGIES.md', this); return false;">
+      🎯 Trading Strategies
+      <div class="desc">Top-5 yielding strategies on the ensemble winner. trend_filter_50d at +6.90 OOS Sharpe. How-to-trade per strategy.</div>
+    </a>
+
+    <a class="nav-link" href="#" onclick="loadDoc('EXPLAINABILITY_REPORT.md', this); return false;">
+      🧠 Explainability Report
+      <div class="desc">Permutation feature importance (Breiman 2001) on the OOS winners. What features drive the +3.85 ensemble Sharpe.</div>
+    </a>
+
+    <a class="nav-link" href="#" onclick="loadDoc('FEATURES_AND_DATA.md', this); return false;">
+      📊 Features & Data
+      <div class="desc">All ~205 features, 56 tickers, cross-asset relationships, walk-forward folds, 44 academic citations.</div>
+    </a>
+
+    <a class="nav-link" href="#" onclick="loadDoc('experiment_summary.md', this); return false;">
+      📈 Experiment Summary
+      <div class="desc">All 327+ experiments tabular log — config delta, result, KEEP/DISCARD, learning per experiment.</div>
+    </a>
+
+    <a class="nav-link" href="#" onclick="loadDoc('research_journal.md', this); return false;">
+      📓 Research Journal
+      <div class="desc">Markdown narrative of the 7-step research process per experiment (diagnosis → citations → hypothesis → prediction → verdict → learning).</div>
+    </a>
+
+    <a class="nav-link" href="#" onclick="loadDoc('autoresearch_report.md', this); return false;">
+      📋 AutoResearch Report
+      <div class="desc">Auto-generated summary of all experiments, champions, and per-backbone progress.</div>
+    </a>
+
+    <a class="nav-link" href="#" onclick="loadDoc('paper.md', this); return false;">
+      📄 Research Paper
+      <div class="desc">Full academic paper draft — methodology, walk-forward design, super-fold structure, results.</div>
+    </a>
+
+    <a class="nav-link" href="#" onclick="loadDoc('medium_article.md', this); return false;">
+      ✍️ Medium Article
+      <div class="desc">Long-form narrative covering project motivation, methods, and findings — for general audience.</div>
+    </a>
+
+    <hr style="border:none;border-top:1px solid #30363d;margin:18px 0">
+    <div style="color:#8b949e;font-size:0.78em;line-height:1.5">
+      📦 Data files (raw CSV/JSON):<br>
+      <a href="oos_top30_table.json" style="color:#58a6ff">oos_top30_table.json</a><br>
+      <a href="oos_ensemble_summary.json" style="color:#58a6ff">oos_ensemble_summary.json</a><br>
+      <a href="oos_trading_strategies_summary.json" style="color:#58a6ff">oos_trading_strategies_summary.json</a><br>
+      <a href="oos_feature_importance_summary.json" style="color:#58a6ff">oos_feature_importance_summary.json</a><br>
+      <a href="experiment_log.jsonl" style="color:#58a6ff">experiment_log.jsonl</a><br>
+      <a href="reasoning_annotations.json" style="color:#58a6ff">reasoning_annotations.json</a>
+    </div>
+  </nav>
+
+  <main id="doc-content">
+    <div class="loading">
+      <h1>📚 QQQ AutoResearch Documentation</h1>
+      <p>Select a document from the navigation panel on the left.</p>
+      <p style="margin-top:30px;color:#8b949e;font-size:0.95em">Quick links to the most popular docs:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px">
+        <a href="#" onclick="loadDoc('TRADING_STRATEGIES.md', null); return false;" style="background:#fbbf24;color:#0d1117;text-decoration:none;padding:14px 22px;border-radius:8px;font-weight:600">🎯 Trading Strategies</a>
+        <a href="#" onclick="loadDoc('EXPLAINABILITY_REPORT.md', null); return false;" style="background:#3fb950;color:#0d1117;text-decoration:none;padding:14px 22px;border-radius:8px;font-weight:600">🧠 Explainability</a>
+        <a href="#" onclick="loadDoc('FEATURES_AND_DATA.md', null); return false;" style="background:#58a6ff;color:#0d1117;text-decoration:none;padding:14px 22px;border-radius:8px;font-weight:600">📊 Features & Data</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+async function loadDoc(filename, linkEl) {
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+
+  const main = document.getElementById('doc-content');
+  main.innerHTML = `<div class="loading">Loading ${filename}...</div>`;
+
+  try {
+    const r = await fetch(filename + '?t=' + Date.now());
+    if (!r.ok) {
+      main.innerHTML = `<div class="error">Failed to load <code>${filename}</code> (HTTP ${r.status}). The file may not exist in this dashboard mirror yet.</div>`;
+      return;
+    }
+    const md = await r.text();
+    main.innerHTML = marked.parse(md);
+
+    // Update browser title and URL hash
+    const title = filename.replace('.md', '').replace(/_/g, ' ');
+    document.title = `QQQ Docs — ${title}`;
+    window.location.hash = filename;
+    main.scrollTop = 0;
+  } catch (e) {
+    main.innerHTML = `<div class="error">Error loading <code>${filename}</code>: ${e.message}</div>`;
+  }
+}
+
+// Load doc from URL hash if present
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash.slice(1);
+  if (hash && hash.endsWith('.md')) {
+    const link = Array.from(document.querySelectorAll('.nav-link')).find(a => a.outerHTML.includes(hash));
+    loadDoc(hash, link);
+  }
+});
+</script>
+</body>
+</html>
