@@ -145,28 +145,53 @@ class MLPBackbone(Backbone):
                                      else "cpu")
         self._model.to(self._device)
 
-    def _loss(self, mean, log_var, y):
+    def _loss(self, mean, log_var, y, xb=None):
         task_type = self.config.get("task_type", "regression")
         if task_type == "regression" or task_type == "time_series_forecasting":
             # Default beta=1 is MAE-like once |err| > 1 (Beijing MAE ~11).
             beta = float(self.config.get("huber_beta", 1.0))
             uw = float(self.config.get("underpred_weight", 1.0))
+            ouw = float(self.config.get("onset_underpred_weight", 1.0))
+            base = None
             if self.config.get("hetero_loss", False) and log_var is not None:
-                # Kendall & Gal 2017 heteroscedastic regression loss
                 precision = torch.exp(-log_var)
                 base = torch.nn.functional.smooth_l1_loss(mean, y, reduction="none", beta=beta)
-                if uw != 1.0:
-                    base = torch.where(mean < y, uw * base, base)
+                base = self._apply_pred_weights(base, mean, y, xb, uw, ouw)
                 return (precision * base + 0.5 * log_var).mean()
-            if uw != 1.0:
+            if uw != 1.0 or ouw != 1.0:
                 base = torch.nn.functional.smooth_l1_loss(mean, y, reduction="none", beta=beta)
-                return torch.where(mean < y, uw * base, base).mean()
+                base = self._apply_pred_weights(base, mean, y, xb, uw, ouw)
+                return base.mean()
             return torch.nn.functional.smooth_l1_loss(mean, y, beta=beta)
         if task_type == "binary_classification":
             return torch.nn.functional.binary_cross_entropy_with_logits(mean.squeeze(-1), y.float())
         if task_type == "multiclass_classification":
             return torch.nn.functional.cross_entropy(mean, y.long())
         raise ValueError(f"Unknown task_type {task_type!r}")
+
+    def _apply_pred_weights(self, base, mean, y, xb, uw, ouw):
+        w = torch.ones_like(base)
+        if uw != 1.0:
+            w = torch.where(mean < y, torch.full_like(w, uw), w)
+        if ouw != 1.0 and xb is not None:
+            cols = list(self.feature_columns or [])
+            if "pm25_lag1" in cols:
+                idx = cols.index("pm25_lag1")
+                lag = xb[:, idx]
+                if self.scaler_mean is not None and self.scaler_scale is not None:
+                    mu = float(np.asarray(self.scaler_mean).reshape(-1)[idx])
+                    sd = float(np.asarray(self.scaler_scale).reshape(-1)[idx])
+                    lag = lag * sd + mu
+                gap = float(self.config.get("onset_gap", 50.0))
+                yf = y.reshape(-1)
+                mf = mean.reshape(-1)
+                lf = lag.reshape(-1)
+                wf = w.reshape(-1)
+                onset = (yf - lf) > gap
+                under = mf < yf
+                wf = torch.where(onset & under, torch.full_like(wf, ouw), wf)
+                w = wf.view_as(w)
+        return base * w
 
     def fit(self, X_train, y_train, X_val=None, y_val=None) -> dict[str, Any]:
         cfg = self.config
@@ -206,9 +231,15 @@ class MLPBackbone(Backbone):
         for epoch in range(epochs):
             self._model.train()
             batch_losses = []
+            mixup_alpha = float(cfg.get("mixup_alpha", 0.0))
             for xb, yb in loader:
                 xb = xb.to(self._device)
                 yb = yb.to(self._device)
+                if mixup_alpha > 0 and task_type in ("regression", "time_series_forecasting") and len(xb) > 1:
+                    lam = float(np.random.beta(mixup_alpha, mixup_alpha))
+                    perm = torch.randperm(len(xb), device=xb.device)
+                    xb = lam * xb + (1.0 - lam) * xb[perm]
+                    yb = lam * yb + (1.0 - lam) * yb[perm]
                 opt.zero_grad()
                 out = self._model(xb)
                 mean, log_var = out
@@ -216,7 +247,7 @@ class MLPBackbone(Backbone):
                     y_target = yb.view_as(mean) if mean.ndim > 1 else yb
                 else:
                     y_target = yb
-                loss = self._loss(mean, log_var, y_target)
+                loss = self._loss(mean, log_var, y_target, xb)
                 loss.backward()
                 if grad_clip > 0:
                     torch.nn.utils.clip_grad_norm_(self._model.parameters(), grad_clip)
@@ -251,7 +282,7 @@ class MLPBackbone(Backbone):
             if task_type in ("regression", "time_series_forecasting"):
                 y_target = torch.tensor(y_val_np, dtype=torch.float32, device=self._device)
                 y_target = y_target.view_as(mean) if mean.ndim > 1 else y_target
-                loss = self._loss(mean, log_var, y_target)
+                loss = self._loss(mean, log_var, y_target, X_val_t)
             elif task_type == "binary_classification":
                 y_target = torch.tensor(y_val_np, dtype=torch.float32, device=self._device)
                 loss = self._loss(mean, None, y_target)
