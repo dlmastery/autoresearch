@@ -150,11 +150,17 @@ class MLPBackbone(Backbone):
         if task_type == "regression" or task_type == "time_series_forecasting":
             # Default beta=1 is MAE-like once |err| > 1 (Beijing MAE ~11).
             beta = float(self.config.get("huber_beta", 1.0))
+            uw = float(self.config.get("underpred_weight", 1.0))
             if self.config.get("hetero_loss", False) and log_var is not None:
                 # Kendall & Gal 2017 heteroscedastic regression loss
                 precision = torch.exp(-log_var)
                 base = torch.nn.functional.smooth_l1_loss(mean, y, reduction="none", beta=beta)
+                if uw != 1.0:
+                    base = torch.where(mean < y, uw * base, base)
                 return (precision * base + 0.5 * log_var).mean()
+            if uw != 1.0:
+                base = torch.nn.functional.smooth_l1_loss(mean, y, reduction="none", beta=beta)
+                return torch.where(mean < y, uw * base, base).mean()
             return torch.nn.functional.smooth_l1_loss(mean, y, beta=beta)
         if task_type == "binary_classification":
             return torch.nn.functional.binary_cross_entropy_with_logits(mean.squeeze(-1), y.float())
