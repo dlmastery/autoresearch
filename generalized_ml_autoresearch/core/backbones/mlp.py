@@ -45,14 +45,43 @@ from .registry import register_backbone
 class _MLPModule(nn.Module if _TORCH_AVAILABLE else object):
     def __init__(self, n_features: int, hidden: list[int], n_outputs: int,
                  dropout: float = 0.2, task_type: str = "regression",
-                 hetero_loss: bool = False):
+                 hetero_loss: bool = False, layer_norm: bool = False,
+                 residual: bool = False, persist_residual: bool = False,
+                 lag1_idx: int | None = None, lag1_mean: float = 0.0,
+                 lag1_scale: float = 1.0):
         super().__init__()
-        layers: list[Any] = []
+        self.residual = residual
+        self.persist_residual = persist_residual and lag1_idx is not None
+        self.lag1_idx = lag1_idx
+        if _TORCH_AVAILABLE:
+            self.register_buffer("lag1_mean", torch.tensor(float(lag1_mean)))
+            self.register_buffer("lag1_scale", torch.tensor(float(lag1_scale)))
         in_dim = n_features
-        for h in hidden:
-            layers += [nn.Linear(in_dim, h), nn.GELU(), nn.Dropout(dropout)]
-            in_dim = h
-        self.trunk = nn.Sequential(*layers)
+        if residual:
+            blocks: list[Any] = []
+            skips: list[Any] = []
+            for h in hidden:
+                block: list[Any] = [nn.Linear(in_dim, h)]
+                if layer_norm:
+                    block.append(nn.LayerNorm(h))
+                block += [nn.GELU(), nn.Dropout(dropout)]
+                blocks.append(nn.Sequential(*block))
+                skips.append(nn.Identity() if in_dim == h else nn.Linear(in_dim, h, bias=False))
+                in_dim = h
+            self.blocks = nn.ModuleList(blocks)
+            self.skips = nn.ModuleList(skips)
+            self.trunk = None
+        else:
+            layers: list[Any] = []
+            for h in hidden:
+                layers.append(nn.Linear(in_dim, h))
+                if layer_norm:
+                    layers.append(nn.LayerNorm(h))
+                layers += [nn.GELU(), nn.Dropout(dropout)]
+                in_dim = h
+            self.trunk = nn.Sequential(*layers)
+            self.blocks = None
+            self.skips = None
         self.head = nn.Linear(in_dim, n_outputs)
         self.log_var_head: nn.Module | None = None
         if hetero_loss:
@@ -61,8 +90,18 @@ class _MLPModule(nn.Module if _TORCH_AVAILABLE else object):
         self.hetero_loss = hetero_loss
 
     def forward(self, x):
-        feat = self.trunk(x)
+        if self.residual:
+            feat = x
+            for block, skip in zip(self.blocks, self.skips):
+                feat = skip(feat) + block(feat)
+        else:
+            feat = self.trunk(x)
         mean = self.head(feat)
+        if self.persist_residual:
+            lag1 = x[:, self.lag1_idx] * self.lag1_scale + self.lag1_mean
+            if mean.ndim > 1:
+                lag1 = lag1.unsqueeze(-1)
+            mean = mean + lag1
         if self.log_var_head is not None:
             log_var = self.log_var_head(feat)
             return mean, log_var
@@ -84,8 +123,24 @@ class MLPBackbone(Backbone):
         hidden = list(config.get("hidden", [256, 128, 64]))
         dropout = float(config.get("dropout", 0.2))
         hetero_loss = bool(config.get("hetero_loss", False))
+        layer_norm = bool(config.get("layer_norm", False))
+        residual = bool(config.get("residual", False))
+        persist_residual = bool(config.get("persist_residual", False))
+        lag1_idx = None
+        lag1_mean = 0.0
+        lag1_scale = 1.0
+        if persist_residual:
+            cols = list(self.feature_columns or [])
+            if "pm25_lag1" in cols:
+                lag1_idx = cols.index("pm25_lag1")
+                if self.scaler_mean is not None and self.scaler_scale is not None:
+                    lag1_mean = float(np.asarray(self.scaler_mean).reshape(-1)[lag1_idx])
+                    lag1_scale = float(np.asarray(self.scaler_scale).reshape(-1)[lag1_idx])
         task_type = str(config.get("task_type", "regression"))
-        self._model = _MLPModule(self._n_features, hidden, n_outputs, dropout, task_type, hetero_loss)
+        self._model = _MLPModule(
+            self._n_features, hidden, n_outputs, dropout, task_type, hetero_loss,
+            layer_norm, residual, persist_residual, lag1_idx, lag1_mean, lag1_scale,
+        )
         self._device = torch.device("cuda" if torch.cuda.is_available() and not config.get("force_cpu")
                                      else "cpu")
         self._model.to(self._device)
@@ -93,12 +148,14 @@ class MLPBackbone(Backbone):
     def _loss(self, mean, log_var, y):
         task_type = self.config.get("task_type", "regression")
         if task_type == "regression" or task_type == "time_series_forecasting":
+            # Default beta=1 is MAE-like once |err| > 1 (Beijing MAE ~11).
+            beta = float(self.config.get("huber_beta", 1.0))
             if self.config.get("hetero_loss", False) and log_var is not None:
                 # Kendall & Gal 2017 heteroscedastic regression loss
                 precision = torch.exp(-log_var)
-                base = torch.nn.functional.smooth_l1_loss(mean, y, reduction="none", beta=1.0)
+                base = torch.nn.functional.smooth_l1_loss(mean, y, reduction="none", beta=beta)
                 return (precision * base + 0.5 * log_var).mean()
-            return torch.nn.functional.smooth_l1_loss(mean, y, beta=1.0)
+            return torch.nn.functional.smooth_l1_loss(mean, y, beta=beta)
         if task_type == "binary_classification":
             return torch.nn.functional.binary_cross_entropy_with_logits(mean.squeeze(-1), y.float())
         if task_type == "multiclass_classification":
