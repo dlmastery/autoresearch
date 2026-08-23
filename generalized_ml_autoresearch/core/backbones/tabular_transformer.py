@@ -9,6 +9,7 @@ replacing this module with the full `rtdl` package or HuggingFace implementation
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 from typing import Any
 
@@ -29,15 +30,44 @@ from .registry import register_backbone
 
 class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
     def __init__(self, n_features: int, d_model: int, n_heads: int, n_layers: int,
-                 n_outputs: int, dropout: float = 0.1):
+                 n_outputs: int, dropout: float = 0.1, norm_first: bool = False,
+                 ff_factor: float = 2.0, num_embedding: str = "linear",
+                 n_frequencies: int = 16, pooling: str = "cls",
+                 feature_tokenizer: str = "shared"):
         super().__init__()
         self.cls_token = nn.Parameter(torch.randn(1, 1, d_model))
-        # Each feature column becomes a token via linear projection of its scalar value.
-        self.feature_embed = nn.Linear(1, d_model)
+        self.num_embedding = num_embedding
+        self.pooling = pooling
+        self.feature_tokenizer = feature_tokenizer
+        if num_embedding == "periodic":
+            # Gorishniy et al. 2022 periodic embeddings (arXiv:2203.05556).
+            n_freq = int(n_frequencies)
+            self.frequencies = nn.Parameter(torch.normal(0.0, 0.01, (n_features, n_freq)))
+            self.periodic_weight = nn.Parameter(torch.empty(n_features, 2 * n_freq, d_model))
+            nn.init.xavier_uniform_(self.periodic_weight.reshape(-1, d_model))
+            self.periodic_bias = nn.Parameter(torch.zeros(n_features, d_model))
+            self.feature_embed = None
+            self.feature_weight = None
+            self.feature_bias = None
+        elif feature_tokenizer == "per_feature":
+            # Gorishniy et al. 2021 Feature Tokenizer: T_j(x_j) = b_j + x_j W_j.
+            self.feature_embed = None
+            self.feature_weight = nn.Parameter(torch.empty(n_features, d_model))
+            self.feature_bias = nn.Parameter(torch.empty(n_features, d_model))
+            nn.init.kaiming_uniform_(self.feature_weight, a=math.sqrt(5))
+            bound = 1.0 / math.sqrt(1)
+            nn.init.uniform_(self.feature_bias, -bound, bound)
+        else:
+            # Shared Linear(1, d) across columns (legacy default).
+            self.feature_embed = nn.Linear(1, d_model)
+            self.feature_weight = None
+            self.feature_bias = None
         self.pos_embed = nn.Parameter(torch.randn(1, n_features + 1, d_model))
+        dim_ff = max(n_heads, int(round(d_model * float(ff_factor))))
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=d_model, nhead=n_heads, dim_feedforward=d_model * 2,
+            d_model=d_model, nhead=n_heads, dim_feedforward=dim_ff,
             dropout=dropout, batch_first=True, activation="gelu",
+            norm_first=norm_first,
         )
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
         self.dropout = nn.Dropout(dropout)
@@ -45,13 +75,20 @@ class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
 
     def forward(self, x):
         b, n = x.shape
-        tokens = self.feature_embed(x.unsqueeze(-1))  # (B, N, D)
+        if self.num_embedding == "periodic":
+            v = 2.0 * math.pi * self.frequencies.unsqueeze(0) * x.unsqueeze(-1)
+            p = torch.cat([torch.sin(v), torch.cos(v)], dim=-1)
+            tokens = torch.einsum("bnk,nkd->bnd", p, self.periodic_weight) + self.periodic_bias
+        elif self.feature_tokenizer == "per_feature":
+            tokens = x.unsqueeze(-1) * self.feature_weight.unsqueeze(0) + self.feature_bias.unsqueeze(0)
+        else:
+            tokens = self.feature_embed(x.unsqueeze(-1))  # (B, N, D)
         cls = self.cls_token.expand(b, -1, -1)
         tokens = torch.cat([cls, tokens], dim=1) + self.pos_embed[:, : n + 1, :]
         enc = self.encoder(tokens)
-        cls_out = enc[:, 0, :]
-        cls_out = self.dropout(cls_out)
-        return self.head(cls_out), None
+        pooled = enc.mean(dim=1) if self.pooling == "mean" else enc[:, 0, :]
+        pooled = self.dropout(pooled)
+        return self.head(pooled), None
 
 
 @register_backbone("ft_transformer")
@@ -70,9 +107,18 @@ class FTTransformerBackbone(Backbone):
         n_heads = int(config.get("n_heads", 4))
         n_layers = int(config.get("n_layers", 3))
         dropout = float(config.get("dropout", 0.1))
+        norm_first = bool(config.get("norm_first", False))
+        ff_factor = float(config.get("ff_factor", 2.0))
+        num_embedding = str(config.get("num_embedding", "linear"))
+        n_frequencies = int(config.get("n_frequencies", 16))
+        pooling = str(config.get("pooling", "cls"))
+        feature_tokenizer = str(config.get("feature_tokenizer", "shared"))
         self._task_type = config.get("task_type", "regression")
         self._model = _TabTransformerModule(self._n_features, d_model, n_heads, n_layers,
-                                             n_outputs, dropout)
+                                             n_outputs, dropout, norm_first=norm_first,
+                                             ff_factor=ff_factor, num_embedding=num_embedding,
+                                             n_frequencies=n_frequencies, pooling=pooling,
+                                             feature_tokenizer=feature_tokenizer)
         self._device = torch.device("cuda" if torch.cuda.is_available() and not config.get("force_cpu")
                                      else "cpu")
         self._model.to(self._device)
