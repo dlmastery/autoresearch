@@ -71,7 +71,7 @@ class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
                  ff_factor: float = 2.0, num_embedding: str = "linear",
                  n_frequencies: int = 16, pooling: str = "cls",
                  feature_tokenizer: str = "shared", activation: str = "gelu",
-                 layer_scale=None, drop_path: float = 0.0):
+                 layer_scale=None, drop_path: float = 0.0, final_ln: bool = False):
         super().__init__()
         self.cls_token = nn.Parameter(torch.randn(1, 1, d_model))
         self.num_embedding = num_embedding
@@ -118,6 +118,9 @@ class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
             self.encoder = _StochasticDepthEncoder(encoder.layers, drop_path)
         else:
             self.encoder = encoder
+        # Xiong et al. 2020: Pre-LN residual stream is unnormalized unless a final LN
+        # sits before the head (GPT-2 style). PyTorch TransformerEncoder omits it.
+        self.final_ln = nn.LayerNorm(d_model) if final_ln else None
         self.dropout = nn.Dropout(dropout)
         self.head = nn.Linear(d_model, n_outputs)
 
@@ -134,6 +137,8 @@ class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
         cls = self.cls_token.expand(b, -1, -1)
         tokens = torch.cat([cls, tokens], dim=1) + self.pos_embed[:, : n + 1, :]
         enc = self.encoder(tokens)
+        if self.final_ln is not None:
+            enc = self.final_ln(enc)
         pooled = enc.mean(dim=1) if self.pooling == "mean" else enc[:, 0, :]
         pooled = self.dropout(pooled)
         return self.head(pooled), None
@@ -164,6 +169,7 @@ class FTTransformerBackbone(Backbone):
         activation = str(config.get("activation", "gelu"))
         layer_scale = config.get("layer_scale")
         drop_path = float(config.get("drop_path", 0.0))
+        final_ln = bool(config.get("final_ln", False))
         self._task_type = config.get("task_type", "regression")
         self._model = _TabTransformerModule(self._n_features, d_model, n_heads, n_layers,
                                              n_outputs, dropout, norm_first=norm_first,
@@ -171,7 +177,7 @@ class FTTransformerBackbone(Backbone):
                                              n_frequencies=n_frequencies, pooling=pooling,
                                              feature_tokenizer=feature_tokenizer,
                                              activation=activation, layer_scale=layer_scale,
-                                             drop_path=drop_path)
+                                             drop_path=drop_path, final_ln=final_ln)
         self._device = torch.device("cuda" if torch.cuda.is_available() and not config.get("force_cpu")
                                      else "cpu")
         self._model.to(self._device)
