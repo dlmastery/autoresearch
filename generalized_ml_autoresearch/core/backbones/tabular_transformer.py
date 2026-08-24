@@ -47,13 +47,31 @@ class _LayerScaleEncoderLayer(nn.TransformerEncoderLayer if _TORCH_AVAILABLE els
         return x
 
 
+class _StochasticDepthEncoder(nn.Module if _TORCH_AVAILABLE else object):
+    """Huang et al. 2016 stochastic depth: linearly ramped identity-skip of encoder blocks."""
+
+    def __init__(self, layers, drop_path: float):
+        super().__init__()
+        self.layers = layers
+        self.drop_path = float(drop_path)
+
+    def forward(self, x):
+        n_layers = len(self.layers)
+        for i, layer in enumerate(self.layers):
+            p = self.drop_path * i / max(1, n_layers - 1)
+            if self.training and p > 0.0 and float(torch.rand((), device=x.device)) < p:
+                continue
+            x = layer(x)
+        return x
+
+
 class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
     def __init__(self, n_features: int, d_model: int, n_heads: int, n_layers: int,
                  n_outputs: int, dropout: float = 0.1, norm_first: bool = False,
                  ff_factor: float = 2.0, num_embedding: str = "linear",
                  n_frequencies: int = 16, pooling: str = "cls",
                  feature_tokenizer: str = "shared", activation: str = "gelu",
-                 layer_scale=None):
+                 layer_scale=None, drop_path: float = 0.0):
         super().__init__()
         self.cls_token = nn.Parameter(torch.randn(1, 1, d_model))
         self.num_embedding = num_embedding
@@ -95,7 +113,11 @@ class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
             )
         else:
             encoder_layer = nn.TransformerEncoderLayer(**layer_kwargs)
-        self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
+        encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
+        if float(drop_path) > 0.0:
+            self.encoder = _StochasticDepthEncoder(encoder.layers, drop_path)
+        else:
+            self.encoder = encoder
         self.dropout = nn.Dropout(dropout)
         self.head = nn.Linear(d_model, n_outputs)
 
@@ -141,13 +163,15 @@ class FTTransformerBackbone(Backbone):
         feature_tokenizer = str(config.get("feature_tokenizer", "shared"))
         activation = str(config.get("activation", "gelu"))
         layer_scale = config.get("layer_scale")
+        drop_path = float(config.get("drop_path", 0.0))
         self._task_type = config.get("task_type", "regression")
         self._model = _TabTransformerModule(self._n_features, d_model, n_heads, n_layers,
                                              n_outputs, dropout, norm_first=norm_first,
                                              ff_factor=ff_factor, num_embedding=num_embedding,
                                              n_frequencies=n_frequencies, pooling=pooling,
                                              feature_tokenizer=feature_tokenizer,
-                                             activation=activation, layer_scale=layer_scale)
+                                             activation=activation, layer_scale=layer_scale,
+                                             drop_path=drop_path)
         self._device = torch.device("cuda" if torch.cuda.is_available() and not config.get("force_cpu")
                                      else "cpu")
         self._model.to(self._device)
