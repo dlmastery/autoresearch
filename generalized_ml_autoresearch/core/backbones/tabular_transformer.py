@@ -179,6 +179,8 @@ class FTTransformerBackbone(Backbone):
     def _loss(self, mean, y):
         t = self._task_type
         if t in ("regression", "time_series_forecasting"):
+            if str(self.config.get("loss", "smooth_l1")).lower() == "mse":
+                return torch.nn.functional.mse_loss(mean, y)
             return torch.nn.functional.smooth_l1_loss(mean, y, beta=1.0)
         if t == "binary_classification":
             return torch.nn.functional.binary_cross_entropy_with_logits(mean.squeeze(-1), y.float())
@@ -193,6 +195,7 @@ class FTTransformerBackbone(Backbone):
         wd = float(cfg.get("weight_decay", 1e-5))
         warmup = int(cfg.get("warmup", 10))
         seed = int(cfg.get("seed", 0))
+        sam_rho = float(cfg.get("sam_rho", 0.0))
         torch.manual_seed(seed)
 
         X_t = torch.tensor(np.asarray(X_train).reshape(len(X_train), -1), dtype=torch.float32)
@@ -228,6 +231,24 @@ class FTTransformerBackbone(Backbone):
                 y_target = yb.view_as(mean) if (task_type in ("regression", "time_series_forecasting") and mean.ndim > 1) else yb
                 loss = self._loss(mean, y_target)
                 loss.backward()
+                if sam_rho > 0.0:
+                    # Foret et al. 2021 SAM: ascend to worst-case neighbor, then step.
+                    grads = [p.grad for p in self._model.parameters() if p.grad is not None]
+                    gnorm = torch.norm(torch.stack([g.detach().norm(2) for g in grads]))
+                    scale = sam_rho / (gnorm + 1e-12)
+                    e_ws = []
+                    for p in self._model.parameters():
+                        if p.grad is None:
+                            continue
+                        e = scale * p.grad
+                        p.data.add_(e)
+                        e_ws.append((p, e))
+                    opt.zero_grad()
+                    mean, _ = self._model(xb)
+                    loss = self._loss(mean, y_target)
+                    loss.backward()
+                    for p, e in e_ws:
+                        p.data.sub_(e)
                 torch.nn.utils.clip_grad_norm_(self._model.parameters(), 1.0)
                 opt.step()
                 batch_losses.append(float(loss.item()))
