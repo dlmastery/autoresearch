@@ -28,12 +28,32 @@ from .base import Backbone, PredictionBundle
 from .registry import register_backbone
 
 
+class _LayerScaleEncoderLayer(nn.TransformerEncoderLayer if _TORCH_AVAILABLE else object):
+    """Pre-LN Transformer block with Touvron et al. 2021 LayerScale (arXiv:2103.17239)."""
+
+    def __init__(self, *args, ls_init: float = 0.1, **kwargs):
+        super().__init__(*args, **kwargs)
+        d_model = int(self.linear1.in_features)
+        init = float(ls_init) * torch.ones(d_model)
+        self.ls1 = nn.Parameter(init.clone())
+        self.ls2 = nn.Parameter(init.clone())
+
+    def forward(self, src, src_mask=None, src_key_padding_mask=None, is_causal=False):
+        x = src
+        x = x + self.ls1 * self._sa_block(
+            self.norm1(x), src_mask, src_key_padding_mask, is_causal=is_causal
+        )
+        x = x + self.ls2 * self._ff_block(self.norm2(x))
+        return x
+
+
 class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
     def __init__(self, n_features: int, d_model: int, n_heads: int, n_layers: int,
                  n_outputs: int, dropout: float = 0.1, norm_first: bool = False,
                  ff_factor: float = 2.0, num_embedding: str = "linear",
                  n_frequencies: int = 16, pooling: str = "cls",
-                 feature_tokenizer: str = "shared", activation: str = "gelu"):
+                 feature_tokenizer: str = "shared", activation: str = "gelu",
+                 layer_scale=None):
         super().__init__()
         self.cls_token = nn.Parameter(torch.randn(1, 1, d_model))
         self.num_embedding = num_embedding
@@ -64,11 +84,17 @@ class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
             self.feature_bias = None
         self.pos_embed = nn.Parameter(torch.randn(1, n_features + 1, d_model))
         dim_ff = max(n_heads, int(round(d_model * float(ff_factor))))
-        encoder_layer = nn.TransformerEncoderLayer(
+        layer_kwargs = dict(
             d_model=d_model, nhead=n_heads, dim_feedforward=dim_ff,
             dropout=dropout, batch_first=True, activation=activation,
             norm_first=norm_first,
         )
+        if layer_scale is not None:
+            encoder_layer = _LayerScaleEncoderLayer(
+                **layer_kwargs, ls_init=float(layer_scale)
+            )
+        else:
+            encoder_layer = nn.TransformerEncoderLayer(**layer_kwargs)
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
         self.dropout = nn.Dropout(dropout)
         self.head = nn.Linear(d_model, n_outputs)
@@ -114,13 +140,14 @@ class FTTransformerBackbone(Backbone):
         pooling = str(config.get("pooling", "cls"))
         feature_tokenizer = str(config.get("feature_tokenizer", "shared"))
         activation = str(config.get("activation", "gelu"))
+        layer_scale = config.get("layer_scale")
         self._task_type = config.get("task_type", "regression")
         self._model = _TabTransformerModule(self._n_features, d_model, n_heads, n_layers,
                                              n_outputs, dropout, norm_first=norm_first,
                                              ff_factor=ff_factor, num_embedding=num_embedding,
                                              n_frequencies=n_frequencies, pooling=pooling,
                                              feature_tokenizer=feature_tokenizer,
-                                             activation=activation)
+                                             activation=activation, layer_scale=layer_scale)
         self._device = torch.device("cuda" if torch.cuda.is_available() and not config.get("force_cpu")
                                      else "cpu")
         self._model.to(self._device)
