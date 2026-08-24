@@ -33,7 +33,7 @@ class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
                  n_outputs: int, dropout: float = 0.1, norm_first: bool = False,
                  ff_factor: float = 2.0, num_embedding: str = "linear",
                  n_frequencies: int = 16, pooling: str = "cls",
-                 feature_tokenizer: str = "shared"):
+                 feature_tokenizer: str = "shared", activation: str = "gelu"):
         super().__init__()
         self.cls_token = nn.Parameter(torch.randn(1, 1, d_model))
         self.num_embedding = num_embedding
@@ -66,7 +66,7 @@ class _TabTransformerModule(nn.Module if _TORCH_AVAILABLE else object):
         dim_ff = max(n_heads, int(round(d_model * float(ff_factor))))
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=d_model, nhead=n_heads, dim_feedforward=dim_ff,
-            dropout=dropout, batch_first=True, activation="gelu",
+            dropout=dropout, batch_first=True, activation=activation,
             norm_first=norm_first,
         )
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
@@ -113,12 +113,14 @@ class FTTransformerBackbone(Backbone):
         n_frequencies = int(config.get("n_frequencies", 16))
         pooling = str(config.get("pooling", "cls"))
         feature_tokenizer = str(config.get("feature_tokenizer", "shared"))
+        activation = str(config.get("activation", "gelu"))
         self._task_type = config.get("task_type", "regression")
         self._model = _TabTransformerModule(self._n_features, d_model, n_heads, n_layers,
                                              n_outputs, dropout, norm_first=norm_first,
                                              ff_factor=ff_factor, num_embedding=num_embedding,
                                              n_frequencies=n_frequencies, pooling=pooling,
-                                             feature_tokenizer=feature_tokenizer)
+                                             feature_tokenizer=feature_tokenizer,
+                                             activation=activation)
         self._device = torch.device("cuda" if torch.cuda.is_available() and not config.get("force_cpu")
                                      else "cpu")
         self._model.to(self._device)
